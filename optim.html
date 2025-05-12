@@ -1,0 +1,1736 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>torch.optim — PyTorch main documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pytorch.org/docs/stable/optim.html">
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css">
+  <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css">
+  <link rel="stylesheet" href="_static/copybutton.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="_static/katex-math.css" type="text/css">
+  <link rel="stylesheet" href="_static/sphinx-dropdown.css" type="text/css">
+  <link rel="stylesheet" href="_static/panels-bootstrap.min.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/jit.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css">
+    <link rel="index" title="Index" href="genindex.html">
+    <link rel="search" title="Search" href="search.html">
+    <link rel="next" title="torch.optim.Optimizer.add_param_group" href="generated/torch.optim.Optimizer.add_param_group.html">
+    <link rel="prev" title="JitScalarType" href="generated/torch.onnx.JitScalarType.html">
+
+<!--
+  Search engines should not index the main version of documentation.
+  Stable documentation are built without release == 'main'.
+-->
+<meta name="robots" content="noindex">
+
+
+  <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T8XT4PS');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+  <!-- Preload the theme fonts -->
+
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<!-- Preload the katex fonts -->
+
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Math-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size1-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size2-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Caligraphic-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
+</head><body class="pytorch-body"><div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+
+          <li class="main-menu-item">
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">学习</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/get-started">
+                  <span class="dropdown-title">开始使用</span>
+                  <p>在本地运行 PyTorch 或快速开始使用支持的云平台之一</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials">
+                  <span class="dropdown-title">教程</span><p></p>
+                  <p>PyTorch 教程中的新内容</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/basics/intro.html">
+                  <span class="dropdown-title">学习基础知识</span><p></p>
+                  <p>熟悉 PyTorch 的概念和模块</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/recipes/recipes_index.html">
+                  <span class="dropdown-title">PyTorch 食谱</span><p></p>
+                  <p>精简版、可直接部署的 PyTorch 代码示例</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/introyt.html">
+                  <span class="dropdown-title">PyTorch 入门 - YouTube 系列</span><p></p>
+                  <p>通过我们引人入胜的 YouTube 教程系列掌握 PyTorch 基础知识</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">生态系统</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem">
+                  <span class="dropdown-title">工具</span><p></p>
+                  <p>了解 PyTorch 生态系统中的工具和框架</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
+                  <span class="dropdown-title">社区</span>
+                  <p>加入 PyTorch 开发者社区，贡献、学习并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
+                  <span class="dropdown-title">论坛</span>
+                  <p>讨论 PyTorch 代码、问题、安装、研究的地方</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/resources">
+                  <span class="dropdown-title">开发者资源</span>
+                  <p>查找资源并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">贡献者奖项 - 2024</span><p></p>
+                  <p>本届 PyTorch 会议揭晓获奖者</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">
+                Edge
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/edge">
+                  <span class="dropdown-title">关于 PyTorch Edge</span><p></p>
+                  <p>为边缘设备构建创新和隐私感知的 AI 体验</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
+                  <span class="dropdown-title">ExecuTorch</span><p></p>
+                  <p>基于移动和边缘设备的端到端推理能力解决方案</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch 文档</span><p></p>
+                </a>
+              </div>
+            </div>  
+          </li>
+
+          <li class="main-menu-item">
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">文档</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/docs/stable/index.html">
+                  <span class="dropdown-title">PyTorch</span><p></p>
+                  <p>探索文档以获取全面指导，了解如何使用 PyTorch</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/pytorch-domains">
+                  <span class="dropdown-title">PyTorch 领域</span><p></p>
+                  <p>阅读 PyTorch 领域的文档，了解更多关于特定领域库的信息</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">博客与新闻</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/blog/">
+                  <span class="dropdown-title">PyTorch 博客</span><p></p>
+                  <p>捕捉最新的技术新闻和事件</p>
+                </a>
+                 <a class="nav-dropdown-item" href="https://pytorch.org/community-blog">
+                  <span class="dropdown-title">社区博客</span><p></p>
+                  <p>PyTorch 生态系统故事</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/videos">
+                  <span class="dropdown-title">视频</span><p></p>
+                  <p>了解最新的 PyTorch 教程、新内容等</p>
+                </a><a class="nav-dropdown-item" href="https://pytorch.org/community-stories">
+                  <span class="dropdown-title">社区故事</span><p></p>
+                  <p>学习如何我们的社区使用 PyTorch 解决真实、日常的机器学习问题</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/events">
+                  <span class="dropdown-title">活动</span><p></p>
+                  <p>查找活动、网络研讨会和播客</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">通讯</span><p></p>
+                  <p>跟踪最新更新</p>
+                </a>
+            </div>
+          </div></li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">关于</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/foundation">
+                  <span class="dropdown-title">PyTorch 基金会</span><p></p>
+                  <p>了解更多关于 PyTorch 基金会的信息</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
+                  <span class="dropdown-title">管理委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">云信用计划</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">技术顾问委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">员工</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">联系我们</span><p></p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li class="main-menu-item">
+            <div class="no-dropdown">
+              <a href="https://pytorch.org/join" data-cta="join">成为会员</a>
+            </div>
+          </li>
+          <li>
+           <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="github-icon">
+             </a>
+           </div>
+          </li>
+          <!--- TODO: This block adds the search icon to the nav bar. We will enable it later. 
+          <li>
+            <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="search-icon">
+             </a>
+            </div>
+          </li>
+          --->
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+  </div>
+</div>
+
+
+
+   
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>目录</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+    <div class="version">
+      <a href="https://pytorch.org/docs/versions.html">主程序 (2.7.0+cpu ) ▼</a>
+    </div>
+    <div id="searchBox">
+    <div class="searchbox" id="googleSearchBox">
+      <script async="" src="https://cse.google.com/cse.js?cx=e65585f8c3ea1440e"></script>
+      <div class="gcse-search"></div>
+    </div>
+    <div id="sphinxSearchBox" style="display: none;">
+      <div role="search">
+        <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+          <input type="text" name="q" placeholder="Search Docs">
+          <input type="hidden" name="check_keywords" value="yes">
+          <input type="hidden" name="area" value="default">
+        </form>
+      </div>
+    </div>
+  </div>
+  <form id="searchForm">
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="google" checked="">谷歌搜索</label>
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="sphinx">经典搜索</label>
+  </form>
+
+  <script>
+     document.addEventListener('DOMContentLoaded', function() {
+      const searchForm = document.getElementById('searchForm');
+      const googleSearchBox = document.getElementById('googleSearchBox');
+      const sphinxSearchBox = document.getElementById('sphinxSearchBox');
+      // Function to toggle search box visibility
+      function toggleSearchBox(searchType) {
+        googleSearchBox.style.display = searchType === 'google' ? 'block' : 'none';
+        sphinxSearchBox.style.display = searchType === 'sphinx' ? 'block' : 'none';
+      }
+      // Determine the default search type
+      let defaultSearchType;
+      const currentUrl = window.location.href;
+      if (currentUrl.startsWith('https://pytorch.org/docs/stable')) {
+        // For the stable documentation, default to Google
+        defaultSearchType = localStorage.getItem('searchType') || 'google';
+      } else {
+        // For any other version, including docs-preview, default to Sphinx
+        defaultSearchType = 'sphinx';
+      }
+      // Set the default search type
+      document.querySelector(`input[name="searchType"][value="${defaultSearchType}"]`).checked = true;
+      toggleSearchBox(defaultSearchType);
+      // Event listener for changes in search type
+      searchForm.addEventListener('change', function(event) {
+        const selectedSearchType = event.target.value;
+        localStorage.setItem('searchType', selectedSearchType);
+        toggleSearchBox(selectedSearchType);
+      });
+      // Set placeholder text for Google search box
+      window.onload = function() {
+        var placeholderText = "Search Docs";
+        var googleSearchboxText = document.querySelector("#gsc-i-id1");
+        if (googleSearchboxText) {
+          googleSearchboxText.placeholder = placeholderText;
+          googleSearchboxText.style.fontFamily = 'FreightSans';
+          googleSearchboxText.style.fontSize = "1.2rem";
+          googleSearchboxText.style.color = '#262626';
+        }
+      };
+    });
+  </script>
+
+          </div>
+
+          
+
+<div>
+  <a style="color:#F05732" href="https://pytorch.org/docs/stable/optim.html">您正在查看不稳定开发者预览文档。请点击此处查看最新稳定版本的文档。</a>
+</div>
+
+
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">社区</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="community/build_ci_governance.html">PyTorch 治理 | 构建 + CI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/contribution_guide.html">PyTorch 贡献指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/design.html">PyTorch 设计哲学</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/governance.html">PyTorch 治理 | 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/persons_of_interest.html">PyTorch 治理 | 维护者</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发者笔记</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="notes/amp_examples.html">自动混合精度示例</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/autograd.html">Autograd 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/broadcasting.html">广播语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/cpu_threading_torchscript_inference.html">CPU 多线程和 TorchScript 推理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/cuda.html">CUDA 语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/custom_operators.html">PyTorch 自定义算子页面</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/ddp.html">分布式数据并行</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/extending.html">扩展 PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/extending.func.html">使用 autograd.Function 扩展 torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/faq.html">常见问题解答</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/fsdp.html">FSDP 笔记</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/get_start_xpu.html">在 Intel GPU 上入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/gradcheck.html">Gradcheck 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/hip.html">HIP (ROCm)语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/large_scale_deployments.html">大规模部署功能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/libtorch_stable_abi.html">LibTorch 稳定 ABI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/modules.html">模块</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/mps.html">MPS 后端</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/multiprocessing.html">多进程最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/numerical_accuracy.html">数值精度</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/randomness.html">可重现性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/serialization.html">序列化语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/windows.html">Windows 常见问题解答</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">语言绑定</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cpp_index.html">C++</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/javadoc/">Javadoc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deploy.html">torch::deploy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="torch.html">torch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.html">torch.nn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.functional.html">torch.nn.functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensors.html">torch.Tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensor_attributes.html">张量属性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensor_view.html">张量视图</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amp.html">torch.amp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autograd.html">torch.autograd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="library.html">torch.library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accelerator.html">torch.accelerator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpu.html">torch.cpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">torch.cuda</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html">理解 CUDA 内存使用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#generating-a-snapshot">生成快照</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#using-the-visualizer">使用可视化工具</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#snapshot-api-reference">快照 API 参考</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mps.html">torch.mps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="xpu.html">torch.xpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mtia.html">torch.mtia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mtia.memory.html">torch.mtia.memory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="meta.html">元设备</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backends.html">torch.backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="export.html">torch.export</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.html">torch.distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.tensor.html">torch.distributed.tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.algorithms.join.html">torch.distributed.algorithms.join</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.elastic.html">torch.distributed.elastic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fsdp.html">torch.distributed.fsdp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.fsdp.fully_shard.html">torch.distributed.fsdp.fully_shard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.tensor.parallel.html">torch.distributed.tensor.parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.optim.html">torch.distributed.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.pipelining.html">torch.distributed.pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.checkpoint.html">torch.distributed.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributions.html">torch.distributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch.compiler.html">torch.compiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fft.html">torch.fft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="func.html">torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="futures.html">torch.futures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fx.html">torch.fx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fx.experimental.html">torch.fx.experimental</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hub.html">torch.hub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jit.html">torch.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="linalg.html">torch.linalg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitor.html">torch.monitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="signal.html">torch.signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="special.html">torch.special</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch.overrides.html">torch.overrides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="package.html">torch.package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="profiler.html">torch.profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.init.html">torch.nn.init</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.attention.html">torch.nn.attention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="onnx.html">torch.onnx</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">torch.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="complex_numbers.html">复数</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ddp_comm_hooks.html">DDP 通信钩子</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quantization.html">量化</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rpc.html">分布式 RPC 框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="random.html">torch.random</a></li>
+<li class="toctree-l1"><a class="reference internal" href="masked.html">torch.masked</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nested.html">torch.nested</a></li>
+<li class="toctree-l1"><a class="reference internal" href="size.html">torch.Size</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sparse.html">torch.sparse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="storage.html">torch.Storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">torch.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">torch.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmark_utils.html">torch.utils.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bottleneck.html">torch.utils.bottleneck</a></li>
+<li class="toctree-l1"><a class="reference internal" href="checkpoint.html">torch.utils.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp_extension.html">torch.utils.cpp_extension</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data.html">torch.utils.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deterministic.html">torch.utils.deterministic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jit_utils.html">torch.utils.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dlpack.html">torch.utils.dlpack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mobile_optimizer.html">torch.utils.mobile_optimizer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_zoo.html">torch.utils.model_zoo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensorboard.html">torch.utils.tensorboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_tracker.html">torch.utils.module_tracker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="type_info.html">类型信息</a></li>
+<li class="toctree-l1"><a class="reference internal" href="named_tensor.html">命名张量</a></li>
+<li class="toctree-l1"><a class="reference internal" href="name_inference.html">命名张量操作覆盖率</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config_mod.html">torch.__config__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="future_mod.html">torch.__future__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">torch._logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_environment_variables.html">火炬环境变量</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">库</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/audio/stable">torchaudio</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/data">TorchData</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/torchrec">火炬推荐</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/serve">TorchServe</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/text/stable">torchtext</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/vision/stable">torchvision</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/xla/">PyTorch 在 XLA 设备上</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/ao">torchao</a></li>
+</ul>
+
+            
+          
+
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        文档 &gt;</li>
+
+        
+      <li>torch.optim</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+            
+            <a href="_sources/optim.rst.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg" width="16" height="16"></a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">快捷键</div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+
+          <!-- Google Tag Manager (noscript) -->
+          <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T8XT4PS" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+          <!-- End Google Tag Manager (noscript) -->
+          
+          <div class="rst-content">
+          
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <section id="module-torch.optim">
+<span id="torch-optim"></span><h1>torch.optim<a class="headerlink" href="#module-torch.optim" title="Permalink to this heading">¶</a></h1>
+<p> <code class="xref py py-mod docutils literal "><span class="pre">torch.optim</span></code> 是一个实现各种优化算法的包。</p>
+<p>最常用的方法已经得到支持，并且接口足够通用，因此未来也可以轻松集成更复杂的方法。</p>
+<section id="how-to-use-an-optimizer">
+<h2>如何使用优化器</h2>
+<p>要使用 <code class="xref py py-mod docutils literal "><span class="pre">torch.optim</span></code> ，您需要构建一个优化器对象，该对象将保存当前状态并根据计算出的梯度更新参数。</p>
+<section id="constructing-it">
+<h3>构建它</h3>
+<p>构建一个 <code class="xref py py-class docutils literal "><span class="pre">Optimizer</span></code> ，您需要提供一个包含参数的可迭代对象（所有参数应为 <code class="xref py py-class docutils literal "><span class="pre">Parameter</span></code> ）或命名参数（(str, <code class="xref py py-class docutils literal "><span class="pre">Parameter</span></code> )的元组）以进行优化。然后，您可以指定优化器特定的选项，如学习率、权重衰减等。</p>
+<p>示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">momentum</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">([</span><span class="n">var1</span><span class="p">,</span> <span class="n">var2</span><span class="p">],</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.0001</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>命名参数示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">named_parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">momentum</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">([(</span><span class="s1">'layer0'</span><span class="p">,</span> <span class="n">var1</span><span class="p">),</span> <span class="p">(</span><span class="s1">'layer1'</span><span class="p">,</span> <span class="n">var2</span><span class="p">)],</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.0001</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="per-parameter-options">
+<h3>每个参数选项</h3>
+<p> <code class="xref py py-class docutils literal "><span class="pre">Optimizer</span></code> 也支持指定每个参数的选项。为此，而不是传递一个 <code class="xref py py-class docutils literal "><span class="pre">Variable</span></code> 的可迭代对象，传递一个 <code class="xref py py-class docutils literal "><span class="pre">dict</span></code> 的可迭代对象。每个都将定义一个单独的参数组，并且应该包含一个 <code class="docutils literal "><span class="pre">params</span></code> 键，其中包含属于该组的参数列表。其他键应与优化器接受的键匹配，并将用作此组的优化选项。</p>
+<p>例如，当想要指定每层的学习率时，这非常有用：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">([</span>
+                <span class="p">{</span><span class="s1">'params'</span><span class="p">:</span> <span class="n">model</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="s1">'lr'</span><span class="p">:</span> <span class="mf">1e-2</span><span class="p">},</span>
+                <span class="p">{</span><span class="s1">'params'</span><span class="p">:</span> <span class="n">model</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">parameters</span><span class="p">()}</span>
+            <span class="p">],</span> <span class="n">lr</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">momentum</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
+
+<span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">([</span>
+                <span class="p">{</span><span class="s1">'params'</span><span class="p">:</span> <span class="n">model</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">named_parameters</span><span class="p">(),</span> <span class="s1">'lr'</span><span class="p">:</span> <span class="mf">1e-2</span><span class="p">},</span>
+                <span class="p">{</span><span class="s1">'params'</span><span class="p">:</span> <span class="n">model</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">named_parameters</span><span class="p">()}</span>
+            <span class="p">],</span> <span class="n">lr</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">momentum</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>这意味着 <code class="docutils literal "><span class="pre">model.base</span></code> 的参数将使用 <code class="docutils literal "><span class="pre">1e-2</span></code> 的学习率，而 <code class="docutils literal "><span class="pre">model.classifier</span></code> 的参数将坚持使用 <code class="docutils literal "><span class="pre">1e-3</span></code> 的默认学习率。最后，所有参数将使用 <code class="docutils literal "><span class="pre">0.9</span></code> 的动量。</p>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>您仍然可以通过关键字参数传递选项。它们将被用作默认值，在未覆盖它们的组中。当您只想更改单个选项，同时保持所有其他参数组之间的一致性时，这很有用。</p>
+</div>
+<p>还请考虑以下与参数不同惩罚相关的示例。请记住， <code class="xref py py-func docutils literal "><span class="pre">parameters()</span></code> 返回一个包含所有可学习参数的可迭代对象，包括偏差和其他可能需要不同惩罚的参数。为了解决这个问题，可以为每个参数组指定单独的惩罚权重：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">bias_params</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">named_parameters</span><span class="p">()</span> <span class="k">if</span> <span class="s1">'bias'</span> <span class="ow">in</span> <span class="n">name</span><span class="p">]</span>
+<span class="n">others</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">named_parameters</span><span class="p">()</span> <span class="k">if</span> <span class="s1">'bias'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">name</span><span class="p">]</span>
+
+<span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">([</span>
+                <span class="p">{</span><span class="s1">'params'</span><span class="p">:</span> <span class="n">others</span><span class="p">},</span>
+                <span class="p">{</span><span class="s1">'params'</span><span class="p">:</span> <span class="n">bias_params</span><span class="p">,</span> <span class="s1">'weight_decay'</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+            <span class="p">],</span> <span class="n">weight_decay</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>以这种方式，偏差项与非偏差项被隔离，并专门为偏差项设置 <code class="docutils literal "><span class="pre">weight_decay</span></code> 的 <code class="docutils literal "><span class="pre">0</span></code> ，以避免对该组进行任何惩罚。</p>
+</section>
+<section id="taking-an-optimization-step">
+<h3>进行优化步骤</h3>
+<p>所有优化器都实现了一个 <code class="xref py py-func docutils literal "><span class="pre">step()</span></code> 方法，用于更新参数。它可以有两种使用方式：</p>
+<section id="optimizer-step">
+<h4><code class="docutils literal "><span class="pre">optimizer.step()</span></code><a class="headerlink" href="#optimizer-step" title="Permalink to this heading">¶</a></h4>
+<p>这是一个大多数优化器都支持的简化版本。在计算梯度后，例如使用 <code class="xref py py-func docutils literal "><span class="pre">backward()</span></code> ，可以调用此函数。</p>
+<p>示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="k">for</span> <span class="nb">input</span><span class="p">,</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">:</span>
+    <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+    <span class="n">loss</span> <span class="o">=</span> <span class="n">loss_fn</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+    <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+    <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="optimizer-step-closure">
+<h4><code class="docutils literal "><span class="pre">optimizer.step(closure)</span></code><a class="headerlink" href="#optimizer-step-closure" title="Permalink to this heading">¶</a></h4>
+<p>一些优化算法，如共轭梯度法和 LBFGS，需要多次重新评估函数，因此您必须传递一个闭包，以便它们重新计算您的模型。该闭包应清除梯度、计算损失并返回它。</p>
+<p>示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="k">for</span> <span class="nb">input</span><span class="p">,</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">closure</span><span class="p">():</span>
+        <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">loss_fn</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+        <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">loss</span>
+    <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">closure</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="base-class">
+<span id="optimizer-algorithms"></span><h2>基类 ¶</h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.optim.Optimizer">
+类 torch.optim.Optimizer(params, defaults)[source][source] ¶</dt>
+<dd><p>所有优化器的基类。</p>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>参数需要指定为具有确定性顺序且在运行之间一致的集合。不满足这些属性的示例对象包括集合和遍历字典值的迭代器。</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>params (可迭代对象) – 一个可迭代的 <code class="xref py py-class docutils literal "><span class="pre">torch.Tensor</span></code> s 或 <code class="xref py py-class docutils literal "><span class="pre">dict</span></code> s。指定了哪些张量应该被优化。</p></li>
+<li><p>defaults (字典[str, Any]) – (字典)：包含优化选项默认值的字典（当参数组未指定时使用）。</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/torch.optim.Optimizer.add_param_group.html#torch.optim.Optimizer.add_param_group" title="torch.optim.Optimizer.add_param_group"><code class="xref py py-obj docutils literal "><span class="pre">Optimizer.add_param_group</span></code></a></p></td>
+<td><p>向 <code class="xref py py-class docutils literal "><span class="pre">Optimizer</span></code> s 的 param_groups 中添加一个参数组。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/torch.optim.Optimizer.load_state_dict.html#torch.optim.Optimizer.load_state_dict" title="torch.optim.Optimizer.load_state_dict"><code class="xref py py-obj docutils literal "><span class="pre">Optimizer.load_state_dict</span></code></a></p></td>
+<td><p>加载优化器状态。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/torch.optim.Optimizer.register_load_state_dict_pre_hook.html#torch.optim.Optimizer.register_load_state_dict_pre_hook" title="torch.optim.Optimizer.register_load_state_dict_pre_hook"><code class="xref py py-obj docutils literal "><span class="pre">Optimizer.register_load_state_dict_pre_hook</span></code></a></p></td>
+<td><p>注册一个在调用 <code class="xref py py-meth docutils literal "><span class="pre">load_state_dict()</span></code> 之前被调用的 load_state_dict 预钩子。它应该具有以下签名::.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/torch.optim.Optimizer.register_load_state_dict_post_hook.html#torch.optim.Optimizer.register_load_state_dict_post_hook" title="torch.optim.Optimizer.register_load_state_dict_post_hook"><code class="xref py py-obj docutils literal "><span class="pre">Optimizer.register_load_state_dict_post_hook</span></code></a></p></td>
+<td><p>注册一个在调用 <code class="xref py py-meth docutils literal "><span class="pre">load_state_dict()</span></code> 之后被调用的 load_state_dict 后钩子。它应该具有以下签名::.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/torch.optim.Optimizer.state_dict.html#torch.optim.Optimizer.state_dict" title="torch.optim.Optimizer.state_dict"><code class="xref py py-obj docutils literal "><span class="pre">Optimizer.state_dict</span></code></a></p></td>
+<td><p>返回优化器的状态作为 <code class="xref py py-class docutils literal "><span class="pre">dict</span></code> 。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/torch.optim.Optimizer.register_state_dict_pre_hook.html#torch.optim.Optimizer.register_state_dict_pre_hook" title="torch.optim.Optimizer.register_state_dict_pre_hook"><code class="xref py py-obj docutils literal "><span class="pre">Optimizer.register_state_dict_pre_hook</span></code></a></p></td>
+<td><p>注册一个在调用 <code class="xref py py-meth docutils literal "><span class="pre">state_dict()</span></code> 之前被调用的状态字典预钩子。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/torch.optim.Optimizer.register_state_dict_post_hook.html#torch.optim.Optimizer.register_state_dict_post_hook" title="torch.optim.Optimizer.register_state_dict_post_hook"><code class="xref py py-obj docutils literal "><span class="pre">Optimizer.register_state_dict_post_hook</span></code></a></p></td>
+<td><p>注册一个状态字典后钩子，该钩子将在调用 <code class="xref py py-meth docutils literal "><span class="pre">state_dict()</span></code> 之后被调用。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/torch.optim.Optimizer.step.html#torch.optim.Optimizer.step" title="torch.optim.Optimizer.step"><code class="xref py py-obj docutils literal "><span class="pre">Optimizer.step</span></code></a></p></td>
+<td><p>执行单个优化步骤以更新参数。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/torch.optim.Optimizer.register_step_pre_hook.html#torch.optim.Optimizer.register_step_pre_hook" title="torch.optim.Optimizer.register_step_pre_hook"><code class="xref py py-obj docutils literal "><span class="pre">Optimizer.register_step_pre_hook</span></code></a></p></td>
+<td><p>注册一个优化步骤前钩子，该钩子将在优化步骤之前被调用。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/torch.optim.Optimizer.register_step_post_hook.html#torch.optim.Optimizer.register_step_post_hook" title="torch.optim.Optimizer.register_step_post_hook"><code class="xref py py-obj docutils literal "><span class="pre">Optimizer.register_step_post_hook</span></code></a></p></td>
+<td><p>注册一个优化步骤后钩子，该钩子将在优化步骤之后被调用。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/torch.optim.Optimizer.zero_grad.html#torch.optim.Optimizer.zero_grad" title="torch.optim.Optimizer.zero_grad"><code class="xref py py-obj docutils literal "><span class="pre">Optimizer.zero_grad</span></code></a></p></td>
+<td><p>重置所有优化 <code class="xref py py-class docutils literal "><span class="pre">torch.Tensor</span></code> 的梯度。</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="algorithms">
+<h2>算法 ¶</h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p></p><p id="torch.optim.Adadelta"><a class="reference internal" href="generated/torch.optim.Adadelta.html#torch.optim.Adadelta" title="torch.optim.Adadelta"><code class="xref py py-obj docutils literal "><span class="pre">Adadelta</span></code></a></p></td>
+<td><p>实现 Adadelta 算法。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.optim.Adafactor"><a class="reference internal" href="generated/torch.optim.Adafactor.html#torch.optim.Adafactor" title="torch.optim.Adafactor"><code class="xref py py-obj docutils literal "><span class="pre">Adafactor</span></code></a></p></td>
+<td><p>实现 Adafactor 算法。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.optim.Adagrad"><a class="reference internal" href="generated/torch.optim.Adagrad.html#torch.optim.Adagrad" title="torch.optim.Adagrad"><code class="xref py py-obj docutils literal "><span class="pre">Adagrad</span></code></a></p></td>
+<td><p>实现 Adagrad 算法。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.optim.Adam"><a class="reference internal" href="generated/torch.optim.Adam.html#torch.optim.Adam" title="torch.optim.Adam"><code class="xref py py-obj docutils literal "><span class="pre">Adam</span></code></a></p></td>
+<td><p>实现 Adam 算法。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.optim.AdamW"><a class="reference internal" href="generated/torch.optim.AdamW.html#torch.optim.AdamW" title="torch.optim.AdamW"><code class="xref py py-obj docutils literal "><span class="pre">AdamW</span></code></a></p></td>
+<td><p>实现 AdamW 算法，其中权重衰减不会累积在动量中，也不会累积在方差中。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.optim.SparseAdam"><a class="reference internal" href="generated/torch.optim.SparseAdam.html#torch.optim.SparseAdam" title="torch.optim.SparseAdam"><code class="xref py py-obj docutils literal "><span class="pre">SparseAdam</span></code></a></p></td>
+<td><p>SparseAdam 实现了一个适用于稀疏梯度的 Adam 算法的掩码版本。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.optim.Adamax"><a class="reference internal" href="generated/torch.optim.Adamax.html#torch.optim.Adamax" title="torch.optim.Adamax"><code class="xref py py-obj docutils literal "><span class="pre">Adamax</span></code></a></p></td>
+<td><p>实现 Adamax 算法（基于无穷范数的 Adam 算法变体）。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.optim.ASGD"><a class="reference internal" href="generated/torch.optim.ASGD.html#torch.optim.ASGD" title="torch.optim.ASGD"><code class="xref py py-obj docutils literal "><span class="pre">ASGD</span></code></a></p></td>
+<td><p>实现平均随机梯度下降法。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.optim.LBFGS"><a class="reference internal" href="generated/torch.optim.LBFGS.html#torch.optim.LBFGS" title="torch.optim.LBFGS"><code class="xref py py-obj docutils literal "><span class="pre">LBFGS</span></code></a></p></td>
+<td><p>实现 L-BFGS 算法。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.optim.NAdam"><a class="reference internal" href="generated/torch.optim.NAdam.html#torch.optim.NAdam" title="torch.optim.NAdam"><code class="xref py py-obj docutils literal "><span class="pre">NAdam</span></code></a></p></td>
+<td><p>实现 NAdam 算法。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.optim.RAdam"><a class="reference internal" href="generated/torch.optim.RAdam.html#torch.optim.RAdam" title="torch.optim.RAdam"><code class="xref py py-obj docutils literal "><span class="pre">RAdam</span></code></a></p></td>
+<td><p>实现了 RAdam 算法。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.optim.RMSprop"><a class="reference internal" href="generated/torch.optim.RMSprop.html#torch.optim.RMSprop" title="torch.optim.RMSprop"><code class="xref py py-obj docutils literal "><span class="pre">RMSprop</span></code></a></p></td>
+<td><p>实现了 RMSprop 算法。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.optim.Rprop"><a class="reference internal" href="generated/torch.optim.Rprop.html#torch.optim.Rprop" title="torch.optim.Rprop"><code class="xref py py-obj docutils literal "><span class="pre">Rprop</span></code></a></p></td>
+<td><p>实现了鲁棒反向传播算法。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.optim.SGD"><a class="reference internal" href="generated/torch.optim.SGD.html#torch.optim.SGD" title="torch.optim.SGD"><code class="xref py py-obj docutils literal "><span class="pre">SGD</span></code></a></p></td>
+<td><p>实现了随机梯度下降（可选带动量）。</p></td>
+</tr>
+</tbody>
+</table>
+<p>我们的大多数算法都有针对性能、可读性和/或通用性优化的各种实现，因此如果没有用户指定特定的实现，我们将默认使用当前设备上通常最快的实现。</p>
+<p>我们有三种主要的实现类别：for 循环、foreach（多张量）和融合。最直接的实施方式是使用 for 循环遍历参数，进行大量计算。for 循环通常比我们的 foreach 实现慢，因为 foreach 将参数组合成多张量，一次性运行大量计算，从而节省了许多顺序内核调用。我们的一些优化器甚至有更快的融合实现，它们将大量计算融合成一个内核。我们可以将 foreach 实现视为水平融合，将融合实现视为在此基础上垂直融合。</p>
+<p>通常情况下，三种实现的性能排序为融合 &gt; foreach &gt; for-loop。因此，在适用的情况下，我们默认使用 foreach 而不是 for-loop。适用意味着 foreach 实现可用，用户未指定任何特定实现的 kwargs（例如，融合、foreach、可微分），并且所有张量都是原生的。请注意，虽然融合应该比 foreach 更快，但这些实现较新，我们希望在全局范围内切换之前给予它们更多的测试时间。下表总结了每个实现的稳定性状态，欢迎您尝试使用它们！</p>
+<p>下表显示了每个算法的可用和默认实现：</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>算法</p></th>
+<th class="head"><p>默认</p></th>
+<th class="head"><p>有 foreach 吗？</p></th>
+<th class="head"><p>有融合吗？</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p></p><p id="torch.optim.Adadelta"><a class="reference internal" href="generated/torch.optim.Adadelta.html#torch.optim.Adadelta" title="torch.optim.Adadelta"><code class="xref py py-class docutils literal "><span class="pre">Adadelta</span></code></a></p></td>
+<td><p>foreach</p></td>
+<td><p>是的</p></td>
+<td><p>否</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.optim.Adafactor"><a class="reference internal" href="generated/torch.optim.Adafactor.html#torch.optim.Adafactor" title="torch.optim.Adafactor"><code class="xref py py-class docutils literal "><span class="pre">Adafactor</span></code></a></p></td>
+<td><p>for 循环</p></td>
+<td><p>否</p></td>
+<td><p>否</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.optim.Adagrad"><a class="reference internal" href="generated/torch.optim.Adagrad.html#torch.optim.Adagrad" title="torch.optim.Adagrad"><code class="xref py py-class docutils literal "><span class="pre">Adagrad</span></code></a></p></td>
+<td><p>foreach</p></td>
+<td><p>是的</p></td>
+<td><p>是的（仅 CPU）</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.optim.Adam"><a class="reference internal" href="generated/torch.optim.Adam.html#torch.optim.Adam" title="torch.optim.Adam"><code class="xref py py-class docutils literal "><span class="pre">Adam</span></code></a></p></td>
+<td><p>foreach</p></td>
+<td><p>是的</p></td>
+<td><p>是的</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.optim.AdamW"><a class="reference internal" href="generated/torch.optim.AdamW.html#torch.optim.AdamW" title="torch.optim.AdamW"><code class="xref py py-class docutils literal "><span class="pre">AdamW</span></code></a></p></td>
+<td><p>foreach</p></td>
+<td><p>是的</p></td>
+<td><p>是的</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.optim.SparseAdam"><a class="reference internal" href="generated/torch.optim.SparseAdam.html#torch.optim.SparseAdam" title="torch.optim.SparseAdam"><code class="xref py py-class docutils literal "><span class="pre">SparseAdam</span></code></a></p></td>
+<td><p>for 循环</p></td>
+<td><p>否</p></td>
+<td><p>否</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.optim.Adamax"><a class="reference internal" href="generated/torch.optim.Adamax.html#torch.optim.Adamax" title="torch.optim.Adamax"><code class="xref py py-class docutils literal "><span class="pre">Adamax</span></code></a></p></td>
+<td><p>foreach</p></td>
+<td><p>是的</p></td>
+<td><p>否</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.optim.ASGD"><a class="reference internal" href="generated/torch.optim.ASGD.html#torch.optim.ASGD" title="torch.optim.ASGD"><code class="xref py py-class docutils literal "><span class="pre">ASGD</span></code></a></p></td>
+<td><p>foreach</p></td>
+<td><p>是的</p></td>
+<td><p>否</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.optim.LBFGS"><a class="reference internal" href="generated/torch.optim.LBFGS.html#torch.optim.LBFGS" title="torch.optim.LBFGS"><code class="xref py py-class docutils literal "><span class="pre">LBFGS</span></code></a></p></td>
+<td><p>for 循环</p></td>
+<td><p>否</p></td>
+<td><p>否</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.optim.NAdam"><a class="reference internal" href="generated/torch.optim.NAdam.html#torch.optim.NAdam" title="torch.optim.NAdam"><code class="xref py py-class docutils literal "><span class="pre">NAdam</span></code></a></p></td>
+<td><p>foreach</p></td>
+<td><p>是的</p></td>
+<td><p>否</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.optim.RAdam"><a class="reference internal" href="generated/torch.optim.RAdam.html#torch.optim.RAdam" title="torch.optim.RAdam"><code class="xref py py-class docutils literal "><span class="pre">RAdam</span></code></a></p></td>
+<td><p>foreach</p></td>
+<td><p>是的</p></td>
+<td><p>否</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.optim.RMSprop"><a class="reference internal" href="generated/torch.optim.RMSprop.html#torch.optim.RMSprop" title="torch.optim.RMSprop"><code class="xref py py-class docutils literal "><span class="pre">RMSprop</span></code></a></p></td>
+<td><p>foreach</p></td>
+<td><p>是的</p></td>
+<td><p>否</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.optim.Rprop"><a class="reference internal" href="generated/torch.optim.Rprop.html#torch.optim.Rprop" title="torch.optim.Rprop"><code class="xref py py-class docutils literal "><span class="pre">Rprop</span></code></a></p></td>
+<td><p>foreach</p></td>
+<td><p>是的</p></td>
+<td><p>否</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.optim.SGD"><a class="reference internal" href="generated/torch.optim.SGD.html#torch.optim.SGD" title="torch.optim.SGD"><code class="xref py py-class docutils literal "><span class="pre">SGD</span></code></a></p></td>
+<td><p>foreach</p></td>
+<td><p>是的</p></td>
+<td><p>是的</p></td>
+</tr>
+</tbody>
+</table>
+<p>以下表格显示了融合实现的稳定性状态：</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>算法</p></th>
+<th class="head"><p>CPU</p></th>
+<th class="head"><p>CUDA</p></th>
+<th class="head"><p>MPS</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p></p><p id="torch.optim.Adadelta"><a class="reference internal" href="generated/torch.optim.Adadelta.html#torch.optim.Adadelta" title="torch.optim.Adadelta"><code class="xref py py-class docutils literal "><span class="pre">Adadelta</span></code></a></p></td>
+<td><p>不支持</p></td>
+<td><p>不支持</p></td>
+<td><p>不支持</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.optim.Adafactor"><a class="reference internal" href="generated/torch.optim.Adafactor.html#torch.optim.Adafactor" title="torch.optim.Adafactor"><code class="xref py py-class docutils literal "><span class="pre">Adafactor</span></code></a></p></td>
+<td><p>不支持</p></td>
+<td><p>不支持</p></td>
+<td><p>不支持</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.optim.Adagrad"><a class="reference internal" href="generated/torch.optim.Adagrad.html#torch.optim.Adagrad" title="torch.optim.Adagrad"><code class="xref py py-class docutils literal "><span class="pre">Adagrad</span></code></a></p></td>
+<td><p>测试版</p></td>
+<td><p>不支持</p></td>
+<td><p>不支持</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.optim.Adam"><a class="reference internal" href="generated/torch.optim.Adam.html#torch.optim.Adam" title="torch.optim.Adam"><code class="xref py py-class docutils literal "><span class="pre">Adam</span></code></a></p></td>
+<td><p>测试版</p></td>
+<td><p>稳定版</p></td>
+<td><p>测试版</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.optim.AdamW"><a class="reference internal" href="generated/torch.optim.AdamW.html#torch.optim.AdamW" title="torch.optim.AdamW"><code class="xref py py-class docutils literal "><span class="pre">AdamW</span></code></a></p></td>
+<td><p>测试版</p></td>
+<td><p>稳定</p></td>
+<td><p>测试版</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.optim.SparseAdam"><a class="reference internal" href="generated/torch.optim.SparseAdam.html#torch.optim.SparseAdam" title="torch.optim.SparseAdam"><code class="xref py py-class docutils literal "><span class="pre">SparseAdam</span></code></a></p></td>
+<td><p>不支持</p></td>
+<td><p>不支持</p></td>
+<td><p>不支持</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.optim.Adamax"><a class="reference internal" href="generated/torch.optim.Adamax.html#torch.optim.Adamax" title="torch.optim.Adamax"><code class="xref py py-class docutils literal "><span class="pre">Adamax</span></code></a></p></td>
+<td><p>不支持</p></td>
+<td><p>不支持</p></td>
+<td><p>不支持</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.optim.ASGD"><a class="reference internal" href="generated/torch.optim.ASGD.html#torch.optim.ASGD" title="torch.optim.ASGD"><code class="xref py py-class docutils literal "><span class="pre">ASGD</span></code></a></p></td>
+<td><p>不支持</p></td>
+<td><p>不支持</p></td>
+<td><p>不支持</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.optim.LBFGS"><a class="reference internal" href="generated/torch.optim.LBFGS.html#torch.optim.LBFGS" title="torch.optim.LBFGS"><code class="xref py py-class docutils literal "><span class="pre">LBFGS</span></code></a></p></td>
+<td><p>不支持</p></td>
+<td><p>不支持</p></td>
+<td><p>不支持</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.optim.NAdam"><a class="reference internal" href="generated/torch.optim.NAdam.html#torch.optim.NAdam" title="torch.optim.NAdam"><code class="xref py py-class docutils literal "><span class="pre">NAdam</span></code></a></p></td>
+<td><p>不支持</p></td>
+<td><p>不支持</p></td>
+<td><p>不支持</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.optim.RAdam"><a class="reference internal" href="generated/torch.optim.RAdam.html#torch.optim.RAdam" title="torch.optim.RAdam"><code class="xref py py-class docutils literal "><span class="pre">RAdam</span></code></a></p></td>
+<td><p>不支持</p></td>
+<td><p>不支持</p></td>
+<td><p>不支持</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.optim.RMSprop"><a class="reference internal" href="generated/torch.optim.RMSprop.html#torch.optim.RMSprop" title="torch.optim.RMSprop"><code class="xref py py-class docutils literal "><span class="pre">RMSprop</span></code></a></p></td>
+<td><p>不支持</p></td>
+<td><p>不支持</p></td>
+<td><p>不支持</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.optim.Rprop"><a class="reference internal" href="generated/torch.optim.Rprop.html#torch.optim.Rprop" title="torch.optim.Rprop"><code class="xref py py-class docutils literal "><span class="pre">Rprop</span></code></a></p></td>
+<td><p>不支持</p></td>
+<td><p>不支持</p></td>
+<td><p>不支持</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.optim.SGD"><a class="reference internal" href="generated/torch.optim.SGD.html#torch.optim.SGD" title="torch.optim.SGD"><code class="xref py py-class docutils literal "><span class="pre">SGD</span></code></a></p></td>
+<td><p>测试版</p></td>
+<td><p>测试版</p></td>
+<td><p>测试版</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="how-to-adjust-learning-rate">
+<h2>如何调整学习率 ¶</h2>
+<p> <code class="xref py py-class docutils literal "><span class="pre">torch.optim.lr_scheduler.LRScheduler</span></code> 提供了多种方法根据训练轮数调整学习率。 <code class="xref py py-class docutils literal "><span class="pre">torch.optim.lr_scheduler.ReduceLROnPlateau</span></code> 允许根据某些验证度量动态降低学习率。</p>
+<p>应在学习率调度器更新后应用学习率调度；例如，你应该这样编写你的代码：</p>
+<p>示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">momentum</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
+<span class="n">scheduler</span> <span class="o">=</span> <span class="n">ExponentialLR</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">20</span><span class="p">):</span>
+    <span class="k">for</span> <span class="nb">input</span><span class="p">,</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">:</span>
+        <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">loss_fn</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+        <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+        <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+    <span class="n">scheduler</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>大多数学习率调度器可以连续调用（也称为调度器链式）。结果是每个调度器都依次应用于前一个调度器获得的学习率。</p>
+<p>示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">momentum</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
+<span class="n">scheduler1</span> <span class="o">=</span> <span class="n">ExponentialLR</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
+<span class="n">scheduler2</span> <span class="o">=</span> <span class="n">MultiStepLR</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">milestones</span><span class="o">=</span><span class="p">[</span><span class="mi">30</span><span class="p">,</span><span class="mi">80</span><span class="p">],</span> <span class="n">gamma</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">20</span><span class="p">):</span>
+    <span class="k">for</span> <span class="nb">input</span><span class="p">,</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">:</span>
+        <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">loss_fn</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+        <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+        <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+    <span class="n">scheduler1</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+    <span class="n">scheduler2</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>在文档的许多地方，我们将使用以下模板来引用调度器算法。</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">scheduler</span> <span class="o">=</span> <span class="o">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">train</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">validate</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">scheduler</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>在 PyTorch 1.1.0 之前，学习率调度器应该在优化器更新之前调用；1.1.0 的更改以 BC 兼容性破坏的方式改变了这种行为。如果您在优化器更新（调用 <code class="docutils literal "><span class="pre">optimizer.step()</span></code> ）之前使用学习率调度器（调用 <code class="docutils literal "><span class="pre">scheduler.step()</span></code> ），这将跳过学习率调度表的第一项。如果您在升级到 PyTorch 1.1.0 后无法重现结果，请检查您是否在错误的时间调用了 <code class="docutils literal "><span class="pre">scheduler.step()</span></code> 。</p>
+</div>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/torch.optim.lr_scheduler.LRScheduler.html#torch.optim.lr_scheduler.LRScheduler" title="torch.optim.lr_scheduler.LRScheduler"><code class="xref py py-obj docutils literal "><span class="pre">lr_scheduler.LRScheduler</span></code></a></p></td>
+<td><p>在优化过程中调整学习率。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/torch.optim.lr_scheduler.LambdaLR.html#torch.optim.lr_scheduler.LambdaLR" title="torch.optim.lr_scheduler.LambdaLR"><code class="xref py py-obj docutils literal "><span class="pre">lr_scheduler.LambdaLR</span></code></a></p></td>
+<td><p>设置初始学习率。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/torch.optim.lr_scheduler.MultiplicativeLR.html#torch.optim.lr_scheduler.MultiplicativeLR" title="torch.optim.lr_scheduler.MultiplicativeLR"><code class="xref py py-obj docutils literal "><span class="pre">lr_scheduler.MultiplicativeLR</span></code></a></p></td>
+<td><p>将每个参数组的学习率乘以指定函数中给出的因子。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/torch.optim.lr_scheduler.StepLR.html#torch.optim.lr_scheduler.StepLR" title="torch.optim.lr_scheduler.StepLR"><code class="xref py py-obj docutils literal "><span class="pre">lr_scheduler.StepLR</span></code></a></p></td>
+<td><p>每经过 step_size 个 epoch，将每个参数组的学习率衰减为 gamma。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/torch.optim.lr_scheduler.MultiStepLR.html#torch.optim.lr_scheduler.MultiStepLR" title="torch.optim.lr_scheduler.MultiStepLR"><code class="xref py py-obj docutils literal "><span class="pre">lr_scheduler.MultiStepLR</span></code></a></p></td>
+<td><p>当 epoch 数达到里程碑之一时，将每个参数组的学习率衰减为 gamma。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/torch.optim.lr_scheduler.ConstantLR.html#torch.optim.lr_scheduler.ConstantLR" title="torch.optim.lr_scheduler.ConstantLR"><code class="xref py py-obj docutils literal "><span class="pre">lr_scheduler.ConstantLR</span></code></a></p></td>
+<td><p>将每个参数组的学习率乘以一个小的常数因子。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/torch.optim.lr_scheduler.LinearLR.html#torch.optim.lr_scheduler.LinearLR" title="torch.optim.lr_scheduler.LinearLR"><code class="xref py py-obj docutils literal "><span class="pre">lr_scheduler.LinearLR</span></code></a></p></td>
+<td><p>通过线性改变小的乘性因子来衰减每个参数组的学习率。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/torch.optim.lr_scheduler.ExponentialLR.html#torch.optim.lr_scheduler.ExponentialLR" title="torch.optim.lr_scheduler.ExponentialLR"><code class="xref py py-obj docutils literal "><span class="pre">lr_scheduler.ExponentialLR</span></code></a></p></td>
+<td><p>每个 epoch 衰减每个参数组的学习率，衰减因子为伽马。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/torch.optim.lr_scheduler.PolynomialLR.html#torch.optim.lr_scheduler.PolynomialLR" title="torch.optim.lr_scheduler.PolynomialLR"><code class="xref py py-obj docutils literal "><span class="pre">lr_scheduler.PolynomialLR</span></code></a></p></td>
+<td><p>使用给定总迭代次数中的多项式函数衰减每个参数组的学习率。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/torch.optim.lr_scheduler.CosineAnnealingLR.html#torch.optim.lr_scheduler.CosineAnnealingLR" title="torch.optim.lr_scheduler.CosineAnnealingLR"><code class="xref py py-obj docutils literal "><span class="pre">lr_scheduler.CosineAnnealingLR</span></code></a></p></td>
+<td><p>使用余弦退火计划设置每个参数组的学习率。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/torch.optim.lr_scheduler.ChainedScheduler.html#torch.optim.lr_scheduler.ChainedScheduler" title="torch.optim.lr_scheduler.ChainedScheduler"><code class="xref py py-obj docutils literal "><span class="pre">lr_scheduler.ChainedScheduler</span></code></a></p></td>
+<td><p>连接一系列学习率调度器。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/torch.optim.lr_scheduler.SequentialLR.html#torch.optim.lr_scheduler.SequentialLR" title="torch.optim.lr_scheduler.SequentialLR"><code class="xref py py-obj docutils literal "><span class="pre">lr_scheduler.SequentialLR</span></code></a></p></td>
+<td><p>包含在优化过程中按顺序调用的调度器列表。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/torch.optim.lr_scheduler.ReduceLROnPlateau.html#torch.optim.lr_scheduler.ReduceLROnPlateau" title="torch.optim.lr_scheduler.ReduceLROnPlateau"><code class="xref py py-obj docutils literal "><span class="pre">lr_scheduler.ReduceLROnPlateau</span></code></a></p></td>
+<td><p>当指标停止改进时降低学习率。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/torch.optim.lr_scheduler.CyclicLR.html#torch.optim.lr_scheduler.CyclicLR" title="torch.optim.lr_scheduler.CyclicLR"><code class="xref py py-obj docutils literal "><span class="pre">lr_scheduler.CyclicLR</span></code></a></p></td>
+<td><p>根据周期性学习率策略（CLR）设置每个参数组的 学习率。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/torch.optim.lr_scheduler.OneCycleLR.html#torch.optim.lr_scheduler.OneCycleLR" title="torch.optim.lr_scheduler.OneCycleLR"><code class="xref py py-obj docutils literal "><span class="pre">lr_scheduler.OneCycleLR</span></code></a></p></td>
+<td><p>根据 1 周期学习率策略设置每个参数组的学习率。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/torch.optim.lr_scheduler.CosineAnnealingWarmRestarts.html#torch.optim.lr_scheduler.CosineAnnealingWarmRestarts" title="torch.optim.lr_scheduler.CosineAnnealingWarmRestarts"><code class="xref py py-obj docutils literal "><span class="pre">lr_scheduler.CosineAnnealingWarmRestarts</span></code></a></p></td>
+<td><p>使用余弦退火计划设置每个参数组的学习率。</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="how-to-utilize-named-parameters-to-load-optimizer-state-dict">
+<h2>如何使用命名参数来加载优化器状态字典。</h2>
+<p>函数 <code class="xref py py-func docutils literal "><span class="pre">load_state_dict()</span></code> 存储从加载的状态字典中可选的 <code class="docutils literal "><span class="pre">param_names</span></code> 内容（如果存在）。然而，加载优化器状态的过程不受影响，因为参数的顺序很重要，以保持兼容性（以防顺序不同）。为了利用从加载的状态字典中加载的参数名称，需要根据期望的行为实现自定义的 <code class="docutils literal "><span class="pre">register_load_state_dict_pre_hook</span></code> 。</p>
+<p>这在模型架构发生变化，但权重和优化器状态需要保持不变的情况下很有用。以下示例演示了如何实现这种自定义。</p>
+<p>示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">OneLayerModel</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fc</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fc</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">OneLayerModel</span><span class="p">()</span>
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">named_parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">momentum</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
+<span class="c1"># training..</span>
+<span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">optimizer</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span> <span class="n">PATH</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>假设 <code class="docutils literal "><span class="pre">model</span></code> 实现了一个专家（MoE），我们想要复制它并为两个专家恢复训练，这两个专家的初始化方式与 <code class="docutils literal "><span class="pre">fc</span></code> 层相同。对于以下 <code class="docutils literal "><span class="pre">model2</span></code> ，我们创建了两个与 <code class="docutils literal "><span class="pre">fc</span></code> 相同的层，并通过从 <code class="docutils literal "><span class="pre">model</span></code> 加载模型权重和优化器状态到 <code class="docutils literal "><span class="pre">fc1</span></code> 和 <code class="docutils literal "><span class="pre">fc2</span></code> 中（并相应调整它们）来恢复训练：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">TwoLayerModel</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fc1</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fc2</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fc1</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">fc2</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="o">/</span> <span class="mi">2</span>
+
+<span class="n">model2</span> <span class="o">=</span> <span class="n">TwoLayerModel</span><span class="p">()</span>
+<span class="c1"># adapt and load model weights..</span>
+<span class="n">optimizer2</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">(</span><span class="n">model2</span><span class="o">.</span><span class="n">named_parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">momentum</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>要加载 <code class="docutils literal "><span class="pre">optimizer2</span></code> 的状态字典，使其与先前优化器状态的状态字典相同，以便 <code class="docutils literal "><span class="pre">fc1</span></code> 和 <code class="docutils literal "><span class="pre">fc2</span></code> 都将使用 <code class="docutils literal "><span class="pre">fc</span></code> 优化器状态的副本进行初始化（以从 <code class="docutils literal "><span class="pre">fc</span></code> 恢复每个层的训练），我们可以使用以下钩子：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">adapt_state_dict_ids</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">state_dict</span><span class="p">):</span>
+    <span class="n">adapted_state_dict</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">optimizer</span><span class="o">.</span><span class="n">state_dict</span><span class="p">())</span>
+    <span class="c1"># Copy setup parameters (lr, weight_decay, etc.), in case they differ in the loaded state dict.</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">state_dict</span><span class="p">[</span><span class="s1">'param_groups'</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'params'</span><span class="p">,</span> <span class="s1">'param_names'</span><span class="p">]:</span>
+            <span class="n">adapted_state_dict</span><span class="p">[</span><span class="s1">'param_groups'</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+
+    <span class="n">lookup_dict</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">'fc1.weight'</span><span class="p">:</span> <span class="s1">'fc.weight'</span><span class="p">,</span>
+        <span class="s1">'fc1.bias'</span><span class="p">:</span> <span class="s1">'fc.bias'</span><span class="p">,</span>
+        <span class="s1">'fc2.weight'</span><span class="p">:</span> <span class="s1">'fc.weight'</span><span class="p">,</span>
+        <span class="s1">'fc2.bias'</span><span class="p">:</span> <span class="s1">'fc.bias'</span>
+    <span class="p">}</span>
+    <span class="n">clone_deepcopy</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">d</span><span class="p">:</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="k">else</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">v</span><span class="p">))</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+    <span class="k">for</span> <span class="n">param_id</span><span class="p">,</span> <span class="n">param_name</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+            <span class="n">optimizer</span><span class="o">.</span><span class="n">state_dict</span><span class="p">()[</span><span class="s1">'param_groups'</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">'params'</span><span class="p">],</span>
+            <span class="n">optimizer</span><span class="o">.</span><span class="n">state_dict</span><span class="p">()[</span><span class="s1">'param_groups'</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">'param_names'</span><span class="p">]):</span>
+        <span class="n">name_in_loaded</span> <span class="o">=</span> <span class="n">lookup_dict</span><span class="p">[</span><span class="n">param_name</span><span class="p">]</span>
+        <span class="n">index_in_loaded_list</span> <span class="o">=</span> <span class="n">state_dict</span><span class="p">[</span><span class="s1">'param_groups'</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">'param_names'</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">name_in_loaded</span><span class="p">)</span>
+        <span class="n">id_in_loaded</span> <span class="o">=</span> <span class="n">state_dict</span><span class="p">[</span><span class="s1">'param_groups'</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">'params'</span><span class="p">][</span><span class="n">index_in_loaded_list</span><span class="p">]</span>
+        <span class="c1"># Copy the state of the corresponding parameter</span>
+        <span class="k">if</span> <span class="n">id_in_loaded</span> <span class="ow">in</span> <span class="n">state_dict</span><span class="p">[</span><span class="s1">'state'</span><span class="p">]:</span>
+            <span class="n">adapted_state_dict</span><span class="p">[</span><span class="s1">'state'</span><span class="p">][</span><span class="n">param_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">clone_deepcopy</span><span class="p">(</span><span class="n">state_dict</span><span class="p">[</span><span class="s1">'state'</span><span class="p">][</span><span class="n">id_in_loaded</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">adapted_state_dict</span>
+
+<span class="n">optimizer2</span><span class="o">.</span><span class="n">register_load_state_dict_pre_hook</span><span class="p">(</span><span class="n">adapt_state_dict_ids</span><span class="p">)</span>
+<span class="n">optimizer2</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">PATH</span><span class="p">))</span> <span class="c1"># The previous optimizer saved state_dict</span>
+</pre></div>
+</div>
+<p>这确保了在模型加载过程中将使用适应了正确状态的 <code class="docutils literal "><span class="pre">model2</span></code> 层的 state_dict。请注意，此代码专门为此示例设计（例如，假设单个参数组），其他情况可能需要不同的适应。</p>
+<p>以下示例展示了在模型结构发生变化时如何处理加载的 <code class="docutils literal "><span class="pre">state</span> <span class="pre">dict</span></code> 中缺失的参数。 <code class="docutils literal "><span class="pre">Model_bypass</span></code> 添加了一个新的 <code class="docutils literal "><span class="pre">bypass</span></code> 层，该层在原始的 <code class="docutils literal "><span class="pre">Model1</span></code> 中不存在。为了继续训练，使用自定义的 <code class="docutils literal "><span class="pre">adapt_state_dict_missing_param</span></code> 钩子来适应优化器的 <code class="docutils literal "><span class="pre">state_dict</span></code> ，确保现有参数正确映射，而缺失的参数（如旁路层）保持不变（如本例中初始化的那样）。这种方法即使在模型发生变化的情况下也能实现优化器状态的平滑加载和恢复。新的旁路层将从零开始训练：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Model1</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fc</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fc</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="n">x</span>
+
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">Model1</span><span class="p">()</span>
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">named_parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">momentum</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
+<span class="c1"># training..</span>
+<span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">optimizer</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span> <span class="n">PATH</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">Model_bypass</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fc</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bypass</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">eye_</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bypass</span><span class="o">.</span><span class="n">weight</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fc</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">bypass</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+<span class="n">model2</span> <span class="o">=</span> <span class="n">Model_bypass</span><span class="p">()</span>
+<span class="n">optimizer2</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">(</span><span class="n">model2</span><span class="o">.</span><span class="n">named_parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">momentum</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">adapt_state_dict_missing_param</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">state_dict</span><span class="p">):</span>
+    <span class="n">adapted_state_dict</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">optimizer</span><span class="o">.</span><span class="n">state_dict</span><span class="p">())</span>
+    <span class="c1"># Copy setup parameters (lr, weight_decay, etc.), in case they differ in the loaded state dict.</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">state_dict</span><span class="p">[</span><span class="s1">'param_groups'</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'params'</span><span class="p">,</span> <span class="s1">'param_names'</span><span class="p">]:</span>
+            <span class="n">adapted_state_dict</span><span class="p">[</span><span class="s1">'param_groups'</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+
+    <span class="n">lookup_dict</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">'fc.weight'</span><span class="p">:</span> <span class="s1">'fc.weight'</span><span class="p">,</span>
+        <span class="s1">'fc.bias'</span><span class="p">:</span> <span class="s1">'fc.bias'</span><span class="p">,</span>
+        <span class="s1">'bypass.weight'</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">clone_deepcopy</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">d</span><span class="p">:</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="k">else</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">v</span><span class="p">))</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+    <span class="k">for</span> <span class="n">param_id</span><span class="p">,</span> <span class="n">param_name</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+            <span class="n">optimizer</span><span class="o">.</span><span class="n">state_dict</span><span class="p">()[</span><span class="s1">'param_groups'</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">'params'</span><span class="p">],</span>
+            <span class="n">optimizer</span><span class="o">.</span><span class="n">state_dict</span><span class="p">()[</span><span class="s1">'param_groups'</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">'param_names'</span><span class="p">]):</span>
+        <span class="n">name_in_loaded</span> <span class="o">=</span> <span class="n">lookup_dict</span><span class="p">[</span><span class="n">param_name</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">name_in_loaded</span> <span class="ow">in</span> <span class="n">state_dict</span><span class="p">[</span><span class="s1">'param_groups'</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">'param_names'</span><span class="p">]:</span>
+            <span class="n">index_in_loaded_list</span> <span class="o">=</span> <span class="n">state_dict</span><span class="p">[</span><span class="s1">'param_groups'</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">'param_names'</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">name_in_loaded</span><span class="p">)</span>
+            <span class="n">id_in_loaded</span> <span class="o">=</span> <span class="n">state_dict</span><span class="p">[</span><span class="s1">'param_groups'</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">'params'</span><span class="p">][</span><span class="n">index_in_loaded_list</span><span class="p">]</span>
+            <span class="c1"># Copy the state of the corresponding parameter</span>
+            <span class="k">if</span> <span class="n">id_in_loaded</span> <span class="ow">in</span> <span class="n">state_dict</span><span class="p">[</span><span class="s1">'state'</span><span class="p">]:</span>
+                <span class="n">adapted_state_dict</span><span class="p">[</span><span class="s1">'state'</span><span class="p">][</span><span class="n">param_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">clone_deepcopy</span><span class="p">(</span><span class="n">state_dict</span><span class="p">[</span><span class="s1">'state'</span><span class="p">][</span><span class="n">id_in_loaded</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">adapted_state_dict</span>
+
+<span class="n">optimizer2</span><span class="o">.</span><span class="n">register_load_state_dict_pre_hook</span><span class="p">(</span><span class="n">adapt_state_dict_ids</span><span class="p">)</span>
+<span class="n">optimizer2</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">PATH</span><span class="p">))</span> <span class="c1"># The previous optimizer saved state_dict</span>
+</pre></div>
+</div>
+<p>作为第三个示例，而不是根据参数的顺序（默认方法）加载状态，此钩子可以用来根据参数的名称加载：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">names_matching</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">state_dict</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">state_dict</span><span class="p">[</span><span class="s1">'param_groups'</span><span class="p">])</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">optimizer</span><span class="o">.</span><span class="n">state_dict</span><span class="p">()[</span><span class="s1">'param_groups'</span><span class="p">])</span>
+    <span class="n">adapted_state_dict</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">optimizer</span><span class="o">.</span><span class="n">state_dict</span><span class="p">())</span>
+    <span class="k">for</span> <span class="n">g_ind</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">state_dict</span><span class="p">[</span><span class="s1">'param_groups'</span><span class="p">])):</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">state_dict</span><span class="p">[</span><span class="s1">'param_groups'</span><span class="p">][</span><span class="n">g_ind</span><span class="p">][</span><span class="s1">'params'</span><span class="p">])</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span>
+            <span class="n">optimizer</span><span class="o">.</span><span class="n">state_dict</span><span class="p">()[</span><span class="s1">'param_groups'</span><span class="p">][</span><span class="n">g_ind</span><span class="p">][</span><span class="s1">'params'</span><span class="p">])</span>
+
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">state_dict</span><span class="p">[</span><span class="s1">'param_groups'</span><span class="p">][</span><span class="n">g_ind</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'params'</span><span class="p">,</span> <span class="s1">'param_names'</span><span class="p">]:</span>
+                <span class="n">adapted_state_dict</span><span class="p">[</span><span class="s1">'param_groups'</span><span class="p">][</span><span class="n">g_ind</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+
+        <span class="k">for</span> <span class="n">param_id</span><span class="p">,</span> <span class="n">param_name</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                <span class="n">optimizer</span><span class="o">.</span><span class="n">state_dict</span><span class="p">()[</span><span class="s1">'param_groups'</span><span class="p">][</span><span class="n">g_ind</span><span class="p">][</span><span class="s1">'params'</span><span class="p">],</span>
+                <span class="n">optimizer</span><span class="o">.</span><span class="n">state_dict</span><span class="p">()[</span><span class="s1">'param_groups'</span><span class="p">][</span><span class="n">g_ind</span><span class="p">][</span><span class="s1">'param_names'</span><span class="p">]):</span>
+            <span class="n">index_in_loaded_list</span> <span class="o">=</span> <span class="n">state_dict</span><span class="p">[</span><span class="s1">'param_groups'</span><span class="p">][</span><span class="n">g_ind</span><span class="p">][</span><span class="s1">'param_names'</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">param_name</span><span class="p">)</span>
+            <span class="n">id_in_loaded</span> <span class="o">=</span> <span class="n">state_dict</span><span class="p">[</span><span class="s1">'param_groups'</span><span class="p">][</span><span class="n">g_ind</span><span class="p">][</span><span class="s1">'params'</span><span class="p">][</span><span class="n">index_in_loaded_list</span><span class="p">]</span>
+            <span class="c1"># Copy the state of the corresponding parameter</span>
+            <span class="k">if</span> <span class="n">id_in_loaded</span> <span class="ow">in</span> <span class="n">state_dict</span><span class="p">[</span><span class="s1">'state'</span><span class="p">]:</span>
+                <span class="n">adapted_state_dict</span><span class="p">[</span><span class="s1">'state'</span><span class="p">][</span><span class="n">param_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">state_dict</span><span class="p">[</span><span class="s1">'state'</span><span class="p">][</span><span class="n">id_in_loaded</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">adapted_state_dict</span>
+</pre></div>
+</div>
+</section>
+<section id="weight-averaging-swa-and-ema">
+<h2>权重平均（SWA 和 EMA）</h2>
+<p>实现了随机权重平均（SWA）和指数移动平均（EMA），①实现了 SWA 学习率调度器，②是一个在训练结束时更新 SWA/EMA 批归一化统计信息的实用函数。</p>
+<p>随机权重平均（SWA）在《平均权重可导致更宽的优化范围和更好的泛化》一文中被提出。</p>
+<p>指数移动平均（EMA）是一种广为人知的通过减少所需的权重更新次数来减少训练时间的技巧。它是 Polyak 平均的一种变体，但使用指数权重而不是迭代中的等权重。</p>
+<section id="constructing-averaged-models">
+<h3>构建平均模型</h3>
+<p>AveragedModel 类用于计算 SWA 或 EMA 模型的权重。</p>
+<p>您可以通过以下命令创建 SWA 平均模型：</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">averaged_model</span> <span class="o">=</span> <span class="n">AveragedModel</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>EMA 模型通过指定 <code class="docutils literal "><span class="pre">multi_avg_fn</span></code> 参数来构建：</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">decay</span> <span class="o">=</span> <span class="mf">0.999</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">averaged_model</span> <span class="o">=</span> <span class="n">AveragedModel</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">multi_avg_fn</span><span class="o">=</span><span class="n">get_ema_multi_avg_fn</span><span class="p">(</span><span class="n">decay</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>衰减参数介于 0 和 1 之间，用于控制平均参数的衰减速度。如果不提供 <code class="xref py py-func docutils literal "><span class="pre">torch.optim.swa_utils.get_ema_multi_avg_fn()</span></code> ，则默认为 0.999。衰减值应接近 1.0，因为较小的值可能导致优化收敛问题。</p>
+<p>返回一个函数，该函数应用以下 EMA 方程来调整权重：</p>
+<div class="math">
+<span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msubsup><mi>W</mi><mrow><mi>t</mi><mo>+</mo><mn>1</mn></mrow><mtext>EMA</mtext></msubsup><mo>=</mo><mi>α</mi><msubsup><mi>W</mi><mi>t</mi><mtext>EMA</mtext></msubsup><mo>+</mo><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mi>α</mi><mo stretchy="false">)</mo><msubsup><mi>W</mi><mi>t</mi><mtext>model</mtext></msubsup></mrow><annotation encoding="application/x-tex">W^\textrm{EMA}_{t+1} = \alpha W^\textrm{EMA}_{t} + (1 - \alpha) W^\textrm{model}_t
+
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.196662em;vertical-align:-0.305331em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.13889em;">W</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.891331em;"><span style="top:-2.4530000000000003em;margin-left:-0.13889em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">t</span><span class="mbin mtight">+</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.1130000000000004em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">EMA</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.305331em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1.138331em;vertical-align:-0.247em;"></span><span class="mord mathnormal" style="margin-right:0.0037em;">α</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.13889em;">W</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8913309999999999em;"><span style="top:-2.4530000000000003em;margin-left:-0.13889em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">t</span></span></span></span><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">EMA</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.247em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1.1491079999999998em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.0037em;">α</span><span class="mclose">)</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.13889em;">W</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8991079999999998em;"><span style="top:-2.4530000000000003em;margin-left:-0.13889em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">t</span></span></span><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">model</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.247em;"><span></span></span></span></span></span></span></span></span></span></span></div><p>其中 alpha 是 EMA 衰减系数。</p>
+<p>在这里，模型 <code class="docutils literal "><span class="pre">model</span></code> 可以是任意 <code class="xref py py-class docutils literal "><span class="pre">torch.nn.Module</span></code> 对象。 <code class="docutils literal "><span class="pre">averaged_model</span></code> 将跟踪 <code class="docutils literal "><span class="pre">model</span></code> 参数的运行平均值。要更新这些平均值，应在 optimizer.step()之后使用 <code class="xref py py-func docutils literal "><span class="pre">update_parameters()</span></code> 函数：</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">averaged_model</span><span class="o">.</span><span class="n">update_parameters</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>对于 SWA 和 EMA，这个调用通常在 optimizer <code class="docutils literal "><span class="pre">step()</span></code> 之后进行。在 SWA 的情况下，通常在训练开始的前几个步骤中跳过这一步。</p>
+</section>
+<section id="custom-averaging-strategies">
+<h3>自定义平均策略</h3>
+<p>默认情况下， <code class="xref py py-class docutils literal "><span class="pre">torch.optim.swa_utils.AveragedModel</span></code> 计算您提供的参数的运行等权平均，但您也可以使用自定义平均函数通过 <code class="docutils literal "><span class="pre">avg_fn</span></code> 或 <code class="docutils literal "><span class="pre">multi_avg_fn</span></code> 参数：</p>
+<ul class="simple">
+<li><p> <code class="docutils literal "><span class="pre">avg_fn</span></code> 允许定义一个函数，该函数作用于每个参数元组（平均参数，模型参数），并应返回新的平均参数。</p></li>
+<li><p> <code class="docutils literal "><span class="pre">multi_avg_fn</span></code> 允许定义更高效的运算，作用于参数列表元组（平均参数列表，模型参数列表），同时进行，例如使用 <code class="docutils literal "><span class="pre">torch._foreach*</span></code> 函数。此函数必须就地更新平均参数。</p></li>
+</ul>
+<p>在以下示例中 <code class="docutils literal "><span class="pre">ema_model</span></code> 使用 <code class="docutils literal "><span class="pre">avg_fn</span></code> 参数计算指数移动平均：</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ema_avg</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">averaged_model_parameter</span><span class="p">,</span> <span class="n">model_parameter</span><span class="p">,</span> <span class="n">num_averaged</span><span class="p">:</span>\
+<span class="gp">&gt;&gt;&gt; </span>        <span class="mf">0.9</span> <span class="o">*</span> <span class="n">averaged_model_parameter</span> <span class="o">+</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="n">model_parameter</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ema_model</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">swa_utils</span><span class="o">.</span><span class="n">AveragedModel</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">avg_fn</span><span class="o">=</span><span class="n">ema_avg</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>在以下示例中 <code class="docutils literal "><span class="pre">ema_model</span></code> 使用更高效的 <code class="docutils literal "><span class="pre">multi_avg_fn</span></code> 参数计算指数移动平均：</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ema_model</span> <span class="o">=</span> <span class="n">AveragedModel</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">multi_avg_fn</span><span class="o">=</span><span class="n">get_ema_multi_avg_fn</span><span class="p">(</span><span class="mf">0.9</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
+<section id="swa-learning-rate-schedules">
+<h3>SWA 学习率调度方案</h3>
+<p>通常，在 SWA 中，学习率被设置为高常数值。 <code class="xref py py-class docutils literal "><span class="pre">SWALR</span></code> 是一个将学习率逐渐调整到固定值并保持恒定的学习率调度器。例如，以下代码创建了一个调度器，该调度器在每个参数组中将学习率从初始值线性调整到 0.05，需要 5 个 epoch：</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">swa_scheduler</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">swa_utils</span><span class="o">.</span><span class="n">SWALR</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> \
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">anneal_strategy</span><span class="o">=</span><span class="s2">"linear"</span><span class="p">,</span> <span class="n">anneal_epochs</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">swa_lr</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>您也可以通过设置 <code class="docutils literal "><span class="pre">anneal_strategy="cos"</span></code> 来使用余弦退火而不是线性退火。</p>
+</section>
+<section id="taking-care-of-batch-normalization">
+<h3>注意批量归一化（Batch Normalization）。</h3>
+<p> <code class="xref py py-func docutils literal "><span class="pre">update_bn()</span></code> 是一个实用函数，允许在给定数据加载器 <code class="docutils literal "><span class="pre">loader</span></code> 的末尾计算 SWA 模型的批量归一化统计信息：</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">swa_utils</span><span class="o">.</span><span class="n">update_bn</span><span class="p">(</span><span class="n">loader</span><span class="p">,</span> <span class="n">swa_model</span><span class="p">)</span>
+</pre></div>
+</div>
+<p> <code class="xref py py-func docutils literal "><span class="pre">update_bn()</span></code> 将 <code class="docutils literal "><span class="pre">swa_model</span></code> 应用于数据加载器中的每个元素，并计算模型中每个批归一化层的激活统计信息。</p>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p> <code class="xref py py-func docutils literal "><span class="pre">update_bn()</span></code> 假设数据加载器 <code class="docutils literal "><span class="pre">loader</span></code> 中的每个批次要么是张量，要么是张量的列表，其中第一个元素是网络 <code class="docutils literal "><span class="pre">swa_model</span></code> 应该应用到的张量。如果您的数据加载器结构不同，您可以通过在每个数据集元素上执行 <code class="docutils literal "><span class="pre">swa_model</span></code> 的前向传递来更新 <code class="docutils literal "><span class="pre">swa_model</span></code> 的批量归一化统计信息。</p>
+</div>
+</section>
+<section id="putting-it-all-together-swa">
+<h3>将所有内容整合：SWA ¶</h3>
+<p>在下面的示例中， <code class="docutils literal "><span class="pre">swa_model</span></code> 是累积权重平均值的 SWA 模型。我们对该模型进行总共 300 个周期的训练，并在第 160 个周期切换到 SWA 学习率计划，并开始收集 SWA 参数平均值。</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">loader</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">loss_fn</span> <span class="o">=</span> <span class="o">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">swa_model</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">swa_utils</span><span class="o">.</span><span class="n">AveragedModel</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">scheduler</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">lr_scheduler</span><span class="o">.</span><span class="n">CosineAnnealingLR</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">T_max</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">swa_start</span> <span class="o">=</span> <span class="mi">160</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">swa_scheduler</span> <span class="o">=</span> <span class="n">SWALR</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">swa_lr</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">300</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>      <span class="k">for</span> <span class="nb">input</span><span class="p">,</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">loader</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>          <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span>          <span class="n">loss_fn</span><span class="p">(</span><span class="n">model</span><span class="p">(</span><span class="nb">input</span><span class="p">),</span> <span class="n">target</span><span class="p">)</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span>          <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span>      <span class="k">if</span> <span class="n">epoch</span> <span class="o">&gt;</span> <span class="n">swa_start</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>          <span class="n">swa_model</span><span class="o">.</span><span class="n">update_parameters</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>          <span class="n">swa_scheduler</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span>      <span class="k">else</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>          <span class="n">scheduler</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Update bn statistics for the swa_model at the end</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">swa_utils</span><span class="o">.</span><span class="n">update_bn</span><span class="p">(</span><span class="n">loader</span><span class="p">,</span> <span class="n">swa_model</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Use swa_model to make predictions on test data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">preds</span> <span class="o">=</span> <span class="n">swa_model</span><span class="p">(</span><span class="n">test_input</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="putting-it-all-together-ema">
+<h3>将所有内容整合：EMA ¶</h3>
+<p>在下面的示例中， <code class="docutils literal "><span class="pre">ema_model</span></code> 是累积以 0.999 的衰减率指数衰减的权重平均值的 EMA 模型。我们对该模型进行总共 300 个周期的训练，并立即开始收集 EMA 平均值。</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">loader</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">loss_fn</span> <span class="o">=</span> <span class="o">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ema_model</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">swa_utils</span><span class="o">.</span><span class="n">AveragedModel</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> \
+<span class="gp">&gt;&gt;&gt; </span>            <span class="n">multi_avg_fn</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">swa_utils</span><span class="o">.</span><span class="n">get_ema_multi_avg_fn</span><span class="p">(</span><span class="mf">0.999</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">300</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>      <span class="k">for</span> <span class="nb">input</span><span class="p">,</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">loader</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>          <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span>          <span class="n">loss_fn</span><span class="p">(</span><span class="n">model</span><span class="p">(</span><span class="nb">input</span><span class="p">),</span> <span class="n">target</span><span class="p">)</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span>          <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span>          <span class="n">ema_model</span><span class="o">.</span><span class="n">update_parameters</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Update bn statistics for the ema_model at the end</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">swa_utils</span><span class="o">.</span><span class="n">update_bn</span><span class="p">(</span><span class="n">loader</span><span class="p">,</span> <span class="n">ema_model</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Use ema_model to make predictions on test data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">preds</span> <span class="o">=</span> <span class="n">ema_model</span><span class="p">(</span><span class="n">test_input</span><span class="p">)</span>
+</pre></div>
+</div>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/torch.optim.swa_utils.AveragedModel.html#torch.optim.swa_utils.AveragedModel" title="torch.optim.swa_utils.AveragedModel"><code class="xref py py-obj docutils literal "><span class="pre">swa_utils.AveragedModel</span></code></a></p></td>
+<td><p>实现了随机权重平均（SWA）和指数移动平均（EMA）的平均模型。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/torch.optim.swa_utils.SWALR.html#torch.optim.swa_utils.SWALR" title="torch.optim.swa_utils.SWALR"><code class="xref py py-obj docutils literal "><span class="pre">swa_utils.SWALR</span></code></a></p></td>
+<td><p>将每个参数组的学习率调整到固定值。</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.optim.swa_utils.get_ema_multi_avg_fn">
+torch.optim.swa_utils.get_ema_multi_avg_fn(decay=0.999)[源代码][源代码]</dt>
+<dd><p>获取应用于多个参数的指数移动平均（EMA）函数。</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.optim.swa_utils.update_bn">
+<span class="sig-prename descclassname"><span class="pre">torch.optim.swa_utils.</span></span><span class="sig-name descname"><span class="pre">update_bn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/optim/swa_utils.html#update_bn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/optim/swa_utils.py#L309"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.optim.swa_utils.update_bn" title="Permalink to this definition">¶</a></dt>
+<dd><p>更新模型中的 BatchNorm 运行均值、运行方差缓冲区。</p>
+<p>它在 loader 中的数据上执行一次遍历，以估计模型中 BatchNorm 层的激活统计信息。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>loader (torch.utils.data.DataLoader) – 用于计算激活统计数据的数据集加载器。每个数据批次应为一个张量，或者是一个列表/元组，其中第一个元素是一个包含数据的张量。</p></li>
+<li><p>model (torch.nn.Module) – 我们要更新 BatchNorm 统计信息的模型。</p></li>
+<li><p>device (torch.device, 可选) – 如果设置，数据将在传递给 <code class="xref py py-attr docutils literal "><span class="pre">model</span></code> 之前被转移到 <code class="xref py py-attr docutils literal "><span class="pre">device</span></code> 。</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">loader</span><span class="p">,</span> <span class="n">model</span> <span class="o">=</span> <span class="o">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">swa_utils</span><span class="o">.</span><span class="n">update_bn</span><span class="p">(</span><span class="n">loader</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>The update_bn 工具假定 <code class="xref py py-attr docutils literal "><span class="pre">loader</span></code> 中的每个数据批次都是一个张量，或者是一个列表或元组中的张量；在后一种情况下，假定应对数据批次对应的列表或元组的第一个元素调用 <code class="xref py py-meth docutils literal "><span class="pre">model.forward()</span></code> 。</p>
+</div>
+</dd></dl>
+
+<span class="target" id="module-torch.optim.adadelta"></span><span class="target" id="module-torch.optim.adagrad"></span><span class="target" id="module-torch.optim.adam"></span><span class="target" id="module-torch.optim.adamax"></span><span class="target" id="module-torch.optim.adamw"></span><span class="target" id="module-torch.optim.asgd"></span><span class="target" id="module-torch.optim.lbfgs"></span><span class="target" id="module-torch.optim.lr_scheduler"></span><span class="target" id="module-torch.optim.nadam"></span><span class="target" id="module-torch.optim.optimizer"></span><span class="target" id="module-torch.optim.radam"></span><span class="target" id="module-torch.optim.rmsprop"></span><span class="target" id="module-torch.optim.rprop"></span><span class="target" id="module-torch.optim.sgd"></span><span class="target" id="module-torch.optim.sparse_adam"></span><span class="target" id="module-torch.optim.swa_utils"></span></section>
+</section>
+</section>
+
+
+             </article>
+             
+            </div>
+            <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        下一个 <img height="16" width="16" class="next-page" src="_static/images/chevron-right-orange.svg"> <img height="16" width="16" class="previous-page" src="_static/images/chevron-right-orange.svg"> 上一个
+      
+    </div>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>© 版权所有 PyTorch 贡献者。</p>
+  </div>
+    
+      <div>使用 Sphinx 构建，主题由 Read the Docs 提供。</div>
+     
+
+</footer>
+
+          </div>
+<script>
+
+var match = window.location.href.match(/\/_[a-zA-Z0-9_]*.html|_dynamo/gi);
+var url = window.location.href.lastIndexOf(match[match.length-1]);
+
+if (url)
+  {
+    var div = '<div class="admonition note"><p class="admonition-title">Note</p><p><i class="fa fa-exclamation-circle" aria-hidden="true">&nbsp</i> This page describes an internal API which is not intended to be used outside of the PyTorch codebase and can be modified or removed without notice.</p></div>'
+    document.getElementById("pytorch-article").insertAdjacentHTML('afterBegin', div)
+  }
+</script>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">torch.optim</a><ul>
+<li><a class="reference internal" href="#how-to-use-an-optimizer">如何使用优化器</a><ul>
+<li><a class="reference internal" href="#constructing-it">构建它</a></li>
+<li><a class="reference internal" href="#per-parameter-options">每个参数的选项</a></li>
+<li><a class="reference internal" href="#taking-an-optimization-step">执行优化步骤</a><ul>
+<li><a class="reference internal" href="#optimizer-step"><code class="docutils literal "><span class="pre">optimizer.step()</span></code></a></li>
+<li><a class="reference internal" href="#optimizer-step-closure"><code class="docutils literal "><span class="pre">optimizer.step(closure)</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#base-class">基类</a></li>
+<li><a class="reference internal" href="#algorithms">算法</a></li>
+<li><a class="reference internal" href="#how-to-adjust-learning-rate">如何调整学习率</a></li>
+<li><a class="reference internal" href="#how-to-utilize-named-parameters-to-load-optimizer-state-dict">如何利用命名参数加载优化器状态字典</a></li>
+<li><a class="reference internal" href="#weight-averaging-swa-and-ema">权重平均（SWA 和 EMA）</a><ul>
+<li><a class="reference internal" href="#constructing-averaged-models">构建平均模型</a></li>
+<li><a class="reference internal" href="#custom-averaging-strategies">自定义平均策略</a></li>
+<li><a class="reference internal" href="#swa-learning-rate-schedules">SWA 学习率调度</a></li>
+<li><a class="reference internal" href="#taking-care-of-batch-normalization">处理批量归一化</a></li>
+<li><a class="reference internal" href="#putting-it-all-together-swa">整合一切：SWA</a></li>
+<li><a class="reference internal" href="#putting-it-all-together-ema">整合一切：EMA</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+         <script src="_static/jquery.js"></script>
+         <script src="_static/underscore.js"></script>
+         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+         <script src="_static/doctools.js"></script>
+         <script src="_static/clipboard.min.js"></script>
+         <script src="_static/copybutton.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ 
+<script script="" type="text/javascript">
+  var collapsedSections = ['Developer Notes', 'Language Bindings', 'Libraries', 'Community'];
+</script>
+
+<img height="1" width="1" style="border-style:none;" alt="" src="https://www.googleadservices.com/pagead/conversion/795629140/?label=txkmCPmdtosBENSssfsC&amp;guid=ON&amp;script=0">
+
+
+  <!-- Begin Footer -->
+
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 text-center">
+          <h2>文档</h2>
+          <p>PyTorch 开发者文档全面访问</p>
+          <a class="with-right-arrow" href="https://pytorch.org/docs/stable/index.html">查看文档</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>教程</h2>
+          <p>获取初学者和高级开发者的深入教程</p>
+          <a class="with-right-arrow" href="https://pytorch.org/tutorials">查看教程</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>资源</h2>
+          <p>查找开发资源并获得您的疑问解答</p>
+          <a class="with-right-arrow" href="https://pytorch.org/resources">查看资源</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://pytorch.org/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/">PyTorch</a></li>
+            <li><a href="https://pytorch.org/get-started">开始使用</a></li>
+            <li><a href="https://pytorch.org/features">功能</a></li>
+            <li><a href="https://pytorch.org/ecosystem">生态系统</a></li>
+            <li><a href="https://pytorch.org/blog/">博客</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md">贡献</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/resources">资源</a></li>
+            <li><a href="https://pytorch.org/tutorials">教程</a></li>
+            <li><a href="https://pytorch.org/docs/stable/index.html">文档</a></li>
+            <li><a href="https://discuss.pytorch.org" target="_blank">讨论</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/issues" target="_blank">GitHub 问题和任务</a></li>
+            <li><a href="https://pytorch.org/assets/brand-guidelines/PyTorch-Brand-Guidelines.pdf" target="_blank">品牌指南</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">保持更新</li>
+            <li><a href="https://www.facebook.com/pytorch" target="_blank">Facebook</a></li>
+            <li><a href="https://twitter.com/pytorch" target="_blank">推特</a></li>
+            <li><a href="https://www.youtube.com/pytorch" target="_blank">YouTube</a></li>
+            <li><a href="https://www.linkedin.com/company/pytorch" target="_blank">领英</a></li>
+          </ul>  
+          </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">PyTorch 播客</li>
+            <li><a href="https://open.spotify.com/show/6UzHKeiy368jKfQMKKvJY5" target="_blank">Spotify</a></li>
+            <li><a href="https://podcasts.apple.com/us/podcast/pytorch-developer-podcast/id1566080008" target="_blank">苹果</a></li>
+            <li><a href="https://www.google.com/podcasts?feed=aHR0cHM6Ly9mZWVkcy5zaW1wbGVjYXN0LmNvbS9PQjVGa0lsOA%3D%3D" target="_blank">谷歌</a></li>
+            <li><a href="https://music.amazon.com/podcasts/7a4e6f0e-26c2-49e9-a478-41bd244197d0/PyTorch-Developer-Podcast?" target="_blank">亚马逊</a></li>
+          </ul>
+         </div>
+        </div>
+        
+        <div class="privacy-policy">
+          <ul>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/terms/" target="_blank">条款</a></li>
+            <li class="privacy-policy-links">|</li>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/privacy-policy/" target="_blank">隐私</a></li>
+          </ul>
+        </div>
+        <div class="copyright">
+        <p>© 版权所有 Linux 基金会。PyTorch 基金会是 Linux 基金会的一个项目。有关本网站的使用条款、商标政策以及其他适用于 PyTorch 基金会的政策，请参阅 www.linuxfoundation.org/policies/。PyTorch 基金会支持 PyTorch 开源项目，该项目已被确立为 LF Projects, LLC 的 PyTorch 项目系列。有关适用于 PyTorch 项目系列 LF Projects, LLC 的政策，请参阅 www.lfprojects.org/policies/。</p>
+      </div>
+     </div>
+
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">为分析流量并优化您的体验，我们在本网站上提供 cookies。通过点击或导航，您同意允许我们使用 cookies。作为本站点的当前维护者，Facebook 的 Cookies 政策适用。了解更多信息，包括可用的控制选项：Cookies 政策。</p>
+    <img class="close-button" src="_static/images/pytorch-x.svg" width="16" height="16">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+           <li class="resources-mobile-menu-title">
+             <a>学习</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/get-started">开始学习</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials">教程</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/basics/intro.html">学习基础知识</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/recipes/recipes_index.html">PyTorch 菜谱</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/introyt.html">PyTorch 入门 - YouTube 系列</a>
+             </li>
+           </ul>
+           <li class="resources-mobile-menu-title">
+             <a>生态系统</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/ecosystem">工具</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/#community-module">社区</a>
+             </li>
+             <li>
+               <a href="https://discuss.pytorch.org/">论坛</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/resources">开发者资源</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">贡献者奖项 - 2024</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>Edge</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/edge">关于 PyTorch Edge</a>
+             </li>
+             
+             <li>
+               <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch 文档</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>文档</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/docs/stable/index.html">PyTorch</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/pytorch-domains">PyTorch 领域</a>
+            </li>
+          </ul>
+
+          <li class="resources-mobile-menu-title">
+            <a>博客 &amp; 新闻</a>
+          </li>
+            
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/blog/">PyTorch 博客</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/community-blog">社区博客</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/videos">视频</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/community-stories">社区故事</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/events">活动</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">通讯</a>
+             </li>
+          </ul>
+          
+          <li class="resources-mobile-menu-title">
+            <a>关于</a>
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/foundation">PyTorch 基金会</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/governing-board">治理委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">云信用计划</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">技术顾问委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">员工</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">联系我们</a>
+            </li>
+          </ul>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body></html>

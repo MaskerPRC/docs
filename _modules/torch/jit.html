@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+  <meta charset="UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>torch.jit — PyTorch main documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pytorch.org/docs/stable/_modules/torch/jit.html">
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css">
+  <!-- <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css">
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css">
+  <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="../../_static/katex-math.css" type="text/css">
+  <link rel="stylesheet" href="../../_static/sphinx-dropdown.css" type="text/css">
+  <link rel="stylesheet" href="../../_static/panels-bootstrap.min.css" type="text/css">
+  <link rel="stylesheet" href="../../_static/css/jit.css" type="text/css">
+  <link rel="stylesheet" href="../../_static/css/custom.css" type="text/css">
+    <link rel="index" title="Index" href="../../genindex.html">
+    <link rel="search" title="Search" href="../../search.html">
+
+<!--
+  Search engines should not index the main version of documentation.
+  Stable documentation are built without release == 'main'.
+-->
+<meta name="robots" content="noindex">
+
+
+  <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T8XT4PS');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+  <!-- Preload the theme fonts -->
+
+<link rel="preload" href="../../_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<!-- Preload the katex fonts -->
+
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Math-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size1-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size2-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Caligraphic-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
+</head><body class="pytorch-body"><div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+
+          <li class="main-menu-item">
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">学习</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/get-started">
+                  <span class="dropdown-title">开始使用</span>
+                  <p>在本地运行 PyTorch 或快速开始使用支持的云平台之一</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials">
+                  <span class="dropdown-title">教程</span><p></p>
+                  <p>PyTorch 教程中的新内容</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/basics/intro.html">
+                  <span class="dropdown-title">学习基础知识</span><p></p>
+                  <p>熟悉 PyTorch 概念和模块</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/recipes/recipes_index.html">
+                  <span class="dropdown-title">PyTorch 烹饪技巧</span><p></p>
+                  <p>精简型、可直接部署的 PyTorch 代码示例</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/introyt.html">
+                  <span class="dropdown-title">PyTorch 入门 - YouTube 系列</span><p></p>
+                  <p>通过我们引人入胜的 YouTube 教程系列掌握 PyTorch 基础知识</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">生态系统</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem">
+                  <span class="dropdown-title">工具</span><p></p>
+                  <p>了解 PyTorch 生态系统中的工具和框架</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
+                  <span class="dropdown-title">社区</span>
+                  <p>加入 PyTorch 开发者社区，贡献、学习并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
+                  <span class="dropdown-title">论坛</span>
+                  <p>讨论 PyTorch 代码、问题、安装、研究的地方</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/resources">
+                  <span class="dropdown-title">开发者资源</span>
+                  <p>查找资源并解答问题</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">2024 年度贡献者奖项</span><p></p>
+                  <p>本届 PyTorch 会议揭晓获奖者</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">
+                Edge
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/edge">
+                  <span class="dropdown-title">关于 PyTorch Edge</span><p></p>
+                  <p>为边缘设备构建创新和隐私感知的 AI 体验</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
+                  <span class="dropdown-title">ExecuTorch</span><p></p>
+                  <p>针对移动和边缘设备实现设备端推理能力的端到端解决方案</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch 文档</span><p></p>
+                </a>
+              </div>
+            </div>  
+          </li>
+
+          <li class="main-menu-item">
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">文档</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/docs/stable/index.html">
+                  <span class="dropdown-title">PyTorch</span><p></p>
+                  <p>探索文档以获取如何使用 PyTorch 的全面指南</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/pytorch-domains">
+                  <span class="dropdown-title">PyTorch 领域</span><p></p>
+                  <p>阅读 PyTorch 领域的文档以了解更多关于特定领域的库</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">博客与新闻</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/blog/">
+                  <span class="dropdown-title">PyTorch 博客</span><p></p>
+                  <p>跟上最新的技术新闻和动态</p>
+                </a>
+                 <a class="nav-dropdown-item" href="https://pytorch.org/community-blog">
+                  <span class="dropdown-title">社区博客</span><p></p>
+                  <p>PyTorch 生态系统故事</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/videos">
+                  <span class="dropdown-title">视频</span><p></p>
+                  <p>了解最新的 PyTorch 教程、新内容等</p>
+                </a><a class="nav-dropdown-item" href="https://pytorch.org/community-stories">
+                  <span class="dropdown-title">社区故事</span><p></p>
+                  <p>了解我们的社区如何使用 PyTorch 解决真实、日常的机器学习问题</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/events">
+                  <span class="dropdown-title">活动</span><p></p>
+                  <p>查找活动、网络研讨会和播客</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">通讯</span><p></p>
+                  <p>保持最新更新</p>
+                </a>
+            </div>
+          </div></li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">关于</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/foundation">
+                  <span class="dropdown-title">PyTorch 基金会</span><p></p>
+                  <p>了解更多关于 PyTorch 基金会的信息</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
+                  <span class="dropdown-title">管理委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">云信用计划</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">技术顾问委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">员工</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">联系我们</span><p></p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li class="main-menu-item">
+            <div class="no-dropdown">
+              <a href="https://pytorch.org/join" data-cta="join">成为会员</a>
+            </div>
+          </li>
+          <li>
+           <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="github-icon">
+             </a>
+           </div>
+          </li>
+          <!--- TODO: This block adds the search icon to the nav bar. We will enable it later. 
+          <li>
+            <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="search-icon">
+             </a>
+            </div>
+          </li>
+          --->
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+  </div>
+</div>
+
+
+
+   
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>目录</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+    <div class="version">
+      <a href="https://pytorch.org/docs/versions.html">主页 (2.7.0+cpu ) ▼</a>
+    </div>
+    <div id="searchBox">
+    <div class="searchbox" id="googleSearchBox">
+      <script async="" src="https://cse.google.com/cse.js?cx=e65585f8c3ea1440e"></script>
+      <div class="gcse-search"></div>
+    </div>
+    <div id="sphinxSearchBox" style="display: none;">
+      <div role="search">
+        <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+          <input type="text" name="q" placeholder="Search Docs">
+          <input type="hidden" name="check_keywords" value="yes">
+          <input type="hidden" name="area" value="default">
+        </form>
+      </div>
+    </div>
+  </div>
+  <form id="searchForm">
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="google" checked="">Google 搜索</label>
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="sphinx">经典搜索</label>
+  </form>
+
+  <script>
+     document.addEventListener('DOMContentLoaded', function() {
+      const searchForm = document.getElementById('searchForm');
+      const googleSearchBox = document.getElementById('googleSearchBox');
+      const sphinxSearchBox = document.getElementById('sphinxSearchBox');
+      // Function to toggle search box visibility
+      function toggleSearchBox(searchType) {
+        googleSearchBox.style.display = searchType === 'google' ? 'block' : 'none';
+        sphinxSearchBox.style.display = searchType === 'sphinx' ? 'block' : 'none';
+      }
+      // Determine the default search type
+      let defaultSearchType;
+      const currentUrl = window.location.href;
+      if (currentUrl.startsWith('https://pytorch.org/docs/stable')) {
+        // For the stable documentation, default to Google
+        defaultSearchType = localStorage.getItem('searchType') || 'google';
+      } else {
+        // For any other version, including docs-preview, default to Sphinx
+        defaultSearchType = 'sphinx';
+      }
+      // Set the default search type
+      document.querySelector(`input[name="searchType"][value="${defaultSearchType}"]`).checked = true;
+      toggleSearchBox(defaultSearchType);
+      // Event listener for changes in search type
+      searchForm.addEventListener('change', function(event) {
+        const selectedSearchType = event.target.value;
+        localStorage.setItem('searchType', selectedSearchType);
+        toggleSearchBox(selectedSearchType);
+      });
+      // Set placeholder text for Google search box
+      window.onload = function() {
+        var placeholderText = "Search Docs";
+        var googleSearchboxText = document.querySelector("#gsc-i-id1");
+        if (googleSearchboxText) {
+          googleSearchboxText.placeholder = placeholderText;
+          googleSearchboxText.style.fontFamily = 'FreightSans';
+          googleSearchboxText.style.fontSize = "1.2rem";
+          googleSearchboxText.style.color = '#262626';
+        }
+      };
+    });
+  </script>
+
+          </div>
+
+          
+
+<div>
+  <a style="color:#F05732" href="https://pytorch.org/docs/stable/_modules/torch/jit.html">您正在查看不稳定开发者预览文档。请点击此处查看最新稳定版本的文档。</a>
+</div>
+
+
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">社区</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../community/build_ci_governance.html">PyTorch 治理 | 构建 + CI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../community/contribution_guide.html">PyTorch 贡献指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../community/design.html">PyTorch 设计哲学</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../community/governance.html">PyTorch 治理 | 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../community/persons_of_interest.html">PyTorch 治理 | 维护者</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发者笔记</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/amp_examples.html">自动混合精度示例</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/autograd.html">Autograd 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/broadcasting.html">广播语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/cpu_threading_torchscript_inference.html">CPU 线程和 TorchScript 推理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/cuda.html">CUDA 语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/custom_operators.html">PyTorch 自定义操作着陆页面</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/ddp.html">分布式数据并行</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/extending.html">扩展 PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/extending.func.html">扩展 torch.func 与 autograd.Function</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/faq.html">常见问题</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/fsdp.html">FSDP 笔记</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/get_start_xpu.html">在英特尔 GPU 上入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/gradcheck.html">毕业审核力学</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/hip.html">HIP (ROCm) 语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/large_scale_deployments.html">大规模部署功能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/libtorch_stable_abi.html">LibTorch 稳定 ABI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/modules.html">模块</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/mps.html">MPS 后端</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/multiprocessing.html">多进程最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/numerical_accuracy.html">数值精度</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/randomness.html">可复现性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/serialization.html">序列化语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/windows.html">Windows 常见问题解答</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">语言绑定</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../cpp_index.html">C++</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/javadoc/">Javadoc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../deploy.html">torch::deploy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../torch.html">torch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nn.html">torch.nn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nn.functional.html">torch.nn.functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tensors.html">torch.Tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tensor_attributes.html">Tensor 属性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tensor_view.html">张量视图</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../amp.html">torch.amp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../autograd.html">torch.autograd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../library.html">torch.library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../accelerator.html">torch 加速器</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cpu.html">torch.cpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cuda.html">torch.cuda</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../torch_cuda_memory.html">理解 CUDA 内存使用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../torch_cuda_memory.html#generating-a-snapshot">生成快照</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../torch_cuda_memory.html#using-the-visualizer">使用可视化器</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../torch_cuda_memory.html#snapshot-api-reference">快照 API 参考</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mps.html">torch.mps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../xpu.html">torch.xpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mtia.html">torch.mtia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mtia.memory.html">torch.mtia.memory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../meta.html">元设备</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../backends.html">torch.backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../export.html">torch.export</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../distributed.html">torch.distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../distributed.tensor.html">torch.distributed.tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../distributed.algorithms.join.html">torch.distributed.algorithms.join</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../distributed.elastic.html">torch.distributed.elastic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fsdp.html">torch.distributed.fsdp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../distributed.fsdp.fully_shard.html">torch.distributed.fsdp.fully_shard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../distributed.tensor.parallel.html">torch.distributed.tensor.parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../distributed.optim.html">torch.distributed.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../distributed.pipelining.html">torch.distributed.pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../distributed.checkpoint.html">torch.distributed.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../distributions.html">torch.distributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../torch.compiler.html">torch.compiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fft.html">torch.fft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../func.html">torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../futures.html">torch.futures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fx.html">torch.fx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fx.experimental.html">torch.fx.experimental</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hub.html">torch.hub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../jit.html">torch.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../linalg.html">torch.linalg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../monitor.html">torch.monitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../signal.html">torch.signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../special.html">torch.special</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../torch.overrides.html">torch.overrides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../package.html">torch.package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../profiler.html">torch.profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nn.init.html">torch.nn.init</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nn.attention.html">torch.nn.attention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../onnx.html">torch.onnx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../optim.html">torch.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../complex_numbers.html">复数</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ddp_comm_hooks.html">DDP 通信钩子</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quantization.html">量化</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../rpc.html">分布式 RPC 框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../random.html">torch.random</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../masked.html">torch.masked</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nested.html">torch.nested</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../size.html">torch.Size</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sparse.html">torch.sparse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../storage.html">torch 存储</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../testing.html">torch.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../utils.html">torch.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../benchmark_utils.html">torch.utils.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bottleneck.html">torch.utils.bottleneck</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../checkpoint.html">torch.utils.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cpp_extension.html">torch.utils.cpp_extension</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../data.html">torch.utils.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../deterministic.html">torch.utils.deterministic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../jit_utils.html">torch.utils.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dlpack.html">torch.utils.dlpack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mobile_optimizer.html">torch.utils.mobile_optimizer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../model_zoo.html">torch.utils.model_zoo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tensorboard.html">torch.utils.tensorboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_tracker.html">torch.utils.module_tracker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../type_info.html">类型信息</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../named_tensor.html">命名张量</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../name_inference.html">命名张量操作覆盖率</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../config_mod.html">torch.__config__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../future_mod.html">torch.__future__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../logging.html">torch._logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../torch_environment_variables.html">火炬环境变量</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">图书馆</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/audio/stable">torchaudio</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/data">TorchData</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/torchrec">火炬推荐</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/serve">TorchServe</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/text/stable">torchtext</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/vision/stable">torchvision</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/xla/">PyTorch 在 XLA 设备上</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/ao">torchao</a></li>
+</ul>
+
+            
+          
+
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        文档 &gt;</li>
+
+        
+          <li>模块代码 &gt;</li>
+        
+          <li><a href="../torch.html">torch</a> &gt;</li>
+        
+      <li>torch.jit</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">快捷键</div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+
+          <!-- Google Tag Manager (noscript) -->
+          <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T8XT4PS" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+          <!-- End Google Tag Manager (noscript) -->
+          
+          <div class="rst-content">
+          
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <h1>torch.jit 的源代码</font></font></font></h1><div class="highlight"><pre><span></span><span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># mypy: 允许未类型化定义</span>
+<span class="kn">导入</font></font></font></span> <span class="nn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">警告</span>
+<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">迭代器</span>
+<span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">导入</span> <span class="n">contextmanager</span>
+<span class="kn">from</span> <span class="nn">打字</font></font></font></span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">任何</span>
+
+<span class="kn">导入</span> <span class="nn">torch._C</span>
+
+<span class="c1"># 这些导入是为了用户可以从`torch.jit`模块访问它们</span>
+<span class="kn">from</span> <span class="nn">torch._jit_internal</span> <span class="kn">导入</span> <span class="p">(</span>
+    <span class="n">_Await</span><span class="p">,</span>
+    <span class="n">_drop</span><span class="p">,</span>
+    <span class="n">_IgnoreContextManager</span><span class="p">,</span>
+    <span class="n">isinstance</span><span class="p">,</span>
+    <span class="n">超载_</span><span class="p">,</span>
+    <span class="n">重载方法</span><span class="p">,</span>
+    <span class="n">导出</span><span class="p">,</span>
+    <span class="n">最终</span><span class="p">,</span>
+    <span class="n">未来</span><span class="p">,</span>
+    <span class="n">忽略</span><span class="p">,</span>
+    <span class="n">是否正在脚本化</span><span class="p">,</span>
+    <span class="n">未使用</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">torch.jit._async</span> <span class="kn">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">分叉</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">等待</span>
+<span class="kn">from</span> <span class="nn">torch.jit._await</span> <span class="kn">导入</font></font></font></span> <span class="n">_awaitable</span><span class="p">,</span> <span class="n">_awaitable_nowait</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">可等待的等待</span>
+<span class="kn">from</span> <span class="nn">torch.jit._decomposition_utils</span> <span class="kn">导入</span> <span class="n">_register_decomposition</span>
+<span class="kn">from</span> <span class="nn">torch.jit._freeze</span> <span class="kn">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">冻结</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">优化推理</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">运行冻结优化</span>
+<span class="kn">from</span> <span class="nn">torch.jit._fuser</span> <span class="kn">导入</span> <span class="p">(</span>
+    <span class="n">燃烧器</span><span class="p">,</span>
+    <span class="n">最后执行优化的图</span><span class="p">,</span>
+    <span class="n">优化执行</span><span class="p">,</span>
+    <span class="n">设置融合策略</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">torch.jit._ir_utils</span> <span class="kn">导入</span> <span class="n">_InsertPoint</span>
+<span class="kn">from</span> <span class="nn">torch.jit._script</span> <span class="kn">导入</span> <span class="p">(</span>
+    <span class="n">_ScriptProfile</span><span class="p">,</span>
+    <span class="n">解包可选</span><span class="p">,</span>
+    <span class="n">属性</span><span class="p">,</span>
+    <span class="n">编译单元</span><span class="p">,</span>
+    <span class="n">接口</span><span class="p">,</span>
+    <span class="n">递归脚本类</span><span class="p">,</span>
+    <span class="n">递归脚本模块</span><span class="p">,</span>
+    <span class="n">脚本</span><span class="p">,</span>
+    <span class="n">脚本方法</span><span class="p">,</span>
+    <span class="n">脚本函数</span><span class="p">,</span>
+    <span class="n">脚本模块</span><span class="p">,</span>
+    <span class="n">脚本警告</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">torch.jit._serialization</span> <span class="kn">导入</span> <span class="p">(</span>
+    <span class="n">从 flatbuffer 生成 jit 模块</span><span class="p">,</span>
+    <span class="n">加载</span><span class="p">,</span>
+    <span class="n">保存</span><span class="p">,</span>
+    <span class="n">将 jit 模块保存到 flatbuffer</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">torch.jit._trace</span> <span class="kn">导入</span> <span class="p">(</span>
+    <span class="n">_flatten</span><span class="p">,</span>
+    <span class="n">_get_trace_graph</span><span class="p">,</span>
+    <span class="n">_script_if_tracing</span><span class="p">,</span>
+    <span class="n">唯一状态字典</span><span class="p">,</span>
+    <span class="n">is_tracing</span><span class="p">,</span>
+    <span class="n">ONNX 跟踪模块</span><span class="p">,</span>
+    <span class="n">顶级跟踪模块</span><span class="p">,</span>
+    <span class="n">跟踪</span><span class="p">,</span>
+    <span class="n">跟踪模块</span><span class="p">,</span>
+    <span class="n">跟踪模块</span><span class="p">,</span>
+    <span class="n">跟踪警告</span><span class="p">,</span>
+    <span class="n">追踪检查错误</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">torch.utils</span> <span class="kn">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">设置模块</span>
+
+
+<span class="n">全部</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">属性</span><span class="p">,</span>
+    <span class="s2">编译单元</span><span class="p">,</span>
+    <span class="s2">"错误"</span><span class="p">,</span>
+    <span class="s2">未来</span><span class="p">,</span>
+    <span class="s2">"脚本函数"</span><span class="p">,</span>
+    <span class="s2">"脚本模块"</span><span class="p">,</span>
+    <span class="s2">"标注"</span><span class="p">,</span>
+    <span class="s2">启用 ONEDNN 融合</span><span class="p">,</span>
+    <span class="s2">"导出"</span><span class="p">,</span>
+    <span class="s2">导出操作名称</span><span class="p">,</span>
+    <span class="s2">分叉</span><span class="p">,</span>
+    <span class="s2">冻结</span><span class="p">,</span>
+    <span class="s2">"界面"</span><span class="p">,</span>
+    <span class="s2">"忽略"</span><span class="p">,</span>
+    <span class="s2">"isinstance"</span><span class="p">,</span>
+    <span class="s2">加载</span><span class="p">,</span>
+    <span class="s2">"onednn 融合启用"</span><span class="p">,</span>
+    <span class="s2">"优化推理"</span><span class="p">,</span>
+    <span class="s2">保存</span><span class="p">,</span>
+    <span class="s2">"脚本"</span><span class="p">,</span>
+    <span class="s2">"脚本如果跟踪"</span><span class="p">,</span>
+    <span class="s2">"设置融合策略"</span><span class="p">,</span>
+    <span class="s2">"严格融合"</span><span class="p">,</span>
+    <span class="s2">"跟踪"</span><span class="p">,</span>
+    <span class="s2">trace_module</span><span class="p">,</span>
+    <span class="s2">未使用</span><span class="p">,</span>
+    <span class="s2">等待</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="c1"># 为向后兼容</span>
+<span class="n">分支</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">分支</span>
+<span class="n">等待</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">等待</span>
+<span class="n">设置融合策略</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">设置融合策略</span>
+
+
+<span class="k">定义</font></font></font></span> <span class="nf"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导出操作名称</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">""</span>
+<span class="sd">为脚本模块生成新的字节码。</span>
+
+<span class="sd">返回基于当前代码库的脚本模块的 op 列表。</span>
+
+<span class="sd">如果你有 LiteScriptModule 并且想要获取当前存在的</span>
+<span class="sd">列表，请调用_export_operator_list。</span>
+<span class="sd">    """</span>
+    <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n">_export_opnames</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">_c</span><span class="p">)</span>
+
+
+<span class="c1">torch.jit.Error</span>
+<span class="n">错误</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">JIT 异常</span>
+<span class="n">设置模块</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">错误</font></font></font></span><span class="p">,</span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">torch.jit</span><span class="p">)</span>
+<span class="c1"># 这并不完美，但在常见情况下是可行的</span>
+<span class="n">错误</font></font></font></span><span class="o">.</span><span class="vm">__name__</span> <span class="o">=</span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">"错误"</span>
+<span class="n">错误</font></font></font></span><span class="o">.</span><span class="vm">__qualname__</span> <span class="o">=</span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">"错误"</span>
+
+
+<span class="c1"># 用于 Python 中的注释</span>
+<div class="viewcode-block" id="annotate"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]def annotate(the_type, the_value):
+"""用于在 TorchScript 编译器中指定`the_value`的类型。
+
+这种方法是一个透传函数，用于返回 `the_value`，用于向 TorchScript 编译器提示`the_value`的类型。当在 TorchScript 外部运行时，它是一个空操作（no-op）。
+虽然 TorchScript 可以推断大多数 Python 表达式的正确类型，但有些情况下类型推断可能会出错，包括：
+
+尽管 TorchScript 可以推断出大多数 Python 表达式的正确类型，但有些情况下类型推断可能会出错，包括：
+类型推断可能会出错，包括：
+
+空容器如 `[]` 和 `{}`，TorchScript 会假设它们是 `Tensor` 的容器
+可选类型如 `Optional[T]`，但被赋予了有效的 `T` 类型值，TorchScript 会假设它是 `T` 类型而不是 `Optional[T]`
+注意，`annotate()` 方法在 `torch.nn.Module` 子类的 `__init__` 方法中不起作用
+
+因为 `annotate()` 方法不会在 `torch.nn.Module` 子类的 `__init__` 方法中提供帮助
+在急切模式下执行。要注释 `torch.nn.Module` 属性的类型，
+请使用 :meth:`~torch.jit.Attribute`。
+
+示例：
+
+.. testcode::
+
+import torch
+from typing import Dict
+
+        @torch.jit.script
+def fn():
+告诉 TorchScript 这个空字典是一个(str -&gt; int)字典
+# 默认字典类型为(str -&gt; Tensor)。
+d = torch.jit.annotate(Dict[str, int], {})
+
+# 如果没有上面的 torch.jit.annotate，下面的语句会因为
+类型不匹配。
+d["名称"] = 20
+
+.. 清理测试::
+
+删除 fn
+
+Args:
+类型：传递给 TorchScript 编译器的 Python 类型，作为`the_value`的类型提示
+the_value：用于提示类型的值或表达式。
+
+Returns:
+返回值作为返回值传递。
+"""
+返回 the_value</font></font></font></div>
+
+
+<div class="viewcode-block" id="script_if_tracing"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]def 跟踪脚本(fn):
+"""
+编译 `fn` 时，在追踪期间首次调用。
+
+`torch.jit.script` 在首次调用时由于许多编译器内置函数的懒加载，会有一个不可忽视的启动时间。因此，您不应该使用
+懒加载的许多编译器内置函数。因此您不应该使用
+在库代码中，然而，你可能希望库的部分功能在跟踪时也能工作。
+即使它们使用控制流，在跟踪时也应使用。
+使用 `@torch.jit.script_if_tracing` 来替代 `torch.jit.script`。
+替换为 `torch.jit.script`。
+
+Args:
+fn: 一个用于编译的函数。
+
+Returns:
+如果在追踪期间调用，则返回由 `torch.jit.script` 创建的 :class:`ScriptFunction`。
+否则，返回原始函数 `fn`。
+"""
+返回 _script_if_tracing(fn)</font></font></font></div>
+
+
+<span class="c1"># for torch.jit.isinstance</span>
+<div class="viewcode-block" id="isinstance"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]def isinstance(obj, target_type):
+"""
+在 TorchScript 中提供容器类型细化。
+
+它可以细化 List、Dict、Tuple 和 Optional 类型的参数化容器。例如 ``List[str]``，
+`Dict[str, List[torch.Tensor]]`, `Optional[Tuple[int,str,int]]`。它还可以
+精炼基本类型，如 bools 和 ints，这些类型在 TorchScript 中可用。
+
+Args:
+obj: 要精炼类型的对象
+尝试将对象精炼到目标类型的目标类型
+返回：
+``bool``: 如果对象成功精炼到 target_type 类型，则为 True，
+否则返回 False，没有新的类型精炼
+
+
+使用 `torch.jit.isinstance` 进行类型细化示例：
+.. testcode::
+
+导入 torch
+从 typing 模块导入 Any, Dict, List
+
+class MyModule(torch.nn.Module):
+def __init__(self) -&gt; None:
+super().__init__()
+
+def forward(self, input: Any): # note the Any type
+if torch.jit.isinstance(input, List[torch.Tensor]):
+for t in input:
+y = t.clamp(0, 0.5)
+elif torch.jit.isinstance(input, Dict[str, str]):
+for val in input.values():
+print(val)
+
+m = torch.jit.script(MyModule())
+x = [torch.rand(3,3), torch.rand(4,3)]
+m(x)
+y = {"key1":"val1","key2":"val2"}
+m(y)
+"""
+return _isinstance(obj, target_type)</font></font></font></div>
+
+
+<div class="viewcode-block" id="strict_fusion"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]class strict_fusion:
+"""
+如果在推理中未对所有节点进行融合，或在训练中进行符号微分，则给出错误。
+
+示例：
+强制融合添加项。
+
+.. 代码块 :: python
+
+        @torch.jit.script
+def foo(x):
+with torch.jit.strict_fusion():
+return x + x + x
+
+"""
+
+def __init__(self) -&gt; None:
+如果不是 torch._jit_internal.is_scripting():
+警告：仅在脚本模式下有效
+
+def __enter__(self):
+pass
+
+def __exit__(self, type: Any, value: Any, tb: Any) -&gt; None:
+pass</font></font></font></div>
+
+
+<span class="c1"># 全局隐藏打印图形时源范围的上下文管理器。</span>
+<span class="c1"># 注意，这些函数作为静态成员暴露给 Python。</span>
+<span class="c1"># 图类，因此需要跳过 mypy 检查。</span>
+<span class="nd">@contextmanager</span>
+<span class="k">定义</font></font></font></span> <span class="nf"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_隐藏源范围</font></font></font></span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">迭代器</font></font></font></span><span class="p">[</span><span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</font></font></font></span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">]</span>
+    <span class="n">旧版启用源范围</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">图</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">全局打印源范围</font></font></font></span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># 类型：忽略[已定义]</span>
+    <span class="k">尝试</span><span class="p">:</span>
+        <span class="n">火炬</font></font></font></span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">图</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">设置全局打印源范围</font></font></font></span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># 类型：忽略[已定义]</span>
+        <span class="k">产生</span>
+    <span class="k">最后</span><span class="p">:</span>
+        <span class="n">火炬</font></font></font></span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">图</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">设置全局打印源范围</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">旧启用源范围</font></font></font></span><span class="p">)</span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># 类型：忽略[已定义]</span>
+
+
+<div class="viewcode-block" id="enable_onednn_fusion"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]def 启用 onednn 融合(启用: bool):
+根据参数 `enabled` 启用或禁用 onednn JIT 融合。
+torch._C._jit_set_llga_enabled(enabled)</font></font></font></div>
+
+
+<div class="viewcode-block" id="onednn_fusion_enabled"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]def onednn_fusion_enabled():
+返回 onednn JIT 融合是否启用。
+return torch._C._jit_llga_enabled()</font></font></font></div>
+
+
+<span class="k">删除</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">任何</span>
+
+<span class="k">如果</font></font></font></span> <span class="ow">not</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n">_jit_init</span><span class="p">():</span>
+    <span class="k">抛出</font></font></font></span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">"JIT 初始化失败"</span><span class="p">)</span>
+</pre></div>
+
+             </article>
+             
+            </div>
+            <footer>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>© 版权所有 PyTorch 贡献者。</p>
+  </div>
+    
+      <div>使用 Sphinx 构建，并使用 Read the Docs 提供的主题。</div>
+     
+
+</footer>
+
+          </div>
+<script>
+
+var match = window.location.href.match(/\/_[a-zA-Z0-9_]*.html|_dynamo/gi);
+var url = window.location.href.lastIndexOf(match[match.length-1]);
+
+if (url)
+  {
+    var div = '<div class="admonition note"><p class="admonition-title">Note</p><p><i class="fa fa-exclamation-circle" aria-hidden="true">&nbsp</i> This page describes an internal API which is not intended to be used outside of the PyTorch codebase and can be modified or removed without notice.</p></div>'
+    document.getElementById("pytorch-article").insertAdjacentHTML('afterBegin', div)
+  }
+</script>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+         <script src="../../_static/jquery.js"></script>
+         <script src="../../_static/underscore.js"></script>
+         <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+         <script src="../../_static/doctools.js"></script>
+         <script src="../../_static/clipboard.min.js"></script>
+         <script src="../../_static/copybutton.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="../../_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="../../_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ 
+<script script="" type="text/javascript">
+  var collapsedSections = ['Developer Notes', 'Language Bindings', 'Libraries', 'Community'];
+</script>
+
+<img height="1" width="1" style="border-style:none;" alt="" src="https://www.googleadservices.com/pagead/conversion/795629140/?label=txkmCPmdtosBENSssfsC&amp;guid=ON&amp;script=0">
+
+
+  <!-- Begin Footer -->
+
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 text-center">
+          <h2>文档</h2>
+          <p>PyTorch 的全面开发者文档</p>
+          <a class="with-right-arrow" href="https://pytorch.org/docs/stable/index.html">查看文档</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>教程</h2>
+          <p>深入了解初学者和高级开发者的教程</p>
+          <a class="with-right-arrow" href="https://pytorch.org/tutorials">查看教程</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>资源</h2>
+          <p>查找开发资源，获取您的疑问解答</p>
+          <a class="with-right-arrow" href="https://pytorch.org/resources">查看资源</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://pytorch.org/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/">PyTorch</a></li>
+            <li><a href="https://pytorch.org/get-started">开始使用</a></li>
+            <li><a href="https://pytorch.org/features">功能</a></li>
+            <li><a href="https://pytorch.org/ecosystem">生态系统</a></li>
+            <li><a href="https://pytorch.org/blog/">博客</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md">贡献</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/resources">资源</a></li>
+            <li><a href="https://pytorch.org/tutorials">教程</a></li>
+            <li><a href="https://pytorch.org/docs/stable/index.html">文档</a></li>
+            <li><a href="https://discuss.pytorch.org" target="_blank">讨论</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/issues" target="_blank">Github 问题</a></li>
+            <li><a href="https://pytorch.org/assets/brand-guidelines/PyTorch-Brand-Guidelines.pdf" target="_blank">品牌指南</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">保持更新</li>
+            <li><a href="https://www.facebook.com/pytorch" target="_blank">脸书</a></li>
+            <li><a href="https://twitter.com/pytorch" target="_blank">推特</a></li>
+            <li><a href="https://www.youtube.com/pytorch" target="_blank">YouTube</a></li>
+            <li><a href="https://www.linkedin.com/company/pytorch" target="_blank">领英</a></li>
+          </ul>  
+          </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">PyTorch 播客</li>
+            <li><a href="https://open.spotify.com/show/6UzHKeiy368jKfQMKKvJY5" target="_blank">Spotify</a></li>
+            <li><a href="https://podcasts.apple.com/us/podcast/pytorch-developer-podcast/id1566080008" target="_blank">苹果</a></li>
+            <li><a href="https://www.google.com/podcasts?feed=aHR0cHM6Ly9mZWVkcy5zaW1wbGVjYXN0LmNvbS9PQjVGa0lsOA%3D%3D" target="_blank">谷歌</a></li>
+            <li><a href="https://music.amazon.com/podcasts/7a4e6f0e-26c2-49e9-a478-41bd244197d0/PyTorch-Developer-Podcast?" target="_blank">亚马逊</a></li>
+          </ul>
+         </div>
+        </div>
+        
+        <div class="privacy-policy">
+          <ul>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/terms/" target="_blank">条款</a></li>
+            <li class="privacy-policy-links">|</li>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/privacy-policy/" target="_blank">隐私</a></li>
+          </ul>
+        </div>
+        <div class="copyright">
+        <p>© 版权所有 Linux 基金会。PyTorch 基金会是 Linux 基金会的一个项目。有关 PyTorch 基金会的网站使用条款、商标政策以及其他适用政策，请参阅 www.linuxfoundation.org/policies/。PyTorch 基金会支持 PyTorch 开源项目，该项目已被确立为 LF Projects, LLC 的 PyTorch 项目系列。有关适用于 PyTorch 项目系列 LF Projects, LLC 的政策，请参阅 www.lfprojects.org/policies/。</p>
+      </div>
+     </div>
+
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">为了分析流量并优化您的体验，我们在本网站上使用 cookies。通过点击或导航，您同意允许我们使用 cookies。作为本网站的当前维护者，适用 Facebook 的 Cookies 政策。了解更多信息，包括关于可用控制的信息：Cookies 政策。</p>
+    <img class="close-button" src="../../_static/images/pytorch-x.svg" width="16" height="16">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+           <li class="resources-mobile-menu-title">
+             <a>学习</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/get-started">开始使用</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials">教程</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/basics/intro.html">学习基础知识</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/recipes/recipes_index.html">PyTorch 食谱</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/introyt.html">PyTorch 入门 - YouTube 系列</a>
+             </li>
+           </ul>
+           <li class="resources-mobile-menu-title">
+             <a>生态系统</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/ecosystem">工具</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/#community-module">社区</a>
+             </li>
+             <li>
+               <a href="https://discuss.pytorch.org/">论坛</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/resources">开发者资源</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">贡献者奖项 - 2024</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>Edge</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/edge">关于 PyTorch Edge</a>
+             </li>
+             
+             <li>
+               <a href="https://pytorch.org/executorch-overview">执行火炬</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch 文档</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>文档</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/docs/stable/index.html">PyTorch</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/pytorch-domains">PyTorch 领域</a>
+            </li>
+          </ul>
+
+          <li class="resources-mobile-menu-title">
+            <a>博客 &amp; 新闻</a>
+          </li>
+            
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/blog/">PyTorch 博客</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/community-blog">社区博客</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/videos">视频</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/community-stories">社区故事</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/events">活动</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">新闻简报</a>
+             </li>
+          </ul>
+          
+          <li class="resources-mobile-menu-title">
+            <a>关于</a>
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/foundation">PyTorch 基金会</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/governing-board">治理委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">云信用计划</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">技术咨询委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">员工</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">联系我们</a>
+            </li>
+          </ul>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="../../_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body></html>

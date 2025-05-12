@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>torch.profiler — PyTorch main documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pytorch.org/docs/stable/profiler.html">
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css">
+  <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css">
+  <link rel="stylesheet" href="_static/copybutton.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="_static/katex-math.css" type="text/css">
+  <link rel="stylesheet" href="_static/sphinx-dropdown.css" type="text/css">
+  <link rel="stylesheet" href="_static/panels-bootstrap.min.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/jit.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css">
+    <link rel="index" title="Index" href="genindex.html">
+    <link rel="search" title="Search" href="search.html">
+    <link rel="next" title="torch.nn.init" href="nn.init.html">
+    <link rel="prev" title="torch.package" href="package.html">
+
+<!--
+  Search engines should not index the main version of documentation.
+  Stable documentation are built without release == 'main'.
+-->
+<meta name="robots" content="noindex">
+
+
+  <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T8XT4PS');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+  <!-- Preload the theme fonts -->
+
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<!-- Preload the katex fonts -->
+
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Math-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size1-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size2-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Caligraphic-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
+</head><body class="pytorch-body"><div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+
+          <li class="main-menu-item">
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">学习</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/get-started">
+                  <span class="dropdown-title">开始使用</span>
+                  <p>在本地运行 PyTorch 或快速开始使用支持的云平台之一</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials">
+                  <span class="dropdown-title">教程</span><p></p>
+                  <p>PyTorch 教程中的新内容</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/basics/intro.html">
+                  <span class="dropdown-title">学习基础知识</span><p></p>
+                  <p>熟悉 PyTorch 的概念和模块</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/recipes/recipes_index.html">
+                  <span class="dropdown-title">PyTorch 食谱</span><p></p>
+                  <p>精简版、可直接部署的 PyTorch 代码示例</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/introyt.html">
+                  <span class="dropdown-title">PyTorch 入门 - YouTube 系列</span><p></p>
+                  <p>通过我们引人入胜的 YouTube 教程系列掌握 PyTorch 基础知识</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">生态系统</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem">
+                  <span class="dropdown-title">工具</span><p></p>
+                  <p>了解 PyTorch 生态系统中的工具和框架</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
+                  <span class="dropdown-title">社区</span>
+                  <p>加入 PyTorch 开发者社区，贡献、学习并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
+                  <span class="dropdown-title">论坛</span>
+                  <p>讨论 PyTorch 代码、问题、安装、研究的地方</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/resources">
+                  <span class="dropdown-title">开发者资源</span>
+                  <p>查找资源并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">贡献者奖项 - 2024</span><p></p>
+                  <p>本届 PyTorch 会议揭晓获奖者</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">
+                Edge
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/edge">
+                  <span class="dropdown-title">关于 PyTorch Edge</span><p></p>
+                  <p>为边缘设备构建创新和隐私感知的 AI 体验</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
+                  <span class="dropdown-title">ExecuTorch</span><p></p>
+                  <p>基于移动和边缘设备的端到端推理能力解决方案</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch 文档</span><p></p>
+                </a>
+              </div>
+            </div>  
+          </li>
+
+          <li class="main-menu-item">
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">文档</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/docs/stable/index.html">
+                  <span class="dropdown-title">PyTorch</span><p></p>
+                  <p>探索文档以获取全面指导，了解如何使用 PyTorch</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/pytorch-domains">
+                  <span class="dropdown-title">PyTorch 领域</span><p></p>
+                  <p>阅读 PyTorch 领域的文档，了解更多关于特定领域库的信息</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">博客与新闻</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/blog/">
+                  <span class="dropdown-title">PyTorch 博客</span><p></p>
+                  <p>捕捉最新的技术新闻和事件</p>
+                </a>
+                 <a class="nav-dropdown-item" href="https://pytorch.org/community-blog">
+                  <span class="dropdown-title">社区博客</span><p></p>
+                  <p>PyTorch 生态系统故事</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/videos">
+                  <span class="dropdown-title">视频</span><p></p>
+                  <p>了解最新的 PyTorch 教程、新内容等</p>
+                </a><a class="nav-dropdown-item" href="https://pytorch.org/community-stories">
+                  <span class="dropdown-title">社区故事</span><p></p>
+                  <p>学习如何我们的社区使用 PyTorch 解决真实、日常的机器学习问题</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/events">
+                  <span class="dropdown-title">活动</span><p></p>
+                  <p>查找活动、网络研讨会和播客</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">通讯</span><p></p>
+                  <p>跟踪最新更新</p>
+                </a>
+            </div>
+          </div></li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">关于</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/foundation">
+                  <span class="dropdown-title">PyTorch 基金会</span><p></p>
+                  <p>了解更多关于 PyTorch 基金会的信息</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
+                  <span class="dropdown-title">管理委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">云信用计划</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">技术顾问委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">员工</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">联系我们</span><p></p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li class="main-menu-item">
+            <div class="no-dropdown">
+              <a href="https://pytorch.org/join" data-cta="join">成为会员</a>
+            </div>
+          </li>
+          <li>
+           <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="github-icon">
+             </a>
+           </div>
+          </li>
+          <!--- TODO: This block adds the search icon to the nav bar. We will enable it later. 
+          <li>
+            <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="search-icon">
+             </a>
+            </div>
+          </li>
+          --->
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+  </div>
+</div>
+
+
+
+   
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>目录</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+    <div class="version">
+      <a href="https://pytorch.org/docs/versions.html">主程序 (2.7.0+cpu ) ▼</a>
+    </div>
+    <div id="searchBox">
+    <div class="searchbox" id="googleSearchBox">
+      <script async="" src="https://cse.google.com/cse.js?cx=e65585f8c3ea1440e"></script>
+      <div class="gcse-search"></div>
+    </div>
+    <div id="sphinxSearchBox" style="display: none;">
+      <div role="search">
+        <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+          <input type="text" name="q" placeholder="Search Docs">
+          <input type="hidden" name="check_keywords" value="yes">
+          <input type="hidden" name="area" value="default">
+        </form>
+      </div>
+    </div>
+  </div>
+  <form id="searchForm">
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="google" checked="">谷歌搜索</label>
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="sphinx">经典搜索</label>
+  </form>
+
+  <script>
+     document.addEventListener('DOMContentLoaded', function() {
+      const searchForm = document.getElementById('searchForm');
+      const googleSearchBox = document.getElementById('googleSearchBox');
+      const sphinxSearchBox = document.getElementById('sphinxSearchBox');
+      // Function to toggle search box visibility
+      function toggleSearchBox(searchType) {
+        googleSearchBox.style.display = searchType === 'google' ? 'block' : 'none';
+        sphinxSearchBox.style.display = searchType === 'sphinx' ? 'block' : 'none';
+      }
+      // Determine the default search type
+      let defaultSearchType;
+      const currentUrl = window.location.href;
+      if (currentUrl.startsWith('https://pytorch.org/docs/stable')) {
+        // For the stable documentation, default to Google
+        defaultSearchType = localStorage.getItem('searchType') || 'google';
+      } else {
+        // For any other version, including docs-preview, default to Sphinx
+        defaultSearchType = 'sphinx';
+      }
+      // Set the default search type
+      document.querySelector(`input[name="searchType"][value="${defaultSearchType}"]`).checked = true;
+      toggleSearchBox(defaultSearchType);
+      // Event listener for changes in search type
+      searchForm.addEventListener('change', function(event) {
+        const selectedSearchType = event.target.value;
+        localStorage.setItem('searchType', selectedSearchType);
+        toggleSearchBox(selectedSearchType);
+      });
+      // Set placeholder text for Google search box
+      window.onload = function() {
+        var placeholderText = "Search Docs";
+        var googleSearchboxText = document.querySelector("#gsc-i-id1");
+        if (googleSearchboxText) {
+          googleSearchboxText.placeholder = placeholderText;
+          googleSearchboxText.style.fontFamily = 'FreightSans';
+          googleSearchboxText.style.fontSize = "1.2rem";
+          googleSearchboxText.style.color = '#262626';
+        }
+      };
+    });
+  </script>
+
+          </div>
+
+          
+
+<div>
+  <a style="color:#F05732" href="https://pytorch.org/docs/stable/profiler.html">您正在查看不稳定开发者预览文档。请点击此处查看最新稳定版本的文档。</a>
+</div>
+
+
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">社区</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="community/build_ci_governance.html">PyTorch 治理 | 构建 + CI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/contribution_guide.html">PyTorch 贡献指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/design.html">PyTorch 设计哲学</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/governance.html">PyTorch 治理 | 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/persons_of_interest.html">PyTorch 治理 | 维护者</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发者笔记</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="notes/amp_examples.html">自动混合精度示例</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/autograd.html">Autograd 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/broadcasting.html">广播语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/cpu_threading_torchscript_inference.html">CPU 多线程和 TorchScript 推理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/cuda.html">CUDA 语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/custom_operators.html">PyTorch 自定义算子页面</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/ddp.html">分布式数据并行</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/extending.html">扩展 PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/extending.func.html">使用 autograd.Function 扩展 torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/faq.html">常见问题解答</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/fsdp.html">FSDP 笔记</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/get_start_xpu.html">在 Intel GPU 上入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/gradcheck.html">Gradcheck 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/hip.html">HIP (ROCm)语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/large_scale_deployments.html">大规模部署功能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/libtorch_stable_abi.html">LibTorch 稳定 ABI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/modules.html">模块</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/mps.html">MPS 后端</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/multiprocessing.html">多进程最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/numerical_accuracy.html">数值精度</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/randomness.html">可重现性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/serialization.html">序列化语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/windows.html">Windows 常见问题解答</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">语言绑定</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cpp_index.html">C++</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/javadoc/">Javadoc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deploy.html">torch::deploy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="torch.html">torch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.html">torch.nn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.functional.html">torch.nn.functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensors.html">torch.Tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensor_attributes.html">张量属性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensor_view.html">张量视图</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amp.html">torch.amp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autograd.html">torch.autograd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="library.html">torch.library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accelerator.html">torch.accelerator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpu.html">torch.cpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">torch.cuda</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html">理解 CUDA 内存使用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#generating-a-snapshot">生成快照</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#using-the-visualizer">使用可视化工具</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#snapshot-api-reference">快照 API 参考</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mps.html">torch.mps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="xpu.html">torch.xpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mtia.html">torch.mtia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mtia.memory.html">torch.mtia.memory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="meta.html">元设备</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backends.html">torch.backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="export.html">torch.export</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.html">torch.distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.tensor.html">torch.distributed.tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.algorithms.join.html">torch.distributed.algorithms.join</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.elastic.html">torch.distributed.elastic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fsdp.html">torch.distributed.fsdp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.fsdp.fully_shard.html">torch.distributed.fsdp.fully_shard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.tensor.parallel.html">torch.distributed.tensor.parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.optim.html">torch.distributed.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.pipelining.html">torch.distributed.pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.checkpoint.html">torch.distributed.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributions.html">torch.distributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch.compiler.html">torch.compiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fft.html">torch.fft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="func.html">torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="futures.html">torch.futures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fx.html">torch.fx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fx.experimental.html">torch.fx.experimental</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hub.html">torch.hub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jit.html">torch.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="linalg.html">torch.linalg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitor.html">torch.monitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="signal.html">torch.signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="special.html">torch.special</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch.overrides.html">torch.overrides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="package.html">torch.package</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">torch.profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.init.html">torch.nn.init</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.attention.html">torch.nn.attention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="onnx.html">torch.onnx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="optim.html">torch.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="complex_numbers.html">复数</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ddp_comm_hooks.html">DDP 通信钩子</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quantization.html">量化</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rpc.html">分布式 RPC 框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="random.html">torch.random</a></li>
+<li class="toctree-l1"><a class="reference internal" href="masked.html">torch.masked</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nested.html">torch.nested</a></li>
+<li class="toctree-l1"><a class="reference internal" href="size.html">torch.Size</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sparse.html">torch.sparse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="storage.html">torch.Storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">torch.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">torch.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmark_utils.html">torch.utils.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bottleneck.html">torch.utils.bottleneck</a></li>
+<li class="toctree-l1"><a class="reference internal" href="checkpoint.html">torch.utils.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp_extension.html">torch.utils.cpp_extension</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data.html">torch.utils.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deterministic.html">torch.utils.deterministic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jit_utils.html">torch.utils.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dlpack.html">torch.utils.dlpack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mobile_optimizer.html">torch.utils.mobile_optimizer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_zoo.html">torch.utils.model_zoo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensorboard.html">torch.utils.tensorboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_tracker.html">torch.utils.module_tracker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="type_info.html">类型信息</a></li>
+<li class="toctree-l1"><a class="reference internal" href="named_tensor.html">命名张量</a></li>
+<li class="toctree-l1"><a class="reference internal" href="name_inference.html">命名张量操作覆盖率</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config_mod.html">torch.__config__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="future_mod.html">torch.__future__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">torch._logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_environment_variables.html">火炬环境变量</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">库</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/audio/stable">torchaudio</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/data">TorchData</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/torchrec">火炬推荐</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/serve">TorchServe</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/text/stable">torchtext</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/vision/stable">torchvision</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/xla/">PyTorch 在 XLA 设备上</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/ao">torchao</a></li>
+</ul>
+
+            
+          
+
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        文档 &gt;</li>
+
+        
+      <li>torch.profiler</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+            
+            <a href="_sources/profiler.rst.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg" width="16" height="16"></a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">快捷键</div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+
+          <!-- Google Tag Manager (noscript) -->
+          <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T8XT4PS" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+          <!-- End Google Tag Manager (noscript) -->
+          
+          <div class="rst-content">
+          
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <section id="torch-profiler">
+<h1>torch.profiler<a class="headerlink" href="#torch-profiler" title="Permalink to this heading">¶</a></h1>
+<section id="module-torch.profiler">
+<span id="overview"></span><h2>概述 ¶</h2>
+<p>PyTorch Profiler 是一个工具，允许在训练和推理过程中收集性能指标。Profiler 的上下文管理器 API 可以用来更好地理解哪些模型操作最昂贵，检查它们的输入形状和堆栈跟踪，研究设备内核活动并可视化执行跟踪。</p>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>API 的早期版本在 <code class="xref py py-mod docutils literal "><span class="pre">torch.autograd</span></code> 模块中被认为是遗留版本，并将被弃用。</p>
+</div>
+</section>
+<section id="api-reference">
+<h2>API 参考指南</h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.profiler._KinetoProfile">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.profiler.</span></span><span class="sig-name descname"><span class="pre">_KinetoProfile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activities</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">record_shapes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profile_memory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_stack</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_flops</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_modules</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experimental_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">execution_trace_observer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acc_events</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_trace_id_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/profiler/profiler.html#_KinetoProfile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/profiler/profiler.py#L94"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.profiler._KinetoProfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>低级分析器封装了自动微分分析器。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>activities (可迭代) - 在分析中使用的活动组列表（CPU、CUDA），支持值： <code class="docutils literal "><span class="pre">torch.profiler.ProfilerActivity.CPU</span></code> ， <code class="docutils literal "><span class="pre">torch.profiler.ProfilerActivity.CUDA</span></code> ， <code class="docutils literal "><span class="pre">torch.profiler.ProfilerActivity.XPU</span></code> 。默认值：ProfilerActivity.CPU 和（当可用时）ProfilerActivity.CUDA 或（当可用时）ProfilerActivity.XPU。</p></li>
+<li><p>record_shapes (bool) – 保存操作符输入形状信息。</p></li>
+<li><p>profile_memory (bool) – 跟踪张量内存分配/释放（见 <code class="docutils literal "><span class="pre">export_memory_timeline</span></code> 了解更多细节）。</p></li>
+<li><p>with_stack (bool) – 记录操作符的源信息（文件和行号）。</p></li>
+<li><p>with_flops (bool) – 使用公式估计特定操作符的 FLOPS（矩阵乘法和 2D 卷积）。</p></li>
+<li><p>with_modules (bool) – 记录操作调用栈对应的模块层次结构（包括函数名）。例如，如果模块 A 的前向调用模块 B 的前向，其中包含 aten::add 操作，则 aten::add 的模块层次结构是 A.B 注意，目前此支持仅适用于 TorchScript 模型，而不适用于 eager 模式模型。</p></li>
+<li><p>experimental_config (_ExperimentalConfig) – 一组由 Kineto 等分析库使用的实验性选项。注意，不保证向后兼容性。</p></li>
+<li><p>execution_trace_observer (ExecutionTraceObserver) – PyTorch 执行跟踪观察者对象。PyTorch 执行跟踪提供基于图的 AI/ML 工作负载表示，并支持回放基准测试、模拟器和仿真器。当包含此参数时，观察者的 start() 和 stop() 方法将与 PyTorch 分析器的相同时间窗口调用。</p></li>
+<li><p>acc_events (bool) – 启用在多个分析周期内累积 FunctionEvents。</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>此 API 为实验性，未来可能发生变化。</p>
+<p>启用形状和堆栈跟踪会导致额外的开销。当指定 record_shapes=True 时，分析器将暂时保留张量的引用；这可能会进一步防止依赖于引用计数的某些优化，并引入额外的张量副本。</p>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.profiler._KinetoProfile.add_metadata">
+<span class="sig-name descname"><span class="pre">add_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/profiler/profiler.html#_KinetoProfile.add_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/profiler/profiler.py#L332"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.profiler._KinetoProfile.add_metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>将用户定义的元数据（字符串键和字符串值）添加到跟踪文件中</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.profiler._KinetoProfile.add_metadata_json">
+add_metadata_json(key, value)[source][source]</dt>
+<dd><p>将用户定义的元数据（字符串键和有效的 JSON 值）添加到跟踪文件中</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.profiler._KinetoProfile.events">
+events()[source][source]</dt>
+<dd><p>返回未聚合的剖析事件列表，用于跟踪回调或剖析完成后</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.profiler._KinetoProfile.export_chrome_trace">
+<span class="sig-name descname"><span class="pre">export_chrome_trace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/profiler/profiler.html#_KinetoProfile.export_chrome_trace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/profiler/profiler.py#L245"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.profiler._KinetoProfile.export_chrome_trace" title="Permalink to this definition">¶</a></dt>
+<dd><p>以 Chrome JSON 格式导出收集到的跟踪信息。如果启用 kineto，则仅导出计划中的最后一个周期。</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.profiler._KinetoProfile.export_memory_timeline">
+<span class="sig-name descname"><span class="pre">export_memory_timeline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/profiler/profiler.html#_KinetoProfile.export_memory_timeline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/profiler/profiler.py#L383"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.profiler._KinetoProfile.export_memory_timeline" title="Permalink to this definition">¶</a></dt>
+<dd><p>从给定设备的分析器收集的树中导出内存事件信息，并导出时间线图。使用 <code class="docutils literal "><span class="pre">export_memory_timeline</span></code> 可以导出 3 个文件，每个文件由 <code class="docutils literal "><span class="pre">path</span></code> 的后缀控制。</p>
+<ul class="simple">
+<li><p>对于兼容 HTML 的图表，使用后缀 <code class="docutils literal "><span class="pre">.html</span></code> ，内存时间线图将作为 PNG 文件嵌入到 HTML 文件中。</p></li>
+<li><p>对于由 <code class="docutils literal "><span class="pre">[times,</span> <span class="pre">[sizes</span> <span class="pre">by</span> <span class="pre">category]]</span></code> 组成的图表点，其中 <code class="docutils literal "><span class="pre">times</span></code> 是时间戳， <code class="docutils literal "><span class="pre">sizes</span></code> 是每个类别的内存使用情况。内存时间线图将保存为 JSON（ <code class="docutils literal "><span class="pre">.json</span></code> ）或 gzip 压缩的 JSON（ <code class="docutils literal "><span class="pre">.json.gz</span></code> ），具体取决于后缀。</p></li>
+<li><p>对于原始内存点，使用后缀 <code class="docutils literal "><span class="pre">.raw.json.gz</span></code> 。每个原始内存事件将包含 <code class="docutils literal "><span class="pre">(timestamp,</span> <span class="pre">action,</span> <span class="pre">numbytes,</span> <span class="pre">category)</span></code> ，其中 <code class="docutils literal "><span class="pre">action</span></code> 是 <code class="docutils literal "><span class="pre">[PREEXISTING,</span> <span class="pre">CREATE,</span> <span class="pre">INCREMENT_VERSION,</span> <span class="pre">DESTROY]</span></code> 之一， <code class="docutils literal "><span class="pre">category</span></code> 是 <code class="docutils literal "><span class="pre">torch.profiler._memory_profiler.Category</span></code> 中的枚举之一。</p></li>
+</ul>
+<p>输出：以 gzip 压缩的 JSON、JSON 或 HTML 格式编写的内存时间线。</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.profiler._KinetoProfile.export_stacks">
+<span class="sig-name descname"><span class="pre">export_stacks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'self_cpu_time_total'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/profiler/profiler.html#_KinetoProfile.export_stacks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/profiler/profiler.py#L263"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.profiler._KinetoProfile.export_stacks" title="Permalink to this definition">¶</a></dt>
+<dd><p>将堆栈跟踪保存到文件</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>path (str) – 将堆栈文件保存到该位置；</p></li>
+<li><p>metric (str) – 要使用的指标：“self_cpu_time_total”或“self_cuda_time_total”</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.profiler._KinetoProfile.key_averages">
+<span class="sig-name descname"><span class="pre">key_averages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">group_by_input_shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_by_stack_n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_by_overload_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/profiler/profiler.html#_KinetoProfile.key_averages"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/profiler/profiler.py#L306"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.profiler._KinetoProfile.key_averages" title="Permalink to this definition">¶</a></dt>
+<dd><p>平均事件，按操作符名称和（可选）输入形状、堆栈和重载名称进行分组。</p>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>要使用形状/堆栈功能，请确保在创建分析器上下文管理器时设置 record_shapes/with_stack。</p>
+</div>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.profiler._KinetoProfile.preset_metadata_json">
+<span class="sig-name descname"><span class="pre">preset_metadata_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/profiler/profiler.html#_KinetoProfile.preset_metadata_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/profiler/profiler.py#L347"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.profiler._KinetoProfile.preset_metadata_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>在分析器未启动时预设用户定义的元数据，并在稍后添加到跟踪文件中。元数据格式为字符串键和有效的 JSON 值</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.profiler._KinetoProfile.toggle_collection_dynamic">
+<span class="sig-name descname"><span class="pre">toggle_collection_dynamic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">enable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activities</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/profiler/profiler.html#_KinetoProfile.toggle_collection_dynamic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/profiler/profiler.py#L273"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.profiler._KinetoProfile.toggle_collection_dynamic" title="Permalink to this definition">¶</a></dt>
+<dd><p>在任何收集点切换活动的收集开关。目前支持切换 Torch Ops（CPU）和 Kineto 支持的 CUDA 活动</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>活动（可迭代）- 要在分析中使用的活动组列表，支持的值： <code class="docutils literal "><span class="pre">torch.profiler.ProfilerActivity.CPU</span></code> ， <code class="docutils literal "><span class="pre">torch.profiler.ProfilerActivity.CUDA</span></code> </p>
+</dd>
+</dl>
+<p>示例：</p>
+<div class="highlight-python "><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">profiler</span><span class="o">.</span><span class="n">profile</span><span class="p">(</span>
+    <span class="n">activities</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">profiler</span><span class="o">.</span><span class="n">ProfilerActivity</span><span class="o">.</span><span class="n">CPU</span><span class="p">,</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">profiler</span><span class="o">.</span><span class="n">ProfilerActivity</span><span class="o">.</span><span class="n">CUDA</span><span class="p">,</span>
+    <span class="p">]</span>
+<span class="p">)</span> <span class="k">as</span> <span class="n">p</span><span class="p">:</span>
+    <span class="n">code_to_profile_0</span><span class="p">()</span>
+    <span class="o">//</span> <span class="n">turn</span> <span class="n">off</span> <span class="n">collection</span> <span class="n">of</span> <span class="nb">all</span> <span class="n">CUDA</span> <span class="n">activity</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">toggle_collection_dynamic</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">profiler</span><span class="o">.</span><span class="n">ProfilerActivity</span><span class="o">.</span><span class="n">CUDA</span><span class="p">])</span>
+    <span class="n">code_to_profile_1</span><span class="p">()</span>
+    <span class="o">//</span> <span class="n">turn</span> <span class="n">on</span> <span class="n">collection</span> <span class="n">of</span> <span class="nb">all</span> <span class="n">CUDA</span> <span class="n">activity</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">toggle_collection_dynamic</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">profiler</span><span class="o">.</span><span class="n">ProfilerActivity</span><span class="o">.</span><span class="n">CUDA</span><span class="p">])</span>
+    <span class="n">code_to_profile_2</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">key_averages</span><span class="p">()</span><span class="o">.</span><span class="n">table</span><span class="p">(</span>
+    <span class="n">sort_by</span><span class="o">=</span><span class="s2">"self_cuda_time_total"</span><span class="p">,</span> <span class="n">row_limit</span><span class="o">=-</span><span class="mi">1</span><span class="p">))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.profiler.profile">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.profiler.</span></span><span class="sig-name descname"><span class="pre">profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activities</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schedule</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_trace_ready</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">record_shapes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profile_memory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_stack</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_flops</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_modules</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experimental_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">execution_trace_observer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acc_events</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_cuda</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_trace_id_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/profiler/profiler.html#profile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/profiler/profiler.py#L540"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.profiler.profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>分析器上下文管理器。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>activities (可迭代对象) – 用于分析的活动组列表（CPU、CUDA），支持值： <code class="docutils literal "><span class="pre">torch.profiler.ProfilerActivity.CPU</span></code> ， <code class="docutils literal "><span class="pre">torch.profiler.ProfilerActivity.CUDA</span></code> ， <code class="docutils literal "><span class="pre">torch.profiler.ProfilerActivity.XPU</span></code> 。默认值：ProfilerActivity.CPU 和（当可用时）ProfilerActivity.CUDA 或（当可用时）ProfilerActivity.XPU。</p></li>
+<li><p>schedule (可调用对象) – 可调用对象，它接受步长（int）作为单个参数，并在每个步骤返回指定分析器操作的值 <code class="docutils literal "><span class="pre">ProfilerAction</span></code> 。</p></li>
+<li><p>on_trace_ready (Callable) – 在每个步骤中，当 <code class="docutils literal "><span class="pre">schedule</span></code> 返回 <code class="docutils literal "><span class="pre">ProfilerAction.RECORD_AND_SAVE</span></code> 时调用的可调用函数。</p></li>
+<li><p>record_shapes (bool) – 保存操作符输入形状的信息。</p></li>
+<li><p>profile_memory (bool) – 跟踪张量的内存分配/释放。</p></li>
+<li><p>with_stack (bool) – 记录操作符的源信息（文件和行号）。</p></li>
+<li><p>with_flops (bool) – 使用公式估计特定运算符（矩阵乘法和二维卷积）的 FLOPs（浮点运算）。</p></li>
+<li><p>with_modules (bool) – 记录操作调用栈对应的模块层次结构（包括函数名）。例如，如果模块 A 的前向调用模块 B 的前向，其中包含 aten::add 操作，则 aten::add 的模块层次结构是 A.B 注意，目前此支持仅适用于 TorchScript 模型，而不适用于 eager 模式模型。</p></li>
+<li><p>experimental_config (_ExperimentalConfig) – 用于 Kineto 库功能的实验选项集。注意，不保证向后兼容性。</p></li>
+<li><p>execution_trace_observer (ExecutionTraceObserver) – PyTorch 执行跟踪观察者对象。PyTorch 执行跟踪提供 AI/ML 工作负载的基于图的表示，并启用重放基准测试、模拟器和仿真器。当包含此参数时，观察者的 start()和 stop()将在与 PyTorch 分析器相同的时间窗口内被调用。下面示例部分提供了代码示例。</p></li>
+<li><p>acc_events (bool) – 启用在多个分析周期内累积 FunctionEvents。</p></li>
+<li><p><strong>use_cuda</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – </p><div class="deprecated">
+<p>自 1.8.1 版本以来已弃用：请使用 <code class="docutils literal "><span class="pre">activities</span></code> 代替。</p>
+</div>
+<p></p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>使用 <code class="xref py py-func docutils literal "><span class="pre">schedule()</span></code> 生成可调用的调度。非默认调度在分析长时间训练作业时非常有用，允许用户在训练过程的各个迭代中获取多个跟踪。默认调度简单地记录所有事件，在上下文管理器持续时间内连续记录。</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>使用 <code class="xref py py-func docutils literal "><span class="pre">tensorboard_trace_handler()</span></code> 为 TensorBoard 生成结果文件：</p>
+<p><code class="docutils literal "><span class="pre">on_trace_ready=torch.profiler.tensorboard_trace_handler(dir_name)</span></code></p>
+<p>分析完成后，结果文件可以在指定的目录中找到。请使用以下命令：</p>
+<p><code class="docutils literal "><span class="pre">tensorboard</span> <span class="pre">--logdir</span> <span class="pre">dir_name</span></code></p>
+<p>在 TensorBoard 中查看结果。有关更多信息，请参阅 PyTorch Profiler TensorBoard 插件</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>启用形状和堆栈跟踪会导致额外的开销。当指定 record_shapes=True 时，分析器将暂时保留张量的引用；这可能会进一步防止依赖于引用计数的某些优化，并引入额外的张量副本。</p>
+</div>
+<p>示例：</p>
+<div class="highlight-python "><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">profiler</span><span class="o">.</span><span class="n">profile</span><span class="p">(</span>
+    <span class="n">activities</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">profiler</span><span class="o">.</span><span class="n">ProfilerActivity</span><span class="o">.</span><span class="n">CPU</span><span class="p">,</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">profiler</span><span class="o">.</span><span class="n">ProfilerActivity</span><span class="o">.</span><span class="n">CUDA</span><span class="p">,</span>
+    <span class="p">]</span>
+<span class="p">)</span> <span class="k">as</span> <span class="n">p</span><span class="p">:</span>
+    <span class="n">code_to_profile</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">key_averages</span><span class="p">()</span><span class="o">.</span><span class="n">table</span><span class="p">(</span>
+    <span class="n">sort_by</span><span class="o">=</span><span class="s2">"self_cuda_time_total"</span><span class="p">,</span> <span class="n">row_limit</span><span class="o">=-</span><span class="mi">1</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>使用分析器的 <code class="docutils literal "><span class="pre">schedule</span></code> 、 <code class="docutils literal "><span class="pre">on_trace_ready</span></code> 和 <code class="docutils literal "><span class="pre">step</span></code> 函数：</p>
+<div class="highlight-python "><div class="highlight"><pre><span></span><span class="c1"># Non-default profiler schedule allows user to turn profiler on and off</span>
+<span class="c1"># on different iterations of the training loop;</span>
+<span class="c1"># trace_handler is called every time a new trace becomes available</span>
+<span class="k">def</span> <span class="nf">trace_handler</span><span class="p">(</span><span class="n">prof</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">prof</span><span class="o">.</span><span class="n">key_averages</span><span class="p">()</span><span class="o">.</span><span class="n">table</span><span class="p">(</span>
+        <span class="n">sort_by</span><span class="o">=</span><span class="s2">"self_cuda_time_total"</span><span class="p">,</span> <span class="n">row_limit</span><span class="o">=-</span><span class="mi">1</span><span class="p">))</span>
+    <span class="c1"># prof.export_chrome_trace("/tmp/test_trace_" + str(prof.step_num) + ".json")</span>
+
+<span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">profiler</span><span class="o">.</span><span class="n">profile</span><span class="p">(</span>
+    <span class="n">activities</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">profiler</span><span class="o">.</span><span class="n">ProfilerActivity</span><span class="o">.</span><span class="n">CPU</span><span class="p">,</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">profiler</span><span class="o">.</span><span class="n">ProfilerActivity</span><span class="o">.</span><span class="n">CUDA</span><span class="p">,</span>
+    <span class="p">],</span>
+
+    <span class="c1"># In this example with wait=1, warmup=1, active=2, repeat=1,</span>
+    <span class="c1"># profiler will skip the first step/iteration,</span>
+    <span class="c1"># start warming up on the second, record</span>
+    <span class="c1"># the third and the forth iterations,</span>
+    <span class="c1"># after which the trace will become available</span>
+    <span class="c1"># and on_trace_ready (when set) is called;</span>
+    <span class="c1"># the cycle repeats starting with the next step</span>
+
+    <span class="n">schedule</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">profiler</span><span class="o">.</span><span class="n">schedule</span><span class="p">(</span>
+        <span class="n">wait</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">warmup</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">active</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">repeat</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+    <span class="n">on_trace_ready</span><span class="o">=</span><span class="n">trace_handler</span>
+    <span class="c1"># on_trace_ready=torch.profiler.tensorboard_trace_handler('./log')</span>
+    <span class="c1"># used when outputting for tensorboard</span>
+    <span class="p">)</span> <span class="k">as</span> <span class="n">p</span><span class="p">:</span>
+        <span class="k">for</span> <span class="nb">iter</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+            <span class="n">code_iteration_to_profile</span><span class="p">(</span><span class="nb">iter</span><span class="p">)</span>
+            <span class="c1"># send a signal to the profiler that the next iteration has started</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>以下示例展示了如何设置执行跟踪观察器（execution_trace_observer）</p>
+<div class="highlight-python "><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">profiler</span><span class="o">.</span><span class="n">profile</span><span class="p">(</span>
+    <span class="o">...</span>
+    <span class="n">execution_trace_observer</span><span class="o">=</span><span class="p">(</span>
+        <span class="n">ExecutionTraceObserver</span><span class="p">()</span><span class="o">.</span><span class="n">register_callback</span><span class="p">(</span><span class="s2">"./execution_trace.json"</span><span class="p">)</span>
+    <span class="p">),</span>
+<span class="p">)</span> <span class="k">as</span> <span class="n">p</span><span class="p">:</span>
+    <span class="k">for</span> <span class="nb">iter</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+        <span class="n">code_iteration_to_profile</span><span class="p">(</span><span class="nb">iter</span><span class="p">)</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>你也可以参考 tests/profiler/test_profiler.py 中的 test_execution_trace_with_kineto()。注意：也可以传递任何满足 _ITraceObserver 接口的对象。</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.profiler.profile.get_trace_id">
+get_trace_id()[source][source]</dt>
+<dd><p>返回当前的跟踪 ID。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.profiler.profile.set_custom_trace_id_callback">
+set_custom_trace_id_callback(callback)[source][source]</dt>
+<dd><p>设置当生成新的跟踪 ID 时调用的回调。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.profiler.profile.step">
+<span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/profiler/profiler.html#profile.step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/profiler/profiler.py#L822"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.profiler.profile.step" title="Permalink to this definition">¶</a></dt>
+<dd><p>通知分析器下一个分析步骤已开始。</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.profiler.ProfilerAction">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.profiler.</span></span><span class="sig-name descname"><span class="pre">ProfilerAction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/profiler/profiler.html#ProfilerAction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/profiler/profiler.py#L434"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.profiler.ProfilerAction" title="Permalink to this definition">¶</a></dt>
+<dd><p>在指定间隔内可以执行的分析器操作。</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.profiler.ProfilerActivity">
+torch.profiler.ProfilerActivity 类</dt>
+<dd><p>成员：</p>
+<p>CPU</p>
+<p>XPU</p>
+<p>MTIA</p>
+<p>CUDA</p>
+<p>HPU</p>
+<p>私有用途 1</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="torch.profiler.ProfilerActivity.name">
+属性名称¶</dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.profiler.schedule">
+<span class="sig-prename descclassname"><span class="pre">torch.profiler.</span></span><span class="sig-name descname"><span class="pre">schedule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wait</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warmup</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_first</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_first_wait</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/profiler/profiler.html#schedule"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/profiler/profiler.py#L445"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.profiler.schedule" title="Permalink to this definition">¶</a></dt>
+<dd><p>返回一个可调用的对象，可以用作分析器 <code class="docutils literal "><span class="pre">schedule</span></code> 参数。分析器将跳过前 <code class="docutils literal "><span class="pre">skip_first</span></code> 步骤，然后等待 <code class="docutils literal "><span class="pre">wait</span></code> 步骤，然后进行下一个 <code class="docutils literal "><span class="pre">warmup</span></code> 步骤的预热，然后进行下一个 <code class="docutils literal "><span class="pre">active</span></code> 步骤的活跃记录，然后从 <code class="docutils literal "><span class="pre">wait</span></code> 步骤开始重复循环。可选的循环次数由 <code class="docutils literal "><span class="pre">repeat</span></code> 参数指定，零值表示循环将一直继续，直到分析完成。</p>
+<p>第 <code class="docutils literal "><span class="pre">skip_first_wait</span></code> 参数控制是否跳过第一个 <code class="docutils literal "><span class="pre">wait</span></code> 阶段。如果用户想要在循环之间等待的时间长于 <code class="docutils literal "><span class="pre">skip_first</span></code> ，但第一个配置文件不需要，这可能会很有用。例如，如果 <code class="docutils literal "><span class="pre">skip_first</span></code> 是 10， <code class="docutils literal "><span class="pre">wait</span></code> 是 20，那么如果 <code class="docutils literal "><span class="pre">skip_first_wait</span></code> 为零，第一个循环将在预热前等待 10 + 20 = 30 步，但如果 <code class="docutils literal "><span class="pre">skip_first_wait</span></code> 非零，则只等待 10 步。然后所有后续循环将在最后一个活动和预热之间等待 20 步。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.13)"><em>可调用</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.profiler.tensorboard_trace_handler">
+torch.profiler.tensorboard_trace_handler(dir_name, worker_name=None, use_gzip=False)[source][source]</dt>
+<dd><p>将跟踪文件输出到 <code class="docutils literal "><span class="pre">dir_name</span></code> 的目录，然后可以直接将此目录作为 logdir 传递给 tensorboard。在分布式场景中， <code class="docutils literal "><span class="pre">worker_name</span></code> 应为每个工作者的唯一标识，默认情况下将设置为‘[hostname]_[pid]’。</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+</section>
+<section id="intel-instrumentation-and-tracing-technology-apis">
+<h2>英特尔仪器和跟踪技术 API</h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.profiler.itt.is_available">
+<span class="sig-prename descclassname"><span class="pre">torch.profiler.itt.</span></span><span class="sig-name descname"><span class="pre">is_available</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/profiler/itt.html#is_available"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/profiler/itt.py#L30"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.profiler.itt.is_available" title="Permalink to this definition">¶</a></dt>
+<dd><p>检查 ITT 功能是否可用</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.profiler.itt.mark">
+<span class="sig-prename descclassname"><span class="pre">torch.profiler.itt.</span></span><span class="sig-name descname"><span class="pre">mark</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/profiler/itt.html#mark"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/profiler/itt.py#L56"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.profiler.itt.mark" title="Permalink to this definition">¶</a></dt>
+<dd><p>描述在某个时刻发生的瞬时事件</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>msg (str) – 与事件关联的 ASCII 消息。</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.profiler.itt.range_push">
+<span class="sig-prename descclassname"><span class="pre">torch.profiler.itt.</span></span><span class="sig-name descname"><span class="pre">range_push</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/profiler/itt.html#range_push"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/profiler/itt.py#L37"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.profiler.itt.range_push" title="Permalink to this definition">¶</a></dt>
+<dd><p>将一个范围推入嵌套范围栈。返回开始的范围的零基深度。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>msg (str) – 与范围关联的 ASCII 消息。</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.profiler.itt.range_pop">
+<span class="sig-prename descclassname"><span class="pre">torch.profiler.itt.</span></span><span class="sig-name descname"><span class="pre">range_pop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/profiler/itt.html#range_pop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/profiler/itt.py#L48"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.profiler.itt.range_pop" title="Permalink to this definition">¶</a></dt>
+<dd><p>从嵌套范围跨度堆栈中弹出范围。返回结束的范围的零基深度。</p>
+</dd></dl>
+
+<span class="target" id="module-torch.profiler.itt"></span><span class="target" id="module-torch.profiler.profiler"></span><span class="target" id="module-torch.profiler.python_tracer"></span></section>
+</section>
+
+
+             </article>
+             
+            </div>
+            <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        下一个 <img height="16" width="16" class="next-page" src="_static/images/chevron-right-orange.svg"> <img height="16" width="16" class="previous-page" src="_static/images/chevron-right-orange.svg"> 上一个
+      
+    </div>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>© 版权所有 PyTorch 贡献者。</p>
+  </div>
+    
+      <div>使用 Sphinx 构建，主题由 Read the Docs 提供。</div>
+     
+
+</footer>
+
+          </div>
+<script>
+
+var match = window.location.href.match(/\/_[a-zA-Z0-9_]*.html|_dynamo/gi);
+var url = window.location.href.lastIndexOf(match[match.length-1]);
+
+if (url)
+  {
+    var div = '<div class="admonition note"><p class="admonition-title">Note</p><p><i class="fa fa-exclamation-circle" aria-hidden="true">&nbsp</i> This page describes an internal API which is not intended to be used outside of the PyTorch codebase and can be modified or removed without notice.</p></div>'
+    document.getElementById("pytorch-article").insertAdjacentHTML('afterBegin', div)
+  }
+</script>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">torch.profiler</a><ul>
+<li><a class="reference internal" href="#module-torch.profiler">概述</a></li>
+<li><a class="reference internal" href="#api-reference">API 参考</a></li>
+<li><a class="reference internal" href="#intel-instrumentation-and-tracing-technology-apis">英特尔仪器和跟踪技术 API</a></li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+         <script src="_static/jquery.js"></script>
+         <script src="_static/underscore.js"></script>
+         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+         <script src="_static/doctools.js"></script>
+         <script src="_static/clipboard.min.js"></script>
+         <script src="_static/copybutton.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ 
+<script script="" type="text/javascript">
+  var collapsedSections = ['Developer Notes', 'Language Bindings', 'Libraries', 'Community'];
+</script>
+
+<img height="1" width="1" style="border-style:none;" alt="" src="https://www.googleadservices.com/pagead/conversion/795629140/?label=txkmCPmdtosBENSssfsC&amp;guid=ON&amp;script=0">
+
+
+  <!-- Begin Footer -->
+
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 text-center">
+          <h2>文档</h2>
+          <p>PyTorch 开发者文档全面访问</p>
+          <a class="with-right-arrow" href="https://pytorch.org/docs/stable/index.html">查看文档</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>教程</h2>
+          <p>获取初学者和高级开发者的深入教程</p>
+          <a class="with-right-arrow" href="https://pytorch.org/tutorials">查看教程</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>资源</h2>
+          <p>查找开发资源并获得您的疑问解答</p>
+          <a class="with-right-arrow" href="https://pytorch.org/resources">查看资源</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://pytorch.org/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/">PyTorch</a></li>
+            <li><a href="https://pytorch.org/get-started">开始使用</a></li>
+            <li><a href="https://pytorch.org/features">功能</a></li>
+            <li><a href="https://pytorch.org/ecosystem">生态系统</a></li>
+            <li><a href="https://pytorch.org/blog/">博客</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md">贡献</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/resources">资源</a></li>
+            <li><a href="https://pytorch.org/tutorials">教程</a></li>
+            <li><a href="https://pytorch.org/docs/stable/index.html">文档</a></li>
+            <li><a href="https://discuss.pytorch.org" target="_blank">讨论</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/issues" target="_blank">GitHub 问题和任务</a></li>
+            <li><a href="https://pytorch.org/assets/brand-guidelines/PyTorch-Brand-Guidelines.pdf" target="_blank">品牌指南</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">保持更新</li>
+            <li><a href="https://www.facebook.com/pytorch" target="_blank">Facebook</a></li>
+            <li><a href="https://twitter.com/pytorch" target="_blank">推特</a></li>
+            <li><a href="https://www.youtube.com/pytorch" target="_blank">YouTube</a></li>
+            <li><a href="https://www.linkedin.com/company/pytorch" target="_blank">领英</a></li>
+          </ul>  
+          </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">PyTorch 播客</li>
+            <li><a href="https://open.spotify.com/show/6UzHKeiy368jKfQMKKvJY5" target="_blank">Spotify</a></li>
+            <li><a href="https://podcasts.apple.com/us/podcast/pytorch-developer-podcast/id1566080008" target="_blank">苹果</a></li>
+            <li><a href="https://www.google.com/podcasts?feed=aHR0cHM6Ly9mZWVkcy5zaW1wbGVjYXN0LmNvbS9PQjVGa0lsOA%3D%3D" target="_blank">谷歌</a></li>
+            <li><a href="https://music.amazon.com/podcasts/7a4e6f0e-26c2-49e9-a478-41bd244197d0/PyTorch-Developer-Podcast?" target="_blank">亚马逊</a></li>
+          </ul>
+         </div>
+        </div>
+        
+        <div class="privacy-policy">
+          <ul>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/terms/" target="_blank">条款</a></li>
+            <li class="privacy-policy-links">|</li>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/privacy-policy/" target="_blank">隐私</a></li>
+          </ul>
+        </div>
+        <div class="copyright">
+        <p>© 版权所有 Linux 基金会。PyTorch 基金会是 Linux 基金会的一个项目。有关本网站的使用条款、商标政策以及其他适用于 PyTorch 基金会的政策，请参阅 www.linuxfoundation.org/policies/。PyTorch 基金会支持 PyTorch 开源项目，该项目已被确立为 LF Projects, LLC 的 PyTorch 项目系列。有关适用于 PyTorch 项目系列 LF Projects, LLC 的政策，请参阅 www.lfprojects.org/policies/。</p>
+      </div>
+     </div>
+
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">为分析流量并优化您的体验，我们在本网站上提供 cookies。通过点击或导航，您同意允许我们使用 cookies。作为本站点的当前维护者，Facebook 的 Cookies 政策适用。了解更多信息，包括可用的控制选项：Cookies 政策。</p>
+    <img class="close-button" src="_static/images/pytorch-x.svg" width="16" height="16">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+           <li class="resources-mobile-menu-title">
+             <a>学习</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/get-started">开始学习</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials">教程</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/basics/intro.html">学习基础知识</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/recipes/recipes_index.html">PyTorch 菜谱</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/introyt.html">PyTorch 入门 - YouTube 系列</a>
+             </li>
+           </ul>
+           <li class="resources-mobile-menu-title">
+             <a>生态系统</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/ecosystem">工具</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/#community-module">社区</a>
+             </li>
+             <li>
+               <a href="https://discuss.pytorch.org/">论坛</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/resources">开发者资源</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">贡献者奖项 - 2024</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>Edge</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/edge">关于 PyTorch Edge</a>
+             </li>
+             
+             <li>
+               <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch 文档</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>文档</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/docs/stable/index.html">PyTorch</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/pytorch-domains">PyTorch 领域</a>
+            </li>
+          </ul>
+
+          <li class="resources-mobile-menu-title">
+            <a>博客 &amp; 新闻</a>
+          </li>
+            
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/blog/">PyTorch 博客</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/community-blog">社区博客</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/videos">视频</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/community-stories">社区故事</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/events">活动</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">通讯</a>
+             </li>
+          </ul>
+          
+          <li class="resources-mobile-menu-title">
+            <a>关于</a>
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/foundation">PyTorch 基金会</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/governing-board">治理委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">云信用计划</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">技术顾问委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">员工</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">联系我们</a>
+            </li>
+          </ul>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body></html>

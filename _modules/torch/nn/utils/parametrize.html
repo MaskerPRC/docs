@@ -1,0 +1,1734 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+  <meta charset="UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>torch.nn.utils.parametrize — PyTorch main documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pytorch.org/docs/stable/_modules/torch/nn/utils/parametrize.html">
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css">
+  <!-- <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css">
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css">
+  <link rel="stylesheet" href="../../../../_static/copybutton.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="../../../../_static/katex-math.css" type="text/css">
+  <link rel="stylesheet" href="../../../../_static/sphinx-dropdown.css" type="text/css">
+  <link rel="stylesheet" href="../../../../_static/panels-bootstrap.min.css" type="text/css">
+  <link rel="stylesheet" href="../../../../_static/css/jit.css" type="text/css">
+  <link rel="stylesheet" href="../../../../_static/css/custom.css" type="text/css">
+    <link rel="index" title="Index" href="../../../../genindex.html">
+    <link rel="search" title="Search" href="../../../../search.html">
+
+<!--
+  Search engines should not index the main version of documentation.
+  Stable documentation are built without release == 'main'.
+-->
+<meta name="robots" content="noindex">
+
+
+  <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T8XT4PS');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  
+  <script src="../../../../_static/js/modernizr.min.js"></script>
+
+  <!-- Preload the theme fonts -->
+
+<link rel="preload" href="../../../../_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../../_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../../_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../../_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../../_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../../_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<!-- Preload the katex fonts -->
+
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Math-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size1-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size2-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Caligraphic-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
+</head><body class="pytorch-body"><div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+
+          <li class="main-menu-item">
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">学习</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/get-started">
+                  <span class="dropdown-title">开始使用</span>
+                  <p>在本地运行 PyTorch 或快速开始使用支持的云平台之一</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials">
+                  <span class="dropdown-title">教程</span><p></p>
+                  <p>PyTorch 教程中有什么新内容</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/basics/intro.html">
+                  <span class="dropdown-title">学习基础知识</span><p></p>
+                  <p>熟悉 PyTorch 的概念和模块</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/recipes/recipes_index.html">
+                  <span class="dropdown-title">PyTorch 食谱</span><p></p>
+                  <p>小而全，即用即部署的 PyTorch 代码示例</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/introyt.html">
+                  <span class="dropdown-title">PyTorch 入门 - YouTube 系列教程</span><p></p>
+                  <p>通过我们引人入胜的 YouTube 教程系列掌握 PyTorch 基础知识</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">生态系统</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem">
+                  <span class="dropdown-title">工具</span><p></p>
+                  <p>了解 PyTorch 生态系统中的工具和框架</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
+                  <span class="dropdown-title">社区</span>
+                  <p>加入 PyTorch 开发者社区，贡献、学习并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
+                  <span class="dropdown-title">论坛</span>
+                  <p>讨论 PyTorch 代码、问题、安装、研究的地方</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/resources">
+                  <span class="dropdown-title">开发者资源</span>
+                  <p>查找资源并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">贡献者奖项 - 2024</span><p></p>
+                  <p>本年 PyTorch 会议揭晓获奖者</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">边缘</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/edge">
+                  <span class="dropdown-title">关于 PyTorch Edge</span><p></p>
+                  <p>为边缘设备构建创新且注重隐私的 AI 体验</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
+                  <span class="dropdown-title">ExecuTorch</span><p></p>
+                  <p>针对移动和边缘设备实现端到端推理能力的解决方案</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch 文档</span><p></p>
+                </a>
+              </div>
+            </div>  
+          </li>
+
+          <li class="main-menu-item">
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">文档</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/docs/stable/index.html">
+                  <span class="dropdown-title">PyTorch</span><p></p>
+                  <p>查阅文档以获取全面指导，了解如何使用 PyTorch</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/pytorch-domains">
+                  <span class="dropdown-title">PyTorch 领域</span><p></p>
+                  <p>阅读 PyTorch 领域文档，了解更多关于特定领域库的信息</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">博客与新闻</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/blog/">
+                  <span class="dropdown-title">PyTorch 博客</span><p></p>
+                  <p>跟上最新的技术新闻和动态</p>
+                </a>
+                 <a class="nav-dropdown-item" href="https://pytorch.org/community-blog">
+                  <span class="dropdown-title">社区博客</span><p></p>
+                  <p>PyTorch 生态系统中的故事</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/videos">
+                  <span class="dropdown-title">视频</span><p></p>
+                  <p>了解最新的 PyTorch 教程、新内容等</p>
+                </a><a class="nav-dropdown-item" href="https://pytorch.org/community-stories">
+                  <span class="dropdown-title">社区故事</span><p></p>
+                  <p>了解我们的社区如何使用 PyTorch 解决真实、日常的机器学习问题</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/events">
+                  <span class="dropdown-title">活动</span><p></p>
+                  <p>查找活动、网络研讨会和播客</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">通讯</span><p></p>
+                  <p>跟踪最新更新</p>
+                </a>
+            </div>
+          </div></li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">关于</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/foundation">
+                  <span class="dropdown-title">PyTorch 基金会</span><p></p>
+                  <p>了解更多关于 PyTorch 基金会的信息</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
+                  <span class="dropdown-title">管理委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">云信用计划</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">技术顾问委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">员工</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">联系我们</span><p></p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li class="main-menu-item">
+            <div class="no-dropdown">
+              <a href="https://pytorch.org/join" data-cta="join">成为会员</a>
+            </div>
+          </li>
+          <li>
+           <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="github-icon">
+             </a>
+           </div>
+          </li>
+          <!--- TODO: This block adds the search icon to the nav bar. We will enable it later. 
+          <li>
+            <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="search-icon">
+             </a>
+            </div>
+          </li>
+          --->
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+  </div>
+</div>
+
+
+
+   
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>目录</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+    <div class="version">
+      <a href="https://pytorch.org/docs/versions.html">主页 (2.7.0+cpu ) ▼</a>
+    </div>
+    <div id="searchBox">
+    <div class="searchbox" id="googleSearchBox">
+      <script async="" src="https://cse.google.com/cse.js?cx=e65585f8c3ea1440e"></script>
+      <div class="gcse-search"></div>
+    </div>
+    <div id="sphinxSearchBox" style="display: none;">
+      <div role="search">
+        <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+          <input type="text" name="q" placeholder="Search Docs">
+          <input type="hidden" name="check_keywords" value="yes">
+          <input type="hidden" name="area" value="default">
+        </form>
+      </div>
+    </div>
+  </div>
+  <form id="searchForm">
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="google" checked="">Google 搜索</label>
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="sphinx">经典搜索</label>
+  </form>
+
+  <script>
+     document.addEventListener('DOMContentLoaded', function() {
+      const searchForm = document.getElementById('searchForm');
+      const googleSearchBox = document.getElementById('googleSearchBox');
+      const sphinxSearchBox = document.getElementById('sphinxSearchBox');
+      // Function to toggle search box visibility
+      function toggleSearchBox(searchType) {
+        googleSearchBox.style.display = searchType === 'google' ? 'block' : 'none';
+        sphinxSearchBox.style.display = searchType === 'sphinx' ? 'block' : 'none';
+      }
+      // Determine the default search type
+      let defaultSearchType;
+      const currentUrl = window.location.href;
+      if (currentUrl.startsWith('https://pytorch.org/docs/stable')) {
+        // For the stable documentation, default to Google
+        defaultSearchType = localStorage.getItem('searchType') || 'google';
+      } else {
+        // For any other version, including docs-preview, default to Sphinx
+        defaultSearchType = 'sphinx';
+      }
+      // Set the default search type
+      document.querySelector(`input[name="searchType"][value="${defaultSearchType}"]`).checked = true;
+      toggleSearchBox(defaultSearchType);
+      // Event listener for changes in search type
+      searchForm.addEventListener('change', function(event) {
+        const selectedSearchType = event.target.value;
+        localStorage.setItem('searchType', selectedSearchType);
+        toggleSearchBox(selectedSearchType);
+      });
+      // Set placeholder text for Google search box
+      window.onload = function() {
+        var placeholderText = "Search Docs";
+        var googleSearchboxText = document.querySelector("#gsc-i-id1");
+        if (googleSearchboxText) {
+          googleSearchboxText.placeholder = placeholderText;
+          googleSearchboxText.style.fontFamily = 'FreightSans';
+          googleSearchboxText.style.fontSize = "1.2rem";
+          googleSearchboxText.style.color = '#262626';
+        }
+      };
+    });
+  </script>
+
+          </div>
+
+          
+
+<div>
+  <a style="color:#F05732" href="https://pytorch.org/docs/stable/_modules/torch/nn/utils/parametrize.html">您正在查看不稳定开发者预览文档。请点击此处查看最新稳定版本的文档。</a>
+</div>
+
+
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">社区</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../community/build_ci_governance.html">PyTorch 治理 | 构建 + CI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../community/contribution_guide.html">PyTorch 贡献指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../community/design.html">PyTorch 设计哲学</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../community/governance.html">PyTorch 治理 | 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../community/persons_of_interest.html">PyTorch 治理 | 维护者</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发者笔记</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/amp_examples.html">自动混合精度示例</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/autograd.html">Autograd 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/broadcasting.html">广播语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/cpu_threading_torchscript_inference.html">CPU 多线程和 TorchScript 推理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/cuda.html">CUDA 语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/custom_operators.html">PyTorch 自定义算子页面</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/ddp.html">分布式数据并行</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/extending.html">扩展 PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/extending.func.html">使用 autograd.Function 扩展 torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/faq.html">常见问题解答</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/fsdp.html">FSDP 笔记</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/get_start_xpu.html">在 Intel GPU 上入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/gradcheck.html">Gradcheck 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/hip.html">HIP (ROCm)语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/large_scale_deployments.html">大规模部署功能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/libtorch_stable_abi.html">LibTorch 稳定 ABI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/modules.html">模块</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/mps.html">MPS 后端</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/multiprocessing.html">多进程最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/numerical_accuracy.html">数值精度</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/randomness.html">可重复性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/serialization.html">序列化语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/windows.html">Windows 常见问题解答</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">语言绑定</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cpp_index.html">C++</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/javadoc/">Javadoc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../deploy.html">torch::deploy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torch.html">torch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../nn.html">torch.nn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../nn.functional.html">torch.nn.functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tensors.html">torch.Tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tensor_attributes.html">索引属性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tensor_view.html">张量视图</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../amp.html">torch.amp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../autograd.html">torch.autograd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../library.html">torch.library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../accelerator.html">torch.accelerator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cpu.html">torch.cpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cuda.html">torch.cuda</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torch_cuda_memory.html">理解 CUDA 内存使用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torch_cuda_memory.html#generating-a-snapshot">生成快照</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torch_cuda_memory.html#using-the-visualizer">使用可视化工具</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torch_cuda_memory.html#snapshot-api-reference">摄像头 API 参考</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../mps.html">torch.mps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../xpu.html">torch.xpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../mtia.html">torch.mtia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../mtia.memory.html">torch.mtia.memory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../meta.html">元设备</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../backends.html">torch.backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../export.html">torch.export</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../distributed.html">torch.distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../distributed.tensor.html">torch.distributed.tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../distributed.algorithms.join.html">torch.distributed.algorithms.join</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../distributed.elastic.html">torch.distributed.elastic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../fsdp.html">torch.distributed.fsdp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../distributed.fsdp.fully_shard.html">torch.distributed.fsdp.fully_shard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../distributed.tensor.parallel.html">torch.distributed.tensor.parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../distributed.optim.html">torch.distributed.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../distributed.pipelining.html">torch.distributed.pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../distributed.checkpoint.html">torch.distributed.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../distributions.html">torch.distributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torch.compiler.html">torch.compiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../fft.html">torch.fft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../func.html">torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../futures.html">torch.futures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../fx.html">torch.fx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../fx.experimental.html">torch.fx.experimental</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../hub.html">torch.hub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../jit.html">torch.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../linalg.html">torch.linalg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../monitor.html">torch.monitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../signal.html">torch.signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../special.html">torch.special</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torch.overrides.html">torch.overrides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../package.html">torch.package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../profiler.html">torch.profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../nn.init.html">torch.nn.init</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../nn.attention.html">torch.nn.attention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../onnx.html">torch.onnx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../optim.html">torch.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../complex_numbers.html">复数</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ddp_comm_hooks.html">DDP 通信钩子</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quantization.html">量化</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../rpc.html">分布式 RPC 框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../random.html">torch.random</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../masked.html">torch.masked</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../nested.html">torch.nested</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../size.html">torch.Size</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sparse.html">torch.sparse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../storage.html">torch.Storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../testing.html">torch.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../utils.html">torch.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../benchmark_utils.html">torch.utils.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../bottleneck.html">torch.utils.bottleneck</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../checkpoint.html">torch.utils.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cpp_extension.html">torch.utils.cpp_extension</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../data.html">torch.utils.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../deterministic.html">torch.utils.deterministic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../jit_utils.html">torch.utils.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../dlpack.html">torch.utils.dlpack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../mobile_optimizer.html">torch.utils.mobile_optimizer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../model_zoo.html">torch.utils.model_zoo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tensorboard.html">torch.utils.tensorboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../module_tracker.html">torch.utils.module_tracker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../type_info.html">类型信息</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../named_tensor.html">命名张量</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../name_inference.html">命名张量操作覆盖率</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../config_mod.html">torch.__config__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../future_mod.html">torch.__future__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../logging.html">torch._logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torch_environment_variables.html">Torch 环境变量</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">库</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/audio/stable">torchaudio</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/data">TorchData</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/torchrec">火炬推荐</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/serve">TorchServe</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/text/stable">torchtext</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/vision/stable">torchvision</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/xla/">PyTorch on XLA Devices</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/ao">torchao</a></li>
+</ul>
+
+            
+          
+
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        文档 &gt;</li>
+
+        
+          <li>模块代码 &gt;</li>
+        
+          <li><a href="../../../torch.html">torch</a> &gt;</li>
+        
+      <li>torch.nn.utils.parametrize</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">快捷键</div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+
+          <!-- Google Tag Manager (noscript) -->
+          <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T8XT4PS" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+          <!-- End Google Tag Manager (noscript) -->
+          
+          <div class="rst-content">
+          
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <h1>torch.nn.utils.parametrize 的源代码</font></font></font></h1><div class="highlight"><pre><span></span><span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># mypy: 允许未类型化装饰器</span>
+<span class="c1"># mypy: 允许未类型化定义</span>
+<span class="kn">导入</font></font></font></span> <span class="nn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">集合</span>
+<span class="kn">导入</span> <span class="nn">copyreg</span>
+<span class="kn">来自</font></font></font></span> <span class="nn">collections.abc</span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">序列</span>
+<span class="kn">来自</font></font></font></span> <span class="nn">contextlib</span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</span> <span class="n">contextmanager</span>
+<span class="kn">来自</font></font></font></span> <span class="nn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">复制</font></font></font></span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">深拷贝</span>
+<span class="kn">来自</font></font></font></span> <span class="nn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">打字</font></font></font></span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">可选</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">联合</span>
+
+<span class="kn">导入</font></font></font></span> <span class="nn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</span>
+<span class="kn">来自</font></font></font></span> <span class="nn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</span>
+<span class="kn">来自</font></font></font></span> <span class="nn">torch.__future__</span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">转换时获取交换模块参数</span>
+<span class="kn">来自</font></font></font></span> <span class="nn">torch.nn.modules.container</span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">,</span> <span class="n">ModuleDict</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块列表</span>
+<span class="kn">来自</font></font></font></span> <span class="nn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">torch.nn 参数</font></font></font></span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span>
+<span class="kn">来自</font></font></font></span> <span class="nn">torch.utils._python_dispatch</span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">可追踪包装子类</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">缓存</span><span class="p">,</span>
+    <span class="s2">参数化列表</span><span class="p">,</span>
+    <span class="s2">"注册参数化"</span><span class="p">,</span>
+    <span class="s2">"是否参数化"</span><span class="p">,</span>
+    <span class="s2">"移除参数化"</span><span class="p">,</span>
+    <span class="s2">"参数化之前的类型"</span><span class="p">,</span>
+    <span class="s2">"参数化及参数传递"</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">缓存已启用</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">缓存</font></font></font></span><span class="p">:</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">字典</font></font></font></span><span class="p">[</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">元组</font></font></font></span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">字符串</font></font></font></span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">]</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">可选</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+
+
+<div class="viewcode-block" id="cached"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]上下文管理器
+def 缓存():
+r"""上下文管理器，用于启用与 :func:`register_parametrization` 注册的参数化注册的缓存系统。"""
+
+参数化对象的值在第一次需要时进行计算和缓存。当上下文管理器处于活动状态时。
+缓存的值在离开上下文管理器时将被丢弃。
+当上下文管理器处于活动状态时，它们是必需的。当上下文管理器处于活动状态时。
+
+这在多次前向传递中使用参数化参数时很有用。
+例如，当对 RNN 的循环核进行参数化或共享权重时。
+激活缓存的简单方法是将神经网络的正向传递包装起来。
+
+激活缓存的简单方法是将神经网络的正向传递包装起来。
+
+.. 代码块 :: python
+
+导入 torch.nn.utils.parametrize 作为 P
+        ...
+使用 P.cached()
+output = 模型(inputs)
+
+在训练和评估中。也可以将模块中使用到的参数化张量的部分进行包装。
+例如，具有参数化循环核的 RNN 的循环可以多次执行。
+参数化循环核：
+
+.. 代码块 :: python
+
+使用 P.cached()
+对于 x in xs:
+out_rnn = self.rnn_cell(x, out_rnn)
+"""
+全局变量 _cache
+全局变量 _cache_enabled
+_cache_enabled += 1
+try:
+yield
+finally:
+_cache_enabled -= 1
+如果没有 _cache_enabled:
+_cache = {}</font></font></font></div>
+
+
+<span class="k">def</span> <span class="nf">_register_parameter_or_buffer</span><span class="p">(</span><span class="n">模块</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+    <span class="k">如果</font></font></font></span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="p">):</span>
+        <span class="n">模块</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">注册参数</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</span><span class="p">,</span> <span class="n">X</span><span class="p">)</span>
+    <span class="k">否则</span><span class="p">:</span>
+        <span class="n">模块</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">注册缓冲区</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</span><span class="p">,</span> <span class="n">X</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_maybe_set</span><span class="p">(</span><span class="n">目标</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">源</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</font></font></font></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">:</span>
+    <span class="n">应该交换</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">在转换时获取交换模块参数</font></font></font></span><span class="p">()</span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">或</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">可追踪包装子类</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">目标</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">应该交换</span><span class="p">:</span>
+        <span class="k">如果</font></font></font></span> <span class="nb">isinstance</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">目标</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</font></font></font></span><span class="p">)</span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">和</font></font></font></span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">源</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="p">):</span>
+            <span class="n">源</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">源</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">需要梯度</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">目标</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">需要梯度</span><span class="p">)</span>
+        <span class="n">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">工具</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">交换张量</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">目标</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">源</span><span class="p">)</span>
+    <span class="k">否则</span><span class="p">:</span>
+        <span class="n">目标</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">集合</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">源</span><span class="p">)</span>  <span class="c1"># type: ignore[call-overload]</span>
+
+
+<div class="viewcode-block" id="ParametrizationList"><a class="viewcode-back" href="../../../../generated/torch.nn.utils.parametrize.ParametrizationList.html#torch.nn.utils.parametrize.ParametrizationList">[文档]</font></font></font></a><span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类</font></font></font></span> <span class="nc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数化列表</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块列表</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""一个按顺序存储和管理参数化 :class:`torch.nn.Module` 的原始参数或缓冲区的容器。</span>
+
+<span class="sd">这是 `module.parametrizations[tensor_name]` 的类型，当 `module[tensor_name]`</span>
+<span class="sd">使用 `:func:`register_parametrization` 进行参数化时。</span>
+
+<span class="sd">如果第一个注册的参数化具有返回一个张量的 `right_inverse` 或</span>
+<span class="sd">没有具有 `right_inverse`（在这种情况下，我们假设 `right_inverse` 是恒等函数），</span>
+<span class="sd">它将使用 ``original`` 名称存储张量。</span>
+<span class="sd">如果它有一个返回多个张量的 ``right_inverse``，这些张量将被注册为</span>
+<span class="sd">``original0``、``original1``、...</span>
+
+<span class="sd">.. 警告::</span>
+<span class="sd">此类在 :func:`register_parametrization` 内部使用。它有文档说明</span>
+<span class="sd">为了完整性，它不应被用户实例化。</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">模块（序列）：表示参数化的模块序列</span>
+<span class="sd">原始（参数或张量）：被参数化的参数或缓冲区</span>
+<span class="sd">不安全（布尔值）：表示参数化是否安全的布尔标志</span>
+<span class="sd">可能会改变张量的数据类型和形状。默认：`False`</span>
+<span class="sd">警告：注册时不会检查参数化的一致性。</span>
+<span class="sd">请自行承担启用此标志的风险。</span>
+<span class="sd">"源代码"</span>
+
+    <span class="n">原始</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</span>
+    <span class="n">不安全</font></font></font></span><span class="p">:</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">布尔类型</span>
+
+    <span class="k">def</span> <span class="fm">初始化</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">模块</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">序列</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">]</span>
+        <span class="n">原始</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">联盟</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</font></font></font></span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">]</span>
+        <span class="n">不安全</font></font></font></span><span class="p">:</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">布尔类型</font></font></font></span> <span class="o">=</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">错误</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">无</span><span class="p">:</span>
+        <span class="c1">我们需要这样要求，因为我们需要区分不同的第一次参数化。</span>
+        <span class="c1"># 此类不应抛出异常，除非从外部使用此类</span>
+        <span class="k">如果</font></font></font></span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">长度</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">提升</font></font></font></span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">"参数化列表需要一个或多个模块。"</span><span class="p">)</span>
+
+        <span class="nb">超级</font></font></font></span><span class="p">()</span><span class="o">.</span><span class="fm"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">初始化</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">不安全</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">不安全</span>
+
+        <span class="c1">简单的话：</span>
+        <span class="c1"># module.weight 必须保持其 dtype 和 shape。</span>
+        <span class="c1"># 此外，如果没有 right_inverse 或者 right_inverse 返回一个 tensor，</span>
+        <span class="c1"># 这应该与原始 tensor 具有相同的 dtype</span>
+        <span class="c1">#</span>
+        <span class="c1">我们检查以下不变量是否成立：</span>
+        <span class="c1">X = 模块权重</span>
+        <span class="c1">Y = param.right_inverse(X)</span>
+        <span class="c1">断言 isinstance(Y, Tensor) 或</span>
+        <span class="c1"># (isinstance(Y, collections.abc.Sequence) and all(isinstance(t, Tensor) for t in Y))</span>
+        <span class="c1"># Z = param(Y) if isinstance(Y, Tensor) else param(*Y)</span>
+        <span class="c1"># # 一致性检查</span>
+        <span class="c1"># # 断言 X.dtype == Z.dtype and X.shape == Z.shape</span>
+        <span class="c1">#    # 允许使用 set_ 来能够</span>
+        <span class="c1">#    # 将数据移动到/从原始张量而不改变其 id（优化器使用它来跟踪参数）</span>
+        <span class="c1">#    # 如果 Y 是 Tensor 类型</span>
+        <span class="c1">#    # 如果 Y 是张量</span>
+        <span class="c1">#      断言 X 的数据类型等于 Y 的数据类型</span>
+        <span class="c1"># 以下我们使用 original = X, new = Y</span>
+
+        <span class="n"># 原始形状</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">原始</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">形状</span>
+        <span class="n">原始数据类型</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">原始</span><span class="o">.</span><span class="n">dtype</span>
+
+        <span class="c1"># 计算新的</span>
+        <span class="k">与</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">不梯度</span><span class="p">():</span>
+            <span class="n">新</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">原始</span>
+            <span class="k">为</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在</font></font></font></span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">反转</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># type: ignore[call-overload]</span>
+                <span class="k">如果</font></font></font></span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">有属性</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">,</span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">"右逆"</span><span class="p">):</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">新</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">右逆</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">新</span><span class="p">)</span>  <span class="c1"># type: ignore[operator]</span>
+                    <span class="k">除了</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">不支持的操作异常</span><span class="p">:</span>
+                        <span class="k">通过</span>
+                <span class="c1"># 否则，或者如果它抛出异常，我们假设右逆是恒等变换</span>
+
+        <span class="k">如果</font></font></font></span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">新</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</font></font></font></span><span class="p">)</span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">和</font></font></font></span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">新</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">序列</span><span class="p">):</span>
+            <span class="k">提升</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">"'right_inverse'必须返回一个 Tensor 或一个 Tensor 序列（列表、元组等）。"</span>
+                <span class="sa">f</span><span class="s2">"已获取"</font></font></font></span><span class="si">{</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类型</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">新</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span>
+
+        <span class="c1"># 设置原始张量的数量</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_tensor</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">新</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ntensors</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">如果</font></font></font></span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tensor</span> <span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">否则</font></font></font></span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">长度</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">新</span><span class="p">)</span>
+
+        <span class="c1"># 注册张量（们）</span>
+        <span class="k">如果</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tensor</span><span class="p">:</span>
+            <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">原始</font></font></font></span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">新</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数据类型</span><span class="p">:</span>
+                <span class="k">提升</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">"当 `right_inverse` 输出一个张量时，它可能不会改变数据类型。</font></font></font></span><span class="se"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入文本翻译为简体中文为：\n</span><span class="s2">"</span>
+                    <span class="sa">f</span><span class="s2">"original.dtype: </span><span class="si">{</span><span class="n">原始</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数据类型</font></font></font></span><span class="si">}</span><span class="se"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入文本翻译为简体中文为：\n</span><span class="s2">"</span>
+                    <span class="sa">f</span><span class="s2">right_inverse(original).dtype:</font></font></font></span><span class="si">{</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">新</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数据类型</span><span class="si">}</span><span class="s2">"</span>
+                <span class="p">)</span>
+            <span class="c1">将 original 设置为 original，以便用户无需在优化器中重新注册参数</span>
+            <span class="c1">手动设置</span>
+            <span class="k">与</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">不梯度</span><span class="p">():</span>
+                <span class="n">_maybe_set</span><span class="p">(</span><span class="n">原始</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">新</span><span class="p">)</span>
+            <span class="n">注册参数或缓冲区</font></font></font></span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">原始</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">原始</span><span class="p">)</span>
+        <span class="k">否则</span><span class="p">:</span>
+            <span class="k">为</font></font></font></span> <span class="n">i</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">原始 i</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在</font></font></font></span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">列举</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">新</span><span class="p">):</span>
+                <span class="k">如果</font></font></font></span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">原始 i</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</span><span class="p">):</span>
+                    <span class="k">提升</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">"'right_inverse'必须返回一个张量或张量序列 "</span>
+                        <span class="s2">"（列表、元组...）。"</span>
+                        <span class="sa">f</span><span class="s2">"获取序列的元素 "</font></font></font></span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">的类型 </font></font></font></span><span class="si">{</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类型</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">原始的</font></font></font></span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">。</span>
+                    <span class="p">)</span>
+
+                <span class="c1">如果原始张量是一个需要梯度的参数，我们期望用户</span>
+                <span class="c1">在注册参数化之后将新参数添加到优化器中</span>
+                <span class="c1">（这已在文档中说明）</span>
+                <span class="k">如果</font></font></font></span> <span class="nb">isinstance</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">原始</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="p">):</span>
+                    <span class="n">原始的</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">原始的</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">原始</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">需要梯度</span><span class="p">)</span>
+                <span class="n">原始的</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">需要梯度_</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">原始</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">需要梯度</span><span class="p">)</span>
+                <span class="n">注册参数或缓冲区</font></font></font></span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">原始</font></font></font></span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">原始 i</span><span class="p">)</span>
+
+        <span class="k">如果</font></font></font></span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">不安全</span><span class="p">:</span>
+            <span class="c1"># 一致性检查：</span>
+            <span class="c1"># 由于 f : A -&gt; B, 右逆 : B -&gt; A, Z 和原始应位于 B 中</span>
+            <span class="c1"># Z = 原始矩阵的右逆矩阵</span>
+            <span class="n">Z</span> <span class="o">=</span> <span class="bp">self</span><span class="p">()</span>
+            <span class="k">如果</font></font></font></span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">Z</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</span><span class="p">):</span>
+                <span class="k">提升</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"参数化必须返回一个张量。得到"</font></font></font></span><span class="si">{</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类型</font></font></font></span><span class="p">(</span><span class="n">Z</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">。</span>
+                <span class="p">)</span>
+            <span class="k">如果</font></font></font></span> <span class="n">Z</span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">原始数据类型</span><span class="p">:</span>
+                <span class="k">提升</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">"注册参数化可能不会改变张量的数据类型，除非启用 `unsafe` 标志。"</font></font></font></span><span class="se"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入文本翻译为简体中文为：\n</span><span class="s2">"</span>
+                    <span class="sa">f</span><span class="s2">"未参数化的数据类型："</font></font></font></span><span class="si">{</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">原始数据类型</font></font></font></span><span class="si">}</span><span class="se"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入文本翻译为简体中文为：\n</span><span class="s2">"</span>
+                    <span class="sa">f</span><span class="s2">"参数化的数据类型："</font></font></font></span><span class="si">{</span><span class="n">Z</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数据类型</span><span class="si">}</span><span class="s2">"</span>
+                <span class="p">)</span>
+            <span class="k">如果</font></font></font></span> <span class="n">Z</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">形状</font></font></font></span> <span class="o">!=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">原始形状</span><span class="p">:</span>
+                <span class="k">提升</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">"注册参数化可能不会改变张量的形状，除非启用 `unsafe` 标志。"</font></font></font></span><span class="se"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入文本翻译为简体中文为：\n</span><span class="s2">"</span>
+                    <span class="sa">f</span><span class="s2">"未参数化的形状："</font></font></font></span><span class="si">{</span><span class="n">original_shape</span><span class="si">}</span><span class="se"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入文本翻译为简体中文为：\n</span><span class="s2">"</span>
+                    <span class="sa">f</span><span class="s2">"参数化形状："</span><span class="si">{</span><span class="n">Z</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">"</span>
+                <span class="p">)</span>
+
+<div class="viewcode-block" id="ParametrizationList.right_inverse"><a class="viewcode-back" href="../../../../generated/torch.nn.utils.parametrize.ParametrizationList.html#torch.nn.utils.parametrize.ParametrizationList.right_inverse">[文档]</font></font></font></a>    <span class="k">def</span> <span class="nf"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">右逆</font></font></font></span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">值</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</font></font></font></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">:</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">调用参数化中的 `right_inverse` 方法，按照逆注册顺序。</span>
+
+<span class="sd">然后，如果 `right_inverse` 输出一个张量，则将其存储在 `self.original` 中；</span>
+<span class="sd">如果它输出多个，则存储在 `self.original0`、`self.original1`、... 中。</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">值（Tensor）：初始化模块的值。</span>
+<span class="sd">"源代码"</span>
+        <span class="c1">函数中所有的异常几乎永远不会抛出。</span>
+        <span class="c1">例如，如果 right_inverse 函数在给定不同输入时返回不同的数据类型，可能会抛出异常。</span>
+        <span class="c1">这通常可能是由于用户代码中的 bug 引起的。</span>
+        <span class="c1"># 这应该是由用户代码中的 bug 引起的。</span>
+
+        <span class="k">与</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">不梯度</span><span class="p">():</span>
+            <span class="c1"># 请见 https://github.com/pytorch/pytorch/issues/53103</span>
+            <span class="k">为</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在</font></font></font></span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">反转</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># type: ignore[call-overload]</span>
+                <span class="k">如果</font></font></font></span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">有属性</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</span><span class="p">,</span> <span class="s2">"right_inverse"</span><span class="p">):</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">模块</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">右逆</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">值</span><span class="p">)</span>  <span class="c1"># type: ignore[operator]</span>
+                <span class="k">否则</span><span class="p">:</span>
+                    <span class="k">提升</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">运行时错误</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">"参数化"</font></font></font></span><span class="si">{</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类型</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">未实现</span>
+                        <span class="s2">"右逆."</span>
+                    <span class="p">)</span>
+            <span class="k">如果</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tensor</span><span class="p">:</span>
+                <span class="c1"># 这些异常只有在右逆函数不</span>
+                <span class="c1"># 返回相同的数据类型时才会抛出，这通常是由错误引起的</span>
+                <span class="k">如果</font></font></font></span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">值</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</span><span class="p">):</span>
+                    <span class="k">提升</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">"`右逆` 应返回一个张量。得到</font></font></font></span><span class="si">{</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类型</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">值</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">"</span>
+                    <span class="p">)</span>
+                <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">值</font></font></font></span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">原始</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数据类型</span><span class="p">:</span>
+                    <span class="k">提升</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">`right_inverse` 返回的张量数据类型为</font></font></font></span><span class="si">{</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">值</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数据类型</span><span class="si">}</span><span class="s2"> "</span>
+                        <span class="sa">f</span><span class="s2">而 `original` 的数据类型为</font></font></font></span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">原始</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数据类型</span><span class="si">}</span><span class="s2">"</span>
+                    <span class="p">)</span>
+                <span class="c1">我们知道结果将具有相同的数据类型</span>
+                <span class="n">_maybe_set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">原始</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">值</span><span class="p">)</span>
+            <span class="k">否则</span><span class="p">:</span>
+                <span class="k">如果</font></font></font></span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">值</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">集合</font></font></font></span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">序列</span><span class="p">):</span>
+                    <span class="k">提升</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">" 'right_inverse' 必须返回一个张量序列。 "</span>
+                        <span class="sa">f</span><span class="s2">"已获取"</font></font></font></span><span class="si">{</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类型</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">值</font></font></font></span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">。</span>
+                    <span class="p">)</span>
+                <span class="k">如果</font></font></font></span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">长度</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">值</font></font></font></span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">累计张量</span><span class="p">:</span>
+                    <span class="k">提升</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">"'right_inverse' 必须返回一个长度为的张量序列"</span>
+                        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">累计张量</font></font></font></span><span class="si">}</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">. 获取长度为的序列</font></font></font></span><span class="si">{</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">长度</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">值</font></font></font></span><span class="p">)</span><span class="si">}</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">。</span>
+                    <span class="p">)</span>
+                <span class="k">为</font></font></font></span> <span class="n">i</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在</font></font></font></span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">列举</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">值</span><span class="p">):</span>
+                    <span class="n">原始_i</font></font></font></span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">"原始"</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                    <span class="k">如果</font></font></font></span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</span><span class="p">):</span>
+                        <span class="k">提升</span> <span class="ne">ValueError</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">"`右逆`必须返回一个张量序列。"</span>
+                            <span class="sa">f</span><span class="s2">"获取元素"</font></font></font></span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">的类型</font></font></font></span><span class="si">{</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类型</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">"</span>
+                        <span class="p">)</span>
+                    <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">原始_i</font></font></font></span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数据类型</span><span class="p">:</span>
+                        <span class="k">提升</span> <span class="ne">ValueError</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">张量</font></font></font></span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">由 `right_inverse` 返回的具有数据类型</font></font></font></span><span class="si">{</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数据类型</span><span class="si">}</span><span class="s2"> "</span>
+                            <span class="sa">f</span><span class="s2">而 `original</font></font></font></span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">`具有数据类型`</font></font></font></span><span class="si">{</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">原始_i</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数据类型</span><span class="si">}</span><span class="s2">"</span>
+                        <span class="p">)</span>
+                    <span class="n">_可能设置</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">原始_i</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">前向</font></font></font></span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</span><span class="p">:</span>
+        <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">算子</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是否正在脚本化</span><span class="p">():</span>
+            <span class="k">提升</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">运行时错误</font></font></font></span><span class="p">(</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">"参数化在脚本中不起作用。"</span><span class="p">)</span>
+        <span class="c1"># 解包第一次参数化的原始数据</span>
+        <span class="k">如果</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tensor</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]</font></font></font></span><span class="bp">self</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">原始</span><span class="p">)</span>
+        <span class="k">否则</span><span class="p">:</span>
+            <span class="n">原始</font></font></font></span> <span class="o">=</span> <span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">"原始"</font></font></font></span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">为</font></font></font></span> <span class="n">i</span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在</font></font></font></span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">范围</font></font></font></span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</span><span class="p">))</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]</font></font></font></span><span class="o">*</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">原始</span><span class="p">)</span>
+        <span class="c1">在这里无法调用 self[1:]，所以我们需要稍微隐晦一些</span>
+        <span class="c1">我们想要跳过所有非整数键</span>
+        <span class="n">当前索引</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">while</span> <span class="nb">有属性</font></font></font></span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">字符串</span><span class="p">(</span><span class="n">curr_idx</span><span class="p">)):</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">curr_idx</span><span class="p">]</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">当前索引</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">返回</span> <span class="n">x</span></div>
+
+
+<span class="k">def</span> <span class="nf">注入新类</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">设置一个可参数化的模块。</span>
+
+<span class="sd">这通过用扩展它的类替换模块的类来实现</span>
+<span class="sd">以便能够注入一个属性</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">模块(nn.Module)：要注入属性的模块</span>
+<span class="sd">"源代码"</span>
+    <span class="bp">类</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="o">.</span><span class="vm"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类</span>
+
+    <span class="k">def</span> <span class="nf">默认深拷贝</font></font></font></span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">描述</span><span class="p">):</span>
+        <span class="c1"># 当当前类中不存在 __deepcopy__ 方法时，仅模拟标准深拷贝过程。</span>
+        <span class="n">对象</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">描述</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">获取</font></font></font></span><span class="p">(</span><span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">)</span>
+        <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是</font></font></font></span> <span class="ow">not</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">:</span>
+            <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</span>
+        <span class="n">复制品</font></font></font></span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类</span><span class="p">)</span>
+        <span class="n">描述</font></font></font></span><span class="p">[</span><span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">]</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">复制品</span>
+        <span class="n">复制品</font></font></font></span><span class="o">.</span><span class="vm"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">字典</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">深拷贝</font></font></font></span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">字典</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">描述</span><span class="p">)</span>
+        <span class="c1"># 也保存所有存在的槽位。</span>
+        <span class="n">slots_to_save</span> <span class="o">=</span> <span class="n">复制注册</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_槽位名称</font></font></font></span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类</font></font></font></span><span class="p">)</span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># 类型: 忽略[attr-defined]</span>
+        <span class="k">为</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">槽</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">要保存的槽位</span><span class="p">:</span>
+            <span class="k">如果</font></font></font></span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">有属性</font></font></font></span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">插槽</span><span class="p">):</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">复制品</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">插槽</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">深拷贝</font></font></font></span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">插槽</font></font></font></span><span class="p">),</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">描述</span><span class="p">))</span>
+        <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">复制品</span>
+
+    <span class="k">def</span> <span class="nf">获取状态</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">提升</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">运行时错误</span><span class="p">(</span>
+            <span class="s2">模块参数化序列化仅</span>
+            <span class="s2">通过 state_dict()支持。参见：</font></font></font></span><span class="se"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入文本翻译为简体中文为：\n</span><span class="s2">"</span>
+            <span class="s2">https://pytorch.org/tutorials/beginner/saving_loading_models.html</span>
+            <span class="s2">"#保存或加载通用检查点以进行推理或恢复训练"</span>
+        <span class="p">)</span>
+
+    <span class="n">dct</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"__getstate__"</span><span class="p">:</span> <span class="n">getstate</span><span class="p">}</span>
+    <span class="c1">我们不允许序列化参数化模块，但仍然应该允许深拷贝。</span>
+    <span class="c1">默认的 'deepcopy' 函数在存在的情况下调用 __deepcopy__ 方法而不是 __getstate__。</span>
+    <span class="k">如果</font></font></font></span> <span class="ow">not</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">有属性</font></font></font></span><span class="p">(</span><span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类</font></font></font></span><span class="p">,</span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">__deepcopy__</span><span class="p">):</span>
+        <span class="n">dct</span><span class="p">[</span><span class="s2">"__deepcopy__"</span><span class="p">]</span> <span class="o">=</span> <span class="n">默认深拷贝</font></font></font></span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># 类型：忽略[赋值]</span>
+
+    <span class="n">参数类</font></font></font></span> <span class="o">=</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类型</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"参数化</font></font></font></span><span class="si">{</span><span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+        <span class="p">(</span><span class="bp">类</span><span class="p">,),</span>
+        <span class="n">dct</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">模块</font></font></font></span><span class="o">.</span><span class="vm"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类</span> <span class="o">=</span> <span class="n">param_cls</span>
+
+
+<span class="k">def</span> <span class="nf">_inject_property</span><span class="p">(</span><span class="n">模块</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">,</span> <span class="n">tensor_name</span><span class="p">:</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">字符串</font></font></font></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">将属性注入到 module[tensor_name]中。</span>
+
+<span class="sd">它假设模块中的类已经通过_inject_new_class 从原始类进行了修改，</span>
+<span class="sd">并且在:attr:`tensor_name`下的张量已经被移出。</span>
+<span class="sd">已经被移出。</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">模块(nn.Module)：注入属性的模块</span>
+<span class="sd">tensor_name (str)：要创建的属性的名称</span>
+<span class="sd">"源代码"</span>
+    <span class="c1"># 检查前置条件。</span>
+    <span class="c1"># 如果 register_parametrization 实现正确，则此情况永远不会触发。</span>
+    <span class="k">断言</font></font></font></span> <span class="ow">not</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">有属性</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量名称</span><span class="p">)</span>
+
+    <span class="nd">@torch</span><span class="o">.</span><span class="n">算子</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">未使用</span>
+    <span class="k">def</span> <span class="nf">获取缓存的参数化</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数化</font></font></font></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</span><span class="p">:</span>
+        <span class="k">全局</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_缓存</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="nb">id</span><span class="p">(</span><span class="n">模块</font></font></font></span><span class="p">),</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量名称</span><span class="p">)</span>
+        <span class="n">张量</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_缓存</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">获取</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">键</span><span class="p">)</span>
+        <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是</font></font></font></span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">:</span>
+            <span class="n">张量</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数化</span><span class="p">()</span>
+            <span class="n">_缓存</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">键</font></font></font></span><span class="p">]</span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</span>
+        <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</span>
+
+    <span class="k">def</span> <span class="nf">获取参数化</font></font></font></span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</span><span class="p">:</span>
+        <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">算子</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是否正在脚本化</span><span class="p">():</span>
+            <span class="k">提升</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">运行时错误</font></font></font></span><span class="p">(</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">"参数化在脚本中不起作用。"</span><span class="p">)</span>
+        <span class="n">参数化</font></font></font></span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数化（复数）</span><span class="p">[</span><span class="n">tensor_name</span><span class="p">]</span>
+        <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_缓存启用</span><span class="p">:</span>
+            <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">算子</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是否正在脚本化</span><span class="p">():</span>
+                <span class="c1"># 脚本</span>
+                <span class="k">提升</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">运行时错误</span><span class="p">(</span>
+                    <span class="s2">"缓存未实现于脚本。"</span>
+                    <span class="s2">"请禁用缓存或避免使用脚本。"</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">火炬</font></font></font></span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_获取追踪状态</font></font></font></span><span class="p">()</span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是</font></font></font></span> <span class="ow">not</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">:</span>
+                <span class="c1">跟踪</span>
+                <span class="k">提升</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">运行时错误</span><span class="p">(</span>
+                    <span class="s2">"无法在缓存参数化时跟踪模型。"</span>
+                <span class="p">)</span>
+            <span class="k">否则</span><span class="p">:</span>
+                <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">获取缓存的参数化</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数化</span><span class="p">)</span>
+        <span class="k">否则</span><span class="p">:</span>
+            <span class="c1">如果缓存未激活，此函数仅评估参数化</span>
+            <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数化</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">设置原始值</font></font></font></span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">值</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</font></font></font></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">:</span>
+        <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">算子</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是否正在脚本化</span><span class="p">():</span>
+            <span class="k">提升</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">运行时错误</font></font></font></span><span class="p">(</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">"参数化在脚本中不起作用。"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">参数化</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量名称</font></font></font></span><span class="p">]</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">右逆</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">值</span><span class="p">)</span>
+
+    <span class="nb">setattr</span><span class="p">(</span><span class="n">模块</font></font></font></span><span class="o">.</span><span class="vm"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量名称</font></font></font></span><span class="p">,</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">属性</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">获取参数化</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">设置原始</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="register_parametrization"><a class="viewcode-back" href="../../../../generated/torch.nn.utils.parametrize.register_parametrization.html#torch.nn.utils.parametrize.register_parametrization">[文档]</font></font></font></a><span class="k">def</span> <span class="nf"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">注册参数化</span><span class="p">(</span>
+    <span class="n">模块</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</span><span class="p">,</span>
+    <span class="n">tensor 名称</font></font></font></span><span class="p">:</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">字符串</span><span class="p">,</span>
+    <span class="n">参数化</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">不安全</font></font></font></span><span class="p">:</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">布尔类型</font></font></font></span> <span class="o">=</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">错误</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">模块</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">将参数化注册到模块中的张量。</span>
+
+<span class="sd">假设为了简单起见，``tensor_name="weight"``。当访问``module.weight``，</span>
+<span class="sd">模块将返回参数化版本 `parametrization(module.weight)`。</span>
+<span class="sd">如果原始张量需要梯度，反向传播将进行微分</span>
+<span class="sd">通过：attr:`参数化`，优化器将相应地更新张量。</span>
+
+<span class="sd">第一次模块注册参数化时，此函数将添加一个属性</span>
+<span class="sd">模块类型 :class:`~ParametrizationList` 的 ``parametrizations`` 参数化。</span>
+
+<span class="sd">张量 ``weight`` 上的参数化列表将在以下位置访问：</span>
+<span class="sd">``module.parametrizations.weight``。</span>
+
+<span class="sd">原始张量将在以下位置访问：</span>
+<span class="sd">    ``module.parametrizations.weight.original``.</span>
+
+<span class="sd">参数化可以通过在相同属性上注册多个参数化进行连接。</span>
+<span class="sd">已注册的参数化的训练模式在注册时更新。</span>
+
+<span class="sd">    The training mode of a registered parametrization is updated on registration</span>
+<span class="sd">与主机模块的训练模式相匹配</span>
+
+<span class="sd">参数化和缓冲区具有内置的缓存系统，可以激活</span>
+<span class="sd">使用上下文管理器：func:`cached`。</span>
+
+<span class="sd">attr:`参数化` 可选实现一个具有签名的</span>
+
+<span class="sd">.. 代码块 :: python</span>
+
+<span class="sd">        def right_inverse(self, X: Tensor) -&gt; Union[Tensor, Sequence[Tensor]]</span>
+
+<span class="sd">此方法在未参数化的张量上调用，当第一个参数化注册以计算原始张量的初始值时。</span>
+<span class="sd">如果此方法未实现，则原始张量将只是未参数化的张量。</span>
+<span class="sd">如果此方法未实现，则原始张量将保持为未参数化的张量。</span>
+
+<span class="sd">如果一个张量上注册的所有参数化都实现了 `right_inverse`，则可以初始化一个参数化张量，如下例所示。</span>
+<span class="sd">可以通过将以下内容分配给它来初始化一个参数化张量，如下例所示。</span>
+
+<span class="sd">第一个参数化可能依赖于多个输入。</span>
+<span class="sd">这可以通过从 `right_inverse` 返回一个张量元组来实现。</span>
+<span class="sd">（以下为 ``RankOne`` 参数化的示例实现）。</span>
+
+<span class="sd">在这种情况下，未受约束的张量也位于 ``module.parametrizations.weight`` 下。</span>
+<span class="sd">命名为 ``original0``、``original1``、...。</span>
+
+<span class="sd">.. 注意::</span>
+
+<span class="sd">如果 unsafe=False（默认值）则将调用 forward 和 right_inverse 方法。</span>
+<span class="sd">一次执行多个一致性检查。</span>
+<span class="sd">如果 unsafe=True，则当张量未参数化时将调用 right_inverse，否则不会调用。</span>
+<span class="sd">在大多数情况下，right_inverse 将是一个函数，使得</span>
+
+<span class="sd">.. 注意::</span>
+
+<span class="sd">在大多数情况下，`right_inverse` 将是一个函数，使得</span>
+<span class="sd">``forward(right_inverse(X)) == X``（见</span>
+<span class="sd">`右逆函数 `_）。</span>
+<span class="sd">有时，当参数化不是满射时，放宽这一点可能是合理的。</span>
+<span class="sd">。</span>
+
+<span class="sd">.. 警告::</span>
+
+<span class="sd">如果参数化依赖于多个输入，:func:`~register_parametrization`</span>
+<span class="sd">将注册多个新参数。如果此类参数化已注册</span>
+<span class="sd">在优化器创建后，这些新参数需要手动添加</span>
+<span class="sd">将优化器传递进去。参见：:meth:`torch.Optimizer.add_param_group`。</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">nn.Module 模块：注册参数化的模块</span>
+<span class="sd">tensor_name (str)：注册参数或缓冲区的名称</span>
+<span class="sd">参数化</span>
+<span class="sd">nn.Module 参数化：要注册的参数化</span>
+<span class="sd">关键字参数：</span>
+<span class="sd">不安全（布尔值）：表示参数化是否不安全的布尔标志</span>
+<span class="sd">可能改变张量的数据类型和形状。默认：`False`</span>
+<span class="sd">警告：注册时未检查参数化的一致性。</span>
+<span class="sd">启用此标志风险自负。</span>
+
+<span class="sd">抛出异常：</span>
+<span class="sd">ValueError：如果模块没有名为 :attr:`tensor_name` 的参数或缓冲区</span>
+
+<span class="sd">示例：</span>
+<span class="sd">        &gt;&gt;&gt; # xdoctest: +REQUIRES(env:TORCH_DOCTEST_LAPACK)</span>
+<span class="sd">&gt;&gt;&gt; 导入 torch</span>
+<span class="sd">&gt;&gt;&gt; 从 torch.nn 导入 nn</span>
+<span class="sd">&gt;&gt;&gt; 导入 torch.nn.utils.parametrize 作为 P</span>
+<span class="sd">...</span>
+<span class="sd">        &gt;&gt;&gt; class Symmetric(nn.Module):</span>
+<span class="sd">        &gt;&gt;&gt;     def forward(self, X):</span>
+<span class="sd">&gt;&gt;&gt;         return X.triu() + X.triu(1).T  # 返回一个对称矩阵</span>
+<span class="sd">...</span>
+<span class="sd">        &gt;&gt;&gt;     def right_inverse(self, A):</span>
+<span class="sd">        &gt;&gt;&gt;         return A.triu()</span>
+<span class="sd">...</span>
+<span class="sd">        &gt;&gt;&gt; m = nn.Linear(5, 5)</span>
+<span class="sd">        &gt;&gt;&gt; P.register_parametrization(m, "weight", Symmetric())</span>
+<span class="sd">&gt;&gt;&gt; print(torch.allclose(m.weight, m.weight.T))  # m.weight 现在是对称的</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; A = torch.rand(5, 5)</span>
+<span class="sd">&gt;&gt;&gt; A = A + A.T   # A 现在是对称的</span>
+<span class="sd">&gt;&gt;&gt; m.weight = A  # 将权重初始化为对称矩阵 A</span>
+<span class="sd">        &gt;&gt;&gt; print(torch.allclose(m.weight, A))</span>
+<span class="sd">        True</span>
+
+<span class="sd">        &gt;&gt;&gt; class RankOne(nn.Module):</span>
+<span class="sd">        &gt;&gt;&gt;     def forward(self, x, y):</span>
+<span class="sd">&gt;&gt;&gt;         # 通过两个向量的乘积形成一个秩为 1 的矩阵</span>
+<span class="sd">&gt;&gt;&gt;         返回 x.unsqueeze(-1) @ y.unsqueeze(-2)</span>
+<span class="sd">...</span>
+<span class="sd">        &gt;&gt;&gt;     def right_inverse(self, Z):</span>
+<span class="sd">&gt;&gt;&gt;         # 将 Z 投影到秩为 1 的矩阵上</span>
+<span class="sd">        &gt;&gt;&gt;         U, S, Vh = torch.linalg.svd(Z, full_matrices=False)</span>
+<span class="sd">&gt;&gt;&gt;         # 返回缩放的单个向量</span>
+<span class="sd">        &gt;&gt;&gt;         s0_sqrt = S[0].sqrt().unsqueeze(-1)</span>
+<span class="sd">        &gt;&gt;&gt;         return U[..., :, 0] * s0_sqrt, Vh[..., 0, :] * s0_sqrt</span>
+<span class="sd">...</span>
+<span class="sd">        &gt;&gt;&gt; linear_rank_one = P.register_parametrization(nn.Linear(4, 4), "weight", RankOne())</span>
+<span class="sd">        &gt;&gt;&gt; print(torch.linalg.matrix_rank(linear_rank_one.weight).item())</span>
+<span class="sd">        1</span>
+
+<span class="sd">"源代码"</span>
+    <span class="n">参数化</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">训练</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">训练</span><span class="p">)</span>
+    <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是否参数化</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量名称</span><span class="p">):</span>
+        <span class="c1">正确性检查。</span>
+        <span class="c1">如果 A 是形状和 dtype 等于 module.weight 的张量空间</span>
+        <span class="c1">我们检查 parametrization.forward 和 parametrization.right_inverse 是否是</span>
+        <span class="c1">从 A 到 A 的函数</span>
+        <span class="k">如果</font></font></font></span> <span class="ow">not</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">不安全</span><span class="p">:</span>
+            <span class="n">Y</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">模块</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量名称</span><span class="p">)</span>
+            <span class="n">X</span> <span class="o">=</span> <span class="n">参数化</span><span class="p">(</span><span class="n">Y</span><span class="p">)</span>
+            <span class="k">如果</font></font></font></span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</span><span class="p">):</span>
+                <span class="k">提升</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"参数化必须返回一个张量。得到了"</font></font></font></span><span class="si">{</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类型</font></font></font></span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">。</span>
+                <span class="p">)</span>
+            <span class="k">如果</font></font></font></span> <span class="n">X</span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="n">Y</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数据类型</span><span class="p">:</span>
+                <span class="k">提升</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">"注册参数化可能不会改变张量的数据类型，除非启用了`unsafe`标志。</font></font></font></span><span class="se"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入文本翻译为简体中文为：\n</span><span class="s2">"</span>
+                    <span class="sa">f</span><span class="s2">"模块。</font></font></font></span><span class="si">{</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量名称</font></font></font></span><span class="si">}</span><span class="s2">.dtype: </span><span class="si">{</span><span class="n">Y</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数据类型</font></font></font></span><span class="si">}</span><span class="se"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入文本翻译为简体中文为：\n</span><span class="s2">"</span>
+                    <span class="sa">f</span><span class="s2">"参数化(模块。</font></font></font></span><span class="si">{</span><span class="n">tensor_name</span><span class="si">}</span><span class="s2">).dtype: </span><span class="si">{</span><span class="n">X</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数据类型</span><span class="si">}</span><span class="s2">"</span>
+                <span class="p">)</span>
+            <span class="k">如果</font></font></font></span> <span class="n">X</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">形状</span> <span class="o">!=</span> <span class="n">Y</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+                <span class="k">提升</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">注册参数化可能不会改变张量的形状，除非启用`unsafe`标志。</font></font></font></span><span class="se"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入文本翻译为简体中文为：\n</span><span class="s2">"</span>
+                    <span class="sa">f</span><span class="s2">模块。</font></font></font></span><span class="si">{</span><span class="n">tensor_name</span><span class="si">}</span><span class="s2">.shape: </span><span class="si">{</span><span class="n">Y</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="se"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入文本翻译为简体中文为：\n</span><span class="s2">"</span>
+                    <span class="sa">f</span><span class="s2">"模块参数化(module."</font></font></font></span><span class="si">{</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量名称</font></font></font></span><span class="si">}</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">).shape: "</span><span class="si">{</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">"</span>
+                <span class="p">)</span>
+            <span class="k">如果</font></font></font></span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">有属性</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数化</font></font></font></span><span class="p">,</span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">"右逆"</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">Z</span> <span class="o">=</span> <span class="n">参数化</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">右逆</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>  <span class="c1"># type: ignore[operator]</span>
+                <span class="k">除了</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">不支持的操作异常</span><span class="p">:</span>
+                    <span class="k">通过</span>
+                <span class="k">否则</span><span class="p">:</span>
+                    <span class="k">如果</font></font></font></span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">Z</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</span><span class="p">):</span>
+                        <span class="k">提升</span> <span class="ne">ValueError</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">"parametrization.right_inverse 必须返回一个张量。实际得到："</font></font></font></span><span class="si">{</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类型</span><span class="p">(</span><span class="n">Z</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">"</span>
+                        <span class="p">)</span>
+                    <span class="k">如果</font></font></font></span> <span class="n">Z</span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="n">Y</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数据类型</span><span class="p">:</span>
+                        <span class="k">提升</span> <span class="ne">ValueError</span><span class="p">(</span>
+                            <span class="s2">"parametrization.right_inverse 返回的张量必须具有相同的 dtype"</span>
+                            <span class="sa">f</span><span class="s2">作为模块。</font></font></font></span><span class="si">{</span><span class="n">tensor_name</span><span class="si">}</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">，除非启用`unsafe`标志。</font></font></font></span><span class="se"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入文本翻译为简体中文为：\n</span><span class="s2">"</span>
+                            <span class="sa">f</span><span class="s2">"模块。</font></font></font></span><span class="si">{</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">tensor 名称</font></font></font></span><span class="si">}</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">.数据类型:</font></font></font></span><span class="si">{</span><span class="n">Y</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数据类型</font></font></font></span><span class="si">}</span><span class="se"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入文本翻译为简体中文为：\n</span><span class="s2">"</span>
+                            <span class="sa">f</span><span class="s2">"返回的数据类型:</font></font></font></span><span class="si">{</span><span class="n">Z</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数据类型</span><span class="si">}</span><span class="s2">"</span>
+                        <span class="p">)</span>
+                    <span class="k">如果</font></font></font></span> <span class="n">Z</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">形状</span> <span class="o">!=</span> <span class="n">Y</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+                        <span class="k">提升</span> <span class="ne">ValueError</span><span class="p">(</span>
+                            <span class="s2">"参数化.right_inverse 返回的张量必须具有相同的形状 "</span>
+                            <span class="sa">f</span><span class="s2">"作为模块。</font></font></font></span><span class="si">{</span><span class="n">tensor_name</span><span class="si">}</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">，除非启用 `unsafe` 标志。</font></font></font></span><span class="se"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入文本翻译为简体中文为：\n</span><span class="s2">"</span>
+                            <span class="sa">f</span><span class="s2">模块。</font></font></font></span><span class="si">{</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量名称</font></font></font></span><span class="si">}</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">.形状：</font></font></font></span><span class="si">{</span><span class="n">Y</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="se"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入文本翻译为简体中文为：\n</span><span class="s2">"</span>
+                            <span class="sa">f</span><span class="s2">"返回形状：</span><span class="si">{</span><span class="n">Z</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">"</span>
+                        <span class="p">)</span>
+            <span class="c1"># else 右逆元假定为恒等元</span>
+
+        <span class="c1"># 将新的参数化添加到参数化列表中</span>
+        <span class="k">断言</font></font></font></span> <span class="nb">isinstance</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数化</font></font></font></span><span class="p">,</span> <span class="n">ModuleDict</span><span class="p">)</span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># 让 mypy 开心</span>
+        <span class="n">模块</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数化</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量名称</font></font></font></span><span class="p">]</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">追加</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数化</span><span class="p">)</span>
+        <span class="c1"># 如果前一个参数化中的 unsafe 为 True，则保持启用</span>
+        <span class="n">模块</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数化</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量名称</font></font></font></span><span class="p">]</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">不安全</font></font></font></span> <span class="o">|=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">不安全</font></font></font></span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">忽略[索引，联合属性]</span>
+    <span class="k">elif</span> <span class="n">张量名称</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_缓冲区</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">或</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量名称</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="p">:</span>
+        <span class="c1">设置参数化机制</span>
+        <span class="c1">获取原始缓冲区或参数</span>
+        <span class="n">原始</font></font></font></span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量名称</span><span class="p">)</span>
+        <span class="c1">我们提前创建这个以检查可能的错误</span>
+        <span class="n">参数化</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数化列表</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">参数化</font></font></font></span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">]</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">原始</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">不安全</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">不安全</span>
+        <span class="p">)</span>
+        <span class="c1">删除之前的参数或缓冲区</span>
+        <span class="nb">delattr</span><span class="p">(</span><span class="n">模块</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量名称</span><span class="p">)</span>
+        <span class="c1">如果这是模块上注册的第一个参数化</span>
+        <span class="c1">我们准备注入属性模块</span>
+        <span class="k">如果</font></font></font></span> <span class="ow">not</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">已参数化</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</span><span class="p">):</span>
+            <span class="c1">修改类</span>
+            <span class="n">注入新类</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</span><span class="p">)</span>
+            <span class="c1">将 ``ModuleDict`` 注入到 module.parametrizations 实例下</span>
+            <span class="n">模块</span><span class="o">.</span><span class="n">parametrizations</span> <span class="o">=</span> <span class="n">ModuleDict</span><span class="p">()</span>
+        <span class="c1">向类中添加一个属性</span>
+        <span class="n">_inject_property</span><span class="p">(</span><span class="n">模块</span><span class="p">,</span> <span class="n">tensor_name</span><span class="p">)</span>
+        <span class="c1"># 添加参数化列表</span>
+        <span class="k">断言</font></font></font></span> <span class="nb">isinstance</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数化</font></font></font></span><span class="p">,</span> <span class="n">ModuleDict</span><span class="p">)</span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># 让 mypy 开心</span>
+        <span class="n">模块</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数化</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量名称</font></font></font></span><span class="p">]</span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数化</span>
+    <span class="k">否则</span><span class="p">:</span>
+        <span class="k">提升</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">模块</font></font></font></span><span class="si">{</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="si">}</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">'没有参数，缓冲区或“</span>
+            <span class="sa">f</span><span class="s2">"具有名称的参数化元素"</font></font></font></span><span class="si">{</span><span class="n">tensor_name</span><span class="si">}</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "> </span>
+        <span class="p">)</span>
+    <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</span></div>
+
+
+<div class="viewcode-block" id="is_parametrized"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[docs]def is_parametrized(module: Module, tensor_name: Optional[str] = None) -&gt; bool:
+r"""判断一个模块是否有参数化。
+
+Args:
+模块（nn.Module）：查询模块
+tensor_name（str，可选）：模块中的参数名称
+默认值：`None`
+返回值：
+“如果：attr:`module` 对名为：attr:`tensor_name` 的参数有参数化，则返回 ``True``,
+或者当：attr:`tensor_name` 为 ``None`` 时，它有任何参数化；
+否则返回 ``False``,
+"""
+parametrizations = getattr(module, "parametrizations", None)
+if parametrizations is None or not isinstance(parametrizations, ModuleDict):
+return False
+if tensor_name is None:
+检查是否存在至少一个参数化缓冲区或参数
+返回 parametrizations 的长度大于 0
+else:
+返回 tensor_name 是否在 parametrizations 中</font></font></font></div>
+
+
+<div class="viewcode-block" id="remove_parametrizations"><a class="viewcode-back" href="../../../../generated/torch.nn.utils.parametrize.remove_parametrizations.html#torch.nn.utils.parametrize.remove_parametrizations">[文档]</font></font></font></a><span class="k">def</span> <span class="nf"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">移除参数化</span><span class="p">(</span>
+    <span class="n">模块</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</span><span class="p">,</span>
+    <span class="n">张量名称</font></font></font></span><span class="p">:</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">字符串</span><span class="p">,</span>
+    <span class="n">保留参数化</font></font></font></span><span class="p">:</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">布尔类型</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">模块</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">在模块中移除张量上的参数化。</span>
+
+<span class="sd">- 如果 `leave_parametrized=True`，则 `module[tensor_name]` 将被设置为</span>
+<span class="sd">其当前输出。在这种情况下，参数化不应更改 `dtype`</span>
+<span class="sd">张量。</span>
+<span class="sd">- 如果 `leave_parametrized=False`，则 `module[tensor_name]` 将被设置为</span>
+<span class="sd">``module.parametrizations[tensor_name].original``中的未参数化张量。</span>
+<span class="sd">只有当参数化仅依赖于一个张量时，这才能实现。</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">module (nn.Module)：从中移除参数化的模块。</span>
+<span class="sd">tensor_name (str)：要移除的参数化名称。</span>
+<span class="sd">leave_parametrized (bool, 可选): 保持 :attr:`tensor_name` 属性参数化。</span>
+<span class="sd">默认：``True``</span>
+
+<span class="sd">返回：</span>
+<span class="sd">模块: 模块</span>
+
+<span class="sd">抛出异常：</span>
+<span class="sd">ValueError: 如果 ``module[tensor_name]`` 没有参数化</span>
+<span class="sd">ValueError: 如果 ``leave_parametrized=False`` 并且参数化依赖于多个张量</span>
+<span class="sd">"源代码"</span>
+    <span class="k">如果</font></font></font></span> <span class="ow">not</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">已参数化</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量名称</span><span class="p">):</span>
+        <span class="k">提升</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">模块</font></font></font></span><span class="si">{</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="si">}</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">没有参数化在</font></font></font></span><span class="si">{</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量名称</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">)</span>
+
+    <span class="c1">获取原始张量</span>
+    <span class="k">断言</font></font></font></span> <span class="nb">isinstance</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数化</font></font></font></span><span class="p">,</span> <span class="n">ModuleDict</span><span class="p">)</span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">让 mypy 开心</span>
+    <span class="n">参数化</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数化</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量名称</span><span class="p">]</span>
+    <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数化</span><span class="o">.</span><span class="n">is_tensor</span><span class="p">:</span>
+        <span class="n">原始</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数化</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">原始</span>
+        <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">留作参数化</span><span class="p">:</span>
+            <span class="k">与</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">不梯度</span><span class="p">():</span>
+                <span class="n">t</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">模块</span><span class="p">,</span> <span class="n">tensor_name</span><span class="p">)</span>
+            <span class="c1">我们知道它们具有相同的 dtype，因为我们注册时已经检查过这一点</span>
+            <span class="c1">因此，我们可以使用 set_</span>
+            <span class="c1">我们这样做是为了确保参数不会改变 id()</span>
+            <span class="c1">这种方式用户不需要更新优化器</span>
+            <span class="k">与</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">不梯度</span><span class="p">():</span>
+                <span class="k">如果</font></font></font></span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类型</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">原始</font></font></font></span><span class="p">)</span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</span><span class="p">:</span>
+                    <span class="n">可能设置</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">原始</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+                <span class="k">否则</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">可能设置</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">原始</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+                    <span class="k">除了</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">运行时错误</font></font></font></span> <span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">作为</span> <span class="n">e</span><span class="p">:</span>
+                        <span class="c1"># TODO: 修复此问题，以使 tensor 子类成为参数：</span>
+                        <span class="c1"># 运行时错误：不允许在从 .data 或 .detach() 创建的 Tensor 上使用 set_storage()。</span>
+                        <span class="k">提升</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">运行时错误</span><span class="p">(</span>
+                            <span class="s2">"调用 remove_parametrizations() 并设置 leave_parametrized=True "</span>
+                            <span class="s2">"对于是一个张量子类的实例的参数，需要正确实现 set_() 方法。"</span>
+                            <span class="s2">"或者，可以选择进入 swap_tensors 路径。"</span>
+                            <span class="s2">"或者，可以选择进入 swap_tensors 路径。"</span>
+                            <span class="s2">"要么设置 leave_parametrized=False，要么提供一个有效的实现"</span>
+                            <span class="s2">"在张量子类中的 set_() 或设置 "</span>
+                            <span class="s2">"torch.__future__.set_swap_module_params_on_conversion(True)."</span>
+                        <span class="p">)</span> <span class="kn">来自</span> <span class="nn">e</span>
+    <span class="k">否则</span><span class="p">:</span>
+        <span class="k">如果</span> <span class="n">leave_parametrized</span><span class="p">:</span>
+            <span class="c1">我们不能使用 no_grad，因为我们需要知道是否有一个或多个原始张量需要梯度</span>
+            <span class="c1">我们将不得不相信用户将其添加到优化器中</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">模块</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量名称</span><span class="p">)</span>
+            <span class="c1">我们将不得不相信用户将其添加到优化器中</span>
+            <span class="n">原始</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</font></font></font></span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">如果</font></font></font></span> <span class="n">t</span><span class="o">.</span><span class="n">requires_grad</span> <span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">否则</span> <span class="n">t</span>
+        <span class="k">否则</span><span class="p">:</span>
+            <span class="k">提升</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">"无法不参数化（`leave_parametrized=False`）一个以张量序列为参数的张量"</span>
+                <span class="s2">"该张量是以张量序列为参数进行参数化的。"</span>
+            <span class="p">)</span>
+
+    <span class="c1"># 删除管理参数化的属性</span>
+    <span class="nb">delattr</span><span class="p">(</span><span class="n">模块</font></font></font></span><span class="o">.</span><span class="vm"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类</span><span class="p">,</span> <span class="n">tensor_name</span><span class="p">)</span>
+    <span class="c1"># 删除参数化列表</span>
+    <span class="k">删除</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数化</span><span class="p">[</span><span class="n">tensor_name</span><span class="p">]</span>
+
+    <span class="c1">将参数/缓冲区恢复到主类中</span>
+    <span class="n">注册参数或缓冲区</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量名称</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">原始</span><span class="p">)</span>
+
+    <span class="c1"># 将参数化类回滚，如果没有其他缓冲区或参数</span>
+    <span class="c1"># 当前此类中已参数化</span>
+    <span class="k">如果</font></font></font></span> <span class="ow">not</span> <span class="n">is_parametrized</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</span><span class="p">):</span>
+        <span class="nb">delattr</span><span class="p">(</span><span class="n">模块</font></font></font></span><span class="p">,</span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数化</span><span class="p">)</span>
+        <span class="c1">恢复类</span>
+        <span class="n">原类</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="o">.</span><span class="vm"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类</font></font></font></span><span class="o">.</span><span class="vm"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">__基类__</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">模块</font></font></font></span><span class="o">.</span><span class="vm"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">原类</span>
+    <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</span></div>
+
+
+<span class="k">def</span> <span class="nf">参数化前的类型</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类型</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">返回在应用参数化之前模块的类型，如果没有，则返回模块类型。</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">模块 (nn.Module)：获取类型用的模块</span>
+<span class="sd">"源代码"</span>
+    <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">已参数化</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</span><span class="p">):</span>
+        <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="o">.</span><span class="vm"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类</font></font></font></span><span class="o">.</span><span class="vm"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">__基类__</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">否则</span><span class="p">:</span>
+        <span class="k">返回</font></font></font></span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类型</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">转移参数化和参数</span><span class="p">(</span>
+    <span class="n">from_module</span><span class="p">:</span> <span class="n">模块</span><span class="p">,</span>
+    <span class="n">到模块</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</span><span class="p">,</span>
+    <span class="n">张量名称</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">可选</font></font></font></span><span class="p">[</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">字符串</font></font></font></span><span class="p">]</span> <span class="o">=</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">模块</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">将参数化及其参数从 :attr:`from_module` 转移到 :attr:`to_module`。</span>
+
+<span class="sd">如果指定了 :attr:`tensor_name`，则只转移指定的参数，否则</span>
+<span class="sd">转移所有参数化参数。如果这些参数在 to_module 中不存在，则会创建它们。</span>
+<span class="sd">如果 from_module 没有参数化，则不执行任何操作。</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">从模块(nn.Module)：要转移的模块</span>
+<span class="sd">到模块(nn.Module)：要转移到的模块</span>
+<span class="sd">tensor_name (str, 可选)：要转移的参数</span>
+
+<span class="sd">返回：</span>
+<span class="sd">模块：到模块</span>
+<span class="sd">"源代码"</span>
+    <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">已参数化</span><span class="p">(</span><span class="n">from_module</span><span class="p">):</span>
+        <span class="k">断言</font></font></font></span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">from_module</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数化</font></font></font></span><span class="p">,</span> <span class="n">ModuleDict</span><span class="p">)</span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># 用于 mypy</span>
+
+        <span class="c1"># 获取所有参数的列表或单个要传递的参数</span>
+        <span class="n">需要传递的参数</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">联盟</font></font></font></span><span class="p">[</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">列表</span><span class="p">,</span> <span class="n">ModuleDict</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">from_module</span><span class="o">.</span><span class="n">参数化</font></font></font></span> <span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量名称</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是</font></font></font></span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</font></font></font></span> <span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">否则</font></font></font></span> <span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量名称</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="k">断言</font></font></font></span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">有属性</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">需要传递的参数</span><span class="p">,</span> <span class="s2">"__iter__"</span><span class="p">)</span>  <span class="c1"># for mypy</span>
+        <span class="k">为</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数名称</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">需要传递的参数</span><span class="p">:</span>
+            <span class="c1">初始化 to_module 中尚未存在的待传输参数</span>
+            <span class="k">如果</font></font></font></span> <span class="ow">not</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">有属性</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">到模块</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数名称</span><span class="p">):</span>
+                <span class="nb">setattr</span><span class="p">(</span>
+                    <span class="n">到模块</span><span class="p">,</span>
+                    <span class="n">参数名称</span><span class="p">,</span>
+                    <span class="n">参数</font></font></font></span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">from_module</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数名称</span><span class="p">)),</span>
+                <span class="p">)</span>
+
+            <span class="c1">将 params 的参数化应用到 to_module</span>
+            <span class="k">为</font></font></font></span> <span class="n">param_func</span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在</font></font></font></span> <span class="n">from_module</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数化</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数名</font></font></font></span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">]：</span>
+                <span class="n">注册参数化</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">到模块</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数名</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数函数</span><span class="p">)</span>
+            <span class="k">断言</font></font></font></span> <span class="nb">isinstance</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">到模块</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数化</span><span class="p">,</span> <span class="n">ModuleDict</span><span class="p">)</span>  <span class="c1"># for mypy</span>
+
+            <span class="c1"># 使值匹配，原始值可以存储在原始或</span>
+            <span class="c1"># original0, original1...，需要检查这两种情况</span>
+            <span class="k">如果</font></font></font></span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">有属性</font></font></font></span><span class="p">(</span><span class="n">from_module</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数化</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数名</font></font></font></span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">]</font></font></font></span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">"原始"</span><span class="p">):</span>
+                <span class="n">到模块</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数化</span><span class="p">[</span>
+                    <span class="n">参数名称</span>
+                <span class="p">]</span><span class="o">.</span><span class="n">原始</font></font></font></span> <span class="o">=</span> <span class="n">from_module</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数化</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数名称</font></font></font></span><span class="p">]</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">原始</span>
+            <span class="k">否则</span><span class="p">:</span>
+                <span class="n">数字</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">原始编号</font></font></font></span> <span class="o">=</span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">"原始"</font></font></font></span> <span class="o">+</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">字符串</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数字</span><span class="p">)</span>
+                <span class="c1">遍历每个原始#直到所有值都已设置</span>
+                <span class="k">while</span> <span class="nb">有属性</font></font></font></span><span class="p">(</span><span class="n">from_module</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数化</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数名</font></font></font></span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">]</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">原数</span><span class="p">):</span>
+                    <span class="nb">setattr</span><span class="p">(</span>
+                        <span class="n">到模块</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数化</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数名称</font></font></font></span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">]</span>
+                        <span class="n">原始数</span><span class="p">,</span>
+                        <span class="nb">getattr</span><span class="p">(</span><span class="n">from_module</span><span class="o">.</span><span class="n">参数化</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数名称</font></font></font></span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">]</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">原始数字</span><span class="p">),</span>
+                    <span class="p">)</span>
+                    <span class="n">数字</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数字</span> <span class="o">+</span> <span class="mi">1</span>
+                    <span class="n">原始数字</font></font></font></span> <span class="o">=</span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">"原始"</font></font></font></span> <span class="o">+</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">字符串</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数字</span><span class="p">)</span>
+
+    <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">到模块</span>
+</pre></div>
+
+             </article>
+             
+            </div>
+            <footer>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>© 版权所有 PyTorch 贡献者。</p>
+  </div>
+    
+      <div>使用 Sphinx 构建，并使用 Read the Docs 提供的主题。</div>
+     
+
+</footer>
+
+          </div>
+<script>
+
+var match = window.location.href.match(/\/_[a-zA-Z0-9_]*.html|_dynamo/gi);
+var url = window.location.href.lastIndexOf(match[match.length-1]);
+
+if (url)
+  {
+    var div = '<div class="admonition note"><p class="admonition-title">Note</p><p><i class="fa fa-exclamation-circle" aria-hidden="true">&nbsp</i> This page describes an internal API which is not intended to be used outside of the PyTorch codebase and can be modified or removed without notice.</p></div>'
+    document.getElementById("pytorch-article").insertAdjacentHTML('afterBegin', div)
+  }
+</script>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+         <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+         <script src="../../../../_static/jquery.js"></script>
+         <script src="../../../../_static/underscore.js"></script>
+         <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+         <script src="../../../../_static/doctools.js"></script>
+         <script src="../../../../_static/clipboard.min.js"></script>
+         <script src="../../../../_static/copybutton.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="../../../../_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="../../../../_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ 
+<script script="" type="text/javascript">
+  var collapsedSections = ['Developer Notes', 'Language Bindings', 'Libraries', 'Community'];
+</script>
+
+<img height="1" width="1" style="border-style:none;" alt="" src="https://www.googleadservices.com/pagead/conversion/795629140/?label=txkmCPmdtosBENSssfsC&amp;guid=ON&amp;script=0">
+
+
+  <!-- Begin Footer -->
+
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 text-center">
+          <h2>文档</h2>
+          <p>查看 PyTorch 的全面开发者文档</p>
+          <a class="with-right-arrow" href="https://pytorch.org/docs/stable/index.html">查看文档</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>教程</h2>
+          <p>深入了解初学者和高级开发者的教程</p>
+          <a class="with-right-arrow" href="https://pytorch.org/tutorials">查看教程</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>资源</h2>
+          <p>查找开发资源，获取您的疑问解答</p>
+          <a class="with-right-arrow" href="https://pytorch.org/resources">查看资源</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://pytorch.org/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/">PyTorch</a></li>
+            <li><a href="https://pytorch.org/get-started">开始使用</a></li>
+            <li><a href="https://pytorch.org/features">功能</a></li>
+            <li><a href="https://pytorch.org/ecosystem">生态系统</a></li>
+            <li><a href="https://pytorch.org/blog/">博客</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md">贡献</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/resources">资源</a></li>
+            <li><a href="https://pytorch.org/tutorials">教程</a></li>
+            <li><a href="https://pytorch.org/docs/stable/index.html">文档</a></li>
+            <li><a href="https://discuss.pytorch.org" target="_blank">讨论</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/issues" target="_blank">Github 问题</a></li>
+            <li><a href="https://pytorch.org/assets/brand-guidelines/PyTorch-Brand-Guidelines.pdf" target="_blank">品牌指南</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">保持更新</li>
+            <li><a href="https://www.facebook.com/pytorch" target="_blank">Facebook</a></li>
+            <li><a href="https://twitter.com/pytorch" target="_blank">推特</a></li>
+            <li><a href="https://www.youtube.com/pytorch" target="_blank">YouTube</a></li>
+            <li><a href="https://www.linkedin.com/company/pytorch" target="_blank">领英</a></li>
+          </ul>  
+          </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">PyTorch 播客</li>
+            <li><a href="https://open.spotify.com/show/6UzHKeiy368jKfQMKKvJY5" target="_blank">Spotify</a></li>
+            <li><a href="https://podcasts.apple.com/us/podcast/pytorch-developer-podcast/id1566080008" target="_blank">苹果</a></li>
+            <li><a href="https://www.google.com/podcasts?feed=aHR0cHM6Ly9mZWVkcy5zaW1wbGVjYXN0LmNvbS9PQjVGa0lsOA%3D%3D" target="_blank">谷歌</a></li>
+            <li><a href="https://music.amazon.com/podcasts/7a4e6f0e-26c2-49e9-a478-41bd244197d0/PyTorch-Developer-Podcast?" target="_blank">亚马逊</a></li>
+          </ul>
+         </div>
+        </div>
+        
+        <div class="privacy-policy">
+          <ul>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/terms/" target="_blank">条款</a></li>
+            <li class="privacy-policy-links">|</li>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/privacy-policy/" target="_blank">隐私</a></li>
+          </ul>
+        </div>
+        <div class="copyright">
+        <p>© 版权所有 Linux 基金会。PyTorch 基金会是 Linux 基金会的一个项目。有关 PyTorch 基金会的网站使用条款、商标政策以及其他适用政策，请参阅 www.linuxfoundation.org/policies/。PyTorch 基金会支持 PyTorch 开源项目，该项目已被确立为 LF Projects, LLC 的 PyTorch 项目系列。有关适用于 PyTorch 项目系列 LF Projects, LLC 的政策，请参阅 www.lfprojects.org/policies/。</p>
+      </div>
+     </div>
+
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">为了分析流量并优化您的体验，我们在本网站上使用 cookies。通过点击或导航，您同意允许我们使用 cookies。作为本网站的当前维护者，适用 Facebook 的 Cookies 政策。了解更多信息，包括关于可用控制的信息：Cookies 政策。</p>
+    <img class="close-button" src="../../../../_static/images/pytorch-x.svg" width="16" height="16">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+           <li class="resources-mobile-menu-title">
+             <a>学习</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/get-started">开始使用</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials">教程</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/basics/intro.html">学习基础知识</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/recipes/recipes_index.html">PyTorch 食谱</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/introyt.html">PyTorch 入门 - YouTube 系列</a>
+             </li>
+           </ul>
+           <li class="resources-mobile-menu-title">
+             <a>生态系统</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/ecosystem">工具</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/#community-module">社区</a>
+             </li>
+             <li>
+               <a href="https://discuss.pytorch.org/">论坛</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/resources">开发者资源</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">贡献者奖项 - 2024</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>边缘</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/edge">关于 PyTorch Edge</a>
+             </li>
+             
+             <li>
+               <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch 文档</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>文档</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/docs/stable/index.html">PyTorch</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/pytorch-domains">PyTorch 领域</a>
+            </li>
+          </ul>
+
+          <li class="resources-mobile-menu-title">
+            <a>博客 &amp; 新闻</a>
+          </li>
+            
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/blog/">PyTorch 博客</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/community-blog">社区博客</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/videos">视频</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/community-stories">社区故事</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/events">活动</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">通讯</a>
+             </li>
+          </ul>
+          
+          <li class="resources-mobile-menu-title">
+            <a>关于</a>
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/foundation">PyTorch 基金会</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/governing-board">管理委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">云信用计划</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">技术咨询委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">员工</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">联系我们</a>
+            </li>
+          </ul>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="../../../../_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body></html>

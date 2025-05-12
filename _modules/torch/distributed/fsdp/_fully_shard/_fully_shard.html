@@ -1,0 +1,1647 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+  <meta charset="UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>torch.distributed.fsdp._fully_shard._fully_shard — PyTorch main documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pytorch.org/docs/stable/_modules/torch/distributed/fsdp/_fully_shard/_fully_shard.html">
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../../../_static/css/theme.css" type="text/css">
+  <!-- <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css">
+  <link rel="stylesheet" href="../../../../../_static/css/theme.css" type="text/css">
+  <link rel="stylesheet" href="../../../../../_static/copybutton.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="../../../../../_static/katex-math.css" type="text/css">
+  <link rel="stylesheet" href="../../../../../_static/sphinx-dropdown.css" type="text/css">
+  <link rel="stylesheet" href="../../../../../_static/panels-bootstrap.min.css" type="text/css">
+  <link rel="stylesheet" href="../../../../../_static/css/jit.css" type="text/css">
+  <link rel="stylesheet" href="../../../../../_static/css/custom.css" type="text/css">
+    <link rel="index" title="Index" href="../../../../../genindex.html">
+    <link rel="search" title="Search" href="../../../../../search.html">
+
+<!--
+  Search engines should not index the main version of documentation.
+  Stable documentation are built without release == 'main'.
+-->
+<meta name="robots" content="noindex">
+
+
+  <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T8XT4PS');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  
+  <script src="../../../../../_static/js/modernizr.min.js"></script>
+
+  <!-- Preload the theme fonts -->
+
+<link rel="preload" href="../../../../../_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../../../_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../../../_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../../../_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../../../_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../../../_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<!-- Preload the katex fonts -->
+
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Math-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size1-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size2-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Caligraphic-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
+</head><body class="pytorch-body"><div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+
+          <li class="main-menu-item">
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">学习</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/get-started">
+                  <span class="dropdown-title">开始使用</span>
+                  <p>在本地运行 PyTorch 或快速开始使用支持的云平台之一</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials">
+                  <span class="dropdown-title">教程</span><p></p>
+                  <p>PyTorch 教程中的新内容是什么</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/basics/intro.html">
+                  <span class="dropdown-title">学习基础知识</span><p></p>
+                  <p>熟悉 PyTorch 概念和模块</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/recipes/recipes_index.html">
+                  <span class="dropdown-title">PyTorch 烹饪秘籍</span><p></p>
+                  <p>精简、即用型 PyTorch 代码示例</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/introyt.html">
+                  <span class="dropdown-title">PyTorch 入门 - YouTube 系列教程</span><p></p>
+                  <p>通过我们引人入胜的 YouTube 教程系列掌握 PyTorch 基础知识</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">生态系统</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem">
+                  <span class="dropdown-title">工具</span><p></p>
+                  <p>了解 PyTorch 生态系统中的工具和框架</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
+                  <span class="dropdown-title">社区</span>
+                  <p>加入 PyTorch 开发者社区，贡献、学习并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
+                  <span class="dropdown-title">论坛</span>
+                  <p>讨论 PyTorch 代码、问题、安装、研究的地方</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/resources">
+                  <span class="dropdown-title">开发者资源</span>
+                  <p>查找资源并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">贡献者奖项 - 2024</span><p></p>
+                  <p>本年 PyTorch 会议揭晓获奖者</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">边缘</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/edge">
+                  <span class="dropdown-title">关于 PyTorch Edge</span><p></p>
+                  <p>为边缘设备构建创新且注重隐私的 AI 体验</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
+                  <span class="dropdown-title">ExecuTorch</span><p></p>
+                  <p>针对移动和边缘设备实现端到端推理能力的解决方案</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch 文档</span><p></p>
+                </a>
+              </div>
+            </div>  
+          </li>
+
+          <li class="main-menu-item">
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">文档</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/docs/stable/index.html">
+                  <span class="dropdown-title">PyTorch</span><p></p>
+                  <p>查阅文档以获取全面指导，了解如何使用 PyTorch</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/pytorch-domains">
+                  <span class="dropdown-title">PyTorch 领域</span><p></p>
+                  <p>阅读 PyTorch 领域文档，了解更多关于特定领域库的信息</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">博客与新闻</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/blog/">
+                  <span class="dropdown-title">PyTorch 博客</span><p></p>
+                  <p>跟上最新的技术新闻和动态</p>
+                </a>
+                 <a class="nav-dropdown-item" href="https://pytorch.org/community-blog">
+                  <span class="dropdown-title">社区博客</span><p></p>
+                  <p>PyTorch 生态系统中的故事</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/videos">
+                  <span class="dropdown-title">视频</span><p></p>
+                  <p>了解最新的 PyTorch 教程、新内容等</p>
+                </a><a class="nav-dropdown-item" href="https://pytorch.org/community-stories">
+                  <span class="dropdown-title">社区故事</span><p></p>
+                  <p>了解我们的社区如何使用 PyTorch 解决真实、日常的机器学习问题</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/events">
+                  <span class="dropdown-title">活动</span><p></p>
+                  <p>查找活动、网络研讨会和播客</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">通讯</span><p></p>
+                  <p>跟踪最新更新</p>
+                </a>
+            </div>
+          </div></li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">关于</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/foundation">
+                  <span class="dropdown-title">PyTorch 基金会</span><p></p>
+                  <p>了解更多关于 PyTorch 基金会的信息</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
+                  <span class="dropdown-title">管理委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">云信用计划</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">技术顾问委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">员工</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">联系我们</span><p></p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li class="main-menu-item">
+            <div class="no-dropdown">
+              <a href="https://pytorch.org/join" data-cta="join">成为会员</a>
+            </div>
+          </li>
+          <li>
+           <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="github-icon">
+             </a>
+           </div>
+          </li>
+          <!--- TODO: This block adds the search icon to the nav bar. We will enable it later. 
+          <li>
+            <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="search-icon">
+             </a>
+            </div>
+          </li>
+          --->
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+  </div>
+</div>
+
+
+
+   
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>目录</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+    <div class="version">
+      <a href="https://pytorch.org/docs/versions.html">主页 (2.7.0+cpu ) ▼</a>
+    </div>
+    <div id="searchBox">
+    <div class="searchbox" id="googleSearchBox">
+      <script async="" src="https://cse.google.com/cse.js?cx=e65585f8c3ea1440e"></script>
+      <div class="gcse-search"></div>
+    </div>
+    <div id="sphinxSearchBox" style="display: none;">
+      <div role="search">
+        <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+          <input type="text" name="q" placeholder="Search Docs">
+          <input type="hidden" name="check_keywords" value="yes">
+          <input type="hidden" name="area" value="default">
+        </form>
+      </div>
+    </div>
+  </div>
+  <form id="searchForm">
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="google" checked="">Google 搜索</label>
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="sphinx">经典搜索</label>
+  </form>
+
+  <script>
+     document.addEventListener('DOMContentLoaded', function() {
+      const searchForm = document.getElementById('searchForm');
+      const googleSearchBox = document.getElementById('googleSearchBox');
+      const sphinxSearchBox = document.getElementById('sphinxSearchBox');
+      // Function to toggle search box visibility
+      function toggleSearchBox(searchType) {
+        googleSearchBox.style.display = searchType === 'google' ? 'block' : 'none';
+        sphinxSearchBox.style.display = searchType === 'sphinx' ? 'block' : 'none';
+      }
+      // Determine the default search type
+      let defaultSearchType;
+      const currentUrl = window.location.href;
+      if (currentUrl.startsWith('https://pytorch.org/docs/stable')) {
+        // For the stable documentation, default to Google
+        defaultSearchType = localStorage.getItem('searchType') || 'google';
+      } else {
+        // For any other version, including docs-preview, default to Sphinx
+        defaultSearchType = 'sphinx';
+      }
+      // Set the default search type
+      document.querySelector(`input[name="searchType"][value="${defaultSearchType}"]`).checked = true;
+      toggleSearchBox(defaultSearchType);
+      // Event listener for changes in search type
+      searchForm.addEventListener('change', function(event) {
+        const selectedSearchType = event.target.value;
+        localStorage.setItem('searchType', selectedSearchType);
+        toggleSearchBox(selectedSearchType);
+      });
+      // Set placeholder text for Google search box
+      window.onload = function() {
+        var placeholderText = "Search Docs";
+        var googleSearchboxText = document.querySelector("#gsc-i-id1");
+        if (googleSearchboxText) {
+          googleSearchboxText.placeholder = placeholderText;
+          googleSearchboxText.style.fontFamily = 'FreightSans';
+          googleSearchboxText.style.fontSize = "1.2rem";
+          googleSearchboxText.style.color = '#262626';
+        }
+      };
+    });
+  </script>
+
+          </div>
+
+          
+
+<div>
+  <a style="color:#F05732" href="https://pytorch.org/docs/stable/_modules/torch/distributed/fsdp/_fully_shard/_fully_shard.html">您正在查看不稳定开发者预览文档。请点击此处查看最新稳定版本的文档。</a>
+</div>
+
+
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">社区</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../community/build_ci_governance.html">PyTorch 治理 | 构建 + CI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../community/contribution_guide.html">PyTorch 贡献指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../community/design.html">PyTorch 设计哲学</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../community/governance.html">PyTorch 治理 | 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../community/persons_of_interest.html">PyTorch 治理 | 维护者</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发者笔记</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../notes/amp_examples.html">自动混合精度示例</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../notes/autograd.html">Autograd 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../notes/broadcasting.html">广播语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../notes/cpu_threading_torchscript_inference.html">CPU 多线程和 TorchScript 推理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../notes/cuda.html">CUDA 语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../notes/custom_operators.html">PyTorch 自定义算子页面</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../notes/ddp.html">分布式数据并行</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../notes/extending.html">扩展 PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../notes/extending.func.html">使用 autograd.Function 扩展 torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../notes/faq.html">常见问题解答</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../notes/fsdp.html">FSDP 笔记</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../notes/get_start_xpu.html">在 Intel GPU 上入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../notes/gradcheck.html">Gradcheck 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../notes/hip.html">HIP (ROCm)语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../notes/large_scale_deployments.html">大规模部署功能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../notes/libtorch_stable_abi.html">LibTorch 稳定 ABI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../notes/modules.html">模块</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../notes/mps.html">MPS 后端</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../notes/multiprocessing.html">多进程最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../notes/numerical_accuracy.html">数值精度</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../notes/randomness.html">可重复性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../notes/serialization.html">序列化语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../notes/windows.html">Windows 常见问题解答</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">语言绑定</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../cpp_index.html">C++</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/javadoc/">Javadoc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../deploy.html">torch::deploy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../torch.html">torch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../nn.html">torch.nn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../nn.functional.html">torch.nn.functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../tensors.html">torch.Tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../tensor_attributes.html">索引属性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../tensor_view.html">张量视图</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../amp.html">torch.amp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../autograd.html">torch.autograd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../library.html">torch.library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../accelerator.html">torch.accelerator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../cpu.html">torch.cpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../cuda.html">torch.cuda</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../torch_cuda_memory.html">理解 CUDA 内存使用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../torch_cuda_memory.html#generating-a-snapshot">生成快照</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../torch_cuda_memory.html#using-the-visualizer">使用可视化工具</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../torch_cuda_memory.html#snapshot-api-reference">摄像头 API 参考</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../mps.html">torch.mps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../xpu.html">torch.xpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../mtia.html">torch.mtia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../mtia.memory.html">torch.mtia.memory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../meta.html">元设备</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../backends.html">torch.backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../export.html">torch.export</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../distributed.html">torch.distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../distributed.tensor.html">torch.distributed.tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../distributed.algorithms.join.html">torch.distributed.algorithms.join</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../distributed.elastic.html">torch.distributed.elastic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../fsdp.html">torch.distributed.fsdp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../distributed.fsdp.fully_shard.html">torch.distributed.fsdp.fully_shard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../distributed.tensor.parallel.html">torch.distributed.tensor.parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../distributed.optim.html">torch.distributed.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../distributed.pipelining.html">torch.distributed.pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../distributed.checkpoint.html">torch.distributed.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../distributions.html">torch.distributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../torch.compiler.html">torch.compiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../fft.html">torch.fft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../func.html">torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../futures.html">torch.futures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../fx.html">torch.fx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../fx.experimental.html">torch.fx.experimental</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../hub.html">torch.hub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../jit.html">torch.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../linalg.html">torch.linalg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../monitor.html">torch.monitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../signal.html">torch.signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../special.html">torch.special</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../torch.overrides.html">torch.overrides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../package.html">torch.package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../profiler.html">torch.profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../nn.init.html">torch.nn.init</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../nn.attention.html">torch.nn.attention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../onnx.html">torch.onnx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../optim.html">torch.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../complex_numbers.html">复数</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../ddp_comm_hooks.html">DDP 通信钩子</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../quantization.html">量化</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../rpc.html">分布式 RPC 框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../random.html">torch.random</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../masked.html">torch.masked</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../nested.html">torch.nested</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../size.html">torch.Size</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sparse.html">torch.sparse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../storage.html">torch.Storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../testing.html">torch.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../utils.html">torch.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../benchmark_utils.html">torch.utils.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../bottleneck.html">torch.utils.bottleneck</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../checkpoint.html">torch.utils.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../cpp_extension.html">torch.utils.cpp_extension</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../data.html">torch.utils.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../deterministic.html">torch.utils.deterministic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../jit_utils.html">torch.utils.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../dlpack.html">torch.utils.dlpack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../mobile_optimizer.html">torch.utils.mobile_optimizer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../model_zoo.html">torch.utils.model_zoo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../tensorboard.html">torch.utils.tensorboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../module_tracker.html">torch.utils.module_tracker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../type_info.html">类型信息</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../named_tensor.html">命名张量</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../name_inference.html">命名张量操作覆盖率</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../config_mod.html">torch.__config__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../future_mod.html">torch.__future__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../logging.html">torch._logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../torch_environment_variables.html">Torch 环境变量</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">库</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/audio/stable">torchaudio</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/data">TorchData</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/torchrec">火炬推荐</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/serve">TorchServe</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/text/stable">torchtext</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/vision/stable">torchvision</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/xla/">PyTorch on XLA Devices</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/ao">torchao</a></li>
+</ul>
+
+            
+          
+
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        文档 &gt;</li>
+
+        
+          <li>模块代码 &gt;</li>
+        
+          <li><a href="../../../../torch.html">torch</a> &gt;</li>
+        
+          <li><a href="../../../distributed.html">torch.distributed</a> &gt;</li>
+        
+          <li><a href="../../fsdp.html">torch.distributed.fsdp</a> &gt;</li>
+        
+      <li>torch.distributed.fsdp._fully_shard._fully_shard</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">快捷键</div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+
+          <!-- Google Tag Manager (noscript) -->
+          <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T8XT4PS" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+          <!-- End Google Tag Manager (noscript) -->
+          
+          <div class="rst-content">
+          
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <h1>torch.distributed.fsdp._fully_shard._fully_shard 的源代码</font></font></font></h1><div class="highlight"><pre><span></span><span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># mypy: 允许未类型化装饰器</span>
+<span class="c1"># mypy: 允许未类型化定义</span>
+
+<span class="kn">来自</font></font></font></span> <span class="nn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">未来</font></font></font></span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">注释</span>
+
+<span class="kn">导入</span> <span class="nn">functools</span>
+<span class="kn">来自</font></font></font></span> <span class="nn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">打字</font></font></font></span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</span> <span class="p">(</span>
+    <span class="n">任意</span><span class="p">,</span>
+    <span class="n">可调用</span><span class="p">,</span>
+    <span class="n">角色</span><span class="p">,</span>
+    <span class="n">无返回值</span><span class="p">,</span>
+    <span class="n">可选</span><span class="p">,</span>
+    <span class="n">过载</span><span class="p">,</span>
+    <span class="n">类型检查</span><span class="p">,</span>
+    <span class="n">联盟</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">导入</font></font></font></span> <span class="nn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</span>
+<span class="kn">导入</font></font></font></span> <span class="nn">torch.nn</span> <span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">作为</font></font></font></span> <span class="nn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">然后</span>
+<span class="kn">来自</font></font></font></span> <span class="nn">torch.distributed._composable</span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">合同</span>
+<span class="kn">来自</font></font></font></span> <span class="nn">torch.distributed.utils</span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">获取根模块</span>
+
+<span class="kn">来自</font></font></font></span> <span class="nn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">.fsdp_api</font></font></font></span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">混合精度策略</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">卸载策略</span>
+<span class="kn">来自</font></font></font></span> <span class="nn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">.fsdp_common</font></font></font></span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</span> <span class="n">FSDPMeshInfo</span><span class="p">,</span> <span class="n">HSDPMeshInfo</span>
+<span class="kn">来自</font></font></font></span> <span class="nn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">__fsdp 初始化</font></font></font></span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</span> <span class="p">(</span>
+    <span class="n">_从网格获取设备</span><span class="p">,</span>
+    <span class="n">_获取管理模块</span><span class="p">,</span>
+    <span class="n">_获取管理状态</span><span class="p">,</span>
+    <span class="n">_获取后置网格信息</span><span class="p">,</span>
+    <span class="n">_初始化默认全分片网格</span><span class="p">,</span>
+    <span class="n">将状态移动到设备</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">来自</font></font></font></span> <span class="nn">._fsdp_param_group</span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</span> <span class="n">FSDPParamGroup</span>
+<span class="kn">来自</font></font></font></span> <span class="nn">._fsdp_state</span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">获取模块 FSDP 状态</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">FSDP 状态</span>
+
+
+<span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类型检查</span><span class="p">:</span>
+    <span class="kn">来自</font></font></font></span> <span class="nn">collections.abc</span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">迭代器</span>
+
+    <span class="kn">来自</font></font></font></span> <span class="nn">torch.distributed.tensor</span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">设备网状结构</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">片段</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"全分片"</span><span class="p">,</span>
+    <span class="s2">"FSDP 模块"</span><span class="p">,</span>
+    <span class="s2">Unshard 处理</span><span class="p">,</span>
+    <span class="s2">注册 fsdp 前进方法</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<span class="n">类到 FSDP 类的转换</font></font></font></span><span class="p">:</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">字典</font></font></font></span><span class="p">[</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类型</font></font></font></span><span class="p">,</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类型</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+
+<span class="nd">@overload</span>
+<span class="k">def</span> <span class="nf">全分片</span><span class="p">(</span>
+    <span class="n">模块</font></font></font></span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">网格</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">可选</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">设备网状结构</span><span class="p">]</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+    <span class="n">前置后重新分配资源</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">联盟</font></font></font></span><span class="p">[</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">布尔</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+    <span class="n">分片放置函数</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">可选</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">可调用</font></font></font></span><span class="p">[[</span><span class="n">nn</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</font></font></font></span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">]</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">可选</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">片段</span><span class="p">]]]</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+    <span class="n">多精度策略</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">混合精度策略</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+    <span class="n">卸载策略</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">卸载策略</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+    <span class="n">忽略参数</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">可选</font></font></font></span><span class="p">[</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">集合</font></font></font></span><span class="p">[</span><span class="n">nn</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="p">]]</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FSDP 模块</span><span class="p">:</span> <span class="o">...</span>
+
+
+<span class="nd">@overload</span>
+<span class="k">def</span> <span class="nf">全分片</span><span class="p">(</span>
+    <span class="n">模块</font></font></font></span><span class="p">:</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">列表</font></font></font></span><span class="p">[</span><span class="n">nn</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">]</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">网格</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">可选</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">设备网状结构</span><span class="p">]</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+    <span class="n">转发后重新分片</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">联盟</font></font></font></span><span class="p">[</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">布尔</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+    <span class="n">shard 放置函数</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">可选</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">可调用</font></font></font></span><span class="p">[[</span><span class="n">nn</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</font></font></font></span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">]</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">可选</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">片段</span><span class="p">]]]</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+    <span class="n">多精度策略</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">混合精度策略</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+    <span class="n">卸载策略</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">卸载策略</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+    <span class="n">忽略参数</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">可选</font></font></font></span><span class="p">[</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">集合</font></font></font></span><span class="p">[</span><span class="n">nn</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="p">]]</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">列表</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">FSDP 模块</font></font></font></span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">]：</span> <span class="o">...</span>
+
+
+<span class="c1"># 装饰器向 `module` 添加一个状态对象，可以通过</span>
+<span class="c1"># `fully_shard.state(module)` 访问。状态对象和模块是一对一的关系。</span>
+<span class="c1">Python 运行时装饰器与静态类型检查不兼容</span>
+<span class="c1">因此抑制一些类型检查以支持类型重载</span>
+<span class="c1">这样调用者仍然可以根据输入类型获取正确的返回类型</span>
+<span class="nd">@contract</span><span class="p">(</span><span class="n">state_cls</span><span class="o">=</span><span class="n">FSDP 状态</font></font></font></span><span class="p">)</span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># 类型：忽略[misc] # 参考[1]</span>
+<span class="k">def</span> <span class="nf">全分片</span><span class="p">(</span>
+    <span class="n">模块</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">网格</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">可选</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">设备网状结构</font></font></font></span><span class="p">]</span> <span class="o">=</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">,</span>
+    <span class="n">前置后重新分配</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">联盟</font></font></font></span><span class="p">[</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">布尔</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">分片放置函数</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">可选</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">可调用</font></font></font></span><span class="p">[[</span><span class="n">nn</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</font></font></font></span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">]</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">可选</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">片段</font></font></font></span><span class="p">]]]</span> <span class="o">=</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">,</span>
+    <span class="n">多精度策略</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">混合精度策略</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">混合精度策略</span><span class="p">(),</span>
+    <span class="n">转发策略</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">转发策略</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">卸载策略</span><span class="p">(),</span>
+    <span class="n">忽略参数</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">可选</font></font></font></span><span class="p">[</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">集合</font></font></font></span><span class="p">[</span><span class="n">nn</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</font></font></font></span><span class="p">]]</span> <span class="o">=</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">""</span>
+<span class="sd">将完全分片数据并行（FSDP）应用于 ``module``，其中 FSDP</span>
+<span class="sd">分片模块参数、梯度和优化器状态到数据</span>
+<span class="sd">并行工作进程以节省内存，但以通信为代价。</span>
+
+<span class="sd">初始化时，FSDP 会将模块的参数分散到由`mesh`指定的并行工作进程中。</span>
+<span class="sd">在前向计算之前，FSDP 会将分散的参数在数据并行工作进程中全部收集起来，以获得用于前向计算的非分散参数。</span>
+<span class="sd">如果`reshard_after_forward`被设置为</span>
+<span class="sd">，则在前向计算后重新分散参数。</span>
+<span class="sd">“如果为真”，则 FSDP 在正向传播后释放未分片的参数，并在反向传播前重新聚合它们。在计算梯度后，FSDP 释放未分片的参数，并将未分片的梯度在数据并行工作之间进行 reduce-scatter。</span>
+<span class="sd">计算梯度后，FSDP 释放未分片的参数，并将未分片的梯度在数据并行工作之间进行 reduce-scatter。</span>
+<span class="sd">计算梯度后，FSDP 释放未分片的参数，并将未分片的梯度在数据并行工作之间进行 reduce-scatter。</span>
+<span class="sd">计算梯度后，FSDP 释放未分片的参数，并将未分片的梯度在数据并行工作之间进行 reduce-scatter。</span>
+
+<span class="sd">该实现将分片参数表示为 :class:`DTensor` 对象</span>
+<span class="sd">在 dim-0 维度上进行分片，而未分片的参数将类似于原始的</span>
+<span class="sd">参数（例如，如果原始参数是 :class:`torch.Tensor`）</span>
+<span class="sd">模块（例如，:class:`torch.Tensor`）。一个模块</span>
+<span class="sd">    `forward pre-hook &lt;https://pytorch.org/docs/main/generated/torch.nn.Module.html#torch.nn.Module.register_forward_pre_hook&gt;`_</span>
+<span class="sd">在 `module` 上进行所有参数的全局聚合，并创建一个模块</span>
+<span class="sd">    `forward hook &lt;https://pytorch.org/docs/main/generated/torch.nn.Module.html#torch.nn.Module.register_forward_hook&gt;`_</span>
+<span class="sd">在 `module` 上释放它们（如果需要）。类似的反向钩子也会进行全局聚合</span>
+<span class="sd">参数和后续的自由参数以及减少-散射梯度。</span>
+
+<span class="sd">由于将多个张量分组在一起进行一次集体操作对于通信效率至关重要，因此该实现首先进行这种分组。</span>
+<span class="sd">该类。在 `module` 上调用 :meth:`fully_shard` 构造一个组。</span>
+<span class="sd">。在 `module` 上调用 :meth:`fully_shard` 构造一个组。</span>
+<span class="sd">包含 `module.parameters()` 中的参数，但不包括那些已经</span>
+<span class="sd">分配给早期通话中的一个子模块的组。这意味着</span>
+<span class="sd">`:meth:`fully_shard` 应该从下往上调用您的模型。每个组的</span>
+<span class="sd">参数全部汇集在一个集合中，其梯度是</span>
+<span class="sd">将分散的合并成一个整体。将模型分割成多个组（“层叠式”）可以最大程度地节省内存并实现通信/计算重叠。用户通常不应仅在顶层根模块上调用：:meth:`fully_shard`。</span>
+<span class="sd">这允许实现峰值内存节省和通信/计算重叠。</span>
+<span class="sd">用户通常不应仅在顶层根模块上调用：meth:`fully_shard`。</span>
+<span class="sd">。</span>
+
+<span class="sd">参数：</span>
+<span class="sd">模块（nn.Module 或 nn.Module 列表）：模块或模块列表</span>
+<span class="sd">使用 FSDP 分片并将它们分组以进行通信。</span>
+<span class="sd">网格（可选 DeviceMesh）：此数据并行网格定义了分片和设备。</span>
+<span class="sd">如果是 1D，则参数完全分片</span>
+<span class="sd">在 1D 网格（FSDP）中通过`(Shard(0),)`放置。如果为 2D，</span>
+<span class="sd">然后参数在第一维上分片并在副本中复制</span>
+<span class="sd">跨过 0 维（HSDP）使用`(Replicate(), Shard(0))`</span>
+<span class="sd">放置。网格的设备类型指定了使用的设备类型。</span>
+<span class="sd">通信；如果是一个 CUDA 或 CUDA 类似设备类型，那么我们使用</span>
+<span class="sd">当前设备。</span>
+<span class="sd">reshard_after_forward（Union[bool, int]）：这控制参数</span>
+<span class="sd">行为在前进后可以权衡内存和通信：</span>
+
+<span class="sd">如果为 ``True``，则在正向传播后重新分片参数并在反向传播中重新收集。</span>
+<span class="sd">如果为 ``False``，则在正向传播后保持未分片的参数在内存中，并在反向传播中避免所有收集。</span>
+<span class="sd">如果为 ``False``，则在正向传播后保持未分片的参数在内存中。</span>
+<span class="sd">并在反向传播中避免所有收集。</span>
+<span class="sd">如果是整数，则表示要重新分片的世界大小</span>
+<span class="sd">在前向操作之后。它应该是“网格”的非平凡约数</span>
+<span class="sd">分片维度大小（即不包括 1 和维度大小本身）。一个</span>
+<span class="sd">选择可能是节点内大小（例如 ``torch.cuda.device_count()``）。</span>
+<span class="sd">这允许向后全聚集覆盖的范围更小</span>
+<span class="sd">以更高的内存使用量为代价来设置大小。</span>
+<span class="sd">- 根 FSDP 状态的值被特别设置为 ``False``</span>
+<span class="sd">启发式方法，因为其参数通常会被立即</span>
+<span class="sd">向后汇总。</span>
+<span class="sd">- 前向之后，注册到模块的参数取决于</span>
+<span class="sd">这：注册的参数是分片参数如果</span>
+<span class="sd">``True``；非分片参数如果``False``；以及参数</span>
+<span class="sd">否则重新划分到较小的网格。要修改参数</span>
+<span class="sd">在正向和反向之间，必须注册相同的参数</span>
+<span class="sd">划分的参数。对于 ``False`` 或 ``int``，可以通过手动重新划分来实现：:meth:`reshard`。</span>
+<span class="sd">通过 :meth:`reshard` 手动重新划分。</span>
+<span class="sd">shard_placement_fn（可选[Callable[[nn.Parameter]，Optional[Shard]]]）：</span>
+<span class="sd">此可调用函数可用于覆盖分片放置</span>
+<span class="sd">参数用于在除 dim-0 以外的维度上划分参数。</span>
+<span class="sd">此可调用函数返回一个 :class:`Shard` 放置（非 ``None``）</span>
+<span class="sd">然后 FSDP 将根据该放置进行分片（例如 ``Shard(1)``）。</span>
+<span class="sd">如果在非零维度上进行分片，我们目前要求进行均匀分片，</span>
+<span class="sd">即在该维度上张量的维度大小必须能被 FSDP</span>
+<span class="sd">分片网格大小整除。</span>
+<span class="sd">mp_policy（混合精度策略）：控制该模块的参数/缩减混合精度</span>
+<span class="sd">策略，为该模块提供参数/缩减混合精度</span>
+<span class="sd">。请参阅：class:`MixedPrecisionPolicy` 获取详细信息。</span>
+<span class="sd">offload_policy（卸载策略）：控制卸载策略，</span>
+<span class="sd">提供参数/梯度/优化器状态卸载的功能。请参阅</span>
+<span class="sd">class:`OffloadPolicy` 及其子类以获取详细信息。</span>
+<span class="sd">ignored_params: Optional(Set[nn.Parameter]): 我们不想与 FSDP 分片的一组参数。</span>
+<span class="sd">参数。</span>
+
+<span class="sd">返回：</span>
+<span class="sd">FSDP 模块：应用了 FSDP 的模块（原地）。</span>
+<span class="sd"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">```python
+# 假设输入文本为：
+input_text = '"""'
+
+# 翻译函数（此处仅为示例，实际翻译功能需要调用真实的翻译 API）
+def translate_to_simplified_chinese(text):
+    # 这里应该调用真实的翻译 API 进行翻译
+    # 由于示例中不使用真实的 API，以下为模拟翻译结果
+    return text
+
+# 输出翻译结果
+translated_text = translate_to_simplified_chinese(input_text)
+print(translated_text)
+```</font></font></font></span>
+    <span class="k">如果</font></font></font></span> <span class="nb">isinstance</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">,</span> <span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块列表</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">ModuleDict</span><span class="p">)):</span>
+        <span class="k">提升</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"fully_shard 不支持不实现 forward 的容器。"</font></font></font></span><span class="si">{</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">)</span>
+    <span class="n">网格</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">网格</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">或</span> <span class="n">_init_default_fully_shard_mesh</span><span class="p">()</span>
+    <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">网格</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">维数</font></font></font></span> <span class="ow">not</span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+        <span class="k">提升</font></font></font></span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">"fully_shard 期望一个 1D 或 2D DeviceMesh，但得到了"</font></font></font></span><span class="si">{</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">网格</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">网格</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">维数</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">网格信息</font></font></font></span> <span class="o">=</span> <span class="n">FSDPMeshInfo</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">网格</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">碎片网格维度</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">否则</span><span class="p">:</span>
+        <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">网格</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">网格维度名称列表</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是</font></font></font></span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">:</span>
+            <span class="k">提升</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">断言错误</span><span class="p">(</span>
+                <span class="s2">请使用指定的 mesh_dim_names 初始化 HSDP 的 2D 网格</span>
+            <span class="p">)</span>
+        <span class="n">网格信息</font></font></font></span> <span class="o">=</span> <span class="n">HSDPMeshInfo</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">网格</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">片段网格维度</font></font></font></span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">复制网格维度</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">设备</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">从网格获取设备</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">网格</span><span class="p">)</span>
+    <span class="n">发布前网格信息</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">获取发布前网格信息</span><span class="p">(</span>
+        <span class="n">发布后重新分配</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">网格信息</span>
+    <span class="p">)</span>
+
+    <span class="n">参数模块</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</span>
+    <span class="n">模块</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">模块</font></font></font></span><span class="p">,)</span> <span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">如果</font></font></font></span> <span class="nb">isinstance</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">)</span> <span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">否则</font></font></font></span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">元组</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_获取根模块</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</span><span class="p">))</span>
+    <span class="p">)</span>
+    <span class="n">状态</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">全分片</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">状态</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># 类型：忽略[attr-defined] # 参考[1]</span>
+    <span class="n">状态</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">初始化</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">设备</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">mp 策略</span><span class="p">)</span>
+
+    <span class="n">管理模块</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_获取管理模块</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">忽略参数</span><span class="p">)</span>
+    <span class="n">参数</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">缓冲区</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">获取管理状态</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">管理模块</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">忽略的参数</span><span class="p">)</span>
+
+    <span class="n">将状态移动到设备</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">缓冲区</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">设备</span><span class="p">)</span>
+    <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="p">:</span>
+        <span class="n">状态</font></font></font></span><span class="o">.</span><span class="n">_fsdp_param_group</span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">FSDP 参数组</span><span class="p">(</span>
+            <span class="n">参数</span><span class="p">,</span>
+            <span class="n">模块</span><span class="p">,</span>
+            <span class="n">网格信息</span><span class="p">,</span>
+            <span class="n">前向网格信息</span><span class="p">,</span>
+            <span class="n">设备</span><span class="p">,</span>
+            <span class="n">shard 放置函数</span><span class="p">,</span>
+            <span class="n">mp 策略</span><span class="p">,</span>
+            <span class="n">转发策略</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="c1"># 适用于 Dynamo</span>
+    <span class="k">为</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">管理模块</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">管理模块列表</span><span class="p">:</span>
+        <span class="n">管理模块</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_是否为 fsdp 管理模块</font></font></font></span> <span class="o">=</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">真实</font></font></font></span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># 类型：忽略[赋值]</span>
+        <span class="n">管理模块</font></font></font></span><span class="o">.</span><span class="n">_fsdp_use_orig_params</span> <span class="o">=</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">真实</font></font></font></span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># 类型：忽略[赋值]</span>
+
+    <span class="c1"># 将 FSDP 置于方法解析顺序的最左侧以获得最高优先级</span>
+    <span class="k">为</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</span><span class="p">:</span>
+        <span class="bp">类</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="o">.</span><span class="vm"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类</span>
+        <span class="n">new_cls</span> <span class="o">=</span> <span class="n">类到类状态深度复制</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">获取</font></font></font></span><span class="p">(</span><span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类</font></font></font></span><span class="p">,</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">)</span>
+        <span class="k">如果</font></font></font></span> <span class="ow">not</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">新类</span><span class="p">:</span>
+            <span class="n">dct</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"__deepcopy__"</span><span class="p">:</span> <span class="n">未实现深度复制</span><span class="p">}</span>
+            <span class="n">新类</font></font></font></span> <span class="o">=</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类型</font></font></font></span><span class="p">(</span><span class="sa">f</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">FSDP</font></font></font></span><span class="si">{</span><span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类</font></font></font></span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">FSDP 模块</font></font></font></span><span class="p">,</span> <span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类</span><span class="p">),</span> <span class="n">dct</span><span class="p">)</span>
+            <span class="n">类到 fsdp 类</font></font></font></span><span class="p">[</span><span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类</font></font></font></span><span class="p">]</span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">新类</span>
+        <span class="n">模块</font></font></font></span><span class="o">.</span><span class="vm"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">新类</span>
+    <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数模块</span>
+
+
+<span class="k">def</span> <span class="nf">_未实现深拷贝</font></font></font></span><span class="p">(</span><span class="o">*</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">任意</font></font></font></span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">任意</font></font></font></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无返回值</span><span class="p">:</span>
+    <span class="k">提升</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">断言错误</span><span class="p">(</span>
+        <span class="s2">"FSDP 不支持深拷贝。请使用状态字典进行序列化。"</span>
+    <span class="p">)</span>
+
+
+<span class="k">类</font></font></font></span> <span class="nc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">FSDP 模块</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="bp">类</font></font></font></span><span class="p">,</span> <span class="o">*</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">""</span>
+<span class="sd">覆盖 `__new__` 方法以移除 FSDP 类并直接构造原始类，用于索引容器模块等情况。</span>
+<span class="sd">例如，使用索引 2，因为 0 是动态构造的 `FSDP&lt;...&gt;` 类。</span>
+<span class="sd"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">```python
+# 假设输入文本为：
+input_text = '"""'
+
+# 翻译函数（此处仅为示例，实际翻译功能需要调用真实的翻译 API）
+def translate_to_simplified_chinese(text):
+    # 这里应该调用真实的翻译 API 进行翻译
+    # 由于示例中不使用真实的 API，以下为模拟翻译结果
+    return text
+
+# 输出翻译结果
+translated_text = translate_to_simplified_chinese(input_text)
+print(translated_text)
+```</font></font></font></span>
+        <span class="c1"># 使用索引 2，因为 0 是动态构造的 `FSDP&lt;...&gt;` 类</span>
+        <span class="c1"># 索引 1 是 `FSDPModule` 类本身</span>
+        <span class="n">原类</font></font></font></span> <span class="o">=</span> <span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类</span><span class="o">.</span><span class="vm">__mro__</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="bp">self</span> <span class="o">=</span> <span class="n">orig_cls</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="n">orig_cls</span><span class="p">,</span> <span class="o">*</span><span class="n">参数</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">自身</font></font></font></span><span class="o">.</span><span class="fm"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">初始化</font></font></font></span><span class="p">(</span><span class="o">*</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">返回</span> <span class="bp">self</span>
+
+<div class="viewcode-block" id="FSDPModule.reshard"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]    def reshard(self) -&gt; None:
+"""
+重置模块的参数，如果未分配则释放未分片的参数，并将分片参数注册到模块中。此方法**不**是递归的。
+如果它们已分配，则释放未分片的参数，并将分片参数注册到模块中。
+此方法**不**是递归的。
+"""
+state = self._get_fsdp_state()
+if fsdp_param_group := state._fsdp_param_group:
+fsdp_param_group.reshard()</font></font></font></div>
+
+<div class="viewcode-block" id="FSDPModule.unshard"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档] def unshard(self, async_op: bool = False) -&gt; Optional[UnshardHandle]:
+```python
+# 输入文本
+input_text = '"""'
+
+# 翻译函数（此处为示例，实际翻译功能需调用真实的翻译 API）
+def translate_to_simplified_chinese(text):
+    # 假设的翻译结果
+    return text
+
+# 输出翻译结果
+translated_text = translate_to_simplified_chinese(input_text)
+print(translated_text)
+```
+解耦模块参数，通过分配内存和全部收集
+参数。此方法不是递归的。未分片遵循
+`:class:`混合精度策略`, 因此它将执行所有-gather 操作
+如果设置，则为 ``param_dtype``。
+
+参数：
+async_op (布尔值): 如果 ``True``，则返回一个 :class:`UnshardHandle`。
+该对象具有一个 :meth:`wait` 方法，用于等待未分片操作。
+如果为 `False`，则返回 `None` 并等待内部句柄
+这个函数。
+
+.. 注意:: 如果 ``async_op=True``，则 FSDP 将等待挂起的
+在模块的预转发中解块。用户仅
+需要显式调用 :meth:`wait` 方法，如果等待应该发生
+在预转发之前。
+"""
+state = self._get_fsdp_state()
+fsdp_param_group = state._fsdp_param_group
+if fsdp_param_group is not None:
+fsdp_param_group.lazy_init()
+fsdp_param_group.unshard(async_op=async_op)
+handle = _UnshardHandleImpl(fsdp_param_group)
+if async_op:
+return handle
+handle.wait()
+返回 None</font></font></font></div>
+
+<div class="viewcode-block" id="FSDPModule.set_is_last_backward"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]    def set_is_last_backward(self, is_last_backward: bool) -&gt; None:
+"""
+设置是否下一个反向是最后一个。在最后一个反向，
+FSDP 等待待处理的梯度减少并清除内部数据
+用于向后预取的数据结构。这可以用于微批处理。
+微批处理。
+"""
+state = self._get_fsdp_state()
+state._state_ctx.is_last_backward = is_last_backward</font></font></font></div>
+
+<div class="viewcode-block" id="FSDPModule.set_requires_gradient_sync"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]    def set_requires_gradient_sync(
+self, requires_gradient_sync: bool, *, recurse: bool = True
+) -&gt; None:
+"""
+设置模块是否同步梯度。这可以用来实现
+梯度累积*不进行通信*。对于 HSDP，这控制着
+同时使用 reduce-scatter 和 all-reduce。这是等价的。
+`no_sync` 在 FSDP1.
+
+参数:
+requires_gradient_sync (bool): 是否减少梯度
+模块的参数。
+递归（布尔值）：是否为所有 FSDP 子模块设置，还是仅对传入的模块设置。
+传入的模块。
+"""
+self_module = cast(nn.Module, self)
+modules = list(self_module.modules()) if recurse else [self_module]
+for module in modules:
+if isinstance(module, FSDPModule):
+state = module._get_fsdp_state()
+if fsdp_param_group := state._fsdp_param_group:
+fsdp_param_group.reduce_grads = requires_gradient_sync
+fsdp_param_group.all_reduce_grads = requires_gradient_sync</font></font></font></div>
+
+<div class="viewcode-block" id="FSDPModule.set_requires_all_reduce"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]    def set_requires_all_reduce(
+self, requires_all_reduce: bool, *, recurse: bool = True
+) -&gt; None:
+"""
+设置模块是否应该全量梯度归一化。这可以用于
+实现仅使用 reduce-scatter 而不使用梯度累积
+all-reduce for HSDP.
+```python
+# 输入文本
+input_text = '"""'
+
+# 翻译函数（此处为示例，实际翻译功能需调用真实的翻译 API）
+def translate_to_simplified_chinese(text):
+    # 假设的翻译结果
+    return text
+
+# 输出翻译结果
+translated_text = translate_to_simplified_chinese(input_text)
+print(translated_text)
+```
+self_module = cast(nn.Module, self)
+modules = list(self_module.modules()) if recurse else [self_module]
+for module in modules:
+if isinstance(module, FSDPModule):
+state = module._get_fsdp_state()
+if fsdp_param_group := state._fsdp_param_group:
+fsdp_param_group.all_reduce_grads = requires_all_reduce</font></font></font></div>
+
+<div class="viewcode-block" id="FSDPModule.set_reshard_after_backward"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档] def set_reshard_after_backward(
+self, reshard_after_backward: bool, *, recurse: bool = True
+) -&gt; None:
+"""
+设置模块是否在反向传播后重新分配参数。这可以
+在梯度累积过程中可以使用，以牺牲更高的内存为代价来减少通信，因为未分片的参数在下一个前向传播之前不需要重新全局聚合。
+减少了通信，因为未分片的参数在下一个前向传播之前不需要重新全局聚合。
+在下一个前向传播之前不需要重新全局聚合。
+
+参数：
+reshard_after_backward (bool): 是否在反向操作后重新分配参数
+backward.
+recurse (bool): 是否为所有 FSDP 子模块设置，还是仅针对传入的模块
+passed-in module.
+"""
+self_module = cast(nn.Module, self)
+modules = list(self_module.modules()) if recurse else [self_module]
+for module in modules:
+if isinstance(module, FSDPModule):
+state = module._get_fsdp_state()
+if fsdp_param_group := state._fsdp_param_group:
+fsdp_param_group.reshard_after_backward = reshard_after_backward</font></font></font></div>
+
+<div class="viewcode-block" id="FSDPModule.set_modules_to_forward_prefetch"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]    def set_modules_to_forward_prefetch(self, modules: 列表[FSDPModule]) -&gt; None:
+```python
+# 输入文本
+input_text = '"""'
+
+# 翻译函数（此处为示例，实际翻译功能需调用真实的翻译 API）
+def translate_to_simplified_chinese(text):
+    # 假设的翻译结果
+    return text
+
+# 输出翻译结果
+translated_text = translate_to_simplified_chinese(input_text)
+print(translated_text)
+```
+设置此 FSDP 模块应显式设置的 FSDP 模块
+预取正向所有汇聚。预取操作在此之后运行。
+模块的全局收集输出。
+
+传递包含下一个 FSDP 模块的单例列表会产生相同的效果
+所有汇聚重叠行为作为默认重叠行为，除了
+预取的全局收集操作比 CPU 提前发出。传递一个列表
+至少长度为两个的才需要更激进的覆盖
+将使用更多保留内存。
+
+Args:
+模块（List[FSDPModule]）：预取的 FSDP 模块。
+"""
+_assert_all_fsdp_modules(模块)
+self._get_fsdp_state()._states_to_forward_prefetch = [
+[module._get_fsdp_state() for module in 模块]
+        ]</font></font></font></div>
+
+<div class="viewcode-block" id="FSDPModule.set_modules_to_backward_prefetch"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]    def set_modules_to_backward_prefetch(self, modules: list[FSDPModule]) -&gt; None:
+"""
+设置此 FSDP 模块应显式预取的 FSDP 模块
+预取所有收集项的反向。这覆盖了默认的反向
+预取实现，根据反向后前顺序预取下一个 FSDP 模块
+通过传递包含前一个 FSDP 模块的单例列表来给出
+
+传递一个包含前一个 FSDP 模块的单例列表
+与默认重叠行为相同的所有-gather 重叠行为。
+传递一个长度至少为二的列表是必需的，以实现更激进的
+重叠并会使用更多预留内存。
+
+参数:
+modules (List[FSDPModule]): 预取的 FSDP 模块。
+"""
+_assert_all_fsdp_modules(modules)
+self._get_fsdp_state()._states_to_backward_prefetch = [
+module._get_fsdp_state() for module in modules
+        ]</font></font></font></div>
+
+<div class="viewcode-block" id="FSDPModule.set_all_reduce_hook"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档] def set_all_reduce_hook(
+self,
+hook: 可调用[torch.Tensor]，None 类型的函数,
+        *,
+stream: 可选的 torch.cuda.Stream 对象 = None,
+    ):
+```python
+# 输入文本
+input_text = '"""'
+
+# 翻译函数（此处为示例，实际翻译功能需调用真实的翻译 API）
+def translate_to_simplified_chinese(text):
+    # 假设的翻译结果
+    return text
+
+# 输出翻译结果
+translated_text = translate_to_simplified_chinese(input_text)
+print(translated_text)
+```
+参数:
+hook (Callable[[torch.Tensor], None]): 用户定义的全量减少钩子
+使用预期的签名 `hook(reduce_output: torch.Tensor) -&gt; None`
+如果仅使用 FSDP，则`reduce_output`是 reduce-scatter 输出；如果使用原生 HSDP，则是 all-reduce 输出。
+流（Optional[torch.cuda.Stream]）：在其中运行 all-reduce 钩子。如果未使用原生 HSDP，则应设置此参数。
+流（Optional[torch.cuda.Stream]）：在其中运行 all-reduce 钩子。如果未使用原生 HSDP，则应设置此参数。
+流（Optional[torch.cuda.Stream]）：在其中运行 all-reduce 钩子。如果未使用原生 HSDP，则应设置此参数。
+使用原生 HSDP，钩子将在内部定义的 all-reduce 流中运行
+使用原生 HSDP 的 all-reduce 流
+"""
+state = self._get_fsdp_state()
+if (fsdp_param_group := state._fsdp_param_group) is not None:
+fsdp_param_group._all_reduce_hook = hook
+if stream is not None:
+if fsdp_param_group._is_hsdp:
+引发 ValueError("使用原生 HSDP 时无法设置流")
+fsdp_param_group._all_reduce_hook_stream = stream</font></font></font></div>
+
+<div class="viewcode-block" id="FSDPModule.set_post_optim_event"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]    def set_post_optim_event(self, event: torch.Event) -&gt; None:  设置优化后事件
+```python
+# 输入文本
+input_text = '"""'
+
+# 翻译函数（此处为示例，实际翻译功能需调用真实的翻译 API）
+def translate_to_simplified_chinese(text):
+    # 假设的翻译结果
+    return text
+
+# 输出翻译结果
+translated_text = translate_to_simplified_chinese(input_text)
+print(translated_text)
+```
+为根 FSDP 模块设置后优化步骤事件，以便等待所有-gather 流开启。
+默认情况下，根 FSDP 模块会在当前流上等待所有-gather 流开启，以确保优化步骤完成后再进行。
+
+默认情况下，根 FSDP 模块会在当前流上等待所有-gather 流开启，以确保优化步骤完成后再进行。
+默认情况下，根 FSDP 模块会在当前流上等待所有-gather 流开启，以确保优化步骤完成后再进行。
+然而，这可能会引入虚假依赖。然而，如果在优化步骤之后有无关的计算，则可能引入虚假依赖。
+此 API 允许用户提供他们自己的等待事件。在等待根事件后，事件将被丢弃，因此此 API 应该
+允许用户等待他们自己的事件。在等待根事件后，该事件将被丢弃，因此此 API 应该
+允许用户等待他们自己的事件。在等待根事件后，该事件将被丢弃，因此此 API 应该
+每次迭代都会调用一个新的事件。
+
+Args:
+事件(event)：在优化器步骤后记录的事件
+用于等待所有-gather 流的。
+"""
+self._get_fsdp_state()._state_ctx.post_optim_event = event</font></font></font></div>
+
+<div class="viewcode-block" id="FSDPModule.set_reduce_scatter_divide_factor"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]    def set_reduce_scatter_divide_factor(self, factor: float) -&gt; None: 设置减少分散除法因子(self, 因子: 浮点数) -&gt; None:
+```python
+# 输入文本
+input_text = '"""'
+
+# 翻译函数（此处为示例，实际翻译功能需调用真实的翻译 API）
+def translate_to_simplified_chinese(text):
+    # 假设的翻译结果
+    return text
+
+# 输出翻译结果
+translated_text = translate_to_simplified_chinese(input_text)
+print(translated_text)
+```
+设置 reduce-scatter 的自定义除数因子。这成为
+自定义使用 NCCL 的 PreMulSum 的 reduce 操作，允许乘以
+减少前的系数。
+
+Args:
+factor (float): 自定义除数因子。
+"""
+state = self._get_fsdp_state()
+if (fsdp_param_group := state._fsdp_param_group) is not None:
+mul_factor = 1.0 / float(factor)
+reduce_op = torch.distributed._make_nccl_premul_sum(mul_factor)
+fsdp_param_group.reduce_scatter_reduce_op = reduce_op</font></font></font></div>
+
+<div class="viewcode-block" id="FSDPModule.set_unshard_in_backward"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档] def set_unshard_in_backward(self, unshard_in_backward: bool) -&gt; None:
+"""
+设置 FSDP 模块的参数是否需要在反向传播中进行去分片
+向后。这可以在用户知道此 FSDP 模块的参数组中所有参数都不用于反向计算（例如嵌入）的专家情况下使用。
+在此 FSDP 模块的参数组中，这些参数都不用于反向计算（例如嵌入）。
+用于反向计算（例如嵌入）。
+"""
+state = self._get_fsdp_state()
+if (fsdp_param_group := state._fsdp_param_group) is not None:
+fsdp_param_group.unshard_in_backward = unshard_in_backward</font></font></font></div>
+
+    <span class="k">def</span> <span class="nf">_set_unshard_async_op</span><span class="p">(</span><span class="bp">自身</font></font></font></span><span class="p">,</span> <span class="n">async_op</span><span class="p">:</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">布尔</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">""</span>
+<span class="sd">设置是否使用 `async_op=True` 或 `False` 进行预转发</span>
+<span class="sd">并且预向后未分片操作。此默认为“False”，但可以设置</span>
+<span class="sd">使用此方法将值设置为“True”。</span>
+
+<span class="sd">将此设置为 `True` 允许所有全局收集分配发生</span>
+<span class="sd">默认流，避免跨流内存碎片化。</span>
+<span class="sd">然而，您必须使用显式预取（例如通过：meth:`unshard`）</span>
+<span class="sd">来获取重叠，并且像数据类型转换和复制-入这样的预所有-gather 操作</span>
+<span class="sd">将不会与计算重叠。</span>
+<span class="sd"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">```python
+# 假设输入文本为：
+input_text = '"""'
+
+# 翻译函数（此处仅为示例，实际翻译功能需要调用真实的翻译 API）
+def translate_to_simplified_chinese(text):
+    # 这里应该调用真实的翻译 API 进行翻译
+    # 由于示例中不使用真实的 API，以下为模拟翻译结果
+    return text
+
+# 输出翻译结果
+translated_text = translate_to_simplified_chinese(input_text)
+print(translated_text)
+```</font></font></font></span>
+        <span class="n">自定义模块</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">角色</font></font></font></span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">,</span> <span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">自身</span><span class="p">)</span>
+        <span class="k">为</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">自定义模块</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</span><span class="p">():</span>
+            <span class="k">如果</font></font></font></span> <span class="nb">isinstance</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">FSDP 模块</span><span class="p">):</span>
+                <span class="n">状态</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_获取 Fsdp 状态</span><span class="p">()</span>
+                <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">Fsdp 参数组</font></font></font></span> <span class="o">:=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">状态</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_fsdp 参数组</span><span class="p">:</span>
+                    <span class="n">fsdp 参数组</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">解散异步操作</span> <span class="o">=</span> <span class="n">async_op</span>
+
+    <span class="k">def</span> <span class="nf">_获取 fsdp 状态</font></font></font></span><span class="p">(</span><span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">自身</font></font></font></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">FSDP 状态</span><span class="p">:</span>
+        <span class="k">如果</font></font></font></span> <span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">状态</font></font></font></span> <span class="o">:=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">获取模块 FSDP 状态</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">角色</font></font></font></span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">,</span> <span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">自身</font></font></font></span><span class="p">)))</span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是</font></font></font></span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">:</span>
+            <span class="k">提升</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">断言错误</font></font></font></span><span class="p">(</span><span class="sa">f</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在此处未找到 FSDP 状态</font></font></font></span><span class="si">{</span><span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">自身</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">状态</span>
+
+    <span class="k">def</span> <span class="nf">应用</font></font></font></span><span class="p">(</span><span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">自身</font></font></font></span><span class="p">,</span> <span class="o">*</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">任意</font></font></font></span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">任意</font></font></font></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">任意</span><span class="p">:</span>
+        <span class="c1"># 重新分片以确保分片参数被注册</span>
+        <span class="bp">自身</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">重新分片</span><span class="p">()</span>
+        <span class="n">返回</font></font></font></span> <span class="o">=</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">超级</font></font></font></span><span class="p">()</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">应用</font></font></font></span><span class="p">(</span><span class="o">*</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</font></font></font></span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># 类型：忽略[杂项]</span>
+        <span class="n">状态</font></font></font></span> <span class="o">=</span> <span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">自身</span><span class="o">.</span><span class="n">_get_fsdp_state</span><span class="p">()</span>
+        <span class="k">如果</font></font></font></span> <span class="ow">not</span> <span class="p">(</span><span class="n">fsdp_param_group</span> <span class="o">:=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">状态</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_fsdp 参数组</span><span class="p">):</span>
+            <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">返回</span>
+        <span class="c1"># TODO: 一旦 DTensor 填充本地张量，则移除此填充逻辑</span>
+        <span class="c1"># https://github.com/pytorch/pytorch/issues/113045</span>
+        <span class="k">与</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">不梯度</span><span class="p">():</span>
+            <span class="k">为</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">fsdp 参数</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">fsdp 参数组</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">fsdp 参数列表</span><span class="p">:</span>
+                <span class="n">fsdp_param</span><span class="o">.</span><span class="n">重置分片参数</span><span class="p">()</span>
+        <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">返回</span>
+
+
+<span class="k">类</span> <span class="nc">UnshardHandle</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">""</span>
+<span class="sd">等待一个 :meth:`FSDPModule.unshard` 操作的句柄。</span>
+<span class="sd"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">```python
+# 假设输入文本为：
+input_text = '"""'
+
+# 翻译函数（此处仅为示例，实际翻译功能需要调用真实的翻译 API）
+def translate_to_simplified_chinese(text):
+    # 这里应该调用真实的翻译 API 进行翻译
+    # 由于示例中不使用真实的 API，以下为模拟翻译结果
+    return text
+
+# 输出翻译结果
+translated_text = translate_to_simplified_chinese(input_text)
+print(translated_text)
+```</font></font></font></span>
+
+<div class="viewcode-block" id="UnshardHandle.wait"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]    def wait(self) -&gt; None:
+""
+等待未分片操作。这确保当前流可以使用
+未分片的参数，这些参数现在已注册到模块中。
+""
+返回</font></font></font></div>
+
+
+<span class="k">类</span> <span class="nc">_UnshardHandleImpl</span><span class="p">(</span><span class="n">UnshardHandle</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">初始化</font></font></font></span><span class="p">(</span><span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">自身</font></font></font></span><span class="p">,</span> <span class="n">fsdp_param_group</span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">可选</font></font></font></span><span class="p">[</span><span class="n">FSDPParamGroup</span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">)]</span>
+        <span class="bp">自身</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_fsdp 参数组</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">fsdp 参数组</span>
+
+    <span class="k">def</span> <span class="nf">等待</font></font></font></span><span class="p">(</span><span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">自身</span><span class="p">):</span>
+        <span class="k">如果</font></font></font></span> <span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">自身</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_fsdp 参数组</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是</font></font></font></span> <span class="ow">not</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">:</span>
+            <span class="bp">自身</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_fsdp 参数组</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">等待解分片</span><span class="p">()</span>
+            <span class="c1">避免保留引用</span>
+            <span class="bp">自身</span><span class="o">.</span><span class="n">_fsdp_param_group</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<span class="k">def</span> <span class="nf">注册 fsdp 前向方法</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">方法名称</font></font></font></span><span class="p">:</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">字符串</font></font></font></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">""</span>
+<span class="sd">在 ``module`` 上注册一个方法，使其被视为 FSDP 的前向方法</span>
+<span class="sd">    FSDP.</span>
+
+<span class="sd">FSDP 所有聚集参数预前向和可选释放参数</span>
+<span class="sd">post-forward（取决于`reshard_after_forward`）。FSDP 只知道</span>
+<span class="sd">默认情况下，为 :meth:`nn.Module.forward` 执行此操作。此函数修补</span>
+<span class="sd">用户指定的方法在运行前后/前后的预/后钩子</span>
+<span class="sd">方法，分别。如果 ``module`` 不是一个 :class:`FSDPModule`，则</span>
+<span class="sd">这是一个空操作。</span>
+
+<span class="sd">参数：</span>
+<span class="sd">module (nn.Module)：注册前向方法的模块。</span>
+<span class="sd">method_name (str)：前向方法名称。</span>
+<span class="sd"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">```python
+# 假设输入文本为：
+input_text = '"""'
+
+# 翻译函数（此处仅为示例，实际翻译功能需要调用真实的翻译 API）
+def translate_to_simplified_chinese(text):
+    # 这里应该调用真实的翻译 API 进行翻译
+    # 由于示例中不使用真实的 API，以下为模拟翻译结果
+    return text
+
+# 输出翻译结果
+translated_text = translate_to_simplified_chinese(input_text)
+print(translated_text)
+```</font></font></font></span>
+    <span class="k">如果</font></font></font></span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">FSDP 模块</span><span class="p">):</span>
+        <span class="c1"># 禁用空操作以允许在使用/不使用 FSDP 时同时包含</span>
+        <span class="k">返回</span>
+    <span class="k">如果</font></font></font></span> <span class="ow">not</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">有属性</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">方法名称</span><span class="p">):</span>
+        <span class="k">提升</font></font></font></span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类型</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">)</span><span class="si">}</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">没有方法</font></font></font></span><span class="si">{</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">方法名称</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">原方法</font></font></font></span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">方法名称</span><span class="p">)</span>
+
+    <span class="nd">@functools</span><span class="o">.</span><span class="n">包装</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">原始方法</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">包装方法</font></font></font></span><span class="p">(</span><span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">自身</font></font></font></span><span class="p">,</span> <span class="o">*</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">fsdp 状态</font></font></font></span> <span class="o">=</span> <span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">自身</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_获取_fsdp 状态</span><span class="p">()</span>
+        <span class="n">参数</font></font></font></span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">fsdp 状态</font></font></font></span><span class="o">.</span><span class="n">_pre_forward</span><span class="p">(</span><span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">自身</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">原始方法</font></font></font></span><span class="p">(</span><span class="o">*</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">fsdp 状态</font></font></font></span><span class="o">.</span><span class="n">_post_forward</span><span class="p">(</span><span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">自身</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输出</span><span class="p">)</span>
+
+    <span class="c1">使用 `__get__` 使 `wrapped_method` 成为实例方法</span>
+    <span class="nb">setattr</span><span class="p">(</span>
+        <span class="n">模块</span><span class="p">,</span>
+        <span class="n">方法名称</span><span class="p">,</span>
+        <span class="n">wrapped_method</span><span class="o">.</span><span class="fm">__get__</span><span class="p">(</span><span class="n">模块</font></font></font></span><span class="p">,</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类型</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">)),</span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># 类型：忽略[未定义]</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_assert_all_fsdp_modules</span><span class="p">(</span><span class="n">模块</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">迭代器</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">任意</font></font></font></span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">:</span>
+    <span class="k">为</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</span><span class="p">:</span>
+        <span class="k">如果</font></font></font></span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">FSDP 模块</span><span class="p">):</span>
+            <span class="k">提升</font></font></font></span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">"期望是 FSDPModule 但得到</font></font></font></span><span class="si">{</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类型</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">)</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+
+             </article>
+             
+            </div>
+            <footer>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>© 版权所有 PyTorch 贡献者。</p>
+  </div>
+    
+      <div>使用 Sphinx 构建，并使用 Read the Docs 提供的主题。</div>
+     
+
+</footer>
+
+          </div>
+<script>
+
+var match = window.location.href.match(/\/_[a-zA-Z0-9_]*.html|_dynamo/gi);
+var url = window.location.href.lastIndexOf(match[match.length-1]);
+
+if (url)
+  {
+    var div = '<div class="admonition note"><p class="admonition-title">Note</p><p><i class="fa fa-exclamation-circle" aria-hidden="true">&nbsp</i> This page describes an internal API which is not intended to be used outside of the PyTorch codebase and can be modified or removed without notice.</p></div>'
+    document.getElementById("pytorch-article").insertAdjacentHTML('afterBegin', div)
+  }
+</script>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
+         <script data-url_root="../../../../../" id="documentation_options" src="../../../../../_static/documentation_options.js"></script>
+         <script src="../../../../../_static/jquery.js"></script>
+         <script src="../../../../../_static/underscore.js"></script>
+         <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+         <script src="../../../../../_static/doctools.js"></script>
+         <script src="../../../../../_static/clipboard.min.js"></script>
+         <script src="../../../../../_static/copybutton.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="../../../../../_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="../../../../../_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script type="text/javascript" src="../../../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ 
+<script script="" type="text/javascript">
+  var collapsedSections = ['Developer Notes', 'Language Bindings', 'Libraries', 'Community'];
+</script>
+
+<img height="1" width="1" style="border-style:none;" alt="" src="https://www.googleadservices.com/pagead/conversion/795629140/?label=txkmCPmdtosBENSssfsC&amp;guid=ON&amp;script=0">
+
+
+  <!-- Begin Footer -->
+
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 text-center">
+          <h2>文档</h2>
+          <p>查看 PyTorch 的全面开发者文档</p>
+          <a class="with-right-arrow" href="https://pytorch.org/docs/stable/index.html">查看文档</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>教程</h2>
+          <p>深入了解初学者和高级开发者的教程</p>
+          <a class="with-right-arrow" href="https://pytorch.org/tutorials">查看教程</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>资源</h2>
+          <p>查找开发资源，获取您的疑问解答</p>
+          <a class="with-right-arrow" href="https://pytorch.org/resources">查看资源</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://pytorch.org/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/">PyTorch</a></li>
+            <li><a href="https://pytorch.org/get-started">开始使用</a></li>
+            <li><a href="https://pytorch.org/features">功能</a></li>
+            <li><a href="https://pytorch.org/ecosystem">生态系统</a></li>
+            <li><a href="https://pytorch.org/blog/">博客</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md">贡献</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/resources">资源</a></li>
+            <li><a href="https://pytorch.org/tutorials">教程</a></li>
+            <li><a href="https://pytorch.org/docs/stable/index.html">文档</a></li>
+            <li><a href="https://discuss.pytorch.org" target="_blank">讨论</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/issues" target="_blank">Github 问题</a></li>
+            <li><a href="https://pytorch.org/assets/brand-guidelines/PyTorch-Brand-Guidelines.pdf" target="_blank">品牌指南</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">保持更新</li>
+            <li><a href="https://www.facebook.com/pytorch" target="_blank">Facebook</a></li>
+            <li><a href="https://twitter.com/pytorch" target="_blank">推特</a></li>
+            <li><a href="https://www.youtube.com/pytorch" target="_blank">YouTube</a></li>
+            <li><a href="https://www.linkedin.com/company/pytorch" target="_blank">领英</a></li>
+          </ul>  
+          </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">PyTorch 播客</li>
+            <li><a href="https://open.spotify.com/show/6UzHKeiy368jKfQMKKvJY5" target="_blank">Spotify</a></li>
+            <li><a href="https://podcasts.apple.com/us/podcast/pytorch-developer-podcast/id1566080008" target="_blank">苹果</a></li>
+            <li><a href="https://www.google.com/podcasts?feed=aHR0cHM6Ly9mZWVkcy5zaW1wbGVjYXN0LmNvbS9PQjVGa0lsOA%3D%3D" target="_blank">谷歌</a></li>
+            <li><a href="https://music.amazon.com/podcasts/7a4e6f0e-26c2-49e9-a478-41bd244197d0/PyTorch-Developer-Podcast?" target="_blank">亚马逊</a></li>
+          </ul>
+         </div>
+        </div>
+        
+        <div class="privacy-policy">
+          <ul>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/terms/" target="_blank">条款</a></li>
+            <li class="privacy-policy-links">|</li>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/privacy-policy/" target="_blank">隐私</a></li>
+          </ul>
+        </div>
+        <div class="copyright">
+        <p>© 版权所有 Linux 基金会。PyTorch 基金会是 Linux 基金会的一个项目。有关 PyTorch 基金会的网站使用条款、商标政策以及其他适用政策，请参阅 www.linuxfoundation.org/policies/。PyTorch 基金会支持 PyTorch 开源项目，该项目已被确立为 LF Projects, LLC 的 PyTorch 项目系列。有关适用于 PyTorch 项目系列 LF Projects, LLC 的政策，请参阅 www.lfprojects.org/policies/。</p>
+      </div>
+     </div>
+
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">为了分析流量并优化您的体验，我们在本网站上使用 cookies。通过点击或导航，您同意允许我们使用 cookies。作为本网站的当前维护者，适用 Facebook 的 Cookies 政策。了解更多信息，包括关于可用控制的信息：Cookies 政策。</p>
+    <img class="close-button" src="../../../../../_static/images/pytorch-x.svg" width="16" height="16">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+           <li class="resources-mobile-menu-title">
+             <a>学习</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/get-started">开始使用</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials">教程</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/basics/intro.html">学习基础知识</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/recipes/recipes_index.html">PyTorch 食谱</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/introyt.html">PyTorch 入门 - YouTube 系列</a>
+             </li>
+           </ul>
+           <li class="resources-mobile-menu-title">
+             <a>生态系统</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/ecosystem">工具</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/#community-module">社区</a>
+             </li>
+             <li>
+               <a href="https://discuss.pytorch.org/">论坛</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/resources">开发者资源</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">贡献者奖项 - 2024</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>边缘</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/edge">关于 PyTorch Edge</a>
+             </li>
+             
+             <li>
+               <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch 文档</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>文档</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/docs/stable/index.html">PyTorch</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/pytorch-domains">PyTorch 领域</a>
+            </li>
+          </ul>
+
+          <li class="resources-mobile-menu-title">
+            <a>博客 &amp; 新闻</a>
+          </li>
+            
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/blog/">PyTorch 博客</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/community-blog">社区博客</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/videos">视频</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/community-stories">社区故事</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/events">活动</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">通讯</a>
+             </li>
+          </ul>
+          
+          <li class="resources-mobile-menu-title">
+            <a>关于</a>
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/foundation">PyTorch 基金会</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/governing-board">管理委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">云信用计划</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">技术咨询委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">员工</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">联系我们</a>
+            </li>
+          </ul>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="../../../../../_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body></html>

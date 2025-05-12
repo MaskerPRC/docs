@@ -1,0 +1,1480 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Pipeline Parallelism — PyTorch main documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pytorch.org/docs/stable/distributed.pipelining.html">
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css">
+  <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css">
+  <link rel="stylesheet" href="_static/copybutton.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="_static/katex-math.css" type="text/css">
+  <link rel="stylesheet" href="_static/sphinx-dropdown.css" type="text/css">
+  <link rel="stylesheet" href="_static/panels-bootstrap.min.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/jit.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css">
+    <link rel="index" title="Index" href="genindex.html">
+    <link rel="search" title="Search" href="search.html">
+    <link rel="next" title="Distributed Checkpoint - torch.distributed.checkpoint" href="distributed.checkpoint.html">
+    <link rel="prev" title="Distributed Optimizers" href="distributed.optim.html">
+
+<!--
+  Search engines should not index the main version of documentation.
+  Stable documentation are built without release == 'main'.
+-->
+<meta name="robots" content="noindex">
+
+
+  <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T8XT4PS');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+  <!-- Preload the theme fonts -->
+
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<!-- Preload the katex fonts -->
+
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Math-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size1-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size2-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Caligraphic-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
+</head><body class="pytorch-body"><div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+
+          <li class="main-menu-item">
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">学习</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/get-started">
+                  <span class="dropdown-title">开始使用</span>
+                  <p>在本地运行 PyTorch 或快速开始使用支持的云平台之一</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials">
+                  <span class="dropdown-title">教程</span><p></p>
+                  <p>PyTorch 教程中的新内容</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/basics/intro.html">
+                  <span class="dropdown-title">学习基础知识</span><p></p>
+                  <p>熟悉 PyTorch 的概念和模块</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/recipes/recipes_index.html">
+                  <span class="dropdown-title">PyTorch 食谱</span><p></p>
+                  <p>精简版、可直接部署的 PyTorch 代码示例</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/introyt.html">
+                  <span class="dropdown-title">PyTorch 入门 - YouTube 系列</span><p></p>
+                  <p>通过我们引人入胜的 YouTube 教程系列掌握 PyTorch 基础知识</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">生态系统</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem">
+                  <span class="dropdown-title">工具</span><p></p>
+                  <p>了解 PyTorch 生态系统中的工具和框架</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
+                  <span class="dropdown-title">社区</span>
+                  <p>加入 PyTorch 开发者社区，贡献、学习并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
+                  <span class="dropdown-title">论坛</span>
+                  <p>讨论 PyTorch 代码、问题、安装、研究的地方</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/resources">
+                  <span class="dropdown-title">开发者资源</span>
+                  <p>查找资源并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">贡献者奖项 - 2024</span><p></p>
+                  <p>本届 PyTorch 会议揭晓获奖者</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">
+                Edge
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/edge">
+                  <span class="dropdown-title">关于 PyTorch Edge</span><p></p>
+                  <p>为边缘设备构建创新和隐私感知的 AI 体验</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
+                  <span class="dropdown-title">ExecuTorch</span><p></p>
+                  <p>基于移动和边缘设备的端到端推理能力解决方案</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch 文档</span><p></p>
+                </a>
+              </div>
+            </div>  
+          </li>
+
+          <li class="main-menu-item">
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">文档</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/docs/stable/index.html">
+                  <span class="dropdown-title">PyTorch</span><p></p>
+                  <p>探索文档以获取全面指导，了解如何使用 PyTorch</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/pytorch-domains">
+                  <span class="dropdown-title">PyTorch 领域</span><p></p>
+                  <p>阅读 PyTorch 领域的文档，了解更多关于特定领域库的信息</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">博客与新闻</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/blog/">
+                  <span class="dropdown-title">PyTorch 博客</span><p></p>
+                  <p>捕捉最新的技术新闻和事件</p>
+                </a>
+                 <a class="nav-dropdown-item" href="https://pytorch.org/community-blog">
+                  <span class="dropdown-title">社区博客</span><p></p>
+                  <p>PyTorch 生态系统故事</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/videos">
+                  <span class="dropdown-title">视频</span><p></p>
+                  <p>了解最新的 PyTorch 教程、新内容等</p>
+                </a><a class="nav-dropdown-item" href="https://pytorch.org/community-stories">
+                  <span class="dropdown-title">社区故事</span><p></p>
+                  <p>学习如何我们的社区使用 PyTorch 解决真实、日常的机器学习问题</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/events">
+                  <span class="dropdown-title">活动</span><p></p>
+                  <p>查找活动、网络研讨会和播客</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">通讯</span><p></p>
+                  <p>跟踪最新更新</p>
+                </a>
+            </div>
+          </div></li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">关于</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/foundation">
+                  <span class="dropdown-title">PyTorch 基金会</span><p></p>
+                  <p>了解更多关于 PyTorch 基金会的信息</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
+                  <span class="dropdown-title">管理委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">云信用计划</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">技术顾问委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">员工</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">联系我们</span><p></p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li class="main-menu-item">
+            <div class="no-dropdown">
+              <a href="https://pytorch.org/join" data-cta="join">成为会员</a>
+            </div>
+          </li>
+          <li>
+           <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="github-icon">
+             </a>
+           </div>
+          </li>
+          <!--- TODO: This block adds the search icon to the nav bar. We will enable it later. 
+          <li>
+            <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="search-icon">
+             </a>
+            </div>
+          </li>
+          --->
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+  </div>
+</div>
+
+
+
+   
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>目录</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+    <div class="version">
+      <a href="https://pytorch.org/docs/versions.html">主程序 (2.7.0+cpu ) ▼</a>
+    </div>
+    <div id="searchBox">
+    <div class="searchbox" id="googleSearchBox">
+      <script async="" src="https://cse.google.com/cse.js?cx=e65585f8c3ea1440e"></script>
+      <div class="gcse-search"></div>
+    </div>
+    <div id="sphinxSearchBox" style="display: none;">
+      <div role="search">
+        <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+          <input type="text" name="q" placeholder="Search Docs">
+          <input type="hidden" name="check_keywords" value="yes">
+          <input type="hidden" name="area" value="default">
+        </form>
+      </div>
+    </div>
+  </div>
+  <form id="searchForm">
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="google" checked="">谷歌搜索</label>
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="sphinx">经典搜索</label>
+  </form>
+
+  <script>
+     document.addEventListener('DOMContentLoaded', function() {
+      const searchForm = document.getElementById('searchForm');
+      const googleSearchBox = document.getElementById('googleSearchBox');
+      const sphinxSearchBox = document.getElementById('sphinxSearchBox');
+      // Function to toggle search box visibility
+      function toggleSearchBox(searchType) {
+        googleSearchBox.style.display = searchType === 'google' ? 'block' : 'none';
+        sphinxSearchBox.style.display = searchType === 'sphinx' ? 'block' : 'none';
+      }
+      // Determine the default search type
+      let defaultSearchType;
+      const currentUrl = window.location.href;
+      if (currentUrl.startsWith('https://pytorch.org/docs/stable')) {
+        // For the stable documentation, default to Google
+        defaultSearchType = localStorage.getItem('searchType') || 'google';
+      } else {
+        // For any other version, including docs-preview, default to Sphinx
+        defaultSearchType = 'sphinx';
+      }
+      // Set the default search type
+      document.querySelector(`input[name="searchType"][value="${defaultSearchType}"]`).checked = true;
+      toggleSearchBox(defaultSearchType);
+      // Event listener for changes in search type
+      searchForm.addEventListener('change', function(event) {
+        const selectedSearchType = event.target.value;
+        localStorage.setItem('searchType', selectedSearchType);
+        toggleSearchBox(selectedSearchType);
+      });
+      // Set placeholder text for Google search box
+      window.onload = function() {
+        var placeholderText = "Search Docs";
+        var googleSearchboxText = document.querySelector("#gsc-i-id1");
+        if (googleSearchboxText) {
+          googleSearchboxText.placeholder = placeholderText;
+          googleSearchboxText.style.fontFamily = 'FreightSans';
+          googleSearchboxText.style.fontSize = "1.2rem";
+          googleSearchboxText.style.color = '#262626';
+        }
+      };
+    });
+  </script>
+
+          </div>
+
+          
+
+<div>
+  <a style="color:#F05732" href="https://pytorch.org/docs/stable/distributed.pipelining.html">您正在查看不稳定开发者预览文档。请点击此处查看最新稳定版本的文档。</a>
+</div>
+
+
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">社区</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="community/build_ci_governance.html">PyTorch 治理 | 构建 + CI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/contribution_guide.html">PyTorch 贡献指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/design.html">PyTorch 设计哲学</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/governance.html">PyTorch 治理 | 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/persons_of_interest.html">PyTorch 治理 | 维护者</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发者笔记</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="notes/amp_examples.html">自动混合精度示例</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/autograd.html">Autograd 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/broadcasting.html">广播语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/cpu_threading_torchscript_inference.html">CPU 多线程和 TorchScript 推理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/cuda.html">CUDA 语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/custom_operators.html">PyTorch 自定义算子页面</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/ddp.html">分布式数据并行</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/extending.html">扩展 PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/extending.func.html">使用 autograd.Function 扩展 torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/faq.html">常见问题解答</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/fsdp.html">FSDP 笔记</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/get_start_xpu.html">在 Intel GPU 上入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/gradcheck.html">Gradcheck 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/hip.html">HIP (ROCm)语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/large_scale_deployments.html">大规模部署功能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/libtorch_stable_abi.html">LibTorch 稳定 ABI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/modules.html">模块</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/mps.html">MPS 后端</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/multiprocessing.html">多进程最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/numerical_accuracy.html">数值精度</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/randomness.html">可重现性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/serialization.html">序列化语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/windows.html">Windows 常见问题解答</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">语言绑定</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cpp_index.html">C++</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/javadoc/">Javadoc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deploy.html">torch::deploy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="torch.html">torch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.html">torch.nn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.functional.html">torch.nn.functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensors.html">torch.Tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensor_attributes.html">张量属性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensor_view.html">张量视图</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amp.html">torch.amp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autograd.html">torch.autograd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="library.html">torch.library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accelerator.html">torch.accelerator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpu.html">torch.cpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">torch.cuda</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html">理解 CUDA 内存使用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#generating-a-snapshot">生成快照</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#using-the-visualizer">使用可视化工具</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#snapshot-api-reference">快照 API 参考</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mps.html">torch.mps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="xpu.html">torch.xpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mtia.html">torch.mtia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mtia.memory.html">torch.mtia.memory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="meta.html">元设备</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backends.html">torch.backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="export.html">torch.export</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.html">torch.distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.tensor.html">torch.distributed.tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.algorithms.join.html">torch.distributed.algorithms.join</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.elastic.html">torch.distributed.elastic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fsdp.html">torch.distributed.fsdp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.fsdp.fully_shard.html">torch.distributed.fsdp.fully_shard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.tensor.parallel.html">torch.distributed.tensor.parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.optim.html">torch.distributed.optim</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">torch.distributed.pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.checkpoint.html">torch.distributed.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributions.html">torch.distributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch.compiler.html">torch.compiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fft.html">torch.fft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="func.html">torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="futures.html">torch.futures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fx.html">torch.fx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fx.experimental.html">torch.fx.experimental</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hub.html">torch.hub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jit.html">torch.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="linalg.html">torch.linalg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitor.html">torch.monitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="signal.html">torch.signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="special.html">torch.special</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch.overrides.html">torch.overrides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="package.html">torch.package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="profiler.html">torch.profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.init.html">torch.nn.init</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.attention.html">torch.nn.attention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="onnx.html">torch.onnx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="optim.html">torch.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="complex_numbers.html">复数</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ddp_comm_hooks.html">DDP 通信钩子</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quantization.html">量化</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rpc.html">分布式 RPC 框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="random.html">torch.random</a></li>
+<li class="toctree-l1"><a class="reference internal" href="masked.html">torch.masked</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nested.html">torch.nested</a></li>
+<li class="toctree-l1"><a class="reference internal" href="size.html">torch.Size</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sparse.html">torch.sparse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="storage.html">torch.Storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">torch.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">torch.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmark_utils.html">torch.utils.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bottleneck.html">torch.utils.bottleneck</a></li>
+<li class="toctree-l1"><a class="reference internal" href="checkpoint.html">torch.utils.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp_extension.html">torch.utils.cpp_extension</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data.html">torch.utils.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deterministic.html">torch.utils.deterministic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jit_utils.html">torch.utils.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dlpack.html">torch.utils.dlpack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mobile_optimizer.html">torch.utils.mobile_optimizer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_zoo.html">torch.utils.model_zoo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensorboard.html">torch.utils.tensorboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_tracker.html">torch.utils.module_tracker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="type_info.html">类型信息</a></li>
+<li class="toctree-l1"><a class="reference internal" href="named_tensor.html">命名张量</a></li>
+<li class="toctree-l1"><a class="reference internal" href="name_inference.html">命名张量操作覆盖率</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config_mod.html">torch.__config__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="future_mod.html">torch.__future__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">torch._logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_environment_variables.html">火炬环境变量</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">库</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/audio/stable">torchaudio</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/data">TorchData</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/torchrec">火炬推荐</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/serve">TorchServe</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/text/stable">torchtext</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/vision/stable">torchvision</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/xla/">PyTorch 在 XLA 设备上</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/ao">torchao</a></li>
+</ul>
+
+            
+          
+
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        文档 &gt;</li>
+
+        
+      <li>管道并行</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+            
+            <a href="_sources/distributed.pipelining.rst.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg" width="16" height="16"></a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">快捷键</div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+
+          <!-- Google Tag Manager (noscript) -->
+          <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T8XT4PS" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+          <!-- End Google Tag Manager (noscript) -->
+          
+          <div class="rst-content">
+          
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <section id="pipeline-parallelism">
+<h1>管道并行 ¶</h1>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p> <code class="docutils literal "><span class="pre">torch.distributed.pipelining</span></code> 目前处于 alpha 状态，处于开发中。API 变更可能发生。它已从 PiPPy 项目迁移过来。</p>
+</div>
+<section id="why-pipeline-parallel">
+<h2>为什么需要管道并行? ¶</h2>
+<p>深度学习中的一种基本并行方式是管道并行。它允许将模型的执行分割成多个微批，以便多个微批可以并发执行模型代码的不同部分。管道并行可以是一种有效的技术，用于：</p>
+<ul class="simple">
+<li><p>大规模训练</p></li>
+<li><p>带宽受限的集群</p></li>
+<li><p>大模型推理</p></li>
+</ul>
+<p>以上场景具有一个共同点，即每个设备上的计算无法隐藏传统并行通信，例如 FSDP 的全局聚合。</p>
+</section>
+<section id="what-is-torch-distributed-pipelining">
+<h2>什么是 <code class="docutils literal "><span class="pre">torch.distributed.pipelining</span></code> ? ¶</h2>
+<p>虽然在扩展方面很有前景，但流水线通常难以实现，因为它需要除了模型权重外，还要对模型的执行进行分区。执行分区通常需要修改模型的侵入性代码。复杂性的另一个方面来自于在分布式环境中调度微批处理，需要考虑数据流依赖。</p>
+<p> <code class="docutils literal "><span class="pre">pipelining</span></code> 包提供了一套自动执行这些任务的工具包，这使得在通用模型上轻松实现流水线并行成为可能。</p>
+<p>它由两部分组成：一个分割前端和一个分布式运行时。分割前端接收你的模型代码，将其分割成“模型分区”，并捕获数据流关系。分布式运行时在不同的设备上并行执行流水线阶段，处理微批分割、调度、通信和梯度传播等。</p>
+<p>总体而言， <code class="docutils literal "><span class="pre">pipelining</span></code> 包含以下功能：</p>
+<ul class="simple">
+<li><p>基于简单规范的模型代码拆分。</p></li>
+<li><p>对管道调度提供丰富支持，包括 GPipe、1F1B、交错 1F1B 和循环 BFS，并提供编写自定义调度的基础设施。</p></li>
+<li><p>首选支持跨主机管道并行，因为这是 PP 通常使用的地方（在较慢的互连上）。</p></li>
+<li><p>与其他 PyTorch 并行技术（如数据并行（DDP、FSDP）或张量并行）的兼容性。TorchTitan 项目展示了在 Llama 模型上的“3D 并行”应用。</p></li>
+</ul>
+</section>
+<section id="step-1-build-pipelinestage">
+<h2>步骤 1：构建 <code class="docutils literal "><span class="pre">PipelineStage</span></code> ¶</h2>
+<p>在我们能够使用 <code class="docutils literal "><span class="pre">PipelineSchedule</span></code> 之前，我们需要创建 <code class="docutils literal "><span class="pre">PipelineStage</span></code> 对象来封装在该阶段运行的部分模型。 <code class="docutils literal "><span class="pre">PipelineStage</span></code> 负责分配通信缓冲区并创建与对等节点通信的发送/接收操作。它管理中间缓冲区，例如尚未被消费的前向输出，并为阶段模型的后向运行提供实用工具。</p>
+<p> <code class="docutils literal "><span class="pre">PipelineStage</span></code> 需要知道阶段模型的输入和输出形状，以便正确分配通信缓冲区。形状必须是静态的，例如，在运行时形状不能从步骤到步骤发生变化。如果运行时形状与预期形状不匹配，将引发 <code class="docutils literal "><span class="pre">PipeliningShapeError</span></code> 类。在与其他并行性组合或应用混合精度时，必须考虑这些技术，以便 <code class="docutils literal "><span class="pre">PipelineStage</span></code> 知道阶段模块在运行时的正确形状（和数据类型）。</p>
+<p>用户可以直接通过传递表示应在舞台上运行的模型部分的 <code class="docutils literal "><span class="pre">nn.Module</span></code> 来构建一个 <code class="docutils literal "><span class="pre">PipelineStage</span></code> 实例。这可能需要修改原始模型代码。请参阅选项 1：手动拆分模型的示例。</p>
+<p>或者，拆分前端可以使用图划分自动将您的模型拆分为一系列 <code class="docutils literal "><span class="pre">nn.Module</span></code> 。这种技术要求模型可以通过 <code class="docutils literal "><span class="pre">torch.Export</span></code> 进行追踪。结果 <code class="docutils literal "><span class="pre">nn.Module</span></code> 与其他并行技术兼容性实验性，可能需要一些解决方案。如果用户无法轻松更改模型代码，使用此前端可能更具吸引力。有关更多信息，请参阅选项 2：自动拆分模型。</p>
+</section>
+<section id="step-2-use-pipelineschedule-for-execution">
+<h2>第 2 步：使用 <code class="docutils literal "><span class="pre">PipelineSchedule</span></code> 进行执行</h2>
+<p>现在我们可以将 <code class="docutils literal "><span class="pre">PipelineStage</span></code> 附接到管道调度中，并使用输入数据运行调度。以下是一个 GPipe 示例：</p>
+<div class="highlight-python "><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">torch.distributed.pipelining</span> <span class="kn">import</span> <span class="n">ScheduleGPipe</span>
+
+<span class="c1"># Create a schedule</span>
+<span class="n">schedule</span> <span class="o">=</span> <span class="n">ScheduleGPipe</span><span class="p">(</span><span class="n">stage</span><span class="p">,</span> <span class="n">n_microbatches</span><span class="p">)</span>
+
+<span class="c1"># Input data (whole batch)</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">in_dim</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+
+<span class="c1"># Run the pipeline with input `x`</span>
+<span class="c1"># `x` will be divided into microbatches automatically</span>
+<span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="n">schedule</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="n">schedule</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>注意，上述代码需要为每个工作进程单独启动，因此我们使用启动器服务来启动多个进程：</p>
+<div class="highlight-bash "><div class="highlight"><pre><span></span>torchrun<span class="w"> </span>--nproc_per_node<span class="o">=</span><span class="m">2</span><span class="w"> </span>example.py
+</pre></div>
+</div>
+</section>
+<section id="options-for-splitting-a-model">
+<h2>模型拆分的选项 ¶</h2>
+<section id="option-1-splitting-a-model-manually">
+<span id="option-1-manual"></span><h3>选项 1：手动拆分模型 ¶</h3>
+<p>要直接构建一个 <code class="docutils literal "><span class="pre">PipelineStage</span></code> ，用户负责提供一个拥有相关 <code class="docutils literal "><span class="pre">nn.Module</span></code> 和 <code class="docutils literal "><span class="pre">nn.Parameters</span></code> 的单个 <code class="docutils literal "><span class="pre">nn.Buffers</span></code> 实例，并定义一个 <code class="docutils literal "><span class="pre">forward()</span></code> 方法来执行该阶段相关的操作。例如，在 Torchtitan 中定义的 Transformer 类的简化版本显示了构建易于分割的模型的模式。</p>
+<div class="highlight-python "><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Transformer</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_args</span><span class="p">:</span> <span class="n">ModelArgs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">tok_embeddings</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Embedding</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+
+        <span class="c1"># Using a ModuleDict lets us delete layers without affecting names,</span>
+        <span class="c1"># ensuring checkpoints will correctly save and load.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layers</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">ModuleDict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">layer_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">model_args</span><span class="o">.</span><span class="n">n_layers</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">layer_id</span><span class="p">)]</span> <span class="o">=</span> <span class="n">TransformerBlock</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
+        <span class="c1"># Handling layers being 'None' at runtime enables easy pipeline splitting</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tok_embeddings</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tok_embeddings</span> <span class="k">else</span> <span class="n">tokens</span>
+
+        <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">h</span> <span class="o">=</span> <span class="n">layer</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">freqs_cis</span><span class="p">)</span>
+
+        <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">h</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm</span> <span class="k">else</span> <span class="n">h</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="n">h</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output</span> <span class="k">else</span> <span class="n">h</span>
+        <span class="k">return</span> <span class="n">output</span>
+</pre></div>
+</div>
+<p>以这种方式定义的模型可以通过首先初始化整个模型（使用元设备以避免内存不足错误），删除该阶段不需要的层，然后创建一个包装模型的 PipelineStage 来轻松按阶段进行配置。例如：</p>
+<div class="highlight-python "><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">"meta"</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="n">num_stages</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">"This is a simple 2-stage example"</span>
+
+    <span class="c1"># we construct the entire model, then delete the parts we do not need for this stage</span>
+    <span class="c1"># in practice, this can be done using a helper function that automatically divides up layers across stages.</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">Transformer</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">stage_index</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="c1"># prepare the first stage model</span>
+        <span class="k">del</span> <span class="n">model</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="s2">"1"</span><span class="p">]</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">norm</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">output</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">elif</span> <span class="n">stage_index</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="c1"># prepare the second stage model</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">tok_embeddings</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">del</span> <span class="n">model</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="s2">"0"</span><span class="p">]</span>
+
+    <span class="kn">from</span> <span class="nn">torch.distributed.pipelining</span> <span class="kn">import</span> <span class="n">PipelineStage</span>
+    <span class="n">stage</span> <span class="o">=</span> <span class="n">PipelineStage</span><span class="p">(</span>
+        <span class="n">model</span><span class="p">,</span>
+        <span class="n">stage_index</span><span class="p">,</span>
+        <span class="n">num_stages</span><span class="p">,</span>
+        <span class="n">device</span><span class="p">,</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<p>当与其他数据或模型并行技术结合使用时，如果模型块的输出形状/数据类型将受到影响，可能还需要 <code class="docutils literal "><span class="pre">output_args</span></code> 。</p>
+</section>
+<section id="option-2-splitting-a-model-automatically">
+<span id="option-2-tracer"></span><h3>选项 2：自动拆分模型 ¶</h3>
+<p>如果您有一个完整的模型，并且不想花费时间将其修改为“模型分区”的序列，那么 <code class="docutils literal "><span class="pre">pipeline</span></code> API 就在这里帮助您。以下是一个简短的示例：</p>
+<div class="highlight-python "><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">emb</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Embedding</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layers</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">ModuleList</span><span class="p">(</span>
+            <span class="n">Layer</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lm</span> <span class="o">=</span> <span class="n">LMHead</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">emb</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">layer</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lm</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span>
+</pre></div>
+</div>
+<p>如果打印模型，我们可以看到多个层次结构，这使得手动分割变得困难：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">Model</span><span class="p">(</span>
+  <span class="p">(</span><span class="n">emb</span><span class="p">):</span> <span class="n">Embedding</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+  <span class="p">(</span><span class="n">layers</span><span class="p">):</span> <span class="n">ModuleList</span><span class="p">(</span>
+    <span class="p">(</span><span class="mi">0</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span> <span class="mi">2</span> <span class="n">x</span> <span class="n">Layer</span><span class="p">(</span>
+      <span class="p">(</span><span class="n">lin</span><span class="p">):</span> <span class="n">Linear</span><span class="p">(</span><span class="n">in_features</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">out_features</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="p">)</span>
+  <span class="p">)</span>
+  <span class="p">(</span><span class="n">lm</span><span class="p">):</span> <span class="n">LMHead</span><span class="p">(</span>
+    <span class="p">(</span><span class="n">proj</span><span class="p">):</span> <span class="n">Linear</span><span class="p">(</span><span class="n">in_features</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">out_features</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+  <span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>让我们看看 <code class="docutils literal "><span class="pre">pipeline</span></code> API 是如何工作的：</p>
+<div class="highlight-python "><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">torch.distributed.pipelining</span> <span class="kn">import</span> <span class="n">pipeline</span><span class="p">,</span> <span class="n">SplitPoint</span>
+
+<span class="c1"># An example micro-batch input</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span>
+
+<span class="n">pipe</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span>
+    <span class="n">module</span><span class="o">=</span><span class="n">mod</span><span class="p">,</span>
+    <span class="n">mb_args</span><span class="o">=</span><span class="p">(</span><span class="n">x</span><span class="p">,),</span>
+    <span class="n">split_spec</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">"layers.1"</span><span class="p">:</span> <span class="n">SplitPoint</span><span class="o">.</span><span class="n">BEGINNING</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p> <code class="docutils literal "><span class="pre">pipeline</span></code> API 根据 <code class="docutils literal "><span class="pre">split_spec</span></code> 分割你的模型，其中 <code class="docutils literal "><span class="pre">SplitPoint.BEGINNING</span></code> 表示在 <code class="docutils literal "><span class="pre">forward</span></code> 函数执行某些子模块之前添加分割点，同样， <code class="docutils literal "><span class="pre">SplitPoint.END</span></code> 表示在执行之后添加分割点。</p>
+<p>如果我们 <code class="docutils literal "><span class="pre">print(pipe)</span></code> ，我们可以看到：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">GraphModule</span><span class="p">(</span>
+  <span class="p">(</span><span class="n">submod_0</span><span class="p">):</span> <span class="n">GraphModule</span><span class="p">(</span>
+    <span class="p">(</span><span class="n">emb</span><span class="p">):</span> <span class="n">InterpreterModule</span><span class="p">()</span>
+    <span class="p">(</span><span class="n">layers</span><span class="p">):</span> <span class="n">Module</span><span class="p">(</span>
+      <span class="p">(</span><span class="mi">0</span><span class="p">):</span> <span class="n">InterpreterModule</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">lin</span><span class="p">):</span> <span class="n">InterpreterModule</span><span class="p">()</span>
+      <span class="p">)</span>
+    <span class="p">)</span>
+  <span class="p">)</span>
+  <span class="p">(</span><span class="n">submod_1</span><span class="p">):</span> <span class="n">GraphModule</span><span class="p">(</span>
+    <span class="p">(</span><span class="n">layers</span><span class="p">):</span> <span class="n">Module</span><span class="p">(</span>
+      <span class="p">(</span><span class="mi">1</span><span class="p">):</span> <span class="n">InterpreterModule</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">lin</span><span class="p">):</span> <span class="n">InterpreterModule</span><span class="p">()</span>
+      <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="p">(</span><span class="n">lm</span><span class="p">):</span> <span class="n">InterpreterModule</span><span class="p">(</span>
+      <span class="p">(</span><span class="n">proj</span><span class="p">):</span> <span class="n">InterpreterModule</span><span class="p">()</span>
+    <span class="p">)</span>
+  <span class="p">)</span>
+<span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+    <span class="n">submod_0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">submod_0</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>  <span class="n">x</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">submod_1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">submod_1</span><span class="p">(</span><span class="n">submod_0</span><span class="p">);</span>  <span class="n">submod_0</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">submod_1</span><span class="p">,)</span>
+</pre></div>
+</div>
+<p>“模型分区”由子模块（ <code class="docutils literal "><span class="pre">submod_0</span></code> ， <code class="docutils literal "><span class="pre">submod_1</span></code> ）表示，每个子模块都使用原始模型操作、权重和层次结构重建。此外，还重建了一个“根级” <code class="docutils literal "><span class="pre">forward</span></code> 函数，以捕获这些分区之间的数据流。这种数据流将由管道运行时以分布式方式回放。</p>
+<p> <code class="docutils literal "><span class="pre">Pipe</span></code> 对象提供了一个检索“模型分区”的方法：</p>
+<div class="highlight-python "><div class="highlight"><pre><span></span><span class="n">stage_mod</span> <span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">Module</span> <span class="o">=</span> <span class="n">pipe</span><span class="o">.</span><span class="n">get_stage_module</span><span class="p">(</span><span class="n">stage_idx</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>返回的 <code class="docutils literal "><span class="pre">stage_mod</span></code> 是一个 <code class="docutils literal "><span class="pre">nn.Module</span></code> ，您可以使用它创建优化器、保存或加载检查点，或应用其他并行性。</p>
+<p> <code class="docutils literal "><span class="pre">Pipe</span></code> 还允许您在给定的设备上创建一个分布式阶段运行时 <code class="docutils literal "><span class="pre">ProcessGroup</span></code> ：</p>
+<div class="highlight-python "><div class="highlight"><pre><span></span><span class="n">stage</span> <span class="o">=</span> <span class="n">pipe</span><span class="o">.</span><span class="n">build_stage</span><span class="p">(</span><span class="n">stage_idx</span><span class="p">,</span> <span class="n">device</span><span class="p">,</span> <span class="n">group</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>或者，如果您想在修改 <code class="docutils literal "><span class="pre">stage_mod</span></code> 之后稍后再构建阶段运行时，可以使用 <code class="docutils literal "><span class="pre">build_stage</span></code> API 的功能版本。例如：</p>
+<div class="highlight-python "><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">torch.distributed.pipelining</span> <span class="kn">import</span> <span class="n">build_stage</span>
+<span class="kn">from</span> <span class="nn">torch.nn.parallel</span> <span class="kn">import</span> <span class="n">DistributedDataParallel</span>
+
+<span class="n">dp_mod</span> <span class="o">=</span> <span class="n">DistributedDataParallel</span><span class="p">(</span><span class="n">stage_mod</span><span class="p">)</span>
+<span class="n">info</span> <span class="o">=</span> <span class="n">pipe</span><span class="o">.</span><span class="n">info</span><span class="p">()</span>
+<span class="n">stage</span> <span class="o">=</span> <span class="n">build_stage</span><span class="p">(</span><span class="n">dp_mod</span><span class="p">,</span> <span class="n">stage_idx</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="n">device</span><span class="p">,</span> <span class="n">group</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p> <code class="docutils literal "><span class="pre">pipeline</span></code> 前端使用跟踪器（ <code class="docutils literal "><span class="pre">torch.export</span></code> ）将您的模型捕获到一个单独的图中。如果您的模型无法进行全图化，您可以使用我们下面的手动前端。</p>
+</div>
+</section>
+</section>
+<section id="hugging-face-examples">
+<h2>Hugging Face 示例</h2>
+<p>在此包最初创建的 PiPPy 仓库中，我们保留了基于未修改的 Hugging Face 模型的示例。请参阅 examples/huggingface 目录。</p>
+<p>包括以下示例：</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/pytorch/PiPPy/tree/main/examples/huggingface/pippy_gpt2.py">GPT2</a></p></li>
+<li><p><a class="reference external" href="https://github.com/pytorch/PiPPy/tree/main/examples/llama">羚羊</a></p></li>
+</ul>
+</section>
+<section id="technical-deep-dive">
+<h2>技术深度解析 ¶</h2>
+<section id="how-does-the-pipeline-api-split-a-model">
+<h3>这个 <code class="docutils literal "><span class="pre">pipeline</span></code> API 是如何分割模型的？¶</h3>
+<p>首先， <code class="docutils literal "><span class="pre">pipeline</span></code> API 通过追踪模型将我们的模型转换为一个有向无环图（DAG）。它使用 <code class="docutils literal "><span class="pre">torch.export</span></code> –一个 PyTorch 2 全图捕获工具来追踪模型。</p>
+<p>然后，它将一个阶段所需的操作和参数组合成一个重构的子模块： <code class="docutils literal "><span class="pre">submod_0</span></code> ， <code class="docutils literal "><span class="pre">submod_1</span></code> ，…</p>
+<p>与传统的子模块访问方法 <code class="docutils literal "><span class="pre">Module.children()</span></code> 不同， <code class="docutils literal "><span class="pre">pipeline</span></code> API 不仅切割了您模型的模块结构，还切割了您模型的正向函数。</p>
+<p>这是因为模型结构如 <code class="docutils literal "><span class="pre">Module.children()</span></code> 仅仅在 <code class="docutils literal "><span class="pre">Module.__init__()</span></code> 期间捕获信息，并没有捕获关于 <code class="docutils literal "><span class="pre">Module.forward()</span></code> 的任何信息。换句话说， <code class="docutils literal "><span class="pre">Module.children()</span></code> 缺乏以下关键信息：</p>
+<ul class="simple">
+<li><p> <code class="docutils literal "><span class="pre">forward</span></code> 中子模块的执行顺序</p></li>
+<li><p>子模块之间的激活流程</p></li>
+<li><p>子模块之间是否存在功能操作符（例如， <code class="docutils literal "><span class="pre">relu</span></code> 或 <code class="docutils literal "><span class="pre">add</span></code> 操作不会被 <code class="docutils literal "><span class="pre">Module.children()</span></code> 捕获）。</p></li>
+</ul>
+<p>相反， <code class="docutils literal "><span class="pre">pipeline</span></code> API 确保了 <code class="docutils literal "><span class="pre">forward</span></code> 行为真正得到保留。它还捕获了分区之间的激活流程，帮助分布式运行时在没有人工干预的情况下正确地进行发送/接收调用。</p>
+<p> <code class="docutils literal "><span class="pre">pipeline</span></code> API 的另一个灵活性在于，分割点可以位于您的模型层次结构中的任意级别。在分割分区中，与该分区相关的原始模型层次结构将免费重建。因此，指向子模块或参数的完全限定名称（FQN）仍然有效，依赖于 FQN 的服务（如 FSDP、TP 或检查点）仍然可以在您的分区模块上运行，几乎不需要修改代码。</p>
+</section>
+</section>
+<section id="implementing-your-own-schedule">
+<h2>实现自己的调度</h2>
+<p>您可以通过扩展以下两个类之一来实现自己的管道调度：</p>
+<ul class="simple">
+<li><p><code class="docutils literal "><span class="pre">PipelineScheduleSingle</span></code></p></li>
+<li><p><code class="docutils literal "><span class="pre">PipelineScheduleMulti</span></code></p></li>
+</ul>
+<p> <code class="docutils literal "><span class="pre">PipelineScheduleSingle</span></code> 用于只分配一个阶段给每个等级的计划。 <code class="docutils literal "><span class="pre">PipelineScheduleMulti</span></code> 用于为每个等级分配多个阶段的计划。</p>
+<p>例如， <code class="docutils literal "><span class="pre">ScheduleGPipe</span></code> 和 <code class="docutils literal "><span class="pre">Schedule1F1B</span></code> 是 <code class="docutils literal "><span class="pre">PipelineScheduleSingle</span></code> 的子类。而 <code class="docutils literal "><span class="pre">ScheduleInterleaved1F1B</span></code> 、 <code class="docutils literal "><span class="pre">ScheduleLoopedBFS</span></code> 、 <code class="docutils literal "><span class="pre">ScheduleInterleavedZeroBubble</span></code> 和 <code class="docutils literal "><span class="pre">ScheduleZBVZeroBubble</span></code> 是 <code class="docutils literal "><span class="pre">PipelineScheduleMulti</span></code> 的子类。</p>
+</section>
+<section id="logging">
+<h2>记录日志</h2>
+<p>您可以使用 TORCH_LOGS 环境变量从 torch._logging 中开启额外的日志记录。</p>
+<ul class="simple">
+<li><p>设置 TORCH_LOGS=+pp 将显示 logging.DEBUG 消息及其以上级别的所有日志。</p></li>
+<li><p>TORCH_LOGS=pp 将显示 logging.INFO 级别及以上的日志信息。</p></li>
+<li><p>TORCH_LOGS=-pp 将显示 logging.WARNING 级别及以上的日志信息。</p></li>
+</ul>
+</section>
+<section id="module-torch.distributed.pipelining">
+<span id="api-reference"></span><h2>API 参考¶</h2>
+<section id="model-split-apis">
+<h3>模型分割 API ¶</h3>
+<p>以下一组 API 将您的模型转换为管道表示形式。</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.pipelining.SplitPoint">
+class torch.distributed.pipelining.SplitPoint(value, names=&lt;未提供&gt;, *values, module=None, qualname=None, type=None, start=1, boundary=None)[source][source] ¶</dt>
+<dd><p>枚举表示在子模块执行过程中可以发生拆分的点。 :ivar BEGINNING: 表示在正向函数执行某个子模块之前添加拆分点。 :ivar END: 表示在正向函数执行某个子模块之后添加拆分点。</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.distributed.pipelining.pipeline">
+<span class="sig-prename descclassname"><span class="pre">torch.distributed.pipelining.</span></span><span class="sig-name descname"><span class="pre">pipeline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mb_args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mb_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split_spec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split_policy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/pipelining/_IR.html#pipeline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/pipelining/_IR.py#L1199"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.pipelining.pipeline" title="Permalink to this definition">¶</a></dt>
+<dd><p>根据规范拆分模块。</p>
+<p>查看管道以获取更多详细信息。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>模块（模块）- 要拆分的模块。</p></li>
+<li><p>mb_args（元组[任何, ...]）- 示例位置输入，以微批形式。</p></li>
+<li><p>mb_kwargs（可选[dict[str, 任何]）- 示例关键字输入，以微批形式。（默认：None）</p></li>
+<li><p>split_spec (Optional[dict[str, torch.distributed.pipelining._IR.SplitPoint]]) – 使用子模块名称作为分割标记的字典。 (默认：None)</p></li>
+<li><p>split_policy (Optional[Callable[[GraphModule], GraphModule]]) – 用于分割模块的策略。 (默认：None)</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>A pipeline representation of class <cite>Pipe</cite>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.pipelining.Pipe">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.pipelining.</span></span><span class="sig-name descname"><span class="pre">Pipe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">split_gm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_stages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_loss_and_backward</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_spec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/pipelining/_IR.html#Pipe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/pipelining/_IR.py#L524"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.pipelining.Pipe" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.distributed.pipelining.pipe_split">
+<span class="sig-prename descclassname"><span class="pre">torch.distributed.pipelining.</span></span><span class="sig-name descname"><span class="pre">pipe_split</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/pipelining/_IR.html#pipe_split"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/pipelining/_IR.py#L326"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.pipelining.pipe_split" title="Permalink to this definition">¶</a></dt>
+<dd><p>pipe_split 是一个特殊操作符，用于标记模块中阶段的边界。它用于将模块分割成阶段。如果您的注释模块是急切运行的，则它是一个无操作（no-op）。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mm</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mm_param</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">pipe_split</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lin</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">return</span> <span class="n">x</span>
+</pre></div>
+</div>
+<p>上述示例将被分割成两个阶段。</p>
+</dd></dl>
+
+</section>
+<section id="module-torch.distributed.pipelining.microbatch">
+<span id="microbatch-utilities"></span><h3>微批处理工具</h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.pipelining.microbatch.TensorChunkSpec">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.pipelining.microbatch.</span></span><span class="sig-name descname"><span class="pre">TensorChunkSpec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">split_dim</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/pipelining/microbatch.html#TensorChunkSpec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/pipelining/microbatch.py#L56"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.pipelining.microbatch.TensorChunkSpec" title="Permalink to this definition">¶</a></dt>
+<dd><p>用于指定输入分块的字类</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.distributed.pipelining.microbatch.split_args_kwargs_into_chunks">
+<span class="sig-prename descclassname"><span class="pre">torch.distributed.pipelining.microbatch.</span></span><span class="sig-name descname"><span class="pre">split_args_kwargs_into_chunks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args_chunk_spec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs_chunk_spec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/pipelining/microbatch.html#split_args_kwargs_into_chunks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/pipelining/microbatch.py#L244"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.pipelining.microbatch.split_args_kwargs_into_chunks" title="Permalink to this definition">¶</a></dt>
+<dd><p>根据各自的分块规范，将一系列参数和关键字参数分割成多个块。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>args (tuple[Any, ...]) – 参数元组</p></li>
+<li><p>kwargs (Optional[dict[str, Any]]) – kwargs 字典（可选）</p></li>
+<li><p>chunks (int) – 将 args 和 kwargs 分割成块的数量</p></li>
+<li><p>args_chunk_spec (Optional[tuple[torch.distributed.pipelining.microbatch.TensorChunkSpec, ...]]) – args 的块分割规范，形状与 args 相同</p></li>
+<li><p>kwargs_chunk_spec (Optional[dict[str, torch.distributed.pipelining.microbatch.TensorChunkSpec]]) – kwargs 的 chunking 规范，形状与 kwargs 相同</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>分片参数 kwargs_split：分片 kwargs 的列表</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>args_split</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.distributed.pipelining.microbatch.merge_chunks">
+<span class="sig-prename descclassname"><span class="pre">torch.distributed.pipelining.microbatch.</span></span><span class="sig-name descname"><span class="pre">merge_chunks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chunks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunk_spec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/pipelining/microbatch.html#merge_chunks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/pipelining/microbatch.py#L349"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.pipelining.microbatch.merge_chunks" title="Permalink to this definition">¶</a></dt>
+<dd><p>给定一系列块，根据块规范将它们合并成一个值。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>chunks (list[Any]) – 块列表</p></li>
+<li><p>chunk_spec – 块分割规范</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>合并后的值</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>值</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-torch.distributed.pipelining.stage">
+<span id="pipeline-stages"></span><h3>管道阶段 ¶</h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.pipelining.stage.PipelineStage">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.pipelining.stage.</span></span><span class="sig-name descname"><span class="pre">PipelineStage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">submodule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stage_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_stages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dw_builder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/pipelining/stage.html#PipelineStage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/pipelining/stage.py#L1239"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.pipelining.stage.PipelineStage" title="Permalink to this definition">¶</a></dt>
+<dd><p>表示管道并行设置中管道阶段的类。</p>
+<p>PipelineStage 假设模型进行顺序分区，即模型被分割成块，其中一块的输出作为下一块输入，没有跳过连接。</p>
+<p>PipelineStage 自动执行运行时形状/数据类型推断，通过将 stage0 的输出传递到 stage1，依此类推，按线性顺序进行。要绕过形状推断，请将 input_args 和 output_args 传递给每个 PipelineStage 实例。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>子模块（nn.Module）- 此阶段包装的 PyTorch 模块。</p></li>
+<li><p>stage_index（int）- 此阶段的 ID。</p></li>
+<li><p>num_stages (int) – 阶段总数。</p></li>
+<li><p>device (torch.device) – 此阶段所在设备。</p></li>
+<li><p>input_args (Union[torch.Tensor, Tuple[torch.tensor]], optional) – 子模块的输入参数。</p></li>
+<li><p>output_args (Union[torch.Tensor, Tuple[torch.tensor]], optional) – 子模块的输出参数。</p></li>
+<li><p>group (dist.ProcessGroup, 可选) – 分布式训练的进程组。如果为 None，则使用默认组。</p></li>
+<li><p>dw_builder (Optional[Callable[[], Callable[..., None]]) – 如果提供，dw_builder 将构建一个新的 dw_runner 函数，该函数将为 F、I、W（前向、输入、权重）零气泡调度提供 W 操作（输入权重）。</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.distributed.pipelining.stage.build_stage">
+<span class="sig-prename descclassname"><span class="pre">torch.distributed.pipelining.stage.</span></span><span class="sig-name descname"><span class="pre">build_stage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stage_module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stage_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pipe_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/pipelining/stage.html#build_stage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/pipelining/stage.py#L1209"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.pipelining.stage.build_stage" title="Permalink to this definition">¶</a></dt>
+<dd><p>根据要由该阶段包装的阶段模块和管道信息创建一个管道阶段。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>stage_module (torch.nn.Module) – 该阶段要包装的模块</p></li>
+<li><p>stage_index (int) – 该阶段在流水线中的索引</p></li>
+<li><p>pipe_info (PipeInfo) – 流水线信息，可以通过 pipe.info() 获取</p></li>
+<li><p>device (torch.device) – 该阶段使用的设备</p></li>
+<li><p>group（可选的 dist.ProcessGroup）- 此阶段所使用的进程组</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>可以与 PipelineSchedules 一起运行的管道阶段</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>_PipelineStage</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-torch.distributed.pipelining.schedules">
+<span id="pipeline-schedules"></span><h3>管道调度表 ¶</h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.pipelining.schedules.ScheduleGPipe">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.pipelining.schedules.</span></span><span class="sig-name descname"><span class="pre">ScheduleGPipe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stage</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_microbatches</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args_chunk_spec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs_chunk_spec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_merge_spec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_grads</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/pipelining/schedules.html#ScheduleGPipe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/pipelining/schedules.py#L572"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.pipelining.schedules.ScheduleGPipe" title="Permalink to this definition">¶</a></dt>
+<dd><p>GPipe 调度。将以填充-排空的方式遍历所有微批次。</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.pipelining.schedules.Schedule1F1B">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.pipelining.schedules.</span></span><span class="sig-name descname"><span class="pre">Schedule1F1B</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stage</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_microbatches</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args_chunk_spec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs_chunk_spec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_merge_spec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_grads</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/pipelining/schedules.html#Schedule1F1B"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/pipelining/schedules.py#L663"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.pipelining.schedules.Schedule1F1B" title="Permalink to this definition">¶</a></dt>
+<dd><p>1F1B 调度。将在稳态微批次上执行一次前向和一次反向操作。</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.pipelining.schedules.ScheduleInterleaved1F1B">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.pipelining.schedules.</span></span><span class="sig-name descname"><span class="pre">ScheduleInterleaved1F1B</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_microbatches</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args_chunk_spec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs_chunk_spec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_merge_spec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_grads</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/pipelining/schedules.html#ScheduleInterleaved1F1B"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/pipelining/schedules.py#L1969"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.pipelining.schedules.ScheduleInterleaved1F1B" title="Permalink to this definition">¶</a></dt>
+<dd><p>交错 1F1B 调度。详情请见 https://arxiv.org/pdf/2104.04473。在稳态下将对微批执行一次前向和一次反向操作，并支持每个排名的多个阶段。当微批准备进行多个本地阶段时，交错 1F1B 会优先处理较早的微批（也称为“深度优先”）。</p>
+<p>此调度与原始论文基本相似。不同之处在于放宽了 num_microbatch % pp_size == 0 的要求。使用 flex_pp 调度，我们将有 num_rounds = max(1, n_microbatches // pp_group_size)，并且只要 n_microbatches % num_rounds == 0 就可以工作。以下是一些示例，支持</p>
+<ol class="arabic simple">
+<li><p>pp_group_size = 4, n_microbatches = 10。我们将有 num_rounds = 2，并且 n_microbatches % 2 == 0。</p></li>
+<li><p>pp_group_size = 4, n_microbatches = 3. 我们将会有 num_rounds = 1，且 n_microbatches % 1 等于 0。</p></li>
+</ol>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.pipelining.schedules.ScheduleLoopedBFS">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.pipelining.schedules.</span></span><span class="sig-name descname"><span class="pre">ScheduleLoopedBFS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_microbatches</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_merge_spec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_grads</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/pipelining/schedules.html#ScheduleLoopedBFS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/pipelining/schedules.py#L1768"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.pipelining.schedules.ScheduleLoopedBFS" title="Permalink to this definition">¶</a></dt>
+<dd><p>广度优先流水线并行。有关详细信息，请参阅 https://arxiv.org/abs/2211.05953。类似于交错 1F1B，循环 BFS 支持每个 rank 多个阶段。不同之处在于，当微批次准备就绪以进行多个本地阶段时，循环 BFS 将优先考虑较早的阶段，一次性运行所有可用的微批次。</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.pipelining.schedules.ScheduleInterleavedZeroBubble">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.pipelining.schedules.</span></span><span class="sig-name descname"><span class="pre">ScheduleInterleavedZeroBubble</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_microbatches</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args_chunk_spec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs_chunk_spec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_merge_spec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_grads</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/pipelining/schedules.html#ScheduleInterleavedZeroBubble"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/pipelining/schedules.py#L2085"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.pipelining.schedules.ScheduleInterleavedZeroBubble" title="Permalink to this definition">¶</a></dt>
+<dd><p>交错零气泡调度。详见 https://arxiv.org/pdf/2401.10241 以获取详细信息。将在稳态下对微批次的输入执行一次正向和一次反向操作，并支持每个 rank 的多个阶段。使用反向操作填充管道气泡的权重。</p>
+<p>尤其是在实现论文中的 ZB1P 调度。</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.pipelining.schedules.ScheduleZBVZeroBubble">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.pipelining.schedules.</span></span><span class="sig-name descname"><span class="pre">ScheduleZBVZeroBubble</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_microbatches</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args_chunk_spec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs_chunk_spec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_merge_spec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_grads</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/pipelining/schedules.html#ScheduleZBVZeroBubble"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/pipelining/schedules.py#L2281"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.pipelining.schedules.ScheduleZBVZeroBubble" title="Permalink to this definition">¶</a></dt>
+<dd><p>零气泡调度（ZBV 变体）。详见 https://arxiv.org/pdf/2401.10241 第 6 节以获取详细信息。</p>
+<p>此调度要求每个等级恰好有两个阶段。</p>
+<p>此调度将在稳态下对微批次的输入执行一次正向和一次反向操作，并支持每个等级的多个阶段。使用相对于权重的反向操作来填充管道气泡。</p>
+<p>只有当正向时间等于反向时间、输入时间等于反向权重时间时，此 ZB-V 调度才具有“零气泡”属性。在实践中，对于真实模型来说，这不太可能成立，因此可以实施贪婪调度器来处理不等/不平衡的时间。</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.pipelining.schedules.PipelineScheduleSingle">
+class torch.distributed.pipelining.schedules.PipelineScheduleSingle(stage, n_microbatches, loss_fn=None, args_chunk_spec=None, kwargs_chunk_spec=None, output_merge_spec=None, scale_grads=True)[source][source]</dt>
+<dd><p>单阶段调度的基础类。实现了 step 方法。派生类应实现_step_microbatches。</p>
+<p>根据 scale_grads 参数对梯度进行缩放，num_microbatches 的数量，默认为 True。此设置应与您的 loss_fn 配置相匹配，loss_fn 可能平均损失（scale_grads=True）或累加损失（scale_grads=False）。</p>
+<dl class="field-list simple">
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.pipelining.schedules.PipelineScheduleSingle.step">
+<span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">losses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/pipelining/schedules.html#PipelineScheduleSingle.step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/pipelining/schedules.py#L487"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.pipelining.schedules.PipelineScheduleSingle.step" title="Permalink to this definition">¶</a></dt>
+<dd><p>使用全批次输入运行一次管道调度。将自动将输入分块为微批次，并按照调度实现遍历微批次。</p>
+<p>args: 模型的位置参数（在非管道情况下）。kwargs: 模型的关键字参数（在非管道情况下）。target: 损失函数的目标。losses: 存储每个微批次的损失的列表。</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.pipelining.schedules.PipelineScheduleMulti">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.pipelining.schedules.</span></span><span class="sig-name descname"><span class="pre">PipelineScheduleMulti</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_microbatches</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args_chunk_spec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs_chunk_spec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_merge_spec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_full_backward</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_grads</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/pipelining/schedules.html#PipelineScheduleMulti"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/pipelining/schedules.py#L1103"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.pipelining.schedules.PipelineScheduleMulti" title="Permalink to this definition">¶</a></dt>
+<dd><p>多阶段调度的基础类。实现了步骤方法。</p>
+<p>根据 scale_grads 参数，梯度按微批次数缩放，默认为 True。此设置应与您的 loss_fn 配置相匹配，loss_fn 可能平均损失（scale_grads=True）或累加损失（scale_grads=False）。</p>
+<dl class="field-list simple">
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.pipelining.schedules.PipelineScheduleMulti.step">
+<span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">losses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/pipelining/schedules.html#PipelineScheduleMulti.step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/pipelining/schedules.py#L1219"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.pipelining.schedules.PipelineScheduleMulti.step" title="Permalink to this definition">¶</a></dt>
+<dd><p>执行一次整个批次输入的管道调度迭代。将自动将输入分块为微批次，并按照调度实现遍历微批次。</p>
+<p>args: 模型的位置参数（如在非管道情况下）。kwargs: 模型的关键字参数（如在非管道情况下）。target: 损失函数的目标。losses: 存储每个微批次损失的列表。</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+             </article>
+             
+            </div>
+            <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        下一个 <img height="16" width="16" class="next-page" src="_static/images/chevron-right-orange.svg"> <img height="16" width="16" class="previous-page" src="_static/images/chevron-right-orange.svg"> 上一个
+      
+    </div>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>© 版权所有 PyTorch 贡献者。</p>
+  </div>
+    
+      <div>使用 Sphinx 构建，主题由 Read the Docs 提供。</div>
+     
+
+</footer>
+
+          </div>
+<script>
+
+var match = window.location.href.match(/\/_[a-zA-Z0-9_]*.html|_dynamo/gi);
+var url = window.location.href.lastIndexOf(match[match.length-1]);
+
+if (url)
+  {
+    var div = '<div class="admonition note"><p class="admonition-title">Note</p><p><i class="fa fa-exclamation-circle" aria-hidden="true">&nbsp</i> This page describes an internal API which is not intended to be used outside of the PyTorch codebase and can be modified or removed without notice.</p></div>'
+    document.getElementById("pytorch-article").insertAdjacentHTML('afterBegin', div)
+  }
+</script>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">管道并行性</a><ul>
+<li><a class="reference internal" href="#why-pipeline-parallel">为什么选择流水线并行？</a></li>
+<li><a class="reference internal" href="#what-is-torch-distributed-pipelining">什么是 <code class="docutils literal "><span class="pre">torch.distributed.pipelining</span></code> ？</a></li>
+<li><a class="reference internal" href="#step-1-build-pipelinestage">步骤 1：构建 <code class="docutils literal "><span class="pre">PipelineStage</span></code> </a></li>
+<li><a class="reference internal" href="#step-2-use-pipelineschedule-for-execution">步骤 2：使用 <code class="docutils literal "><span class="pre">PipelineSchedule</span></code> 进行执行</a></li>
+<li><a class="reference internal" href="#options-for-splitting-a-model">模型拆分的选项</a><ul>
+<li><a class="reference internal" href="#option-1-splitting-a-model-manually">选项 1：手动拆分模型</a></li>
+<li><a class="reference internal" href="#option-2-splitting-a-model-automatically">选项 2：自动拆分模型</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#hugging-face-examples">Hugging Face 示例</a></li>
+<li><a class="reference internal" href="#technical-deep-dive">技术深度解析</a><ul>
+<li><a class="reference internal" href="#how-does-the-pipeline-api-split-a-model">这个 <code class="docutils literal "><span class="pre">pipeline</span></code> API 是如何分割模型的？</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#implementing-your-own-schedule">实现您自己的计划</a></li>
+<li><a class="reference internal" href="#logging">记录</a></li>
+<li><a class="reference internal" href="#module-torch.distributed.pipelining">API 参考</a><ul>
+<li><a class="reference internal" href="#model-split-apis">模型分割 API</a></li>
+<li><a class="reference internal" href="#module-torch.distributed.pipelining.microbatch">微批处理工具</a></li>
+<li><a class="reference internal" href="#module-torch.distributed.pipelining.stage">管道阶段</a></li>
+<li><a class="reference internal" href="#module-torch.distributed.pipelining.schedules">管道调度</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+         <script src="_static/jquery.js"></script>
+         <script src="_static/underscore.js"></script>
+         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+         <script src="_static/doctools.js"></script>
+         <script src="_static/clipboard.min.js"></script>
+         <script src="_static/copybutton.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ 
+<script script="" type="text/javascript">
+  var collapsedSections = ['Developer Notes', 'Language Bindings', 'Libraries', 'Community'];
+</script>
+
+<img height="1" width="1" style="border-style:none;" alt="" src="https://www.googleadservices.com/pagead/conversion/795629140/?label=txkmCPmdtosBENSssfsC&amp;guid=ON&amp;script=0">
+
+
+  <!-- Begin Footer -->
+
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 text-center">
+          <h2>文档</h2>
+          <p>PyTorch 开发者文档全面访问</p>
+          <a class="with-right-arrow" href="https://pytorch.org/docs/stable/index.html">查看文档</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>教程</h2>
+          <p>获取初学者和高级开发者的深入教程</p>
+          <a class="with-right-arrow" href="https://pytorch.org/tutorials">查看教程</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>资源</h2>
+          <p>查找开发资源并获得您的疑问解答</p>
+          <a class="with-right-arrow" href="https://pytorch.org/resources">查看资源</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://pytorch.org/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/">PyTorch</a></li>
+            <li><a href="https://pytorch.org/get-started">开始使用</a></li>
+            <li><a href="https://pytorch.org/features">功能</a></li>
+            <li><a href="https://pytorch.org/ecosystem">生态系统</a></li>
+            <li><a href="https://pytorch.org/blog/">博客</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md">贡献</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/resources">资源</a></li>
+            <li><a href="https://pytorch.org/tutorials">教程</a></li>
+            <li><a href="https://pytorch.org/docs/stable/index.html">文档</a></li>
+            <li><a href="https://discuss.pytorch.org" target="_blank">讨论</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/issues" target="_blank">GitHub 问题和任务</a></li>
+            <li><a href="https://pytorch.org/assets/brand-guidelines/PyTorch-Brand-Guidelines.pdf" target="_blank">品牌指南</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">保持更新</li>
+            <li><a href="https://www.facebook.com/pytorch" target="_blank">Facebook</a></li>
+            <li><a href="https://twitter.com/pytorch" target="_blank">推特</a></li>
+            <li><a href="https://www.youtube.com/pytorch" target="_blank">YouTube</a></li>
+            <li><a href="https://www.linkedin.com/company/pytorch" target="_blank">领英</a></li>
+          </ul>  
+          </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">PyTorch 播客</li>
+            <li><a href="https://open.spotify.com/show/6UzHKeiy368jKfQMKKvJY5" target="_blank">Spotify</a></li>
+            <li><a href="https://podcasts.apple.com/us/podcast/pytorch-developer-podcast/id1566080008" target="_blank">苹果</a></li>
+            <li><a href="https://www.google.com/podcasts?feed=aHR0cHM6Ly9mZWVkcy5zaW1wbGVjYXN0LmNvbS9PQjVGa0lsOA%3D%3D" target="_blank">谷歌</a></li>
+            <li><a href="https://music.amazon.com/podcasts/7a4e6f0e-26c2-49e9-a478-41bd244197d0/PyTorch-Developer-Podcast?" target="_blank">亚马逊</a></li>
+          </ul>
+         </div>
+        </div>
+        
+        <div class="privacy-policy">
+          <ul>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/terms/" target="_blank">条款</a></li>
+            <li class="privacy-policy-links">|</li>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/privacy-policy/" target="_blank">隐私</a></li>
+          </ul>
+        </div>
+        <div class="copyright">
+        <p>© 版权所有 Linux 基金会。PyTorch 基金会是 Linux 基金会的一个项目。有关本网站的使用条款、商标政策以及其他适用于 PyTorch 基金会的政策，请参阅 www.linuxfoundation.org/policies/。PyTorch 基金会支持 PyTorch 开源项目，该项目已被确立为 LF Projects, LLC 的 PyTorch 项目系列。有关适用于 PyTorch 项目系列 LF Projects, LLC 的政策，请参阅 www.lfprojects.org/policies/。</p>
+      </div>
+     </div>
+
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">为分析流量并优化您的体验，我们在本网站上提供 cookies。通过点击或导航，您同意允许我们使用 cookies。作为本站点的当前维护者，Facebook 的 Cookies 政策适用。了解更多信息，包括可用的控制选项：Cookies 政策。</p>
+    <img class="close-button" src="_static/images/pytorch-x.svg" width="16" height="16">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+           <li class="resources-mobile-menu-title">
+             <a>学习</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/get-started">开始学习</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials">教程</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/basics/intro.html">学习基础知识</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/recipes/recipes_index.html">PyTorch 菜谱</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/introyt.html">PyTorch 入门 - YouTube 系列</a>
+             </li>
+           </ul>
+           <li class="resources-mobile-menu-title">
+             <a>生态系统</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/ecosystem">工具</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/#community-module">社区</a>
+             </li>
+             <li>
+               <a href="https://discuss.pytorch.org/">论坛</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/resources">开发者资源</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">贡献者奖项 - 2024</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>Edge</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/edge">关于 PyTorch Edge</a>
+             </li>
+             
+             <li>
+               <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch 文档</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>文档</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/docs/stable/index.html">PyTorch</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/pytorch-domains">PyTorch 领域</a>
+            </li>
+          </ul>
+
+          <li class="resources-mobile-menu-title">
+            <a>博客 &amp; 新闻</a>
+          </li>
+            
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/blog/">PyTorch 博客</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/community-blog">社区博客</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/videos">视频</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/community-stories">社区故事</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/events">活动</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">通讯</a>
+             </li>
+          </ul>
+          
+          <li class="resources-mobile-menu-title">
+            <a>关于</a>
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/foundation">PyTorch 基金会</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/governing-board">治理委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">云信用计划</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">技术顾问委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">员工</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">联系我们</a>
+            </li>
+          </ul>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body></html>

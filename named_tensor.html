@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Named Tensors — PyTorch main documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pytorch.org/docs/stable/named_tensor.html">
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css">
+  <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css">
+  <link rel="stylesheet" href="_static/copybutton.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="_static/katex-math.css" type="text/css">
+  <link rel="stylesheet" href="_static/sphinx-dropdown.css" type="text/css">
+  <link rel="stylesheet" href="_static/panels-bootstrap.min.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/jit.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css">
+    <link rel="index" title="Index" href="genindex.html">
+    <link rel="search" title="Search" href="search.html">
+    <link rel="next" title="Named Tensors operator coverage" href="name_inference.html">
+    <link rel="prev" title="Type Info" href="type_info.html">
+
+<!--
+  Search engines should not index the main version of documentation.
+  Stable documentation are built without release == 'main'.
+-->
+<meta name="robots" content="noindex">
+
+
+  <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T8XT4PS');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+  <!-- Preload the theme fonts -->
+
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<!-- Preload the katex fonts -->
+
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Math-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size1-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size2-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Caligraphic-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
+</head><body class="pytorch-body"><div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+
+          <li class="main-menu-item">
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">学习</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/get-started">
+                  <span class="dropdown-title">开始使用</span>
+                  <p>在本地运行 PyTorch 或快速开始使用支持的云平台之一</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials">
+                  <span class="dropdown-title">教程</span><p></p>
+                  <p>PyTorch 教程中的新内容</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/basics/intro.html">
+                  <span class="dropdown-title">学习基础知识</span><p></p>
+                  <p>熟悉 PyTorch 的概念和模块</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/recipes/recipes_index.html">
+                  <span class="dropdown-title">PyTorch 食谱</span><p></p>
+                  <p>精简版、可直接部署的 PyTorch 代码示例</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/introyt.html">
+                  <span class="dropdown-title">PyTorch 入门 - YouTube 系列</span><p></p>
+                  <p>通过我们引人入胜的 YouTube 教程系列掌握 PyTorch 基础知识</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">生态系统</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem">
+                  <span class="dropdown-title">工具</span><p></p>
+                  <p>了解 PyTorch 生态系统中的工具和框架</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
+                  <span class="dropdown-title">社区</span>
+                  <p>加入 PyTorch 开发者社区，贡献、学习并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
+                  <span class="dropdown-title">论坛</span>
+                  <p>讨论 PyTorch 代码、问题、安装、研究的地方</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/resources">
+                  <span class="dropdown-title">开发者资源</span>
+                  <p>查找资源并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">贡献者奖项 - 2024</span><p></p>
+                  <p>本届 PyTorch 会议揭晓获奖者</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">
+                Edge
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/edge">
+                  <span class="dropdown-title">关于 PyTorch Edge</span><p></p>
+                  <p>为边缘设备构建创新和隐私感知的 AI 体验</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
+                  <span class="dropdown-title">ExecuTorch</span><p></p>
+                  <p>基于移动和边缘设备的端到端推理能力解决方案</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch 文档</span><p></p>
+                </a>
+              </div>
+            </div>  
+          </li>
+
+          <li class="main-menu-item">
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">文档</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/docs/stable/index.html">
+                  <span class="dropdown-title">PyTorch</span><p></p>
+                  <p>探索文档以获取全面指导，了解如何使用 PyTorch</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/pytorch-domains">
+                  <span class="dropdown-title">PyTorch 领域</span><p></p>
+                  <p>阅读 PyTorch 领域的文档，了解更多关于特定领域库的信息</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">博客与新闻</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/blog/">
+                  <span class="dropdown-title">PyTorch 博客</span><p></p>
+                  <p>捕捉最新的技术新闻和事件</p>
+                </a>
+                 <a class="nav-dropdown-item" href="https://pytorch.org/community-blog">
+                  <span class="dropdown-title">社区博客</span><p></p>
+                  <p>PyTorch 生态系统故事</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/videos">
+                  <span class="dropdown-title">视频</span><p></p>
+                  <p>了解最新的 PyTorch 教程、新内容等</p>
+                </a><a class="nav-dropdown-item" href="https://pytorch.org/community-stories">
+                  <span class="dropdown-title">社区故事</span><p></p>
+                  <p>学习如何我们的社区使用 PyTorch 解决真实、日常的机器学习问题</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/events">
+                  <span class="dropdown-title">活动</span><p></p>
+                  <p>查找活动、网络研讨会和播客</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">通讯</span><p></p>
+                  <p>跟踪最新更新</p>
+                </a>
+            </div>
+          </div></li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">关于</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/foundation">
+                  <span class="dropdown-title">PyTorch 基金会</span><p></p>
+                  <p>了解更多关于 PyTorch 基金会的信息</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
+                  <span class="dropdown-title">管理委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">云信用计划</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">技术顾问委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">员工</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">联系我们</span><p></p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li class="main-menu-item">
+            <div class="no-dropdown">
+              <a href="https://pytorch.org/join" data-cta="join">成为会员</a>
+            </div>
+          </li>
+          <li>
+           <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="github-icon">
+             </a>
+           </div>
+          </li>
+          <!--- TODO: This block adds the search icon to the nav bar. We will enable it later. 
+          <li>
+            <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="search-icon">
+             </a>
+            </div>
+          </li>
+          --->
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+  </div>
+</div>
+
+
+
+   
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>目录</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+    <div class="version">
+      <a href="https://pytorch.org/docs/versions.html">主程序 (2.7.0+cpu ) ▼</a>
+    </div>
+    <div id="searchBox">
+    <div class="searchbox" id="googleSearchBox">
+      <script async="" src="https://cse.google.com/cse.js?cx=e65585f8c3ea1440e"></script>
+      <div class="gcse-search"></div>
+    </div>
+    <div id="sphinxSearchBox" style="display: none;">
+      <div role="search">
+        <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+          <input type="text" name="q" placeholder="Search Docs">
+          <input type="hidden" name="check_keywords" value="yes">
+          <input type="hidden" name="area" value="default">
+        </form>
+      </div>
+    </div>
+  </div>
+  <form id="searchForm">
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="google" checked="">谷歌搜索</label>
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="sphinx">经典搜索</label>
+  </form>
+
+  <script>
+     document.addEventListener('DOMContentLoaded', function() {
+      const searchForm = document.getElementById('searchForm');
+      const googleSearchBox = document.getElementById('googleSearchBox');
+      const sphinxSearchBox = document.getElementById('sphinxSearchBox');
+      // Function to toggle search box visibility
+      function toggleSearchBox(searchType) {
+        googleSearchBox.style.display = searchType === 'google' ? 'block' : 'none';
+        sphinxSearchBox.style.display = searchType === 'sphinx' ? 'block' : 'none';
+      }
+      // Determine the default search type
+      let defaultSearchType;
+      const currentUrl = window.location.href;
+      if (currentUrl.startsWith('https://pytorch.org/docs/stable')) {
+        // For the stable documentation, default to Google
+        defaultSearchType = localStorage.getItem('searchType') || 'google';
+      } else {
+        // For any other version, including docs-preview, default to Sphinx
+        defaultSearchType = 'sphinx';
+      }
+      // Set the default search type
+      document.querySelector(`input[name="searchType"][value="${defaultSearchType}"]`).checked = true;
+      toggleSearchBox(defaultSearchType);
+      // Event listener for changes in search type
+      searchForm.addEventListener('change', function(event) {
+        const selectedSearchType = event.target.value;
+        localStorage.setItem('searchType', selectedSearchType);
+        toggleSearchBox(selectedSearchType);
+      });
+      // Set placeholder text for Google search box
+      window.onload = function() {
+        var placeholderText = "Search Docs";
+        var googleSearchboxText = document.querySelector("#gsc-i-id1");
+        if (googleSearchboxText) {
+          googleSearchboxText.placeholder = placeholderText;
+          googleSearchboxText.style.fontFamily = 'FreightSans';
+          googleSearchboxText.style.fontSize = "1.2rem";
+          googleSearchboxText.style.color = '#262626';
+        }
+      };
+    });
+  </script>
+
+          </div>
+
+          
+
+<div>
+  <a style="color:#F05732" href="https://pytorch.org/docs/stable/named_tensor.html">您正在查看不稳定开发者预览文档。请点击此处查看最新稳定版本的文档。</a>
+</div>
+
+
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">社区</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="community/build_ci_governance.html">PyTorch 治理 | 构建 + CI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/contribution_guide.html">PyTorch 贡献指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/design.html">PyTorch 设计哲学</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/governance.html">PyTorch 治理 | 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/persons_of_interest.html">PyTorch 治理 | 维护者</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发者笔记</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="notes/amp_examples.html">自动混合精度示例</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/autograd.html">Autograd 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/broadcasting.html">广播语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/cpu_threading_torchscript_inference.html">CPU 多线程和 TorchScript 推理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/cuda.html">CUDA 语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/custom_operators.html">PyTorch 自定义算子页面</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/ddp.html">分布式数据并行</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/extending.html">扩展 PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/extending.func.html">使用 autograd.Function 扩展 torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/faq.html">常见问题解答</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/fsdp.html">FSDP 笔记</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/get_start_xpu.html">在 Intel GPU 上入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/gradcheck.html">Gradcheck 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/hip.html">HIP (ROCm)语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/large_scale_deployments.html">大规模部署功能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/libtorch_stable_abi.html">LibTorch 稳定 ABI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/modules.html">模块</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/mps.html">MPS 后端</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/multiprocessing.html">多进程最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/numerical_accuracy.html">数值精度</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/randomness.html">可重现性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/serialization.html">序列化语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/windows.html">Windows 常见问题解答</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">语言绑定</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cpp_index.html">C++</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/javadoc/">Javadoc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deploy.html">torch::deploy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="torch.html">torch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.html">torch.nn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.functional.html">torch.nn.functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensors.html">torch.Tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensor_attributes.html">张量属性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensor_view.html">张量视图</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amp.html">torch.amp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autograd.html">torch.autograd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="library.html">torch.library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accelerator.html">torch.accelerator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpu.html">torch.cpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">torch.cuda</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html">理解 CUDA 内存使用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#generating-a-snapshot">生成快照</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#using-the-visualizer">使用可视化工具</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#snapshot-api-reference">快照 API 参考</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mps.html">torch.mps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="xpu.html">torch.xpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mtia.html">torch.mtia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mtia.memory.html">torch.mtia.memory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="meta.html">元设备</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backends.html">torch.backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="export.html">torch.export</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.html">torch.distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.tensor.html">torch.distributed.tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.algorithms.join.html">torch.distributed.algorithms.join</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.elastic.html">torch.distributed.elastic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fsdp.html">torch.distributed.fsdp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.fsdp.fully_shard.html">torch.distributed.fsdp.fully_shard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.tensor.parallel.html">torch.distributed.tensor.parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.optim.html">torch.distributed.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.pipelining.html">torch.distributed.pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.checkpoint.html">torch.distributed.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributions.html">torch.distributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch.compiler.html">torch.compiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fft.html">torch.fft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="func.html">torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="futures.html">torch.futures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fx.html">torch.fx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fx.experimental.html">torch.fx.experimental</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hub.html">torch.hub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jit.html">torch.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="linalg.html">torch.linalg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitor.html">torch.monitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="signal.html">torch.signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="special.html">torch.special</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch.overrides.html">torch.overrides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="package.html">torch.package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="profiler.html">torch.profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.init.html">torch.nn.init</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.attention.html">torch.nn.attention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="onnx.html">torch.onnx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="optim.html">torch.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="complex_numbers.html">复数</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ddp_comm_hooks.html">DDP 通信钩子</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quantization.html">量化</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rpc.html">分布式 RPC 框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="random.html">torch.random</a></li>
+<li class="toctree-l1"><a class="reference internal" href="masked.html">torch.masked</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nested.html">torch.nested</a></li>
+<li class="toctree-l1"><a class="reference internal" href="size.html">torch.Size</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sparse.html">torch.sparse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="storage.html">torch.Storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">torch.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">torch.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmark_utils.html">torch.utils.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bottleneck.html">torch.utils.bottleneck</a></li>
+<li class="toctree-l1"><a class="reference internal" href="checkpoint.html">torch.utils.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp_extension.html">torch.utils.cpp_extension</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data.html">torch.utils.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deterministic.html">torch.utils.deterministic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jit_utils.html">torch.utils.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dlpack.html">torch.utils.dlpack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mobile_optimizer.html">torch.utils.mobile_optimizer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_zoo.html">torch.utils.model_zoo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensorboard.html">torch.utils.tensorboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_tracker.html">torch.utils.module_tracker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="type_info.html">类型信息</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">命名张量</a></li>
+<li class="toctree-l1"><a class="reference internal" href="name_inference.html">命名张量操作覆盖率</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config_mod.html">torch.__config__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="future_mod.html">torch.__future__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">torch._logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_environment_variables.html">火炬环境变量</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">库</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/audio/stable">torchaudio</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/data">TorchData</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/torchrec">火炬推荐</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/serve">TorchServe</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/text/stable">torchtext</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/vision/stable">torchvision</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/xla/">PyTorch 在 XLA 设备上</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/ao">torchao</a></li>
+</ul>
+
+            
+          
+
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        文档 &gt;</li>
+
+        
+      <li>命名张量</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+            
+            <a href="_sources/named_tensor.rst.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg" width="16" height="16"></a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">快捷键</div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+
+          <!-- Google Tag Manager (noscript) -->
+          <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T8XT4PS" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+          <!-- End Google Tag Manager (noscript) -->
+          
+          <div class="rst-content">
+          
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <section id="named-tensors">
+<span id="named-tensors-doc"></span><h1>命名张量 ¶</h1>
+<p>命名张量允许用户为张量维度指定明确的名称。在大多数情况下，接受维度参数的操作将接受维度名称，从而避免需要通过位置跟踪维度。此外，命名张量使用名称在运行时自动检查 API 是否被正确使用，提供额外的安全性。名称还可以用于重新排列维度，例如，支持“按名称广播”而不是“按位置广播”。</p>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>命名张量 API 是一个原型功能，可能会发生变化。</p>
+</div>
+<section id="creating-named-tensors">
+<h2>创建命名张量</h2>
+<p>工厂函数现在接受一个新参数 <code class="xref py py-attr docutils literal "><span class="pre">names</span></code> ，该参数将每个维度与一个名称关联。</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s1">'N'</span><span class="p">,</span> <span class="s1">'C'</span><span class="p">))</span>
+<span class="go">tensor([[0., 0., 0.],</span>
+<span class="go">        [0., 0., 0.]], names=('N', 'C'))</span>
+</pre></div>
+</div>
+<p>命名维度，就像常规张量维度一样，是有序的。 <code class="docutils literal "><span class="pre">tensor.names[i]</span></code> 是 <code class="docutils literal "><span class="pre">i</span></code> 的名称，属于 <code class="docutils literal "><span class="pre">tensor</span></code> 。</p>
+<p>以下工厂函数支持命名张量：</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="generated/torch.empty.html#torch.empty" title="torch.empty"><code class="xref py py-func docutils literal "><span class="pre">torch.empty()</span></code></a></p></li>
+<li><p><a class="reference internal" href="generated/torch.rand.html#torch.rand" title="torch.rand"><code class="xref py py-func docutils literal "><span class="pre">torch.rand()</span></code></a></p></li>
+<li><p><a class="reference internal" href="generated/torch.randn.html#torch.randn" title="torch.randn"><code class="xref py py-func docutils literal "><span class="pre">torch.randn()</span></code></a></p></li>
+<li><p><a class="reference internal" href="generated/torch.ones.html#torch.ones" title="torch.ones"><code class="xref py py-func docutils literal "><span class="pre">torch.ones()</span></code></a></p></li>
+<li><p><a class="reference internal" href="generated/torch.tensor.html#torch.tensor" title="torch.tensor"><code class="xref py py-func docutils literal "><span class="pre">torch.tensor()</span></code></a></p></li>
+<li><p><a class="reference internal" href="generated/torch.zeros.html#torch.zeros" title="torch.zeros"><code class="xref py py-func docutils literal "><span class="pre">torch.zeros()</span></code></a></p></li>
+</ul>
+</section>
+<section id="named-dimensions">
+<h2>命名维度</h2>
+<p>请参阅 <code class="xref py py-attr docutils literal "><span class="pre">names</span></code> 了解张量名称的限制。</p>
+<p>使用 <code class="xref py py-attr docutils literal "><span class="pre">names</span></code> 访问张量的维度名称，使用 <code class="xref py py-meth docutils literal "><span class="pre">rename()</span></code> 重新命名命名维度。</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">imgs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span> <span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s1">'N'</span><span class="p">,</span> <span class="s1">'C'</span><span class="p">,</span> <span class="s1">'H'</span><span class="p">,</span> <span class="s1">'W'</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">imgs</span><span class="o">.</span><span class="n">names</span>
+<span class="go">('N', 'C', 'H', 'W')</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">renamed_imgs</span> <span class="o">=</span> <span class="n">imgs</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">H</span><span class="o">=</span><span class="s1">'height'</span><span class="p">,</span> <span class="n">W</span><span class="o">=</span><span class="s1">'width'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">renamed_imgs</span><span class="o">.</span><span class="n">names</span>
+<span class="go">('N', 'C', 'height', 'width)</span>
+</pre></div>
+</div>
+<p>命名张量可以与未命名张量共存；命名张量是 <code class="xref py py-class docutils literal "><span class="pre">torch.Tensor</span></code> 的实例。未命名张量具有 <code class="docutils literal "><span class="pre">None</span></code> 命名维度。命名张量不需要所有维度都命名。</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">imgs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span> <span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s1">'C'</span><span class="p">,</span> <span class="s1">'H'</span><span class="p">,</span> <span class="s1">'W'</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">imgs</span><span class="o">.</span><span class="n">names</span>
+<span class="go">(None, 'C', 'H', 'W')</span>
+</pre></div>
+</div>
+</section>
+<section id="name-propagation-semantics">
+<h2>命名传播语义</h2>
+<p>命名张量使用名称在运行时自动检查 API 调用是否正确。这发生在名为名称推理的过程中。更正式地说，名称推理包括以下两个步骤：</p>
+<ul class="simple">
+<li><p>检查名称：操作符可以在运行时执行自动检查，以确保某些维度名称必须匹配。</p></li>
+<li><p>传播名称：名称推理将名称传播到输出张量。</p></li>
+</ul>
+<p>所有支持命名张量的操作都会传播名称。</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s1">'N'</span><span class="p">,</span> <span class="s1">'C'</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span><span class="o">.</span><span class="n">names</span>
+<span class="go">('N', 'C')</span>
+</pre></div>
+</div>
+<section id="match-semantics">
+<span id="match-semantics-doc"></span><h3>匹配语义 ¶</h3>
+<p>两个名称匹配，如果它们相等（字符串相等）或者至少有一个是 <code class="docutils literal "><span class="pre">None</span></code> 。None 实质上是一个特殊的“通配符”名称。</p>
+<p> <code class="docutils literal "><span class="pre">unify(A,</span> <span class="pre">B)</span></code> 决定将哪个名称 <code class="docutils literal "><span class="pre">A</span></code> 和 <code class="docutils literal "><span class="pre">B</span></code> 传播到输出。如果它们匹配，则返回两个名称中更具体的一个。如果名称不匹配，则报错。</p>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>在实践中，当与命名张量一起工作时，应避免使用未命名的维度，因为它们的处理可能很复杂。建议使用 <code class="xref py py-meth docutils literal "><span class="pre">refine_names()</span></code> 将所有未命名的维度提升为命名维度。</p>
+</div>
+</section>
+<section id="basic-name-inference-rules">
+<h3>基本命名推断规则 ¶</h3>
+<p>让我们看看在添加两个没有广播的一维张量时，如何使用 <code class="docutils literal "><span class="pre">match</span></code> 和 <code class="docutils literal "><span class="pre">unify</span></code> 进行命名推断。</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s1">'X'</span><span class="p">,))</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">z</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s1">'Z'</span><span class="p">,))</span>
+</pre></div>
+</div>
+<p>检查名称：检查两个张量的名称是否匹配。</p>
+<p>以下示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># x + y  # match('X', None) is True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># x + z  # match('X', 'Z') is False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># x + x  # match('X', 'X') is True</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">+</span> <span class="n">z</span>
+<span class="go">Error when attempting to broadcast dims ['X'] and dims ['Z']: dim 'X' and dim 'Z' are at the same position from the right but do not match.</span>
+</pre></div>
+</div>
+<p>传播名称：统一名称以选择要传播的名称。在 <code class="docutils literal "><span class="pre">x</span> <span class="pre">+</span> <span class="pre">y</span></code> 、 <code class="docutils literal "><span class="pre">unify('X',</span> <span class="pre">None)</span> <span class="pre">=</span> <span class="pre">'X'</span></code> 的情况下，因为 <code class="docutils literal "><span class="pre">'X'</span></code> 比 <code class="docutils literal "><span class="pre">None</span></code> 更具体。</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">names</span>
+<span class="go">('X',)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">names</span>
+<span class="go">('X',)</span>
+</pre></div>
+</div>
+<p>欲获取名称推断规则的完整列表，请参阅命名张量操作覆盖范围。以下两个可能有用的常见操作：</p>
+<ul class="simple">
+<li><p>二元算术运算：统一输入名称</p></li>
+<li><p>矩阵乘法操作：合约移除维度</p></li>
+</ul>
+</section>
+</section>
+<section id="explicit-alignment-by-names">
+<h2>通过名称显式对齐</h2>
+<p>使用 <code class="xref py py-meth docutils literal "><span class="pre">align_as()</span></code> 或 <code class="xref py py-meth docutils literal "><span class="pre">align_to()</span></code> 通过名称对齐张量维度到指定的顺序。这对于执行“按名称广播”非常有用。</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="c1"># This function is agnostic to the dimension ordering of `input`,</span>
+<span class="c1"># as long as it has a `C` dimension somewhere.</span>
+<span class="k">def</span> <span class="nf">scale_channels</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">scale</span><span class="p">):</span>
+    <span class="n">scale</span> <span class="o">=</span> <span class="n">scale</span><span class="o">.</span><span class="n">refine_names</span><span class="p">(</span><span class="s1">'C'</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">input</span> <span class="o">*</span> <span class="n">scale</span><span class="o">.</span><span class="n">align_as</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+
+<span class="o">&gt;&gt;&gt;</span> <span class="n">num_channels</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">scale</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">num_channels</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s1">'C'</span><span class="p">,))</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">imgs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">num_channels</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s1">'N'</span><span class="p">,</span> <span class="s1">'H'</span><span class="p">,</span> <span class="s1">'W'</span><span class="p">,</span> <span class="s1">'C'</span><span class="p">))</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">more_imgs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">num_channels</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s1">'N'</span><span class="p">,</span> <span class="s1">'C'</span><span class="p">,</span> <span class="s1">'H'</span><span class="p">,</span> <span class="s1">'W'</span><span class="p">))</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">videos</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">num_channels</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s1">'N'</span><span class="p">,</span> <span class="s1">'C'</span><span class="p">,</span> <span class="s1">'H'</span><span class="p">,</span> <span class="s1">'W'</span><span class="p">,</span> <span class="s1">'D'</span><span class="p">)</span>
+
+<span class="o">&gt;&gt;&gt;</span> <span class="n">scale_channels</span><span class="p">(</span><span class="n">imgs</span><span class="p">,</span> <span class="n">scale</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">scale_channels</span><span class="p">(</span><span class="n">more_imgs</span><span class="p">,</span> <span class="n">scale</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">scale_channels</span><span class="p">(</span><span class="n">videos</span><span class="p">,</span> <span class="n">scale</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="manipulating-dimensions">
+<h2>维度操作</h2>
+<p>使用 <code class="xref py py-meth docutils literal "><span class="pre">align_to()</span></code> 来对大量维度进行排列，无需像 <code class="xref py py-meth docutils literal "><span class="pre">permute()</span></code> 那样提及所有维度。</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">named_tensor</span> <span class="o">=</span> <span class="n">tensor</span><span class="o">.</span><span class="n">refine_names</span><span class="p">(</span><span class="s1">'A'</span><span class="p">,</span> <span class="s1">'B'</span><span class="p">,</span> <span class="s1">'C'</span><span class="p">,</span> <span class="s1">'D'</span><span class="p">,</span> <span class="s1">'E'</span><span class="p">,</span> <span class="s1">'F'</span><span class="p">)</span>
+
+<span class="go"># Move the F (dim 5) and E dimension (dim 4) to the front while keeping</span>
+<span class="go"># the rest in the same order</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tensor</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">named_tensor</span><span class="o">.</span><span class="n">align_to</span><span class="p">(</span><span class="s1">'F'</span><span class="p">,</span> <span class="s1">'E'</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>使用 <code class="xref py py-meth docutils literal "><span class="pre">flatten()</span></code> 和 <code class="xref py py-meth docutils literal "><span class="pre">unflatten()</span></code> 分别进行维度展平和反展平。这些方法比 <code class="xref py py-meth docutils literal "><span class="pre">view()</span></code> 和 <code class="xref py py-meth docutils literal "><span class="pre">reshape()</span></code> 更冗长，但对阅读代码的人来说具有更多的语义意义。</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">imgs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">named_imgs</span> <span class="o">=</span> <span class="n">imgs</span><span class="o">.</span><span class="n">refine_names</span><span class="p">(</span><span class="s1">'N'</span><span class="p">,</span> <span class="s1">'C'</span><span class="p">,</span> <span class="s1">'H'</span><span class="p">,</span> <span class="s1">'W'</span><span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">flat_imgs</span> <span class="o">=</span> <span class="n">imgs</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">named_flat_imgs</span> <span class="o">=</span> <span class="n">named_imgs</span><span class="o">.</span><span class="n">flatten</span><span class="p">([</span><span class="s1">'C'</span><span class="p">,</span> <span class="s1">'H'</span><span class="p">,</span> <span class="s1">'W'</span><span class="p">],</span> <span class="s1">'features'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">named_flat_imgs</span><span class="o">.</span><span class="n">names</span>
+<span class="go">('N', 'features')</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">unflattened_named_imgs</span> <span class="o">=</span> <span class="n">named_flat_imgs</span><span class="o">.</span><span class="n">unflatten</span><span class="p">(</span><span class="s1">'features'</span><span class="p">,</span> <span class="p">[(</span><span class="s1">'C'</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="s1">'H'</span><span class="p">,</span> <span class="mi">128</span><span class="p">),</span> <span class="p">(</span><span class="s1">'W'</span><span class="p">,</span> <span class="mi">128</span><span class="p">)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">unflattened_named_imgs</span><span class="o">.</span><span class="n">names</span>
+<span class="go">('N', 'C', 'H', 'W')</span>
+</pre></div>
+</div>
+</section>
+<section id="autograd-support">
+<span id="named-tensors-autograd-doc"></span><h2>自动微分支持</h2>
+<p>自动微分目前以有限的方式支持命名张量：自动微分忽略了所有张量的名称。梯度计算仍然正确，但我们失去了名称带来的安全性。</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s1">'D'</span><span class="p">,))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">weight</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s1">'D'</span><span class="p">,),</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loss</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">weight</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">grad_loss</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="n">grad_loss</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">weight</span><span class="o">.</span><span class="n">grad</span>  <span class="c1"># Unnamed for now. Will be named in the future</span>
+<span class="go">tensor([-1.8107, -0.6357,  0.0783])</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">weight</span><span class="o">.</span><span class="n">grad</span><span class="o">.</span><span class="n">zero_</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">grad_loss</span> <span class="o">=</span> <span class="n">grad_loss</span><span class="o">.</span><span class="n">refine_names</span><span class="p">(</span><span class="s1">'C'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loss</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">weight</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span>
+<span class="go"># Ideally we'd check that the names of loss and grad_loss match but we don't yet.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="n">grad_loss</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">weight</span><span class="o">.</span><span class="n">grad</span>
+<span class="go">tensor([-1.8107, -0.6357,  0.0783])</span>
+</pre></div>
+</div>
+</section>
+<section id="currently-supported-operations-and-subsystems">
+<h2>当前支持的运算和子系统</h2>
+<section id="operators">
+<h3>操作符</h3>
+<p>请参阅命名张量操作符覆盖范围以获取支持的 torch 和张量运算的完整列表。我们尚未支持以下未在链接中涵盖的内容：</p>
+<ul class="simple">
+<li><p>索引、高级索引。</p></li>
+</ul>
+<p>对于 <code class="docutils literal "><span class="pre">torch.nn.functional</span></code> 操作符，我们支持以下内容：</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="generated/torch.nn.functional.relu.html#torch.nn.functional.relu" title="torch.nn.functional.relu"><code class="xref py py-func docutils literal "><span class="pre">torch.nn.functional.relu()</span></code></a></p></li>
+<li><p><a class="reference internal" href="generated/torch.nn.functional.softmax.html#torch.nn.functional.softmax" title="torch.nn.functional.softmax"><code class="xref py py-func docutils literal "><span class="pre">torch.nn.functional.softmax()</span></code></a></p></li>
+<li><p><a class="reference internal" href="generated/torch.nn.functional.log_softmax.html#torch.nn.functional.log_softmax" title="torch.nn.functional.log_softmax"><code class="xref py py-func docutils literal "><span class="pre">torch.nn.functional.log_softmax()</span></code></a></p></li>
+<li><p><a class="reference internal" href="generated/torch.nn.functional.tanh.html#torch.nn.functional.tanh" title="torch.nn.functional.tanh"><code class="xref py py-func docutils literal "><span class="pre">torch.nn.functional.tanh()</span></code></a></p></li>
+<li><p><a class="reference internal" href="generated/torch.nn.functional.sigmoid.html#torch.nn.functional.sigmoid" title="torch.nn.functional.sigmoid"><code class="xref py py-func docutils literal "><span class="pre">torch.nn.functional.sigmoid()</span></code></a></p></li>
+<li><p><a class="reference internal" href="generated/torch.nn.functional.dropout.html#torch.nn.functional.dropout" title="torch.nn.functional.dropout"><code class="xref py py-func docutils literal "><span class="pre">torch.nn.functional.dropout()</span></code></a></p></li>
+</ul>
+</section>
+<section id="subsystems">
+<h3>子系统 §</h3>
+<p>支持自动微分，请参阅自动微分支持。由于梯度目前未命名，优化器可能可用但未经测试。</p>
+<p>目前不支持神经网络模块。当使用具有命名张量输入的模块时，可能会导致以下情况：</p>
+<ul class="simple">
+<li><p>神经网络模块的参数未命名，因此输出可能部分命名。</p></li>
+<li><p>神经网络模块的前向传播代码不支持命名张量，将适当地报错。</p></li>
+</ul>
+<p>我们也不支持以下子系统，尽管某些子系统可能直接运行：</p>
+<ul class="simple">
+<li><p>分布式</p></li>
+<li><p>序列化（ <code class="xref py py-func docutils literal "><span class="pre">torch.load()</span></code> ， <code class="xref py py-func docutils literal "><span class="pre">torch.save()</span></code> ）</p></li>
+<li><p>多进程</p></li>
+<li><p>JIT</p></li>
+<li><p>分布式</p></li>
+<li><p>ONNX</p></li>
+</ul>
+<p>如果这些中的任何一项能帮助您的用例，请搜索是否已提交相关问题，如果没有，请提交一个问题。</p>
+</section>
+</section>
+<section id="named-tensor-api-reference">
+<h2>命名张量 API 参考</h2>
+<p>在本节中，您可以找到命名张量特定 API 的文档。有关命名如何在其他 PyTorch 运算符中传播的全面参考，请参阅命名张量运算符覆盖范围。</p>
+<dl class="py class">
+<dt class="sig sig-object py">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.</span></span><span class="sig-name descname"><span class="pre">Tensor</span></span></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="torch.Tensor.names">
+names</dt>
+<dd><p>存储每个张量维度的名称。</p>
+<p> <code class="docutils literal "><span class="pre">names[idx]</span></code> 对应于张量维度 <code class="docutils literal "><span class="pre">idx</span></code> 的名称。名称可以是字符串，如果维度有名称，或者 <code class="docutils literal "><span class="pre">None</span></code> ，如果维度没有名称。</p>
+<p>维度名称可以包含字符或下划线。此外，维度名称必须是一个有效的 Python 变量名（即不以下划线开头）。</p>
+<p>张量不能有两个具有相同名称的命名维度。</p>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>命名张量 API 是实验性的，可能会发生变化。</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.Tensor.rename">
+<span class="sig-name descname"><span class="pre">rename</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">names</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">rename_map</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/_tensor.html#Tensor.rename"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/_tensor.py#L1449"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.Tensor.rename" title="Permalink to this definition">¶</a></dt>
+<dd><p>重命名 <code class="xref py py-attr docutils literal "><span class="pre">self</span></code> 的维度名称。</p>
+<p>主要有两种用法：</p>
+<p> <code class="docutils literal "><span class="pre">self.rename(**rename_map)</span></code> 返回一个视图，其维度已按指定的映射重命名 <code class="xref py py-attr docutils literal "><span class="pre">rename_map</span></code> 。</p>
+<p> <code class="docutils literal "><span class="pre">self.rename(*names)</span></code> 返回一个视图，使用 <code class="xref py py-attr docutils literal "><span class="pre">names</span></code> 位置重命名所有维度。使用 <code class="docutils literal "><span class="pre">self.rename(None)</span></code> 来删除张量上的名称。</p>
+<p>不能同时指定位置参数 <code class="xref py py-attr docutils literal "><span class="pre">names</span></code> 和关键字参数 <code class="xref py py-attr docutils literal "><span class="pre">rename_map</span></code> 。</p>
+<p>示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">imgs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s1">'N'</span><span class="p">,</span> <span class="s1">'C'</span><span class="p">,</span> <span class="s1">'H'</span><span class="p">,</span> <span class="s1">'W'</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">renamed_imgs</span> <span class="o">=</span> <span class="n">imgs</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">N</span><span class="o">=</span><span class="s1">'batch'</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="s1">'channels'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">renamed_imgs</span><span class="o">.</span><span class="n">names</span>
+<span class="go">('batch', 'channels', 'H', 'W')</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">renamed_imgs</span> <span class="o">=</span> <span class="n">imgs</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">renamed_imgs</span><span class="o">.</span><span class="n">names</span>
+<span class="go">(None, None, None, None)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">renamed_imgs</span> <span class="o">=</span> <span class="n">imgs</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s1">'batch'</span><span class="p">,</span> <span class="s1">'channel'</span><span class="p">,</span> <span class="s1">'height'</span><span class="p">,</span> <span class="s1">'width'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">renamed_imgs</span><span class="o">.</span><span class="n">names</span>
+<span class="go">('batch', 'channel', 'height', 'width')</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>命名张量 API 是实验性的，可能会更改。</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.Tensor.rename_">
+重命名_(*names, **rename_map)[source][source] ¶</dt>
+<dd><p> <code class="xref py py-meth docutils literal "><span class="pre">rename()</span></code> 的就地版本 .</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.Tensor.refine_names">
+<span class="sig-name descname"><span class="pre">refine_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">names</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/_tensor.html#Tensor.refine_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/_tensor.py#L1323"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.Tensor.refine_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>根据 <code class="xref py py-attr docutils literal "><span class="pre">names</span></code> 精炼 <code class="xref py py-attr docutils literal "><span class="pre">self</span></code> 的维度名称 .</p>
+<p>精炼是重命名的一种特殊情况，可以“提升”未命名的维度。一个 <code class="docutils literal "><span class="pre">None</span></code> 维度可以被精炼为任何名称；一个已命名的维度只能被精炼为相同的名称。</p>
+<p>由于命名张量可以与未命名的张量共存，精炼名称为编写既适用于命名张量又适用于未命名张量的命名张量感知代码提供了一种很好的方式。</p>
+<p> <code class="xref py py-attr docutils literal "><span class="pre">names</span></code> 可能包含最多一个省略号（ <code class="docutils literal "><span class="pre">...</span></code> ）。省略号贪婪地展开；它就地展开以填充 <code class="xref py py-attr docutils literal "><span class="pre">names</span></code> ，使其长度与 <code class="docutils literal "><span class="pre">self.dim()</span></code> 相同，并使用 <code class="docutils literal "><span class="pre">self.names</span></code> 相应索引的名称。</p>
+<p>Python 2 不支持省略号，但可以使用字符串字面量代替（ <code class="docutils literal "><span class="pre">'...'</span></code> ）。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>names（可迭代字符串）- 输出张量的期望名称。最多可包含一个省略号。</p>
+</dd>
+</dl>
+<p>示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">imgs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">named_imgs</span> <span class="o">=</span> <span class="n">imgs</span><span class="o">.</span><span class="n">refine_names</span><span class="p">(</span><span class="s1">'N'</span><span class="p">,</span> <span class="s1">'C'</span><span class="p">,</span> <span class="s1">'H'</span><span class="p">,</span> <span class="s1">'W'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">named_imgs</span><span class="o">.</span><span class="n">names</span>
+<span class="go">('N', 'C', 'H', 'W')</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">11</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tensor</span> <span class="o">=</span> <span class="n">tensor</span><span class="o">.</span><span class="n">refine_names</span><span class="p">(</span><span class="s1">'A'</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="s1">'B'</span><span class="p">,</span> <span class="s1">'C'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tensor</span><span class="o">.</span><span class="n">names</span>
+<span class="go">('A', None, None, 'B', 'C')</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>命名张量 API 是实验性的，可能会更改。</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.Tensor.align_as">
+align_as(other) → 张量</dt>
+<dd><p>将 <code class="xref py py-attr docutils literal "><span class="pre">self</span></code> 张量的维度重新排列以匹配 <code class="xref py py-attr docutils literal "><span class="pre">other</span></code> 张量的维度顺序，为任何新的名称添加大小为 1 的维度。</p>
+<p>该操作适用于通过名称进行显式广播（请参阅示例）。</p>
+<p>使用此方法之前， <code class="xref py py-attr docutils literal "><span class="pre">self</span></code> 的所有维度必须命名。生成的张量是原始张量上的视图。</p>
+<p> <code class="xref py py-attr docutils literal "><span class="pre">self</span></code> 的所有维度名称必须在 <code class="docutils literal "><span class="pre">other.names</span></code> 中存在。 <code class="xref py py-attr docutils literal "><span class="pre">other</span></code> 可以包含不在 <code class="docutils literal "><span class="pre">self.names</span></code> 中的命名维度；对于这些新名称，输出张量将有一个大小为 1 的维度。</p>
+<p>要将张量对齐到特定顺序，请使用 <code class="xref py py-meth docutils literal "><span class="pre">align_to()</span></code> 。</p>
+<p>示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="c1"># Example 1: Applying a mask</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">mask</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="p">[</span><span class="mi">127</span><span class="p">,</span> <span class="mi">128</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">bool</span><span class="p">)</span><span class="o">.</span><span class="n">refine_names</span><span class="p">(</span><span class="s1">'W'</span><span class="p">,</span> <span class="s1">'H'</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">imgs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">127</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s1">'N'</span><span class="p">,</span> <span class="s1">'H'</span><span class="p">,</span> <span class="s1">'W'</span><span class="p">,</span> <span class="s1">'C'</span><span class="p">))</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">imgs</span><span class="o">.</span><span class="n">masked_fill_</span><span class="p">(</span><span class="n">mask</span><span class="o">.</span><span class="n">align_as</span><span class="p">(</span><span class="n">imgs</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+
+
+<span class="c1"># Example 2: Applying a per-channel-scale</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">scale_channels</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">scale</span><span class="p">):</span>
+<span class="o">&gt;&gt;&gt;</span>    <span class="n">scale</span> <span class="o">=</span> <span class="n">scale</span><span class="o">.</span><span class="n">refine_names</span><span class="p">(</span><span class="s1">'C'</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span>    <span class="k">return</span> <span class="nb">input</span> <span class="o">*</span> <span class="n">scale</span><span class="o">.</span><span class="n">align_as</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+
+<span class="o">&gt;&gt;&gt;</span> <span class="n">num_channels</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">scale</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">num_channels</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s1">'C'</span><span class="p">,))</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">imgs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="n">num_channels</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s1">'N'</span><span class="p">,</span> <span class="s1">'H'</span><span class="p">,</span> <span class="s1">'W'</span><span class="p">,</span> <span class="s1">'C'</span><span class="p">))</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">more_imgs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="n">num_channels</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s1">'N'</span><span class="p">,</span> <span class="s1">'C'</span><span class="p">,</span> <span class="s1">'H'</span><span class="p">,</span> <span class="s1">'W'</span><span class="p">))</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">videos</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">num_channels</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s1">'N'</span><span class="p">,</span> <span class="s1">'C'</span><span class="p">,</span> <span class="s1">'H'</span><span class="p">,</span> <span class="s1">'W'</span><span class="p">,</span> <span class="s1">'D'</span><span class="p">))</span>
+
+<span class="c1"># scale_channels is agnostic to the dimension order of the input</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">scale_channels</span><span class="p">(</span><span class="n">imgs</span><span class="p">,</span> <span class="n">scale</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">scale_channels</span><span class="p">(</span><span class="n">more_imgs</span><span class="p">,</span> <span class="n">scale</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">scale_channels</span><span class="p">(</span><span class="n">videos</span><span class="p">,</span> <span class="n">scale</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>命名张量 API 是实验性的，可能会发生变化。</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.Tensor.align_to">
+<span class="sig-name descname"><span class="pre">align_to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">names</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/_tensor.html#Tensor.align_to"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/_tensor.py#L1367"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.Tensor.align_to" title="Permalink to this definition">¶</a></dt>
+<dd><p>将 <code class="xref py py-attr docutils literal "><span class="pre">self</span></code> 张量的维度重新排列以匹配 <code class="xref py py-attr docutils literal "><span class="pre">names</span></code> 中指定的顺序，为任何新的名称添加大小为 1 的维度。</p>
+<p> <code class="xref py py-attr docutils literal "><span class="pre">self</span></code> 的所有维度都必须命名才能使用此方法。结果张量是原始张量的视图。</p>
+<p> <code class="xref py py-attr docutils literal "><span class="pre">self</span></code> 中所有维度名称都必须存在于 <code class="xref py py-attr docutils literal "><span class="pre">names</span></code> 中。 <code class="xref py py-attr docutils literal "><span class="pre">names</span></code> 可以包含不在 <code class="docutils literal "><span class="pre">self.names</span></code> 中的额外名称；输出张量对于这些新名称中的每一个都有一个大小为 1 的维度。</p>
+<p> <code class="xref py py-attr docutils literal "><span class="pre">names</span></code> 可以包含最多一个省略号（ <code class="docutils literal "><span class="pre">...</span></code> ）。省略号扩展为等于 <code class="xref py py-attr docutils literal "><span class="pre">self</span></code> 中未提及的所有维度名称，顺序与它们在 <code class="xref py py-attr docutils literal "><span class="pre">names</span></code> 中出现的顺序相同。</p>
+<p>Python 2 不支持省略号，但可以使用字符串字面量代替（ <code class="docutils literal "><span class="pre">'...'</span></code> ）。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>names（字符串的迭代器）- 输出张量所需的维度顺序。可以包含最多一个省略号，该省略号扩展为 <code class="xref py py-attr docutils literal "><span class="pre">self</span></code> 中所有未提及的维度名称。</p>
+</dd>
+</dl>
+<p>示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">named_tensor</span> <span class="o">=</span> <span class="n">tensor</span><span class="o">.</span><span class="n">refine_names</span><span class="p">(</span><span class="s1">'A'</span><span class="p">,</span> <span class="s1">'B'</span><span class="p">,</span> <span class="s1">'C'</span><span class="p">,</span> <span class="s1">'D'</span><span class="p">,</span> <span class="s1">'E'</span><span class="p">,</span> <span class="s1">'F'</span><span class="p">)</span>
+
+<span class="go"># Move the F and E dims to the front while keeping the rest in order</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">named_tensor</span><span class="o">.</span><span class="n">align_to</span><span class="p">(</span><span class="s1">'F'</span><span class="p">,</span> <span class="s1">'E'</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>命名张量 API 是实验性的，可能会发生变化。</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">flatten</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dims</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_dim</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference internal" href="tensors.html#torch.Tensor" title="torch.Tensor"><span class="pre">Tensor</span></a></span></span></dt>
+<dd><p>将 <code class="xref py py-attr docutils literal "><span class="pre">dims</span></code> 展平为一个具有名称 <code class="xref py py-attr docutils literal "><span class="pre">out_dim</span></code> 的单维度。</p>
+<p>所有 dims 在 <code class="xref py py-attr docutils literal "><span class="pre">self</span></code> 张量中必须按顺序连续，但在内存中不必连续。</p>
+<p>示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">imgs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s1">'N'</span><span class="p">,</span> <span class="s1">'C'</span><span class="p">,</span> <span class="s1">'H'</span><span class="p">,</span> <span class="s1">'W'</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">flat_imgs</span> <span class="o">=</span> <span class="n">imgs</span><span class="o">.</span><span class="n">flatten</span><span class="p">([</span><span class="s1">'C'</span><span class="p">,</span> <span class="s1">'H'</span><span class="p">,</span> <span class="s1">'W'</span><span class="p">],</span> <span class="s1">'features'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">flat_imgs</span><span class="o">.</span><span class="n">names</span><span class="p">,</span> <span class="n">flat_imgs</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(('N', 'features'), torch.Size([32, 49152]))</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>命名张量 API 是实验性的，可能会发生变化。</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+             </article>
+             
+            </div>
+            <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        下一个 <img height="16" width="16" class="next-page" src="_static/images/chevron-right-orange.svg"> <img height="16" width="16" class="previous-page" src="_static/images/chevron-right-orange.svg"> 上一个
+      
+    </div>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>© 版权所有 PyTorch 贡献者。</p>
+  </div>
+    
+      <div>使用 Sphinx 构建，主题由 Read the Docs 提供。</div>
+     
+
+</footer>
+
+          </div>
+<script>
+
+var match = window.location.href.match(/\/_[a-zA-Z0-9_]*.html|_dynamo/gi);
+var url = window.location.href.lastIndexOf(match[match.length-1]);
+
+if (url)
+  {
+    var div = '<div class="admonition note"><p class="admonition-title">Note</p><p><i class="fa fa-exclamation-circle" aria-hidden="true">&nbsp</i> This page describes an internal API which is not intended to be used outside of the PyTorch codebase and can be modified or removed without notice.</p></div>'
+    document.getElementById("pytorch-article").insertAdjacentHTML('afterBegin', div)
+  }
+</script>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">命名张量</a><ul>
+<li><a class="reference internal" href="#creating-named-tensors">创建命名张量</a></li>
+<li><a class="reference internal" href="#named-dimensions">命名维度</a></li>
+<li><a class="reference internal" href="#name-propagation-semantics">命名传播语义</a><ul>
+<li><a class="reference internal" href="#match-semantics">匹配语义</a></li>
+<li><a class="reference internal" href="#basic-name-inference-rules">基本命名推理规则</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#explicit-alignment-by-names">显式按名称对齐</a></li>
+<li><a class="reference internal" href="#manipulating-dimensions">操作维度</a></li>
+<li><a class="reference internal" href="#autograd-support">支持自动微分</a></li>
+<li><a class="reference internal" href="#currently-supported-operations-and-subsystems">当前支持的运算和子系统</a><ul>
+<li><a class="reference internal" href="#operators">运算符</a></li>
+<li><a class="reference internal" href="#subsystems">子系统</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#named-tensor-api-reference">命名张量 API 参考</a></li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+         <script src="_static/jquery.js"></script>
+         <script src="_static/underscore.js"></script>
+         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+         <script src="_static/doctools.js"></script>
+         <script src="_static/clipboard.min.js"></script>
+         <script src="_static/copybutton.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ 
+<script script="" type="text/javascript">
+  var collapsedSections = ['Developer Notes', 'Language Bindings', 'Libraries', 'Community'];
+</script>
+
+<img height="1" width="1" style="border-style:none;" alt="" src="https://www.googleadservices.com/pagead/conversion/795629140/?label=txkmCPmdtosBENSssfsC&amp;guid=ON&amp;script=0">
+
+
+  <!-- Begin Footer -->
+
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 text-center">
+          <h2>文档</h2>
+          <p>PyTorch 开发者文档全面访问</p>
+          <a class="with-right-arrow" href="https://pytorch.org/docs/stable/index.html">查看文档</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>教程</h2>
+          <p>获取初学者和高级开发者的深入教程</p>
+          <a class="with-right-arrow" href="https://pytorch.org/tutorials">查看教程</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>资源</h2>
+          <p>查找开发资源并获得您的疑问解答</p>
+          <a class="with-right-arrow" href="https://pytorch.org/resources">查看资源</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://pytorch.org/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/">PyTorch</a></li>
+            <li><a href="https://pytorch.org/get-started">开始使用</a></li>
+            <li><a href="https://pytorch.org/features">功能</a></li>
+            <li><a href="https://pytorch.org/ecosystem">生态系统</a></li>
+            <li><a href="https://pytorch.org/blog/">博客</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md">贡献</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/resources">资源</a></li>
+            <li><a href="https://pytorch.org/tutorials">教程</a></li>
+            <li><a href="https://pytorch.org/docs/stable/index.html">文档</a></li>
+            <li><a href="https://discuss.pytorch.org" target="_blank">讨论</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/issues" target="_blank">GitHub 问题和任务</a></li>
+            <li><a href="https://pytorch.org/assets/brand-guidelines/PyTorch-Brand-Guidelines.pdf" target="_blank">品牌指南</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">保持更新</li>
+            <li><a href="https://www.facebook.com/pytorch" target="_blank">Facebook</a></li>
+            <li><a href="https://twitter.com/pytorch" target="_blank">推特</a></li>
+            <li><a href="https://www.youtube.com/pytorch" target="_blank">YouTube</a></li>
+            <li><a href="https://www.linkedin.com/company/pytorch" target="_blank">领英</a></li>
+          </ul>  
+          </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">PyTorch 播客</li>
+            <li><a href="https://open.spotify.com/show/6UzHKeiy368jKfQMKKvJY5" target="_blank">Spotify</a></li>
+            <li><a href="https://podcasts.apple.com/us/podcast/pytorch-developer-podcast/id1566080008" target="_blank">苹果</a></li>
+            <li><a href="https://www.google.com/podcasts?feed=aHR0cHM6Ly9mZWVkcy5zaW1wbGVjYXN0LmNvbS9PQjVGa0lsOA%3D%3D" target="_blank">谷歌</a></li>
+            <li><a href="https://music.amazon.com/podcasts/7a4e6f0e-26c2-49e9-a478-41bd244197d0/PyTorch-Developer-Podcast?" target="_blank">亚马逊</a></li>
+          </ul>
+         </div>
+        </div>
+        
+        <div class="privacy-policy">
+          <ul>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/terms/" target="_blank">条款</a></li>
+            <li class="privacy-policy-links">|</li>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/privacy-policy/" target="_blank">隐私</a></li>
+          </ul>
+        </div>
+        <div class="copyright">
+        <p>© 版权所有 Linux 基金会。PyTorch 基金会是 Linux 基金会的一个项目。有关本网站的使用条款、商标政策以及其他适用于 PyTorch 基金会的政策，请参阅 www.linuxfoundation.org/policies/。PyTorch 基金会支持 PyTorch 开源项目，该项目已被确立为 LF Projects, LLC 的 PyTorch 项目系列。有关适用于 PyTorch 项目系列 LF Projects, LLC 的政策，请参阅 www.lfprojects.org/policies/。</p>
+      </div>
+     </div>
+
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">为分析流量并优化您的体验，我们在本网站上提供 cookies。通过点击或导航，您同意允许我们使用 cookies。作为本站点的当前维护者，Facebook 的 Cookies 政策适用。了解更多信息，包括可用的控制选项：Cookies 政策。</p>
+    <img class="close-button" src="_static/images/pytorch-x.svg" width="16" height="16">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+           <li class="resources-mobile-menu-title">
+             <a>学习</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/get-started">开始学习</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials">教程</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/basics/intro.html">学习基础知识</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/recipes/recipes_index.html">PyTorch 菜谱</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/introyt.html">PyTorch 入门 - YouTube 系列</a>
+             </li>
+           </ul>
+           <li class="resources-mobile-menu-title">
+             <a>生态系统</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/ecosystem">工具</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/#community-module">社区</a>
+             </li>
+             <li>
+               <a href="https://discuss.pytorch.org/">论坛</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/resources">开发者资源</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">贡献者奖项 - 2024</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>Edge</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/edge">关于 PyTorch Edge</a>
+             </li>
+             
+             <li>
+               <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch 文档</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>文档</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/docs/stable/index.html">PyTorch</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/pytorch-domains">PyTorch 领域</a>
+            </li>
+          </ul>
+
+          <li class="resources-mobile-menu-title">
+            <a>博客 &amp; 新闻</a>
+          </li>
+            
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/blog/">PyTorch 博客</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/community-blog">社区博客</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/videos">视频</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/community-stories">社区故事</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/events">活动</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">通讯</a>
+             </li>
+          </ul>
+          
+          <li class="resources-mobile-menu-title">
+            <a>关于</a>
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/foundation">PyTorch 基金会</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/governing-board">治理委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">云信用计划</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">技术顾问委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">员工</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">联系我们</a>
+            </li>
+          </ul>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body></html>

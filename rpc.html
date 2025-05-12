@@ -1,0 +1,2040 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Distributed RPC Framework — PyTorch main documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pytorch.org/docs/stable/rpc.html">
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css">
+  <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css">
+  <link rel="stylesheet" href="_static/copybutton.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="_static/katex-math.css" type="text/css">
+  <link rel="stylesheet" href="_static/sphinx-dropdown.css" type="text/css">
+  <link rel="stylesheet" href="_static/panels-bootstrap.min.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/jit.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css">
+    <link rel="index" title="Index" href="genindex.html">
+    <link rel="search" title="Search" href="search.html">
+    <link rel="next" title="Remote Reference Protocol" href="rpc/rref.html">
+    <link rel="prev" title="torch.ao.ns._numeric_suite_fx" href="torch.ao.ns._numeric_suite_fx.html">
+
+<!--
+  Search engines should not index the main version of documentation.
+  Stable documentation are built without release == 'main'.
+-->
+<meta name="robots" content="noindex">
+
+
+  <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T8XT4PS');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+  <!-- Preload the theme fonts -->
+
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<!-- Preload the katex fonts -->
+
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Math-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size1-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size2-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Caligraphic-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
+</head><body class="pytorch-body"><div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+
+          <li class="main-menu-item">
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">学习</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/get-started">
+                  <span class="dropdown-title">开始使用</span>
+                  <p>在本地运行 PyTorch 或快速开始使用支持的云平台之一</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials">
+                  <span class="dropdown-title">教程</span><p></p>
+                  <p>PyTorch 教程中的新内容</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/basics/intro.html">
+                  <span class="dropdown-title">学习基础知识</span><p></p>
+                  <p>熟悉 PyTorch 的概念和模块</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/recipes/recipes_index.html">
+                  <span class="dropdown-title">PyTorch 食谱</span><p></p>
+                  <p>精简版、可直接部署的 PyTorch 代码示例</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/introyt.html">
+                  <span class="dropdown-title">PyTorch 入门 - YouTube 系列</span><p></p>
+                  <p>通过我们引人入胜的 YouTube 教程系列掌握 PyTorch 基础知识</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">生态系统</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem">
+                  <span class="dropdown-title">工具</span><p></p>
+                  <p>了解 PyTorch 生态系统中的工具和框架</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
+                  <span class="dropdown-title">社区</span>
+                  <p>加入 PyTorch 开发者社区，贡献、学习并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
+                  <span class="dropdown-title">论坛</span>
+                  <p>讨论 PyTorch 代码、问题、安装、研究的地方</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/resources">
+                  <span class="dropdown-title">开发者资源</span>
+                  <p>查找资源并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">贡献者奖项 - 2024</span><p></p>
+                  <p>本届 PyTorch 会议揭晓获奖者</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">
+                Edge
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/edge">
+                  <span class="dropdown-title">关于 PyTorch Edge</span><p></p>
+                  <p>为边缘设备构建创新和隐私感知的 AI 体验</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
+                  <span class="dropdown-title">ExecuTorch</span><p></p>
+                  <p>基于移动和边缘设备的端到端推理能力解决方案</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch 文档</span><p></p>
+                </a>
+              </div>
+            </div>  
+          </li>
+
+          <li class="main-menu-item">
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">文档</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/docs/stable/index.html">
+                  <span class="dropdown-title">PyTorch</span><p></p>
+                  <p>探索文档以获取全面指导，了解如何使用 PyTorch</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/pytorch-domains">
+                  <span class="dropdown-title">PyTorch 领域</span><p></p>
+                  <p>阅读 PyTorch 领域的文档，了解更多关于特定领域库的信息</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">博客与新闻</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/blog/">
+                  <span class="dropdown-title">PyTorch 博客</span><p></p>
+                  <p>捕捉最新的技术新闻和事件</p>
+                </a>
+                 <a class="nav-dropdown-item" href="https://pytorch.org/community-blog">
+                  <span class="dropdown-title">社区博客</span><p></p>
+                  <p>PyTorch 生态系统故事</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/videos">
+                  <span class="dropdown-title">视频</span><p></p>
+                  <p>了解最新的 PyTorch 教程、新内容等</p>
+                </a><a class="nav-dropdown-item" href="https://pytorch.org/community-stories">
+                  <span class="dropdown-title">社区故事</span><p></p>
+                  <p>学习如何我们的社区使用 PyTorch 解决真实、日常的机器学习问题</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/events">
+                  <span class="dropdown-title">活动</span><p></p>
+                  <p>查找活动、网络研讨会和播客</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">通讯</span><p></p>
+                  <p>跟踪最新更新</p>
+                </a>
+            </div>
+          </div></li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">关于</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/foundation">
+                  <span class="dropdown-title">PyTorch 基金会</span><p></p>
+                  <p>了解更多关于 PyTorch 基金会的信息</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
+                  <span class="dropdown-title">管理委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">云信用计划</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">技术顾问委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">员工</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">联系我们</span><p></p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li class="main-menu-item">
+            <div class="no-dropdown">
+              <a href="https://pytorch.org/join" data-cta="join">成为会员</a>
+            </div>
+          </li>
+          <li>
+           <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="github-icon">
+             </a>
+           </div>
+          </li>
+          <!--- TODO: This block adds the search icon to the nav bar. We will enable it later. 
+          <li>
+            <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="search-icon">
+             </a>
+            </div>
+          </li>
+          --->
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+  </div>
+</div>
+
+
+
+   
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>目录</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+    <div class="version">
+      <a href="https://pytorch.org/docs/versions.html">主程序 (2.7.0+cpu ) ▼</a>
+    </div>
+    <div id="searchBox">
+    <div class="searchbox" id="googleSearchBox">
+      <script async="" src="https://cse.google.com/cse.js?cx=e65585f8c3ea1440e"></script>
+      <div class="gcse-search"></div>
+    </div>
+    <div id="sphinxSearchBox" style="display: none;">
+      <div role="search">
+        <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+          <input type="text" name="q" placeholder="Search Docs">
+          <input type="hidden" name="check_keywords" value="yes">
+          <input type="hidden" name="area" value="default">
+        </form>
+      </div>
+    </div>
+  </div>
+  <form id="searchForm">
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="google" checked="">谷歌搜索</label>
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="sphinx">经典搜索</label>
+  </form>
+
+  <script>
+     document.addEventListener('DOMContentLoaded', function() {
+      const searchForm = document.getElementById('searchForm');
+      const googleSearchBox = document.getElementById('googleSearchBox');
+      const sphinxSearchBox = document.getElementById('sphinxSearchBox');
+      // Function to toggle search box visibility
+      function toggleSearchBox(searchType) {
+        googleSearchBox.style.display = searchType === 'google' ? 'block' : 'none';
+        sphinxSearchBox.style.display = searchType === 'sphinx' ? 'block' : 'none';
+      }
+      // Determine the default search type
+      let defaultSearchType;
+      const currentUrl = window.location.href;
+      if (currentUrl.startsWith('https://pytorch.org/docs/stable')) {
+        // For the stable documentation, default to Google
+        defaultSearchType = localStorage.getItem('searchType') || 'google';
+      } else {
+        // For any other version, including docs-preview, default to Sphinx
+        defaultSearchType = 'sphinx';
+      }
+      // Set the default search type
+      document.querySelector(`input[name="searchType"][value="${defaultSearchType}"]`).checked = true;
+      toggleSearchBox(defaultSearchType);
+      // Event listener for changes in search type
+      searchForm.addEventListener('change', function(event) {
+        const selectedSearchType = event.target.value;
+        localStorage.setItem('searchType', selectedSearchType);
+        toggleSearchBox(selectedSearchType);
+      });
+      // Set placeholder text for Google search box
+      window.onload = function() {
+        var placeholderText = "Search Docs";
+        var googleSearchboxText = document.querySelector("#gsc-i-id1");
+        if (googleSearchboxText) {
+          googleSearchboxText.placeholder = placeholderText;
+          googleSearchboxText.style.fontFamily = 'FreightSans';
+          googleSearchboxText.style.fontSize = "1.2rem";
+          googleSearchboxText.style.color = '#262626';
+        }
+      };
+    });
+  </script>
+
+          </div>
+
+          
+
+<div>
+  <a style="color:#F05732" href="https://pytorch.org/docs/stable/rpc.html">您正在查看不稳定开发者预览文档。请点击此处查看最新稳定版本的文档。</a>
+</div>
+
+
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">社区</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="community/build_ci_governance.html">PyTorch 治理 | 构建 + CI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/contribution_guide.html">PyTorch 贡献指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/design.html">PyTorch 设计哲学</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/governance.html">PyTorch 治理 | 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/persons_of_interest.html">PyTorch 治理 | 维护者</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发者笔记</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="notes/amp_examples.html">自动混合精度示例</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/autograd.html">Autograd 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/broadcasting.html">广播语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/cpu_threading_torchscript_inference.html">CPU 多线程和 TorchScript 推理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/cuda.html">CUDA 语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/custom_operators.html">PyTorch 自定义算子页面</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/ddp.html">分布式数据并行</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/extending.html">扩展 PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/extending.func.html">使用 autograd.Function 扩展 torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/faq.html">常见问题解答</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/fsdp.html">FSDP 笔记</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/get_start_xpu.html">在 Intel GPU 上入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/gradcheck.html">Gradcheck 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/hip.html">HIP (ROCm)语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/large_scale_deployments.html">大规模部署功能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/libtorch_stable_abi.html">LibTorch 稳定 ABI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/modules.html">模块</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/mps.html">MPS 后端</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/multiprocessing.html">多进程最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/numerical_accuracy.html">数值精度</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/randomness.html">可重现性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/serialization.html">序列化语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/windows.html">Windows 常见问题解答</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">语言绑定</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cpp_index.html">C++</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/javadoc/">Javadoc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deploy.html">torch::deploy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="torch.html">torch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.html">torch.nn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.functional.html">torch.nn.functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensors.html">torch.Tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensor_attributes.html">张量属性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensor_view.html">张量视图</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amp.html">torch.amp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autograd.html">torch.autograd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="library.html">torch.library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accelerator.html">torch.accelerator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpu.html">torch.cpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">torch.cuda</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html">理解 CUDA 内存使用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#generating-a-snapshot">生成快照</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#using-the-visualizer">使用可视化工具</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#snapshot-api-reference">快照 API 参考</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mps.html">torch.mps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="xpu.html">torch.xpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mtia.html">torch.mtia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mtia.memory.html">torch.mtia.memory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="meta.html">元设备</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backends.html">torch.backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="export.html">torch.export</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.html">torch.distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.tensor.html">torch.distributed.tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.algorithms.join.html">torch.distributed.algorithms.join</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.elastic.html">torch.distributed.elastic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fsdp.html">torch.distributed.fsdp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.fsdp.fully_shard.html">torch.distributed.fsdp.fully_shard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.tensor.parallel.html">torch.distributed.tensor.parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.optim.html">torch.distributed.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.pipelining.html">torch.distributed.pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.checkpoint.html">torch.distributed.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributions.html">torch.distributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch.compiler.html">torch.compiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fft.html">torch.fft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="func.html">torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="futures.html">torch.futures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fx.html">torch.fx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fx.experimental.html">torch.fx.experimental</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hub.html">torch.hub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jit.html">torch.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="linalg.html">torch.linalg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitor.html">torch.monitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="signal.html">torch.signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="special.html">torch.special</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch.overrides.html">torch.overrides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="package.html">torch.package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="profiler.html">torch.profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.init.html">torch.nn.init</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.attention.html">torch.nn.attention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="onnx.html">torch.onnx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="optim.html">torch.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="complex_numbers.html">复数</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ddp_comm_hooks.html">DDP 通信钩子</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quantization.html">量化</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">分布式 RPC 框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="random.html">torch.random</a></li>
+<li class="toctree-l1"><a class="reference internal" href="masked.html">torch.masked</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nested.html">torch.nested</a></li>
+<li class="toctree-l1"><a class="reference internal" href="size.html">torch.Size</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sparse.html">torch.sparse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="storage.html">torch.Storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">torch.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">torch.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmark_utils.html">torch.utils.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bottleneck.html">torch.utils.bottleneck</a></li>
+<li class="toctree-l1"><a class="reference internal" href="checkpoint.html">torch.utils.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp_extension.html">torch.utils.cpp_extension</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data.html">torch.utils.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deterministic.html">torch.utils.deterministic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jit_utils.html">torch.utils.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dlpack.html">torch.utils.dlpack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mobile_optimizer.html">torch.utils.mobile_optimizer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_zoo.html">torch.utils.model_zoo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensorboard.html">torch.utils.tensorboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_tracker.html">torch.utils.module_tracker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="type_info.html">类型信息</a></li>
+<li class="toctree-l1"><a class="reference internal" href="named_tensor.html">命名张量</a></li>
+<li class="toctree-l1"><a class="reference internal" href="name_inference.html">命名张量操作覆盖率</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config_mod.html">torch.__config__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="future_mod.html">torch.__future__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">torch._logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_environment_variables.html">火炬环境变量</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">库</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/audio/stable">torchaudio</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/data">TorchData</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/torchrec">火炬推荐</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/serve">TorchServe</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/text/stable">torchtext</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/vision/stable">torchvision</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/xla/">PyTorch 在 XLA 设备上</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/ao">torchao</a></li>
+</ul>
+
+            
+          
+
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        文档 &gt;</li>
+
+        
+      <li>分布式 RPC 框架</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+            
+            <a href="_sources/rpc.rst.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg" width="16" height="16"></a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">快捷键</div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+
+          <!-- Google Tag Manager (noscript) -->
+          <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T8XT4PS" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+          <!-- End Google Tag Manager (noscript) -->
+          
+          <div class="rst-content">
+          
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <section id="distributed-rpc-framework">
+<span id="id1"></span><h1>分布式 RPC 框架¶</h1>
+<p>分布式 RPC 框架提供了一套原语，用于多机模型训练的远程通信机制，以及一个高级 API，用于自动区分跨多台机器分割的模型。</p>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>RPC 包中的 API 是稳定的。目前有多个正在进行的工作项旨在提高性能和错误处理，这些改进将在未来的版本中发布。</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>CUDA 支持在 PyTorch 1.9 版本中引入，目前仍为测试功能。RPC 包的并非所有功能都与 CUDA 支持兼容，因此不建议使用这些功能。这些不兼容的功能包括：RRefs、JIT 兼容性、分布式自动微分和分布式优化器，以及性能分析。这些不足将在未来的版本中得到解决。</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>请参阅 PyTorch 分布式概述以了解有关分布式训练的所有相关功能的简要介绍。</p>
+</div>
+<section id="basics">
+<h2>基础 §</h2>
+<p>分布式 RPC 框架使得远程运行函数变得简单，支持引用远程对象而不需要复制实际数据，并提供自动微分和优化器 API，以透明地跨 RPC 边界运行反向操作和更新参数。这些功能可以分为四组 API。</p>
+<ol class="arabic simple">
+<li><p>远程过程调用（RPC）支持在指定的目标工作器上运行带有给定参数的函数，并获取返回值或创建返回值的引用。主要有三个 RPC API： <code class="xref py py-meth docutils literal "><span class="pre">rpc_sync()</span></code> （同步）、 <code class="xref py py-meth docutils literal "><span class="pre">rpc_async()</span></code> （异步）和 <code class="xref py py-meth docutils literal "><span class="pre">remote()</span></code> （异步并返回远程返回值的引用）。如果用户代码没有返回值就无法继续，请使用同步 API。否则，使用异步 API 获取未来值，并在需要返回值时等待未来值。当需要远程创建某物但永远不会将其检索到调用者处时， <code class="xref py py-meth docutils literal "><span class="pre">remote()</span></code> API 很有用。想象一下，一个驱动进程正在设置参数服务器和训练器。驱动器可以在参数服务器上创建嵌入表，然后与训练器共享嵌入表的引用，但自己永远不会在本地使用嵌入表。在这种情况下， <code class="xref py py-meth docutils literal "><span class="pre">rpc_sync()</span></code> 和 <code class="xref py py-meth docutils literal "><span class="pre">rpc_async()</span></code> 不再适用，因为它们总是意味着返回值将立即或在未来返回给调用者。</p></li>
+<li><p>远程引用（RRef）是一个指向本地或远程对象的分布式共享指针。它可以与其他工作者共享，引用计数将透明处理。每个 RRef 只有一个所有者，对象只存在于该所有者。持有 RRef 的非所有者工作者可以通过显式请求从所有者处获取对象的副本。当工作者需要访问某些数据对象，但自身既不是创建者（ <code class="xref py py-meth docutils literal "><span class="pre">remote()</span></code> 的调用者）也不是对象的所有者时，这很有用。下面我们将讨论的分布式优化器就是此类用例的一个例子。</p></li>
+<li><p>分布式 Autograd 将所有参与前向传播的本地 Autograd 引擎缝合在一起，并在反向传播期间自动向它们发出请求以计算梯度。这在需要跨多台机器进行，例如分布式模型并行训练、参数服务器训练等操作时特别有用。有了这个特性，用户代码就无需担心如何发送梯度跨越 RPC 边界以及本地 Autograd 引擎的启动顺序，这在存在嵌套和相互依赖的 RPC 调用时可能会变得相当复杂。</p></li>
+<li><p>分布式优化器的构造函数接受一个 <code class="xref py py-meth docutils literal "><span class="pre">Optimizer()</span></code> （例如， <code class="xref py py-meth docutils literal "><span class="pre">SGD()</span></code> ， <code class="xref py py-meth docutils literal "><span class="pre">Adagrad()</span></code> 等）和一个参数 RRefs 列表，在每个不同的 RRef 所有者上创建一个 <code class="xref py py-meth docutils literal "><span class="pre">Optimizer()</span></code> 实例，并在运行 <code class="docutils literal "><span class="pre">step()</span></code> 时相应地更新参数。当你有分布式的前向和反向传播时，参数和梯度将分散在多个工作者之间，因此需要每个参与工作者上的优化器。分布式优化器将这些本地优化器包装在一个中，并提供简洁的构造函数和 <code class="docutils literal "><span class="pre">step()</span></code> API。</p></li>
+</ol>
+</section>
+<section id="rpc">
+<span id="id2"></span><h2>RPC 协议</h2>
+<p>在使用 RPC 和分布式自动微分原语之前，必须进行初始化。为了初始化 RPC 框架，我们需要使用 <code class="xref py py-meth docutils literal "><span class="pre">init_rpc()</span></code> ，这将初始化 RPC 框架、RRef 框架和分布式自动微分。</p>
+<span class="target" id="module-torch.distributed.rpc"></span><dl class="py function">
+<dt class="sig sig-object py" id="torch.distributed.rpc.init_rpc">
+torch.distributed.rpc.init_rpc(name, backend=None, rank=-1, world_size=None, rpc_backend_options=None)[source][source]</dt>
+<dd><p>初始化 RPC 原语，如本地 RPC 代理和分布式自动微分，这立即使当前进程准备好发送和接收 RPC。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>name (str) – 该节点的全局唯一名称。（例如， <code class="docutils literal "><span class="pre">Trainer3</span></code> ， <code class="docutils literal "><span class="pre">ParameterServer2</span></code> ， <code class="docutils literal "><span class="pre">Master</span></code> ， <code class="docutils literal "><span class="pre">Worker1</span></code> ）名称只能包含数字、字母、下划线、冒号和/或破折号，并且长度必须小于 128 个字符。</p></li>
+<li><p>后端（BackendType，可选）- RPC 后端实现的类型。支持值为 <code class="docutils literal "><span class="pre">BackendType.TENSORPIPE</span></code> （默认）。有关更多信息，请参阅后端。</p></li>
+<li><p>rank（整数）- 该节点的全局唯一 ID/排名。</p></li>
+<li><p>world_size（整数）- 组中的工作者数量。</p></li>
+<li><p>rpc_backend_options（RpcBackendOptions，可选）- 传递给 RpcAgent 构造函数的选项。它必须是 <code class="xref py py-class docutils literal "><span class="pre">RpcBackendOptions</span></code> 的特定子类，并包含特定于代理的初始化配置。默认情况下，对于所有代理，它将默认超时设置为 60 秒，并使用 <code class="docutils literal "><span class="pre">init_method</span> <span class="pre">=</span> <span class="pre">"env://"</span></code> 初始化的底层进程组进行 rendezvous，这意味着需要正确设置环境变量 <code class="docutils literal "><span class="pre">MASTER_ADDR</span></code> 和 <code class="docutils literal "><span class="pre">MASTER_PORT</span></code> 。有关更多信息，请参阅后端，并查找可用的选项。</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p>以下 API 允许用户远程执行函数以及创建对远程数据对象的引用（RRefs）。在这些 API 中，当传递 <code class="docutils literal "><span class="pre">Tensor</span></code> 作为参数或返回值时，目标工作进程将尝试创建具有相同元信息（即形状、步长等）的 <code class="docutils literal "><span class="pre">Tensor</span></code> 。我们有意禁止传输 CUDA 张量，因为如果源和目标工作进程的设备列表不匹配，可能会崩溃。在这种情况下，应用程序始终可以将输入张量显式地从调用者移动到 CPU，如果必要，再将其移动到被调用者所需的设备。</p>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>RPC 中的 TorchScript 支持是一个原型功能，可能会发生变化。自 v1.5.0 版本以来， <code class="docutils literal "><span class="pre">torch.distributed.rpc</span></code> 支持将 TorchScript 函数作为 RPC 目标函数调用，这将有助于提高被调用方的并行性，因为执行 TorchScript 函数不需要 GIL。</p>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.distributed.rpc.rpc_sync">
+torch.distributed.rpc.rpc_sync(to, func, args=None, kwargs=None, timeout=-1.0)[source][source] ¶</dt>
+<dd><p>向工作进程 <code class="docutils literal "><span class="pre">to</span></code> 发送阻塞 RPC 调用以运行函数 <code class="docutils literal "><span class="pre">func</span></code> 。RPC 消息在 Python 代码执行并行发送和接收。此方法是线程安全的。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>to (str 或 WorkerInfo 或 int) – 目标工作者的名称/等级/ <code class="docutils literal "><span class="pre">WorkerInfo</span></code> 。</p></li>
+<li><p>func (Callable) – 可调用函数，例如 Python 可调用、内置运算符（例如 <code class="xref py py-meth docutils literal "><span class="pre">add()</span></code> ）和注解的 TorchScript 函数。</p></li>
+<li><p>args (tuple) – <code class="docutils literal "><span class="pre">func</span></code> 调用的参数元组。</p></li>
+<li><p>kwargs (dict) – 是 <code class="docutils literal "><span class="pre">func</span></code> 调用的关键字参数字典。</p></li>
+<li><p>超时（浮点数，可选）- 用于此 RPC 的超时时间（秒）。如果 RPC 在此时间内未完成，将引发表示超时的异常。0 值表示无限超时，即不会引发超时错误。如果未提供，则使用初始化或通过 <code class="docutils literal "><span class="pre">_set_rpc_timeout</span></code> 设置的默认值。</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>返回使用 <code class="docutils literal "><span class="pre">func</span></code> 、 <code class="docutils literal "><span class="pre">args</span></code> 和 <code class="docutils literal "><span class="pre">kwargs</span></code> 运行的结果。</p>
+</dd>
+</dl>
+<dl>
+<dt>示例::</font></font></font></dt><dd><p><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">确保在两个工作者上正确设置了 <code class="docutils literal "><span class="pre">MASTER_ADDR</span></code> 和 <code class="docutils literal "><span class="pre">MASTER_PORT</span></code> 。有关详细信息，请参阅 <code class="xref py py-meth docutils literal "><span class="pre">init_process_group()</span></code> API。例如，</p>
+<p>export MASTER_ADDR=localhost
+export MASTER_PORT=5678</p>
+<p>在两个不同的进程中运行以下代码：</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># On worker 0:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch.distributed.rpc</span> <span class="k">as</span> <span class="nn">rpc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rpc</span><span class="o">.</span><span class="n">init_rpc</span><span class="p">(</span><span class="s2">"worker0"</span><span class="p">,</span> <span class="n">rank</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">world_size</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ret</span> <span class="o">=</span> <span class="n">rpc</span><span class="o">.</span><span class="n">rpc_sync</span><span class="p">(</span><span class="s2">"worker1"</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">add</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="mi">3</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rpc</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># On worker 1:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch.distributed.rpc</span> <span class="k">as</span> <span class="nn">rpc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rpc</span><span class="o">.</span><span class="n">init_rpc</span><span class="p">(</span><span class="s2">"worker1"</span><span class="p">,</span> <span class="n">rank</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">world_size</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rpc</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>下面是使用 RPC 运行 TorchScript 函数的示例。</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># On both workers:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nd">@torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">script</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">my_script_add</span><span class="p">(</span><span class="n">tensor</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">scalar</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">scalar</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># On worker 0:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch.distributed.rpc</span> <span class="k">as</span> <span class="nn">rpc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rpc</span><span class="o">.</span><span class="n">init_rpc</span><span class="p">(</span><span class="s2">"worker0"</span><span class="p">,</span> <span class="n">rank</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">world_size</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ret</span> <span class="o">=</span> <span class="n">rpc</span><span class="o">.</span><span class="n">rpc_sync</span><span class="p">(</span><span class="s2">"worker1"</span><span class="p">,</span> <span class="n">my_script_add</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="mi">3</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rpc</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># On worker 1:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch.distributed.rpc</span> <span class="k">as</span> <span class="nn">rpc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rpc</span><span class="o">.</span><span class="n">init_rpc</span><span class="p">(</span><span class="s2">"worker1"</span><span class="p">,</span> <span class="n">rank</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">world_size</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rpc</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.distributed.rpc.rpc_async">
+torch.distributed.rpc.rpc_async(to, func, args=None, kwargs=None, timeout=-1.0)[source][source] ¶</dt>
+<dd><p>向运行在 <code class="docutils literal "><span class="pre">to</span></code> 工作器上的函数 <code class="docutils literal "><span class="pre">func</span></code> 发起非阻塞 RPC 调用。RPC 消息在 Python 代码执行并行发送和接收。此方法线程安全。此方法将立即返回一个 <code class="xref py py-class docutils literal "><span class="pre">Future</span></code> ，可以等待其完成。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>to (str 或 WorkerInfo 或 int) – 目标工作者的名称/等级/ <code class="docutils literal "><span class="pre">WorkerInfo</span></code> 。</p></li>
+<li><p>func (Callable) – 可调用函数，例如 Python 可调用、内置运算符（例如 <code class="xref py py-meth docutils literal "><span class="pre">add()</span></code> ）和注解的 TorchScript 函数。</p></li>
+<li><p>args (tuple) – <code class="docutils literal "><span class="pre">func</span></code> 调用的参数元组。</p></li>
+<li><p>kwargs (dict) – 是 <code class="docutils literal "><span class="pre">func</span></code> 调用的关键字参数字典。</p></li>
+<li><p>超时（浮点数，可选）- 用于此 RPC 的超时时间（秒）。如果 RPC 在此时间内未完成，将引发表示超时的异常。0 值表示无限超时，即不会引发超时错误。如果没有提供，则使用初始化期间或通过 <code class="docutils literal "><span class="pre">_set_rpc_timeout</span></code> 设置的默认值。</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>返回一个可等待的 <code class="xref py py-class docutils literal "><span class="pre">Future</span></code> 对象。当完成时，可以从 <code class="xref py py-class docutils literal "><span class="pre">Future</span></code> 对象中检索 <code class="docutils literal "><span class="pre">func</span></code> 在 <code class="docutils literal "><span class="pre">args</span></code> 和 <code class="docutils literal "><span class="pre">kwargs</span></code> 上的返回值。</p>
+</dd>
+</dl>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>由于我们不支持通过网络发送 GPU 张量，因此不支持将 GPU 张量用作 <code class="docutils literal "><span class="pre">func</span></code> 的参数或返回值。您需要显式地将 GPU 张量复制到 CPU，然后再将其用作 <code class="docutils literal "><span class="pre">func</span></code> 的参数或返回值。</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p> <code class="docutils literal "><span class="pre">rpc_async</span></code> API 在通过网络发送参数张量之前不会复制存储的参数张量，这可能由不同线程根据 RPC 后端类型完成。调用者应确保这些张量的内容在返回的 <code class="xref py py-class docutils literal "><span class="pre">Future</span></code> 完成之前保持完整。</p>
+</div>
+<dl>
+<dt>示例::</font></font></font></dt><dd><p><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">确保在两个工作器上都正确设置了 <code class="docutils literal "><span class="pre">MASTER_ADDR</span></code> 和 <code class="docutils literal "><span class="pre">MASTER_PORT</span></code> 。有关详细信息，请参阅 <code class="xref py py-meth docutils literal "><span class="pre">init_process_group()</span></code> API。例如，</p>
+<p>导出 MASTER_ADDR=localhost export MASTER_PORT=5678</p>
+<p>然后在两个不同的进程中运行以下代码：</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># On worker 0:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch.distributed.rpc</span> <span class="k">as</span> <span class="nn">rpc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rpc</span><span class="o">.</span><span class="n">init_rpc</span><span class="p">(</span><span class="s2">"worker0"</span><span class="p">,</span> <span class="n">rank</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">world_size</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fut1</span> <span class="o">=</span> <span class="n">rpc</span><span class="o">.</span><span class="n">rpc_async</span><span class="p">(</span><span class="s2">"worker1"</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">add</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="mi">3</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fut2</span> <span class="o">=</span> <span class="n">rpc</span><span class="o">.</span><span class="n">rpc_async</span><span class="p">(</span><span class="s2">"worker1"</span><span class="p">,</span> <span class="nb">min</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">fut1</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span> <span class="o">+</span> <span class="n">fut2</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rpc</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># On worker 1:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch.distributed.rpc</span> <span class="k">as</span> <span class="nn">rpc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rpc</span><span class="o">.</span><span class="n">init_rpc</span><span class="p">(</span><span class="s2">"worker1"</span><span class="p">,</span> <span class="n">rank</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">world_size</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rpc</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>下面是使用 RPC 运行 TorchScript 函数的示例。</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># On both workers:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nd">@torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">script</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">my_script_add</span><span class="p">(</span><span class="n">tensor</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">scalar</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">scalar</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># On worker 0:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch.distributed.rpc</span> <span class="k">as</span> <span class="nn">rpc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rpc</span><span class="o">.</span><span class="n">init_rpc</span><span class="p">(</span><span class="s2">"worker0"</span><span class="p">,</span> <span class="n">rank</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">world_size</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fut</span> <span class="o">=</span> <span class="n">rpc</span><span class="o">.</span><span class="n">rpc_async</span><span class="p">(</span><span class="s2">"worker1"</span><span class="p">,</span> <span class="n">my_script_add</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="mi">3</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ret</span> <span class="o">=</span> <span class="n">fut</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rpc</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># On worker 1:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch.distributed.rpc</span> <span class="k">as</span> <span class="nn">rpc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rpc</span><span class="o">.</span><span class="n">init_rpc</span><span class="p">(</span><span class="s2">"worker1"</span><span class="p">,</span> <span class="n">rank</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">world_size</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rpc</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.distributed.rpc.remote">
+torch.distributed.rpc.remote(to, func, args=None, kwargs=None, timeout=-1.0)[source][source] ¶</dt>
+<dd><p>向工作节点 <code class="docutils literal "><span class="pre">to</span></code> 调用 <code class="docutils literal "><span class="pre">func</span></code> 并立即返回结果值 <code class="xref py py-class docutils literal "><span class="pre">RRef</span></code> 。工作节点 <code class="docutils literal "><span class="pre">to</span></code> 将是返回值 <code class="xref py py-class docutils literal "><span class="pre">RRef</span></code> 的所有者，调用 <code class="docutils literal "><span class="pre">remote</span></code> 的工作节点是用户。所有者管理其 <code class="xref py py-class docutils literal "><span class="pre">RRef</span></code> 的全局引用计数，所有者 <code class="xref py py-class docutils literal "><span class="pre">RRef</span></code> 仅在全局没有活跃引用时才会被销毁。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>to (str 或 WorkerInfo 或 int) – 目标工作节点的名称/排名/ <code class="docutils literal "><span class="pre">WorkerInfo</span></code> 。</p></li>
+<li><p>func (Callable) – 可调用函数，例如 Python 可调用函数、内置运算符（例如 <code class="xref py py-meth docutils literal "><span class="pre">add()</span></code> ）和注解的 TorchScript 函数。</p></li>
+<li><p>args（元组）- <code class="docutils literal "><span class="pre">func</span></code> 调用的参数元组。</p></li>
+<li><p>kwargs（字典）- 是 <code class="docutils literal "><span class="pre">func</span></code> 调用的关键字参数字典。</p></li>
+<li><p>timeout（浮点数，可选）- 此远程调用的超时时间（秒）。如果在此超时时间内，在工作者 <code class="docutils literal "><span class="pre">to</span></code> 上创建此 <code class="xref py py-class docutils literal "><span class="pre">RRef</span></code> 未成功处理，则在下一次尝试使用 RRef（如 <code class="docutils literal "><span class="pre">to_here()</span></code> ）时，将引发超时错误，表示此失败。0 的值表示无限超时，即永远不会引发超时错误。如果没有提供，则使用初始化期间或通过 <code class="docutils literal "><span class="pre">_set_rpc_timeout</span></code> 设置的默认值。</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>将用户 <code class="xref py py-class docutils literal "><span class="pre">RRef</span></code> 实例到结果值。使用阻塞 API <code class="xref py py-meth docutils literal "><span class="pre">torch.distributed.rpc.RRef.to_here()</span></code> 在本地检索结果值。</p>
+</dd>
+</dl>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>The <code class="docutils literal "><span class="pre">remote</span></code> API does not copy storages of argument tensors until
+sending them over the wire, which could be done by a different thread
+depending on the RPC backend type. The caller should make sure that the
+contents of those tensors stay intact until the returned RRef is
+confirmed by the owner, which can be checked using the
+<code class="xref py py-meth docutils literal "><span class="pre">torch.distributed.rpc.RRef.confirmed_by_owner()</span></code> API.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>Errors such as timeouts for the <code class="docutils literal "><span class="pre">remote</span></code> API are handled on a
+best-effort basis. This means that when remote calls initiated by
+<code class="docutils literal "><span class="pre">remote</span></code> fail, such as with a timeout error, we take a best-effort
+approach to error handling. This means that errors are handled and set
+on the resulting RRef on an asynchronous basis. If the RRef has not been
+used by the application before this handling (such as <code class="docutils literal "><span class="pre">to_here</span></code> or
+fork call), then future uses of the <code class="docutils literal "><span class="pre">RRef</span></code> will appropriately raise
+errors. However, it is possible that the user application will use the
+<code class="docutils literal "><span class="pre">RRef</span></code> before the errors are handled. In this case, errors may not be
+raised as they have not yet been handled.</p>
+</div>
+<p>示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span>Make sure that ``MASTER_ADDR`` and ``MASTER_PORT`` are set properly
+on both workers. Refer to :meth:`~torch.distributed.init_process_group`
+API for more details. For example,
+
+export MASTER_ADDR=localhost
+export MASTER_PORT=5678
+
+Then run the following code in two different processes:
+
+&gt;&gt;&gt; # On worker 0:
+&gt;&gt;&gt; import torch
+&gt;&gt;&gt; import torch.distributed.rpc as rpc
+&gt;&gt;&gt; rpc.init_rpc("worker0", rank=0, world_size=2)
+&gt;&gt;&gt; rref1 = rpc.remote("worker1", torch.add, args=(torch.ones(2), 3))
+&gt;&gt;&gt; rref2 = rpc.remote("worker1", torch.add, args=(torch.ones(2), 1))
+&gt;&gt;&gt; x = rref1.to_here() + rref2.to_here()
+&gt;&gt;&gt; rpc.shutdown()
+
+&gt;&gt;&gt; # On worker 1:
+&gt;&gt;&gt; import torch.distributed.rpc as rpc
+&gt;&gt;&gt; rpc.init_rpc("worker1", rank=1, world_size=2)
+&gt;&gt;&gt; rpc.shutdown()
+
+Below is an example of running a TorchScript function using RPC.
+
+&gt;&gt;&gt; # On both workers:
+&gt;&gt;&gt; @torch.jit.script
+&gt;&gt;&gt; def my_script_add(tensor: torch.Tensor, scalar: int):
+&gt;&gt;&gt;    return torch.add(tensor, scalar)
+
+&gt;&gt;&gt; # On worker 0:
+&gt;&gt;&gt; import torch.distributed.rpc as rpc
+&gt;&gt;&gt; rpc.init_rpc("worker0", rank=0, world_size=2)
+&gt;&gt;&gt; rref = rpc.remote("worker1", my_script_add, args=(torch.ones(2), 3))
+&gt;&gt;&gt; rref.to_here()
+&gt;&gt;&gt; rpc.shutdown()
+
+&gt;&gt;&gt; # On worker 1:
+&gt;&gt;&gt; import torch.distributed.rpc as rpc
+&gt;&gt;&gt; rpc.init_rpc("worker1", rank=1, world_size=2)
+&gt;&gt;&gt; rpc.shutdown()
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.distributed.rpc.get_worker_info">
+<span class="sig-prename descclassname"><span class="pre">torch.distributed.rpc.</span></span><span class="sig-name descname"><span class="pre">get_worker_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">worker_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/rpc/api.html#get_worker_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/rpc/api.py#L420"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.rpc.get_worker_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get <a class="reference internal" href="#torch.distributed.rpc.WorkerInfo" title="torch.distributed.rpc.WorkerInfo"><code class="xref py py-class docutils literal "><span class="pre">WorkerInfo</span></code></a> of a given worker name.
+Use this <a class="reference internal" href="#torch.distributed.rpc.WorkerInfo" title="torch.distributed.rpc.WorkerInfo"><code class="xref py py-class docutils literal "><span class="pre">WorkerInfo</span></code></a> to avoid passing an
+expensive string on every invocation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>worker_name (str) – 当前工作者的字符串名称。如果为 <code class="docutils literal "><span class="pre">None</span></code> ，则返回当前工作者的 id。 (默认 <code class="docutils literal "><span class="pre">None</span></code> )</p>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p> <code class="xref py py-class docutils literal "><span class="pre">WorkerInfo</span></code> 实例，对于当前工作者的 <code class="docutils literal "><span class="pre">worker_name</span></code> 或 <code class="xref py py-class docutils literal "><span class="pre">WorkerInfo</span></code> ，如果 <code class="docutils literal "><span class="pre">worker_name</span></code> 为 <code class="docutils literal "><span class="pre">None</span></code> 。</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.distributed.rpc.shutdown">
+<span class="sig-prename descclassname"><span class="pre">torch.distributed.rpc.</span></span><span class="sig-name descname"><span class="pre">shutdown</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graceful</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/rpc/api.html#shutdown"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/rpc/api.py#L321"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.rpc.shutdown" title="Permalink to this definition">¶</a></dt>
+<dd><p>执行 RPC 代理的关闭操作，并销毁 RPC 代理。这将停止本地代理接受未完成的请求，并通过终止所有 RPC 线程来关闭 RPC 框架。如果 <code class="docutils literal "><span class="pre">graceful=True</span></code> ，则此操作将阻塞，直到所有本地和远程 RPC 进程都调用此方法并等待所有未完成的工作完成。否则，如果 <code class="docutils literal "><span class="pre">graceful=False</span></code> ，这是一个本地关闭操作，它不会等待其他 RPC 进程调用此方法。</p>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>对于由 <code class="xref py py-meth docutils literal "><span class="pre">rpc_async()</span></code> 返回的 <code class="xref py py-class docutils literal "><span class="pre">Future</span></code> 个对象， <code class="docutils literal "><span class="pre">future.wait()</span></code> 在 <code class="docutils literal "><span class="pre">shutdown()</span></code> 之后不应被调用。</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>平滑关闭（布尔值）- 是否进行平滑关闭。如果为 True，则 1) 等待直到 <code class="docutils literal "><span class="pre">UserRRefs</span></code> 没有挂起的系统消息并删除它们；2) 阻塞直到所有本地和远程 RPC 进程都调用此方法，并等待所有待办工作完成。</p>
+</dd>
+</dl>
+<dl>
+<dt>示例::</font></font></font></dt><dd><p><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">确保在两个工作器上正确设置了 <code class="docutils literal "><span class="pre">MASTER_ADDR</span></code> 和 <code class="docutils literal "><span class="pre">MASTER_PORT</span></code> 。有关详细信息，请参阅 <code class="xref py py-meth docutils literal "><span class="pre">init_process_group()</span></code> API。例如，</p>
+<p>export MASTER_ADDR=localhost
+export MASTER_PORT=5678</p>
+<p>在两个不同的进程中运行以下代码：</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># On worker 0:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch.distributed.rpc</span> <span class="k">as</span> <span class="nn">rpc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rpc</span><span class="o">.</span><span class="n">init_rpc</span><span class="p">(</span><span class="s2">"worker0"</span><span class="p">,</span> <span class="n">rank</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">world_size</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># do some work</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">rpc</span><span class="o">.</span><span class="n">rpc_sync</span><span class="p">(</span><span class="s2">"worker1"</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">add</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="mi">1</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># ready to shutdown</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rpc</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># On worker 1:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch.distributed.rpc</span> <span class="k">as</span> <span class="nn">rpc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rpc</span><span class="o">.</span><span class="n">init_rpc</span><span class="p">(</span><span class="s2">"worker1"</span><span class="p">,</span> <span class="n">rank</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">world_size</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># wait for worker 0 to finish work, and then shutdown.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rpc</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.rpc.WorkerInfo">
+class torch.distributed.rpc.WorkerInfo</dt>
+<dd><p>一个封装系统中工作器信息的结构。包含工作器的名称和 ID。此类不应用于直接构造，而是可以通过 <code class="xref py py-meth docutils literal "><span class="pre">get_worker_info()</span></code> 获取其实例，并将结果传递给 <code class="xref py py-meth docutils literal "><span class="pre">rpc_sync()</span></code> 、 <code class="xref py py-meth docutils literal "><span class="pre">rpc_async()</span></code> 、 <code class="xref py py-meth docutils literal "><span class="pre">remote()</span></code> 等函数，以避免每次调用时都复制字符串。</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="torch.distributed.rpc.WorkerInfo.id">
+属性 id</dt>
+<dd><p>全局唯一标识符，用于识别工作者。</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="torch.distributed.rpc.WorkerInfo.name">
+属性名称¶</dt>
+<dd><p>工作者名称。</p>
+</dd></dl>
+
+</dd></dl>
+
+<p>RPC 包还提供了装饰器，允许应用程序指定在调用方如何处理给定的函数。</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.distributed.rpc.functions.async_execution">
+torch.distributed.rpc.functions.async_execution(fn)[source][source]</dt>
+<dd><p>装饰器用于表示函数的返回值保证为 <code class="xref py py-class docutils literal "><span class="pre">Future</span></code> 对象，并且此函数可以在 RPC 调用方异步运行。更具体地说，调用方从包装函数中提取 <code class="xref py py-class docutils literal "><span class="pre">Future</span></code> ，并将后续处理步骤作为回调安装到那个 <code class="xref py py-class docutils literal "><span class="pre">Future</span></code> 上。安装的回调将在完成时从 <code class="xref py py-class docutils literal "><span class="pre">Future</span></code> 读取值，并将该值作为 RPC 响应发送回去。这也意味着返回的 <code class="xref py py-class docutils literal "><span class="pre">Future</span></code> 仅在调用方存在，永远不会通过 RPC 发送。当包装函数的（ <code class="docutils literal "><span class="pre">fn</span></code> ）执行需要暂停和恢复，例如包含 <code class="xref py py-meth docutils literal "><span class="pre">rpc_async()</span></code> 或等待其他信号时，此装饰器非常有用。</p>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>要启用异步执行，应用程序必须将此装饰器返回的函数对象传递给 RPC API。如果 RPC 检测到由该装饰器安装的属性，它知道该函数返回一个 <code class="docutils literal "><span class="pre">Future</span></code> 对象，并将相应地处理。但这并不意味着在定义函数时该装饰器必须是外层的。例如，当与 <code class="docutils literal "><span class="pre">@staticmethod</span></code> 或 <code class="docutils literal "><span class="pre">@classmethod</span></code> 结合使用时， <code class="docutils literal "><span class="pre">@rpc.functions.async_execution</span></code> 需要是内部装饰器，以便目标函数被识别为静态或类函数。此目标函数仍然可以异步执行，因为当访问时，静态或类方法会保留 <code class="docutils literal "><span class="pre">@rpc.functions.async_execution</span></code> 安装的属性。</p>
+</div>
+<dl>
+<dt>示例::</font></font></font></dt><dd><p><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">返回的 <code class="xref py py-class docutils literal "><span class="pre">Future</span></code> 对象可以来自 <code class="xref py py-meth docutils literal "><span class="pre">rpc_async()</span></code> 、 <code class="xref py py-meth docutils literal "><span class="pre">then()</span></code> 或 <code class="xref py py-class docutils literal "><span class="pre">Future</span></code> 构造函数。以下示例显示了直接使用由 <code class="xref py py-meth docutils literal "><span class="pre">then()</span></code> 返回的 <code class="xref py py-class docutils literal "><span class="pre">Future</span></code> 。</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torch.distributed</span> <span class="kn">import</span> <span class="n">rpc</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># omitting setup and shutdown RPC</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># On all workers</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nd">@rpc</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">async_execution</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">async_add_chained</span><span class="p">(</span><span class="n">to</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="c1"># This function runs on "worker1" and returns immediately when</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="c1"># the callback is installed through the `then(cb)` API. In the</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="c1"># mean time, the `rpc_async` to "worker2" can run concurrently.</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="c1"># When the return value of that `rpc_async` arrives at</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="c1"># "worker1", "worker1" will run the lambda function accordingly</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="c1"># and set the value for the previously returned `Future`, which</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="c1"># will then trigger RPC to send the result back to "worker0".</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">return</span> <span class="n">rpc</span><span class="o">.</span><span class="n">rpc_async</span><span class="p">(</span><span class="n">to</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">add</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span><span class="o">.</span><span class="n">then</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="k">lambda</span> <span class="n">fut</span><span class="p">:</span> <span class="n">fut</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span> <span class="o">+</span> <span class="n">z</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># On worker0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ret</span> <span class="o">=</span> <span class="n">rpc</span><span class="o">.</span><span class="n">rpc_sync</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="s2">"worker1"</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">async_add_chained</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="s2">"worker2"</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>  <span class="c1"># prints tensor([3., 3.])</span>
+</pre></div>
+</div>
+<p>当与 TorchScript 装饰器结合使用时，此装饰器必须是外层的。</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torch.futures</span> <span class="kn">import</span> <span class="n">Future</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torch.distributed</span> <span class="kn">import</span> <span class="n">rpc</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># omitting setup and shutdown RPC</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># On all workers</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nd">@torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">script</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">script_add</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nd">@rpc</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">async_execution</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nd">@torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">script</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">async_add</span><span class="p">(</span><span class="n">to</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Future</span><span class="p">[</span><span class="n">Tensor</span><span class="p">]:</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">return</span> <span class="n">rpc</span><span class="o">.</span><span class="n">rpc_async</span><span class="p">(</span><span class="n">to</span><span class="p">,</span> <span class="n">script_add</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># On worker0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ret</span> <span class="o">=</span> <span class="n">rpc</span><span class="o">.</span><span class="n">rpc_sync</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="s2">"worker1"</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">async_add</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="s2">"worker2"</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>  <span class="c1"># prints tensor([2., 2.])</span>
+</pre></div>
+</div>
+<p>当与静态或类方法结合使用时，此装饰器必须是内层的。</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torch.distributed</span> <span class="kn">import</span> <span class="n">rpc</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># omitting setup and shutdown RPC</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># On all workers</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">AsyncExecutionClass</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="nd">@staticmethod</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="nd">@rpc</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">async_execution</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="nf">static_async_add</span><span class="p">(</span><span class="n">to</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="k">return</span> <span class="n">rpc</span><span class="o">.</span><span class="n">rpc_async</span><span class="p">(</span><span class="n">to</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">add</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span><span class="o">.</span><span class="n">then</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>            <span class="k">lambda</span> <span class="n">fut</span><span class="p">:</span> <span class="n">fut</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span> <span class="o">+</span> <span class="n">z</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="nd">@classmethod</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="nd">@rpc</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">async_execution</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="nf">class_async_add</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">to</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">ret_fut</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">futures</span><span class="o">.</span><span class="n">Future</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">rpc</span><span class="o">.</span><span class="n">rpc_async</span><span class="p">(</span><span class="n">to</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">add</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span><span class="o">.</span><span class="n">then</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>            <span class="k">lambda</span> <span class="n">fut</span><span class="p">:</span> <span class="n">ret_fut</span><span class="o">.</span><span class="n">set_result</span><span class="p">(</span><span class="n">fut</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span> <span class="o">+</span> <span class="n">z</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="k">return</span> <span class="n">ret_fut</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="nd">@rpc</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">async_execution</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="nf">bound_async_add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">to</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="k">return</span> <span class="n">rpc</span><span class="o">.</span><span class="n">rpc_async</span><span class="p">(</span><span class="n">to</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">add</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span><span class="o">.</span><span class="n">then</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>            <span class="k">lambda</span> <span class="n">fut</span><span class="p">:</span> <span class="n">fut</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span> <span class="o">+</span> <span class="n">z</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># On worker0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ret</span> <span class="o">=</span> <span class="n">rpc</span><span class="o">.</span><span class="n">rpc_sync</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="s2">"worker1"</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">AsyncExecutionClass</span><span class="o">.</span><span class="n">static_async_add</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="s2">"worker2"</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>  <span class="c1"># prints tensor([4., 4.])</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ret</span> <span class="o">=</span> <span class="n">rpc</span><span class="o">.</span><span class="n">rpc_sync</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="s2">"worker1"</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">AsyncExecutionClass</span><span class="o">.</span><span class="n">class_async_add</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="s2">"worker2"</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>  <span class="c1"># prints tensor([4., 4.])</span>
+</pre></div>
+</div>
+<p>此装饰器也适用于 RRef 辅助工具，即 . <code class="xref py py-meth docutils literal "><span class="pre">torch.distributed.rpc.RRef.rpc_sync()</span></code> ， <code class="xref py py-meth docutils literal "><span class="pre">torch.distributed.rpc.RRef.rpc_async()</span></code> 和 <code class="xref py py-meth docutils literal "><span class="pre">torch.distributed.rpc.RRef.remote()</span></code> 。</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torch.distributed</span> <span class="kn">import</span> <span class="n">rpc</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># reuse the AsyncExecutionClass class above</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rref</span> <span class="o">=</span> <span class="n">rpc</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="s2">"worker1"</span><span class="p">,</span> <span class="n">AsyncExecutionClass</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ret</span> <span class="o">=</span> <span class="n">rref</span><span class="o">.</span><span class="n">rpc_sync</span><span class="p">()</span><span class="o">.</span><span class="n">static_async_add</span><span class="p">(</span><span class="s2">"worker2"</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>  <span class="c1"># prints tensor([4., 4.])</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rref</span> <span class="o">=</span> <span class="n">rpc</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="s2">"worker1"</span><span class="p">,</span> <span class="n">AsyncExecutionClass</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ret</span> <span class="o">=</span> <span class="n">rref</span><span class="o">.</span><span class="n">rpc_async</span><span class="p">()</span><span class="o">.</span><span class="n">static_async_add</span><span class="p">(</span><span class="s2">"worker2"</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>  <span class="c1"># prints tensor([4., 4.])</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rref</span> <span class="o">=</span> <span class="n">rpc</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="s2">"worker1"</span><span class="p">,</span> <span class="n">AsyncExecutionClass</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ret</span> <span class="o">=</span> <span class="n">rref</span><span class="o">.</span><span class="n">remote</span><span class="p">()</span><span class="o">.</span><span class="n">static_async_add</span><span class="p">(</span><span class="s2">"worker2"</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">to_here</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>  <span class="c1"># prints tensor([4., 4.])</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<section id="backends">
+<span id="rpc-backends"></span><h3>后端</h3>
+<p>RPC 模块可以利用不同的后端来执行节点之间的通信。要使用哪个后端可以在 <code class="xref py py-func docutils literal "><span class="pre">init_rpc()</span></code> 函数中指定，通过传递 <code class="xref py py-class docutils literal "><span class="pre">BackendType</span></code> 枚举的某个值。无论使用哪个后端，RPC API 的其余部分都不会改变。每个后端还定义了自己的 <code class="xref py py-class docutils literal "><span class="pre">RpcBackendOptions</span></code> 类的子类，该子类的一个实例也可以传递给 <code class="xref py py-func docutils literal "><span class="pre">init_rpc()</span></code> 来配置后端的行为。</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.rpc.BackendType">
+class torch.distributed.rpc.BackendType(value, names=&lt;未提供&gt;, *values, module=None, qualname=None, type=None, start=1, boundary=None) ¶</dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.rpc.RpcBackendOptions">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.rpc.</span></span><span class="sig-name descname"><span class="pre">RpcBackendOptions</span></span><a class="headerlink" href="#torch.distributed.rpc.RpcBackendOptions" title="Permalink to this definition">¶</a></dt>
+<dd><p>封装传入 RPC 后端选项的抽象结构。可以通过此类的实例传递给 <code class="xref py py-meth docutils literal "><span class="pre">init_rpc()</span></code> 以使用特定配置初始化 RPC，例如 RPC 超时和 <code class="docutils literal "><span class="pre">init_method</span></code> 。</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="torch.distributed.rpc.RpcBackendOptions.init_method">
+属性 init_method</dt>
+<dd><p>指定如何初始化进程组的 URL。默认为 <code class="docutils literal "><span class="pre">env://</span></code> </p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="torch.distributed.rpc.RpcBackendOptions.rpc_timeout">
+属性 rpc_timeout</dt>
+<dd><p>表示所有 RPC 使用的超时时间。如果 RPC 在此时间范围内未完成，它将抛出异常，表示已超时。</p>
+</dd></dl>
+
+</dd></dl>
+
+<section id="tensorpipe-backend">
+<h4>TensorPipe 后端</h4>
+<p>TensorPipe 代理，默认情况下，利用 TensorPipe 库，该库提供了一种原生的点对点通信原语，特别适合机器学习，从根本上解决了 Gloo 的一些局限性。与 Gloo 相比，它具有异步的优势，允许大量传输同时发生，每个传输以自己的速度进行，而不会相互阻塞。它仅在需要时才在节点对之间打开管道，当一个节点失败时，只有其故障管道会关闭，而其他管道将继续正常工作。此外，它能够支持多种不同的传输方式（当然包括 TCP，还包括共享内存、NVLink、InfiniBand 等），并且可以自动检测它们的可用性，并为每个管道协商最佳传输方式。</p>
+<p>TensorPipe 后端自 PyTorch v1.6 版本引入，目前正在积极开发中。目前它仅支持 CPU 张量，GPU 支持即将推出。它采用基于 TCP 的传输，就像 Gloo 一样。它还能够自动将大张量分块并多路复用到多个套接字和线程中，以实现非常高的带宽。代理将能够自动选择最佳的传输方式，无需人工干预。</p>
+<p>示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">os</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torch.distributed</span> <span class="kn">import</span> <span class="n">rpc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'MASTER_ADDR'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'localhost'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'MASTER_PORT'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'29500'</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rpc</span><span class="o">.</span><span class="n">init_rpc</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="s2">"worker1"</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">rank</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">world_size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">rpc_backend_options</span><span class="o">=</span><span class="n">rpc</span><span class="o">.</span><span class="n">TensorPipeRpcBackendOptions</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">num_worker_threads</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">rpc_timeout</span><span class="o">=</span><span class="mi">20</span> <span class="c1"># 20 second timeout</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># omitting init_rpc invocation on worker2</span>
+</pre></div>
+</div>
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.rpc.TensorPipeRpcBackendOptions">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.rpc.</span></span><span class="sig-name descname"><span class="pre">TensorPipeRpcBackendOptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_worker_threads</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">16</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rpc_timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'env://'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device_maps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">devices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_transports</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/rpc/options.html#TensorPipeRpcBackendOptions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/rpc/options.py#L46"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.rpc.TensorPipeRpcBackendOptions" title="Permalink to this definition">¶</a></dt>
+<dd><p> <code class="xref py py-class docutils literal "><span class="pre">TensorPipeAgent</span></code> 的后端选项，由 <code class="xref py py-class docutils literal "><span class="pre">RpcBackendOptions</span></code> 衍生。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>num_worker_threads (int, optional) – <code class="xref py py-class docutils literal "><span class="pre">TensorPipeAgent</span></code> 用于执行请求的线程池中的线程数（默认：16）。</p></li>
+<li><p>rpc_timeout (浮点数，可选) – RPC 请求的默认超时时间，单位为秒（默认：60 秒）。如果 RPC 在此时间范围内未完成，将抛出表示此情况的异常。调用者可以在必要时通过 <code class="xref py py-meth docutils literal "><span class="pre">rpc_sync()</span></code> 和 <code class="xref py py-meth docutils literal "><span class="pre">rpc_async()</span></code> 覆盖单个 RPC 的此超时。</p></li>
+<li><p>init_method (字符串，可选) – 用于 rendezvous 的分布式存储初始化的 URL。它接受 <code class="xref py py-meth docutils literal "><span class="pre">init_process_group()</span></code> 相同参数的任何值（默认： <code class="docutils literal "><span class="pre">env://</span></code> ）。</p></li>
+<li><p>device_maps (Dict[str, Dict]，可选) – 从此工作器到调用者的设备放置映射。键是调用者工作器名称，值是从 <code class="docutils literal "><span class="pre">Dict</span></code> 的 <code class="docutils literal "><span class="pre">int</span></code> 、 <code class="docutils literal "><span class="pre">str</span></code> 或 <code class="docutils literal "><span class="pre">torch.device</span></code> 映射此工作器设备到调用者工作器设备的字典。（默认： <code class="docutils literal "><span class="pre">None</span></code> ）</p></li>
+<li><p>devices (List[int, str, 或 <code class="docutils literal "><span class="pre">torch.device</span></code> ]，可选) – RPC 代理使用的所有本地 CUDA 设备。默认情况下，它将初始化为其自身的 <code class="docutils literal "><span class="pre">device_maps</span></code> 和其同伴的 <code class="docutils literal "><span class="pre">device_maps</span></code> 对应的设备。在处理 CUDA RPC 请求时，代理将为 <code class="docutils literal "><span class="pre">List</span></code> 中的所有设备正确同步 CUDA 流。</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="torch.distributed.rpc.TensorPipeRpcBackendOptions.device_maps">
+属性设备映射表</dt>
+<dd><p>设备映射位置。</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="torch.distributed.rpc.TensorPipeRpcBackendOptions.devices">
+属性设备</dt>
+<dd><p>本地代理使用的所有设备。</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="torch.distributed.rpc.TensorPipeRpcBackendOptions.init_method">
+属性初始化方法 ¶</dt>
+<dd><p>指定如何初始化进程组的 URL。默认为 <code class="docutils literal "><span class="pre">env://</span></code> </p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="torch.distributed.rpc.TensorPipeRpcBackendOptions.num_worker_threads">
+属性 num_worker_threads ¶</dt>
+<dd><p> <code class="xref py py-class docutils literal "><span class="pre">TensorPipeAgent</span></code> 用于执行请求的线程池中的线程数。</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="torch.distributed.rpc.TensorPipeRpcBackendOptions.rpc_timeout">
+属性 rpc_timeout ¶</dt>
+<dd><p>一个浮点数，表示所有 RPC 使用的超时时间。如果 RPC 在此时间段内未完成，它将异常完成，表示已超时。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.rpc.TensorPipeRpcBackendOptions.set_device_map">
+<span class="sig-name descname"><span class="pre">set_device_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">to</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device_map</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/rpc/options.html#TensorPipeRpcBackendOptions.set_device_map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/rpc/options.py#L107"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.rpc.TensorPipeRpcBackendOptions.set_device_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>设置每个 RPC 调用者和被调用者对之间的设备映射。此函数可以多次调用，以逐步添加设备放置配置。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>to (str) – 被调用者名称。</p></li>
+<li><p>device_map (Dict of python:int, str, or torch.device) – 从本工作者到被调用者的设备放置映射。此映射必须是可逆的。</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># both workers</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="nb">print</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>  <span class="c1"># tensor([1., 1.], device='cuda:1')</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># on worker 0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">options</span> <span class="o">=</span> <span class="n">TensorPipeRpcBackendOptions</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">num_worker_threads</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">device_maps</span><span class="o">=</span><span class="p">{</span><span class="s2">"worker1"</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mi">1</span><span class="p">}}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># maps worker0's cuda:0 to worker1's cuda:1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">options</span><span class="o">.</span><span class="n">set_device_map</span><span class="p">(</span><span class="s2">"worker1"</span><span class="p">,</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="mi">2</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># maps worker0's cuda:1 to worker1's cuda:2</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rpc</span><span class="o">.</span><span class="n">init_rpc</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="s2">"worker0"</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">rank</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">world_size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">backend</span><span class="o">=</span><span class="n">rpc</span><span class="o">.</span><span class="n">BackendType</span><span class="o">.</span><span class="n">TENSORPIPE</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">rpc_backend_options</span><span class="o">=</span><span class="n">options</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rets</span> <span class="o">=</span> <span class="n">rpc</span><span class="o">.</span><span class="n">rpc_sync</span><span class="p">(</span><span class="s2">"worker1"</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="mi">1</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># The first argument will be moved to cuda:1 on worker1. When</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># sending the return value back, it will follow the invert of</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># the device map, and hence will be moved back to cuda:0 and</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># cuda:1 on worker0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">rets</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>  <span class="c1"># tensor([2., 2.], device='cuda:0')</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">rets</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>  <span class="c1"># tensor([2., 2.], device='cuda:1')</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.rpc.TensorPipeRpcBackendOptions.set_devices">
+<span class="sig-name descname"><span class="pre">set_devices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">devices</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/rpc/options.html#TensorPipeRpcBackendOptions.set_devices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/rpc/options.py#L165"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.rpc.TensorPipeRpcBackendOptions.set_devices" title="Permalink to this definition">¶</a></dt>
+<dd><p>设置 TensorPipe RPC 代理使用的本地设备。在处理 CUDA RPC 请求时，TensorPipe RPC 代理将正确同步此 <code class="docutils literal "><span class="pre">List</span></code> 中的所有设备的 CUDA 流。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>设备（Python 列表，包含 int、str 或 torch.device 类型）- TensorPipe RPC 代理使用的本地设备。</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>RPC 框架不会自动重试任何 <code class="xref py py-meth docutils literal "><span class="pre">rpc_sync()</span></code> 、 <code class="xref py py-meth docutils literal "><span class="pre">rpc_async()</span></code> 和 <code class="xref py py-meth docutils literal "><span class="pre">remote()</span></code> 调用。原因是 RPC 框架无法确定操作是否幂等以及是否可以安全重试。因此，处理失败和必要时重试是应用程序的责任。RPC 通信基于 TCP，因此可能会因为网络故障或间歇性网络连接问题而出现故障。在这种情况下，应用程序需要适当地进行重试，并使用合理的退避策略，以确保网络不会被激进的重试所淹没。</p>
+</div>
+</section>
+</section>
+</section>
+<section id="rref">
+<span id="id3"></span><h2>RRef<a class="headerlink" href="#rref" title="Permalink to this heading">¶</a></h2>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>当使用 CUDA 张量时，目前不支持 RRef。</p>
+</div>
+<p>远程引用（Remote REFerence）是指对远程工作者上某种类型（例如）的值的引用。此句柄在所有者上保持引用的远程值存活，但并不意味着该值将来会转移到本地工作者。RRefs 可以在多机训练中使用，通过持有其他工作者上存在的 nn.Modules 的引用，并在训练期间调用适当的函数来检索或修改它们的参数。有关详细信息，请参阅远程引用协议。</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.rpc.PyRRef">
+class torch.distributed.rpc.PyRRef(RRef)</dt>
+<dd><p>封装远程工作者上某种类型值的引用的类。此句柄将在工作者上保持引用的远程值存活。当 1) 应用程序代码和本地 RRef 上下文中没有对该引用的引用，或 2) 应用程序已调用优雅的关闭时，将删除 <code class="docutils literal "><span class="pre">UserRRef</span></code> 。在已删除的 RRef 上调用方法会导致未定义的行为。RRef 实现仅提供尽力错误检测，应用程序不应在 <code class="docutils literal "><span class="pre">UserRRefs</span></code> 之后使用 <code class="docutils literal "><span class="pre">rpc.shutdown()</span></code> 。</p>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>RRefs 只能由 RPC 模块进行序列化和反序列化。在没有 RPC 的情况下序列化和反序列化 RRefs（例如 Python pickle、torch <code class="xref py py-meth docutils literal "><span class="pre">save()</span></code> / <code class="xref py py-meth docutils literal "><span class="pre">load()</span></code> 、JIT <code class="xref py py-meth docutils literal "><span class="pre">save()</span></code> / <code class="xref py py-meth docutils literal "><span class="pre">load()</span></code> 等）将导致错误。</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>value（对象）- 要由本 RRef 包装的值。</p></li>
+<li><p>type_hint（Type，可选）- 应传递给 <code class="docutils literal "><span class="pre">TorchScript</span></code> 编译器的 Python 类型，作为 <code class="docutils literal "><span class="pre">value</span></code> 的类型提示。</p></li>
+</ul>
+</dd>
+</dl>
+<dl>
+<dt>示例::</font></font></font></dt><dd><p><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">以下示例为了简洁省略了 RPC 初始化和关闭代码。有关这些细节，请参阅 RPC 文档。</p>
+<ol class="arabic simple">
+<li><p>使用 rpc.remote 创建一个 RRef</p></li>
+</ol>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch.distributed.rpc</span> <span class="k">as</span> <span class="nn">rpc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rref</span> <span class="o">=</span> <span class="n">rpc</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="s2">"worker1"</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">add</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="mi">3</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># get a copy of value from the RRef</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">rref</span><span class="o">.</span><span class="n">to_here</span><span class="p">()</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>从本地对象创建一个 RRef</p></li>
+</ol>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torch.distributed.rpc</span> <span class="kn">import</span> <span class="n">RRef</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rref</span> <span class="o">=</span> <span class="n">RRef</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>将 RRef 与其他工作进程共享</p></li>
+</ol>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># On both worker0 and worker1:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">rref</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>  <span class="k">return</span> <span class="n">rref</span><span class="o">.</span><span class="n">to_here</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># On worker0:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch.distributed.rpc</span> <span class="k">as</span> <span class="nn">rpc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torch.distributed.rpc</span> <span class="kn">import</span> <span class="n">RRef</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rref</span> <span class="o">=</span> <span class="n">RRef</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># the following RPC shares the rref with worker1, reference</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># count is automatically updated.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rpc</span><span class="o">.</span><span class="n">rpc_sync</span><span class="p">(</span><span class="s2">"worker1"</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">rref</span><span class="p">,))</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.rpc.PyRRef.backward">
+backward(self:torch._C._distributed_rpc.PyRRef, dist_autograd_ctx_idint=-1, retain_graphbool=False) → None</dt>
+<dd><blockquote>
+<div><p>使用 RRef 作为反向传播的根节点执行反向传播。如果提供了 <code class="docutils literal "><span class="pre">dist_autograd_ctx_id</span></code> ，我们将使用提供的 ctx_id 从 RRef 的所有者处执行分布式反向传播。在这种情况下，应使用 <code class="xref py py-meth docutils literal "><span class="pre">get_gradients()</span></code> 来检索梯度。如果 <code class="docutils literal "><span class="pre">dist_autograd_ctx_id</span></code> 等于 <code class="docutils literal "><span class="pre">None</span></code> ，则假定这是一个本地 autograd 图，我们只执行本地反向传播。在本地情况下，调用此 API 的节点必须是 RRef 的所有者。RRef 的值预期是一个标量 Tensor。</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>dist_autograd_ctx_id (int, 可选) – 应该检索梯度的分布式 autograd 上下文 id（默认：-1）。</p></li>
+<li><p>retain_graph (bool, 可选) – 如果 <code class="docutils literal "><span class="pre">False</span></code> ，用于计算梯度的图将被释放。请注意，在几乎所有情况下，将此选项设置为 <code class="docutils literal "><span class="pre">True</span></code> 通常是不必要的，并且通常可以通过更有效的方式解决。通常，您需要将其设置为 <code class="docutils literal "><span class="pre">True</span></code> 以多次运行反向传播（默认：False）。</p></li>
+</ul>
+</dd>
+</dl>
+<dl>
+<dt>示例::</dt><dd><div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch.distributed.autograd</span> <span class="k">as</span> <span class="nn">dist_autograd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">dist_autograd</span><span class="o">.</span><span class="n">context</span><span class="p">()</span> <span class="k">as</span> <span class="n">context_id</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">rref</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="n">context_id</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.rpc.PyRRef.confirmed_by_owner">
+<span class="sig-name descname"><span class="pre">confirmed_by_owner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#torch.distributed.rpc.PyRRef" title="torch._C._distributed_rpc.PyRRef"><span class="pre">torch._C._distributed_rpc.PyRRef</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span></span><a class="headerlink" href="#torch.distributed.rpc.PyRRef.confirmed_by_owner" title="Permalink to this definition">¶</a></dt>
+<dd><p>返回此 <code class="docutils literal "><span class="pre">RRef</span></code> 是否已被所有者确认。 <code class="docutils literal "><span class="pre">OwnerRRef</span></code> 始终返回 true，而 <code class="docutils literal "><span class="pre">UserRRef</span></code> 仅在所有者知道此 <code class="docutils literal "><span class="pre">UserRRef</span></code> 时才返回 true。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.rpc.PyRRef.is_owner">
+<span class="sig-name descname"><span class="pre">is_owner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#torch.distributed.rpc.PyRRef" title="torch._C._distributed_rpc.PyRRef"><span class="pre">torch._C._distributed_rpc.PyRRef</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span></span><a class="headerlink" href="#torch.distributed.rpc.PyRRef.is_owner" title="Permalink to this definition">¶</a></dt>
+<dd><p>返回当前节点是否为此 <code class="docutils literal "><span class="pre">RRef</span></code> 的所有者。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.rpc.PyRRef.local_value">
+<span class="sig-name descname"><span class="pre">local_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#torch.distributed.rpc.PyRRef" title="torch._C._distributed_rpc.PyRRef"><span class="pre">torch._C._distributed_rpc.PyRRef</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><span class="pre">object</span></a></span></span><a class="headerlink" href="#torch.distributed.rpc.PyRRef.local_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>如果当前节点是所有者，则返回本地值的引用。否则，抛出异常。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.rpc.PyRRef.owner">
+<span class="sig-name descname"><span class="pre">owner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#torch.distributed.rpc.PyRRef" title="torch._C._distributed_rpc.PyRRef"><span class="pre">torch._C._distributed_rpc.PyRRef</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference internal" href="#torch.distributed.rpc.WorkerInfo" title="torch._C._distributed_rpc.WorkerInfo"><span class="pre">torch._C._distributed_rpc.WorkerInfo</span></a></span></span><a class="headerlink" href="#torch.distributed.rpc.PyRRef.owner" title="Permalink to this definition">¶</a></dt>
+<dd><p>返回拥有此 <code class="docutils literal "><span class="pre">RRef</span></code> 节点的 worker 信息。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.rpc.PyRRef.owner_name">
+<span class="sig-name descname"><span class="pre">owner_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#torch.distributed.rpc.PyRRef" title="torch._C._distributed_rpc.PyRRef"><span class="pre">torch._C._distributed_rpc.PyRRef</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></span><a class="headerlink" href="#torch.distributed.rpc.PyRRef.owner_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>返回拥有此 <code class="docutils literal "><span class="pre">RRef</span></code> 节点的工人名称。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.rpc.PyRRef.remote">
+remote(self:torch._C._distributed_rpc.PyRRef, timeoutfloat=- 1.0) → 对象</dt>
+<dd><p>创建一个辅助代理，以便轻松使用 RRef 的所有者作为运行此 RRef 引用的对象上的函数的目标。更具体地说， <code class="docutils literal "><span class="pre">rref.remote().func_name(*args,</span> <span class="pre">**kwargs)</span></code> 等同于以下内容：</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="n">rref</span><span class="p">,</span> <span class="n">func_name</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>  <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rref</span><span class="o">.</span><span class="n">local_value</span><span class="p">(),</span> <span class="n">func_name</span><span class="p">)(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rpc</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">rref</span><span class="o">.</span><span class="n">owner</span><span class="p">(),</span> <span class="n">run</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">rref</span><span class="p">,</span> <span class="n">func_name</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">))</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>超时（浮点数，可选）- <code class="docutils literal "><span class="pre">rref.remote()</span></code> 的超时时间。如果在此超时时间内没有成功创建此 <code class="xref py py-class docutils literal "><span class="pre">RRef</span></code> ，则在下一次尝试使用 RRef（例如 <code class="docutils literal "><span class="pre">to_here</span></code> ）时，将引发超时异常。如果没有提供，则使用默认的 RPC 超时时间。请参阅 <code class="docutils literal "><span class="pre">rpc.remote()</span></code> 了解 <code class="xref py py-class docutils literal "><span class="pre">RRef</span></code> 的具体超时语义。</p>
+</dd>
+</dl>
+<dl>
+<dt>示例::</dt><dd><div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torch.distributed</span> <span class="kn">import</span> <span class="n">rpc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rref</span> <span class="o">=</span> <span class="n">rpc</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="s2">"worker1"</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">add</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="mi">1</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rref</span><span class="o">.</span><span class="n">remote</span><span class="p">()</span><span class="o">.</span><span class="n">size</span><span class="p">()</span><span class="o">.</span><span class="n">to_here</span><span class="p">()</span>  <span class="c1"># returns torch.Size([2, 2])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rref</span><span class="o">.</span><span class="n">remote</span><span class="p">()</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">to_here</span><span class="p">()</span>  <span class="c1"># returns tensor([[1., 1., 1., 1.]])</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.rpc.PyRRef.rpc_async">
+<span class="sig-name descname"><span class="pre">rpc_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#torch.distributed.rpc.PyRRef" title="torch._C._distributed_rpc.PyRRef"><span class="pre">torch._C._distributed_rpc.PyRRef</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-</span> <span class="pre">1.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><span class="pre">object</span></a></span></span><a class="headerlink" href="#torch.distributed.rpc.PyRRef.rpc_async" title="Permalink to this definition">¶</a></dt>
+<dd><p>创建一个辅助代理，以便轻松使用 RRef 的所有者作为运行此 RRef 引用的对象上的函数的目标。更具体地说， <code class="docutils literal "><span class="pre">rref.rpc_async().func_name(*args,</span> <span class="pre">**kwargs)</span></code> 等同于以下内容：</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="n">rref</span><span class="p">,</span> <span class="n">func_name</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>  <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rref</span><span class="o">.</span><span class="n">local_value</span><span class="p">(),</span> <span class="n">func_name</span><span class="p">)(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rpc</span><span class="o">.</span><span class="n">rpc_async</span><span class="p">(</span><span class="n">rref</span><span class="o">.</span><span class="n">owner</span><span class="p">(),</span> <span class="n">run</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">rref</span><span class="p">,</span> <span class="n">func_name</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">))</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>超时（浮点数，可选）- <code class="docutils literal "><span class="pre">rref.rpc_async()</span></code> 的超时时间。如果调用在此时间范围内未完成，将引发表示此情况的异常。如果未提供此参数，将使用默认的 RPC 超时。</p>
+</dd>
+</dl>
+<dl>
+<dt>示例::</dt><dd><div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torch.distributed</span> <span class="kn">import</span> <span class="n">rpc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rref</span> <span class="o">=</span> <span class="n">rpc</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="s2">"worker1"</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">add</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="mi">1</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rref</span><span class="o">.</span><span class="n">rpc_async</span><span class="p">()</span><span class="o">.</span><span class="n">size</span><span class="p">()</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>  <span class="c1"># returns torch.Size([2, 2])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rref</span><span class="o">.</span><span class="n">rpc_async</span><span class="p">()</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>  <span class="c1"># returns tensor([[1., 1., 1., 1.]])</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.rpc.PyRRef.rpc_sync">
+rpc_sync(self:torch._C._distributed_rpc.PyRRef, timeoutfloat=- 1.0) → 对象</dt>
+<dd><p>创建一个辅助代理，以便轻松启动 <code class="docutils literal "><span class="pre">rpc_sync</span></code> ，使用 RRef 的所有者作为运行此 RRef 引用的对象上函数的目标。更具体地说， <code class="docutils literal "><span class="pre">rref.rpc_sync().func_name(*args,</span> <span class="pre">**kwargs)</span></code> 与以下内容相同：</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="n">rref</span><span class="p">,</span> <span class="n">func_name</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>  <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rref</span><span class="o">.</span><span class="n">local_value</span><span class="p">(),</span> <span class="n">func_name</span><span class="p">)(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rpc</span><span class="o">.</span><span class="n">rpc_sync</span><span class="p">(</span><span class="n">rref</span><span class="o">.</span><span class="n">owner</span><span class="p">(),</span> <span class="n">run</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">rref</span><span class="p">,</span> <span class="n">func_name</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">))</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>超时（浮点数，可选）- <code class="docutils literal "><span class="pre">rref.rpc_sync()</span></code> 的超时时间。如果调用在此时间范围内未完成，将引发表示此情况的异常。如果未提供此参数，将使用默认的 RPC 超时。</p>
+</dd>
+</dl>
+<dl>
+<dt>示例::</dt><dd><div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torch.distributed</span> <span class="kn">import</span> <span class="n">rpc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rref</span> <span class="o">=</span> <span class="n">rpc</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="s2">"worker1"</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">add</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="mi">1</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rref</span><span class="o">.</span><span class="n">rpc_sync</span><span class="p">()</span><span class="o">.</span><span class="n">size</span><span class="p">()</span>  <span class="c1"># returns torch.Size([2, 2])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rref</span><span class="o">.</span><span class="n">rpc_sync</span><span class="p">()</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>  <span class="c1"># returns tensor([[1., 1., 1., 1.]])</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.rpc.PyRRef.to_here">
+<span class="sig-name descname"><span class="pre">to_here</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#torch.distributed.rpc.PyRRef" title="torch._C._distributed_rpc.PyRRef"><span class="pre">torch._C._distributed_rpc.PyRRef</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-</span> <span class="pre">1.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><span class="pre">object</span></a></span></span><a class="headerlink" href="#torch.distributed.rpc.PyRRef.to_here" title="Permalink to this definition">¶</a></dt>
+<dd><p>阻塞调用，将 RRef 的值从拥有者复制到本地节点并返回。如果当前节点是拥有者，则返回对本地值的引用。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>超时（float，可选）- <code class="docutils literal "><span class="pre">to_here</span></code> 的超时时间。如果在指定时间内调用未完成，将抛出异常。如果未提供此参数，则使用默认 RPC 超时时间（60 秒）。</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">关于 RRef 的更多信息</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="rpc/rref.html">远程引用协议</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="rpc/rref.html#background">背景</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rpc/rref.html#assumptions">假设</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rpc/rref.html#rref-lifetime">RRef 生命周期</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="rpc/rref.html#design-reasoning">设计推理</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rpc/rref.html#implementation">实现</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="rpc/rref.html#protocol-scenarios">协议场景</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="rpc/rref.html#user-share-rref-with-owner-as-return-value">用户将 RRef 与所有者共享作为返回值</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rpc/rref.html#user-share-rref-with-owner-as-argument">用户将 RRef 与所有者共享作为参数</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rpc/rref.html#owner-share-rref-with-user">所有者将 RRef 与用户共享</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rpc/rref.html#user-share-rref-with-user">用户与用户共享 RRef</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="remotemodule">
+<span id="remote-module"></span><h2>远程模块 ¶</h2>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>当使用 CUDA 张量时，当前不支持远程模块</p>
+</div>
+<p> <code class="docutils literal "><span class="pre">RemoteModule</span></code> 是在另一个进程中远程创建 nn.Module 的简单方法。实际的模块位于远程主机上，但本地主机拥有此模块的句柄，可以像常规 nn.Module 一样调用此模块。然而，调用会涉及对远程端的 RPC 调用，如果需要，可以通过 RemoteModule 支持的额外 API 异步执行。</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.nn.api.remote_module.RemoteModule">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.nn.api.remote_module.</span></span><span class="sig-name descname"><span class="pre">RemoteModule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/nn/api/remote_module.html#RemoteModule"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/nn/api/remote_module.py#L596"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.nn.api.remote_module.RemoteModule" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>A RemoteModule 实例只能在 RPC 初始化之后创建。</p>
+<p>它在指定的远程节点上创建一个用户指定的模块。它表现得像常规的 <code class="docutils literal "><span class="pre">nn.Module</span></code> ，除了 <code class="docutils literal "><span class="pre">forward</span></code> 方法是在远程节点上执行。它负责自动记录梯度，以确保反向传播将梯度传播回相应的远程模块。</p>
+<p>它根据 <code class="docutils literal "><span class="pre">module_cls</span></code> 的 <code class="docutils literal "><span class="pre">forward</span></code> 方法的签名生成两个方法 <code class="docutils literal "><span class="pre">forward_async</span></code> 和 <code class="docutils literal "><span class="pre">forward</span></code> 。 <code class="docutils literal "><span class="pre">forward_async</span></code> 异步运行并返回一个 Future。 <code class="docutils literal "><span class="pre">forward_async</span></code> 和 <code class="docutils literal "><span class="pre">forward</span></code> 的参数与模块返回的 <code class="docutils literal "><span class="pre">forward</span></code> 方法的参数相同，该模块由 <code class="docutils literal "><span class="pre">module_cls</span></code> 返回。</p>
+<p>例如，如果 <code class="docutils literal "><span class="pre">module_cls</span></code> 返回 <code class="docutils literal "><span class="pre">nn.Linear</span></code> 的实例，该实例具有 <code class="docutils literal "><span class="pre">forward</span></code> 方法签名： <code class="docutils literal "><span class="pre">def</span> <span class="pre">forward(input:</span> <span class="pre">Tensor)</span> <span class="pre">-&gt;</span> <span class="pre">Tensor:</span></code> ，则生成的 <code class="docutils literal "><span class="pre">RemoteModule</span></code> 将包含以下两个方法签名：</p>
+<div class="line-block">
+<div class="line"><code class="docutils literal "><span class="pre">def</span> <span class="pre">forward(input:</span> <span class="pre">Tensor)</span> <span class="pre">-&gt;</span> <span class="pre">Tensor:</span></code></div>
+<div class="line"><code class="docutils literal "><span class="pre">def</span> <span class="pre">forward_async(input:</span> <span class="pre">Tensor)</span> <span class="pre">-&gt;</span> <span class="pre">Future[Tensor]:</span></code></div>
+</div>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>remote_device (str) – 我们希望在目标工作器上放置此模块的设备。格式应为“/”，其中设备字段可以解析为 torch.device 类型。例如，“trainer0/cpu”，“trainer0”，“ps0/cuda:0”。此外，设备字段是可选的，默认值为“cpu”。</p></li>
+<li><p><strong>module_cls</strong> (<a class="reference internal" href="generated/torch.nn.Module.html#torch.nn.Module" title="torch.nn.Module"><em>nn.Module</em></a>) – </p><p>要创建的远程模块的类。例如，</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">MyModule</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="nb">input</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="k">return</span> <span class="nb">input</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">module_cls</span> <span class="o">=</span> <span class="n">MyModule</span>
+</pre></div>
+</div>
+<p></p></li>
+<li><p>args（序列，可选）- 要传递给 <code class="docutils literal "><span class="pre">module_cls</span></code> 的参数。</p></li>
+<li><p>kwargs（字典，可选）- 要传递给 <code class="docutils literal "><span class="pre">module_cls</span></code> 的键值对。</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>用户提供的 <code class="docutils literal "><span class="pre">module_cls</span></code> 创建的 <code class="xref py py-class docutils literal "><span class="pre">Module</span></code> 的远程模块实例，它有一个阻塞的 <code class="docutils literal "><span class="pre">forward</span></code> 方法和一个异步的 <code class="docutils literal "><span class="pre">forward_async</span></code> 方法，该方法返回用户提供的远程模块上 <code class="docutils literal "><span class="pre">forward</span></code> 调用的 future。</p>
+</dd>
+</dl>
+<dl>
+<dt>示例::</font></font></font></dt><dd><p><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在两个不同的进程中运行以下代码：</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># On worker 0:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch.distributed.rpc</span> <span class="k">as</span> <span class="nn">rpc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">nn</span><span class="p">,</span> <span class="n">Tensor</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torch.distributed.nn.api.remote_module</span> <span class="kn">import</span> <span class="n">RemoteModule</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rpc</span><span class="o">.</span><span class="n">init_rpc</span><span class="p">(</span><span class="s2">"worker0"</span><span class="p">,</span> <span class="n">rank</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">world_size</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">remote_linear_module</span> <span class="o">=</span> <span class="n">RemoteModule</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="s2">"worker1/cpu"</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">),</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">input</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ret_fut</span> <span class="o">=</span> <span class="n">remote_linear_module</span><span class="o">.</span><span class="n">forward_async</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ret</span> <span class="o">=</span> <span class="n">ret_fut</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rpc</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># On worker 1:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch.distributed.rpc</span> <span class="k">as</span> <span class="nn">rpc</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rpc</span><span class="o">.</span><span class="n">init_rpc</span><span class="p">(</span><span class="s2">"worker1"</span><span class="p">,</span> <span class="n">rank</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">world_size</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rpc</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>此外，本教程中可以找到一个结合了 DistributedDataParallel（DDP）的更实用的示例。</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.nn.api.remote_module.RemoteModule.get_module_rref">
+get_module_rref()[source]</dt>
+<dd><p>返回一个指向远程模块的 <code class="xref py py-class docutils literal "><span class="pre">RRef</span></code> （ <code class="docutils literal "><span class="pre">RRef[nn.Module]</span></code> ）。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>RRef[模块]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.nn.api.remote_module.RemoteModule.remote_parameters">
+<span class="sig-name descname"><span class="pre">remote_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">recurse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/nn/api/remote_module.py#L276"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.nn.api.remote_module.RemoteModule.remote_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>返回指向远程模块参数的列表 <code class="xref py py-class docutils literal "><span class="pre">RRef</span></code> 。</p>
+<p>这通常可以与 <code class="xref py py-class docutils literal "><span class="pre">DistributedOptimizer</span></code> 结合使用。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>recurse (bool) – 如果为 True，则返回远程模块及其所有子模块的参数。否则，仅返回远程模块的直接成员参数。</p>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p> <code class="xref py py-class docutils literal "><span class="pre">RRef</span></code> （ <code class="docutils literal "><span class="pre">List[RRef[nn.Parameter]]</span></code> ）的远程模块参数列表。</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[torch.distributed.rpc.api.RRef[torch.nn.parameter.Parameter]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="distributed-autograd-framework">
+<h2>分布式自动微分框架</h2>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>使用 CUDA 张量时，目前不支持分布式自动微分。</p>
+</div>
+<p>本模块提供了一个基于 RPC 的分布式自动微分框架，可用于模型并行训练等应用。简而言之，应用可以通过 RPC 发送和接收梯度记录张量。在正向传播过程中，我们记录梯度记录张量通过 RPC 发送的时间，在反向传播过程中，我们使用这些信息通过 RPC 执行分布式反向传播。有关更多详细信息，请参阅分布式自动微分设计。</p>
+<span class="target" id="module-torch.distributed.autograd"></span><dl class="py function">
+<dt class="sig sig-object py" id="torch.distributed.autograd.backward">
+torch.distributed.autograd.backward(context_idint, rootsList[Tensor], retain_graph=False) → None</dt>
+<dd><p>使用提供的 roots 启动基于该 roots 的分布式反向传播。目前实现的是 FAST 模式算法，该算法假设在同一分布式自动微分上下文中发送的所有 RPC 消息在反向传播期间都是自动微分图的一部分。</p>
+<p>我们使用提供的 roots 来发现自动微分图并计算适当的依赖关系。此方法会阻塞，直到整个自动微分计算完成。</p>
+<p>我们在每个节点上适当的 <code class="xref py py-class docutils literal "><span class="pre">torch.distributed.autograd.context</span></code> 中累积梯度。当调用 <code class="xref py py-meth docutils literal "><span class="pre">torch.distributed.autograd.backward()</span></code> 时，将查找要使用的 autograd 上下文对应的 <code class="docutils literal "><span class="pre">context_id</span></code> 。如果没有与给定 ID 对应的有效 autograd 上下文，我们将抛出错误。您可以使用 <code class="xref py py-meth docutils literal "><span class="pre">get_gradients()</span></code> API 检索累积的梯度。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>context_id（整数）- 要检索梯度的 autograd 上下文 ID。</p></li>
+<li><p>roots（列表）- 表示 autograd 计算根的张量。所有张量都应该是标量。</p></li>
+<li><p>retain_graph（布尔值，可选）- 如果为 False，用于计算梯度的图将被释放。请注意，在几乎所有情况下，将此选项设置为 True 通常是不必要的，并且通常可以通过更有效的方式解决。通常，您需要将此设置为 True 才能多次运行反向操作。</p></li>
+</ul>
+</dd>
+</dl>
+<dl>
+<dt>示例::</dt><dd><div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch.distributed.autograd</span> <span class="k">as</span> <span class="nn">dist_autograd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">dist_autograd</span><span class="o">.</span><span class="n">context</span><span class="p">()</span> <span class="k">as</span> <span class="n">context_id</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">pred</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">forward</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">loss</span> <span class="o">=</span> <span class="n">loss_func</span><span class="p">(</span><span class="n">pred</span><span class="p">,</span> <span class="n">loss</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">dist_autograd</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="n">context_id</span><span class="p">,</span> <span class="n">loss</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.autograd.context">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.autograd.</span></span><span class="sig-name descname"><span class="pre">context</span></span><a class="reference internal" href="_modules/torch/distributed/autograd.html#context"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/autograd/__init__.py#L29"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.autograd.context" title="Permalink to this definition">¶</a></dt>
+<dd><p>上下文对象，用于包装使用分布式自动微分时的前向和反向传播。在 <code class="docutils literal "><span class="pre">with</span></code> 语句中生成的 <code class="docutils literal "><span class="pre">context_id</span></code> 是必需的，用于在所有工作者上唯一标识分布式反向传播。每个工作者存储与该 <code class="docutils literal "><span class="pre">context_id</span></code> 相关的元数据，这是正确执行分布式自动微分传播所必需的。</p>
+<dl>
+<dt>示例::</dt><dd><div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch.distributed.autograd</span> <span class="k">as</span> <span class="nn">dist_autograd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">dist_autograd</span><span class="o">.</span><span class="n">context</span><span class="p">()</span> <span class="k">as</span> <span class="n">context_id</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">t1</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">t2</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">loss</span> <span class="o">=</span> <span class="n">rpc</span><span class="o">.</span><span class="n">rpc_sync</span><span class="p">(</span><span class="s2">"worker1"</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">add</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">dist_autograd</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="n">context_id</span><span class="p">,</span> <span class="p">[</span><span class="n">loss</span><span class="p">])</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.distributed.autograd.get_gradients">
+torch.distributed.autograd.get_gradients(context_idint) → Dict[TensorTensor]</dt>
+<dd><p>获取从 Tensor 到相应梯度的映射，该梯度累积在提供的与给定 <code class="docutils literal "><span class="pre">context_id</span></code> 对应的上下文中，作为分布式自动微分反向传播的一部分。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>context_id（int）- 我们需要检索其梯度的自动微分上下文 ID。</p>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>键为张量，值为该张量相关联的梯度的映射。</p>
+</dd>
+</dl>
+<dl>
+<dt>示例::</dt><dd><div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch.distributed.autograd</span> <span class="k">as</span> <span class="nn">dist_autograd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">dist_autograd</span><span class="o">.</span><span class="n">context</span><span class="p">()</span> <span class="k">as</span> <span class="n">context_id</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">t1</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">t2</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">loss</span> <span class="o">=</span> <span class="n">t1</span> <span class="o">+</span> <span class="n">t2</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">dist_autograd</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="n">context_id</span><span class="p">,</span> <span class="p">[</span><span class="n">loss</span><span class="o">.</span><span class="n">sum</span><span class="p">()])</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">grads</span> <span class="o">=</span> <span class="n">dist_autograd</span><span class="o">.</span><span class="n">get_gradients</span><span class="p">(</span><span class="n">context_id</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="nb">print</span><span class="p">(</span><span class="n">grads</span><span class="p">[</span><span class="n">t1</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="nb">print</span><span class="p">(</span><span class="n">grads</span><span class="p">[</span><span class="n">t2</span><span class="p">])</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">关于 RPC Autograd 的更多信息</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="rpc/distributed_autograd.html">分布式 Autograd 设计</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="rpc/distributed_autograd.html#background">背景</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rpc/distributed_autograd.html#autograd-recording-during-the-forward-pass">前向传播过程中的自动微分记录</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rpc/distributed_autograd.html#distributed-autograd-context">分布式自动微分上下文</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rpc/distributed_autograd.html#distributed-backward-pass">分布式反向传播</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="rpc/distributed_autograd.html#computing-dependencies">计算依赖关系</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rpc/distributed_autograd.html#fast-mode-algorithm">快速模式算法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rpc/distributed_autograd.html#smart-mode-algorithm">智能模式算法</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="rpc/distributed_autograd.html#distributed-optimizer">分布式优化器</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rpc/distributed_autograd.html#simple-end-to-end-example">简单端到端示例</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="distributed-optimizer">
+<h2>分布式优化器 ¶</h2>
+<p>请参阅 torch.distributed.optim 页面以获取分布式优化器的文档。</p>
+</section>
+<section id="design-notes">
+<h2>设计笔记</h2>
+<p>分布式自动微分设计笔记涵盖了基于 RPC 的分布式自动微分框架的设计，该框架对模型并行训练等应用很有用。</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="rpc/distributed_autograd.html#distributed-autograd-design"><span class="std std-ref">分布式自动微分设计</span></a></p></li>
+</ul>
+<p>RRef 设计笔记涵盖了 RRef（远程引用）协议的设计，该协议用于框架通过远程工作者引用值。</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="rpc/rref.html#remote-reference-protocol"><span class="std std-ref">远程引用协议</span></a></p></li>
+</ul>
+</section>
+<section id="tutorials">
+<h2>教程</h2>
+<p>RPC 教程向用户介绍 RPC 框架，提供使用 torch.distributed.rpc API 的几个示例应用程序，并演示如何使用分析器来分析基于 RPC 的工作负载。</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://pytorch.org/tutorials/intermediate/rpc_tutorial.html">分布式 RPC 框架入门</a></p></li>
+<li><p><a class="reference external" href="https://pytorch.org/tutorials/intermediate/rpc_param_server_tutorial.html">使用分布式 RPC 框架实现参数服务器</a></p></li>
+<li><p>结合 Distributed DataParallel 与 Distributed RPC 框架（也涵盖 RemoteModule）</p></li>
+<li><p><a class="reference external" href="https://pytorch.org/tutorials/recipes/distributed_rpc_profiling.html">RPC 工作负载分析</a></p></li>
+<li><p><a class="reference external" href="https://pytorch.org/tutorials/intermediate/rpc_async_execution.html">实现批处理 RPC 处理</a></p></li>
+<li><p><a class="reference external" href="https://pytorch.org/tutorials/intermediate/dist_pipeline_parallel_tutorial.html">分布式管道并行</a></p></li>
+</ul>
+</section>
+</section>
+
+
+             </article>
+             
+            </div>
+            <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        下一个 <img height="16" width="16" class="next-page" src="_static/images/chevron-right-orange.svg"> <img height="16" width="16" class="previous-page" src="_static/images/chevron-right-orange.svg"> 上一个
+      
+    </div>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>© 版权所有 PyTorch 贡献者。</p>
+  </div>
+    
+      <div>使用 Sphinx 构建，主题由 Read the Docs 提供。</div>
+     
+
+</footer>
+
+          </div>
+<script>
+
+var match = window.location.href.match(/\/_[a-zA-Z0-9_]*.html|_dynamo/gi);
+var url = window.location.href.lastIndexOf(match[match.length-1]);
+
+if (url)
+  {
+    var div = '<div class="admonition note"><p class="admonition-title">Note</p><p><i class="fa fa-exclamation-circle" aria-hidden="true">&nbsp</i> This page describes an internal API which is not intended to be used outside of the PyTorch codebase and can be modified or removed without notice.</p></div>'
+    document.getElementById("pytorch-article").insertAdjacentHTML('afterBegin', div)
+  }
+</script>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">分布式 RPC 框架</a><ul>
+<li><a class="reference internal" href="#basics">基础知识</a></li>
+<li><a class="reference internal" href="#rpc">RPC</a><ul>
+<li><a class="reference internal" href="#backends">后端</a><ul>
+<li><a class="reference internal" href="#tensorpipe-backend">TensorPipe 后端</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#rref">RRef</a></li>
+<li><a class="reference internal" href="#remotemodule">远程模块</a></li>
+<li><a class="reference internal" href="#distributed-autograd-framework">分布式自动微分框架</a></li>
+<li><a class="reference internal" href="#distributed-optimizer">分布式优化器</a></li>
+<li><a class="reference internal" href="#design-notes">设计说明</a></li>
+<li><a class="reference internal" href="#tutorials">教程</a></li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+         <script src="_static/jquery.js"></script>
+         <script src="_static/underscore.js"></script>
+         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+         <script src="_static/doctools.js"></script>
+         <script src="_static/clipboard.min.js"></script>
+         <script src="_static/copybutton.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ 
+<script script="" type="text/javascript">
+  var collapsedSections = ['Developer Notes', 'Language Bindings', 'Libraries', 'Community'];
+</script>
+
+<img height="1" width="1" style="border-style:none;" alt="" src="https://www.googleadservices.com/pagead/conversion/795629140/?label=txkmCPmdtosBENSssfsC&amp;guid=ON&amp;script=0">
+
+
+  <!-- Begin Footer -->
+
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 text-center">
+          <h2>文档</h2>
+          <p>PyTorch 开发者文档全面访问</p>
+          <a class="with-right-arrow" href="https://pytorch.org/docs/stable/index.html">查看文档</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>教程</h2>
+          <p>获取初学者和高级开发者的深入教程</p>
+          <a class="with-right-arrow" href="https://pytorch.org/tutorials">查看教程</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>资源</h2>
+          <p>查找开发资源并获得您的疑问解答</p>
+          <a class="with-right-arrow" href="https://pytorch.org/resources">查看资源</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://pytorch.org/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/">PyTorch</a></li>
+            <li><a href="https://pytorch.org/get-started">开始使用</a></li>
+            <li><a href="https://pytorch.org/features">功能</a></li>
+            <li><a href="https://pytorch.org/ecosystem">生态系统</a></li>
+            <li><a href="https://pytorch.org/blog/">博客</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md">贡献</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/resources">资源</a></li>
+            <li><a href="https://pytorch.org/tutorials">教程</a></li>
+            <li><a href="https://pytorch.org/docs/stable/index.html">文档</a></li>
+            <li><a href="https://discuss.pytorch.org" target="_blank">讨论</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/issues" target="_blank">GitHub 问题和任务</a></li>
+            <li><a href="https://pytorch.org/assets/brand-guidelines/PyTorch-Brand-Guidelines.pdf" target="_blank">品牌指南</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">保持更新</li>
+            <li><a href="https://www.facebook.com/pytorch" target="_blank">Facebook</a></li>
+            <li><a href="https://twitter.com/pytorch" target="_blank">推特</a></li>
+            <li><a href="https://www.youtube.com/pytorch" target="_blank">YouTube</a></li>
+            <li><a href="https://www.linkedin.com/company/pytorch" target="_blank">领英</a></li>
+          </ul>  
+          </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">PyTorch 播客</li>
+            <li><a href="https://open.spotify.com/show/6UzHKeiy368jKfQMKKvJY5" target="_blank">Spotify</a></li>
+            <li><a href="https://podcasts.apple.com/us/podcast/pytorch-developer-podcast/id1566080008" target="_blank">苹果</a></li>
+            <li><a href="https://www.google.com/podcasts?feed=aHR0cHM6Ly9mZWVkcy5zaW1wbGVjYXN0LmNvbS9PQjVGa0lsOA%3D%3D" target="_blank">谷歌</a></li>
+            <li><a href="https://music.amazon.com/podcasts/7a4e6f0e-26c2-49e9-a478-41bd244197d0/PyTorch-Developer-Podcast?" target="_blank">亚马逊</a></li>
+          </ul>
+         </div>
+        </div>
+        
+        <div class="privacy-policy">
+          <ul>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/terms/" target="_blank">条款</a></li>
+            <li class="privacy-policy-links">|</li>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/privacy-policy/" target="_blank">隐私</a></li>
+          </ul>
+        </div>
+        <div class="copyright">
+        <p>© 版权所有 Linux 基金会。PyTorch 基金会是 Linux 基金会的一个项目。有关本网站的使用条款、商标政策以及其他适用于 PyTorch 基金会的政策，请参阅 www.linuxfoundation.org/policies/。PyTorch 基金会支持 PyTorch 开源项目，该项目已被确立为 LF Projects, LLC 的 PyTorch 项目系列。有关适用于 PyTorch 项目系列 LF Projects, LLC 的政策，请参阅 www.lfprojects.org/policies/。</p>
+      </div>
+     </div>
+
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">为分析流量并优化您的体验，我们在本网站上提供 cookies。通过点击或导航，您同意允许我们使用 cookies。作为本站点的当前维护者，Facebook 的 Cookies 政策适用。了解更多信息，包括可用的控制选项：Cookies 政策。</p>
+    <img class="close-button" src="_static/images/pytorch-x.svg" width="16" height="16">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+           <li class="resources-mobile-menu-title">
+             <a>学习</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/get-started">开始学习</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials">教程</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/basics/intro.html">学习基础知识</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/recipes/recipes_index.html">PyTorch 菜谱</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/introyt.html">PyTorch 入门 - YouTube 系列</a>
+             </li>
+           </ul>
+           <li class="resources-mobile-menu-title">
+             <a>生态系统</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/ecosystem">工具</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/#community-module">社区</a>
+             </li>
+             <li>
+               <a href="https://discuss.pytorch.org/">论坛</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/resources">开发者资源</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">贡献者奖项 - 2024</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>Edge</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/edge">关于 PyTorch Edge</a>
+             </li>
+             
+             <li>
+               <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch 文档</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>文档</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/docs/stable/index.html">PyTorch</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/pytorch-domains">PyTorch 领域</a>
+            </li>
+          </ul>
+
+          <li class="resources-mobile-menu-title">
+            <a>博客 &amp; 新闻</a>
+          </li>
+            
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/blog/">PyTorch 博客</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/community-blog">社区博客</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/videos">视频</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/community-stories">社区故事</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/events">活动</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">通讯</a>
+             </li>
+          </ul>
+          
+          <li class="resources-mobile-menu-title">
+            <a>关于</a>
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/foundation">PyTorch 基金会</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/governing-board">治理委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">云信用计划</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">技术顾问委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">员工</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">联系我们</a>
+            </li>
+          </ul>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body></html>

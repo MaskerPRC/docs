@@ -1,0 +1,1716 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>torch.distributed.tensor — PyTorch main documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pytorch.org/docs/stable/distributed.tensor.html">
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css">
+  <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css">
+  <link rel="stylesheet" href="_static/copybutton.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="_static/katex-math.css" type="text/css">
+  <link rel="stylesheet" href="_static/sphinx-dropdown.css" type="text/css">
+  <link rel="stylesheet" href="_static/panels-bootstrap.min.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/jit.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css">
+    <link rel="index" title="Index" href="genindex.html">
+    <link rel="search" title="Search" href="search.html">
+    <link rel="next" title="Generic Join Context Manager" href="distributed.algorithms.join.html">
+    <link rel="prev" title="Distributed communication package - torch.distributed" href="distributed.html">
+
+<!--
+  Search engines should not index the main version of documentation.
+  Stable documentation are built without release == 'main'.
+-->
+<meta name="robots" content="noindex">
+
+
+  <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T8XT4PS');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+  <!-- Preload the theme fonts -->
+
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<!-- Preload the katex fonts -->
+
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Math-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size1-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size2-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Caligraphic-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
+</head><body class="pytorch-body"><div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+
+          <li class="main-menu-item">
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">学习</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/get-started">
+                  <span class="dropdown-title">开始使用</span>
+                  <p>在本地运行 PyTorch 或快速开始使用支持的云平台之一</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials">
+                  <span class="dropdown-title">教程</span><p></p>
+                  <p>PyTorch 教程中的新内容</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/basics/intro.html">
+                  <span class="dropdown-title">学习基础知识</span><p></p>
+                  <p>熟悉 PyTorch 的概念和模块</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/recipes/recipes_index.html">
+                  <span class="dropdown-title">PyTorch 食谱</span><p></p>
+                  <p>精简版、可直接部署的 PyTorch 代码示例</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/introyt.html">
+                  <span class="dropdown-title">PyTorch 入门 - YouTube 系列</span><p></p>
+                  <p>通过我们引人入胜的 YouTube 教程系列掌握 PyTorch 基础知识</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">生态系统</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem">
+                  <span class="dropdown-title">工具</span><p></p>
+                  <p>了解 PyTorch 生态系统中的工具和框架</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
+                  <span class="dropdown-title">社区</span>
+                  <p>加入 PyTorch 开发者社区，贡献、学习并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
+                  <span class="dropdown-title">论坛</span>
+                  <p>讨论 PyTorch 代码、问题、安装、研究的地方</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/resources">
+                  <span class="dropdown-title">开发者资源</span>
+                  <p>查找资源并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">贡献者奖项 - 2024</span><p></p>
+                  <p>本届 PyTorch 会议揭晓获奖者</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">
+                Edge
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/edge">
+                  <span class="dropdown-title">关于 PyTorch Edge</span><p></p>
+                  <p>为边缘设备构建创新和隐私感知的 AI 体验</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
+                  <span class="dropdown-title">ExecuTorch</span><p></p>
+                  <p>基于移动和边缘设备的端到端推理能力解决方案</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch 文档</span><p></p>
+                </a>
+              </div>
+            </div>  
+          </li>
+
+          <li class="main-menu-item">
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">文档</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/docs/stable/index.html">
+                  <span class="dropdown-title">PyTorch</span><p></p>
+                  <p>探索文档以获取全面指导，了解如何使用 PyTorch</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/pytorch-domains">
+                  <span class="dropdown-title">PyTorch 领域</span><p></p>
+                  <p>阅读 PyTorch 领域的文档，了解更多关于特定领域库的信息</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">博客与新闻</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/blog/">
+                  <span class="dropdown-title">PyTorch 博客</span><p></p>
+                  <p>捕捉最新的技术新闻和事件</p>
+                </a>
+                 <a class="nav-dropdown-item" href="https://pytorch.org/community-blog">
+                  <span class="dropdown-title">社区博客</span><p></p>
+                  <p>PyTorch 生态系统故事</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/videos">
+                  <span class="dropdown-title">视频</span><p></p>
+                  <p>了解最新的 PyTorch 教程、新内容等</p>
+                </a><a class="nav-dropdown-item" href="https://pytorch.org/community-stories">
+                  <span class="dropdown-title">社区故事</span><p></p>
+                  <p>学习如何我们的社区使用 PyTorch 解决真实、日常的机器学习问题</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/events">
+                  <span class="dropdown-title">活动</span><p></p>
+                  <p>查找活动、网络研讨会和播客</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">通讯</span><p></p>
+                  <p>跟踪最新更新</p>
+                </a>
+            </div>
+          </div></li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">关于</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/foundation">
+                  <span class="dropdown-title">PyTorch 基金会</span><p></p>
+                  <p>了解更多关于 PyTorch 基金会的信息</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
+                  <span class="dropdown-title">管理委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">云信用计划</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">技术顾问委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">员工</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">联系我们</span><p></p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li class="main-menu-item">
+            <div class="no-dropdown">
+              <a href="https://pytorch.org/join" data-cta="join">成为会员</a>
+            </div>
+          </li>
+          <li>
+           <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="github-icon">
+             </a>
+           </div>
+          </li>
+          <!--- TODO: This block adds the search icon to the nav bar. We will enable it later. 
+          <li>
+            <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="search-icon">
+             </a>
+            </div>
+          </li>
+          --->
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+  </div>
+</div>
+
+
+
+   
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>目录</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+    <div class="version">
+      <a href="https://pytorch.org/docs/versions.html">主程序 (2.7.0+cpu ) ▼</a>
+    </div>
+    <div id="searchBox">
+    <div class="searchbox" id="googleSearchBox">
+      <script async="" src="https://cse.google.com/cse.js?cx=e65585f8c3ea1440e"></script>
+      <div class="gcse-search"></div>
+    </div>
+    <div id="sphinxSearchBox" style="display: none;">
+      <div role="search">
+        <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+          <input type="text" name="q" placeholder="Search Docs">
+          <input type="hidden" name="check_keywords" value="yes">
+          <input type="hidden" name="area" value="default">
+        </form>
+      </div>
+    </div>
+  </div>
+  <form id="searchForm">
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="google" checked="">谷歌搜索</label>
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="sphinx">经典搜索</label>
+  </form>
+
+  <script>
+     document.addEventListener('DOMContentLoaded', function() {
+      const searchForm = document.getElementById('searchForm');
+      const googleSearchBox = document.getElementById('googleSearchBox');
+      const sphinxSearchBox = document.getElementById('sphinxSearchBox');
+      // Function to toggle search box visibility
+      function toggleSearchBox(searchType) {
+        googleSearchBox.style.display = searchType === 'google' ? 'block' : 'none';
+        sphinxSearchBox.style.display = searchType === 'sphinx' ? 'block' : 'none';
+      }
+      // Determine the default search type
+      let defaultSearchType;
+      const currentUrl = window.location.href;
+      if (currentUrl.startsWith('https://pytorch.org/docs/stable')) {
+        // For the stable documentation, default to Google
+        defaultSearchType = localStorage.getItem('searchType') || 'google';
+      } else {
+        // For any other version, including docs-preview, default to Sphinx
+        defaultSearchType = 'sphinx';
+      }
+      // Set the default search type
+      document.querySelector(`input[name="searchType"][value="${defaultSearchType}"]`).checked = true;
+      toggleSearchBox(defaultSearchType);
+      // Event listener for changes in search type
+      searchForm.addEventListener('change', function(event) {
+        const selectedSearchType = event.target.value;
+        localStorage.setItem('searchType', selectedSearchType);
+        toggleSearchBox(selectedSearchType);
+      });
+      // Set placeholder text for Google search box
+      window.onload = function() {
+        var placeholderText = "Search Docs";
+        var googleSearchboxText = document.querySelector("#gsc-i-id1");
+        if (googleSearchboxText) {
+          googleSearchboxText.placeholder = placeholderText;
+          googleSearchboxText.style.fontFamily = 'FreightSans';
+          googleSearchboxText.style.fontSize = "1.2rem";
+          googleSearchboxText.style.color = '#262626';
+        }
+      };
+    });
+  </script>
+
+          </div>
+
+          
+
+<div>
+  <a style="color:#F05732" href="https://pytorch.org/docs/stable/distributed.tensor.html">您正在查看不稳定开发者预览文档。请点击此处查看最新稳定版本的文档。</a>
+</div>
+
+
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">社区</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="community/build_ci_governance.html">PyTorch 治理 | 构建 + CI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/contribution_guide.html">PyTorch 贡献指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/design.html">PyTorch 设计哲学</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/governance.html">PyTorch 治理 | 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/persons_of_interest.html">PyTorch 治理 | 维护者</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发者笔记</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="notes/amp_examples.html">自动混合精度示例</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/autograd.html">Autograd 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/broadcasting.html">广播语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/cpu_threading_torchscript_inference.html">CPU 多线程和 TorchScript 推理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/cuda.html">CUDA 语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/custom_operators.html">PyTorch 自定义算子页面</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/ddp.html">分布式数据并行</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/extending.html">扩展 PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/extending.func.html">使用 autograd.Function 扩展 torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/faq.html">常见问题解答</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/fsdp.html">FSDP 笔记</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/get_start_xpu.html">在 Intel GPU 上入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/gradcheck.html">Gradcheck 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/hip.html">HIP (ROCm)语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/large_scale_deployments.html">大规模部署功能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/libtorch_stable_abi.html">LibTorch 稳定 ABI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/modules.html">模块</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/mps.html">MPS 后端</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/multiprocessing.html">多进程最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/numerical_accuracy.html">数值精度</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/randomness.html">可重现性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/serialization.html">序列化语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/windows.html">Windows 常见问题解答</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">语言绑定</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cpp_index.html">C++</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/javadoc/">Javadoc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deploy.html">torch::deploy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="torch.html">torch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.html">torch.nn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.functional.html">torch.nn.functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensors.html">torch.Tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensor_attributes.html">张量属性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensor_view.html">张量视图</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amp.html">torch.amp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autograd.html">torch.autograd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="library.html">torch.library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accelerator.html">torch.accelerator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpu.html">torch.cpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">torch.cuda</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html">理解 CUDA 内存使用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#generating-a-snapshot">生成快照</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#using-the-visualizer">使用可视化工具</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#snapshot-api-reference">快照 API 参考</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mps.html">torch.mps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="xpu.html">torch.xpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mtia.html">torch.mtia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mtia.memory.html">torch.mtia.memory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="meta.html">元设备</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backends.html">torch.backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="export.html">torch.export</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.html">torch.distributed</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">torch.distributed.tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.algorithms.join.html">torch.distributed.algorithms.join</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.elastic.html">torch.distributed.elastic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fsdp.html">torch.distributed.fsdp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.fsdp.fully_shard.html">torch.distributed.fsdp.fully_shard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.tensor.parallel.html">torch.distributed.tensor.parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.optim.html">torch.distributed.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.pipelining.html">torch.distributed.pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.checkpoint.html">torch.distributed.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributions.html">torch.distributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch.compiler.html">torch.compiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fft.html">torch.fft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="func.html">torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="futures.html">torch.futures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fx.html">torch.fx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fx.experimental.html">torch.fx.experimental</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hub.html">torch.hub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jit.html">torch.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="linalg.html">torch.linalg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitor.html">torch.monitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="signal.html">torch.signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="special.html">torch.special</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch.overrides.html">torch.overrides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="package.html">torch.package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="profiler.html">torch.profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.init.html">torch.nn.init</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.attention.html">torch.nn.attention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="onnx.html">torch.onnx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="optim.html">torch.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="complex_numbers.html">复数</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ddp_comm_hooks.html">DDP 通信钩子</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quantization.html">量化</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rpc.html">分布式 RPC 框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="random.html">torch.random</a></li>
+<li class="toctree-l1"><a class="reference internal" href="masked.html">torch.masked</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nested.html">torch.nested</a></li>
+<li class="toctree-l1"><a class="reference internal" href="size.html">torch.Size</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sparse.html">torch.sparse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="storage.html">torch.Storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">torch.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">torch.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmark_utils.html">torch.utils.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bottleneck.html">torch.utils.bottleneck</a></li>
+<li class="toctree-l1"><a class="reference internal" href="checkpoint.html">torch.utils.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp_extension.html">torch.utils.cpp_extension</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data.html">torch.utils.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deterministic.html">torch.utils.deterministic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jit_utils.html">torch.utils.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dlpack.html">torch.utils.dlpack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mobile_optimizer.html">torch.utils.mobile_optimizer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_zoo.html">torch.utils.model_zoo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensorboard.html">torch.utils.tensorboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_tracker.html">torch.utils.module_tracker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="type_info.html">类型信息</a></li>
+<li class="toctree-l1"><a class="reference internal" href="named_tensor.html">命名张量</a></li>
+<li class="toctree-l1"><a class="reference internal" href="name_inference.html">命名张量操作覆盖率</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config_mod.html">torch.__config__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="future_mod.html">torch.__future__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">torch._logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_environment_variables.html">火炬环境变量</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">库</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/audio/stable">torchaudio</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/data">TorchData</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/torchrec">火炬推荐</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/serve">TorchServe</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/text/stable">torchtext</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/vision/stable">torchvision</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/xla/">PyTorch 在 XLA 设备上</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/ao">torchao</a></li>
+</ul>
+
+            
+          
+
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        文档 &gt;</li>
+
+        
+      <li>torch.distributed.tensor</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+            
+            <a href="_sources/distributed.tensor.rst.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg" width="16" height="16"></a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">快捷键</div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+
+          <!-- Google Tag Manager (noscript) -->
+          <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T8XT4PS" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+          <!-- End Google Tag Manager (noscript) -->
+          
+          <div class="rst-content">
+          
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <section id="torch-distributed-tensor">
+<h1>torch.distributed.tensor ¬</h1>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p> <code class="docutils literal "><span class="pre">torch.distributed.tensor</span></code> 目前处于 alpha 状态，处于开发中，我们正在为文档中列出的大多数 API 承诺向后兼容性，但如果有必要，可能会有 API 变更。</p>
+</div>
+<section id="pytorch-dtensor-distributed-tensor">
+<h2>PyTorch DTensor（分布式张量）¬</h2>
+<p>PyTorch DTensor 提供简单灵活的张量分片原语，透明地处理分布式逻辑，包括分片存储、算子计算以及跨设备/主机进行集体通信。 <code class="docutils literal "><span class="pre">DTensor</span></code> 可用于构建不同的并行解决方案，并在处理多维分片时支持分片状态字典表示。</p>
+<p>请参阅基于 <code class="docutils literal "><span class="pre">DTensor</span></code> 构建的 PyTorch 原生并行解决方案的示例：</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://pytorch.org/docs/main/distributed.tensor.parallel.html">张量并行</a></p></li>
+<li><p><a class="reference external" href="https://github.com/pytorch/torchtitan/blob/main/docs/fsdp.md">FSDP2</a></p></li>
+</ul>
+<span class="target" id="module-torch.distributed.tensor"></span><p>采用 SPMD（单程序，多数据）编程模型，让用户能够像编写单设备程序一样编写分布式程序，并保持相同的收敛属性。它通过指定 <code class="xref py py-class docutils literal "><span class="pre">DeviceMesh</span></code> 和 <code class="xref py py-class docutils literal "><span class="pre">Placement</span></code> 提供统一的张量划分布局（DTensor 布局）：</p>
+<ul class="simple">
+<li><p> <code class="xref py py-class docutils literal "><span class="pre">DeviceMesh</span></code> 使用 n 维数组表示集群的设备拓扑和通信器。</p></li>
+<li><p> <code class="xref py py-class docutils literal "><span class="pre">Placement</span></code> 描述了逻辑张量在 <code class="xref py py-class docutils literal "><span class="pre">DeviceMesh</span></code> 上的划分布局。DTensor 支持三种类型的放置： <code class="xref py py-class docutils literal "><span class="pre">Shard</span></code> 、 <code class="xref py py-class docutils literal "><span class="pre">Replicate</span></code> 和 <code class="xref py py-class docutils literal "><span class="pre">Partial</span></code> 。</p></li>
+</ul>
+<section id="dtensor-class-apis">
+<h3>DTensor 类 APIs ¶</h3>
+<p> <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 是一个 <code class="docutils literal "><span class="pre">torch.Tensor</span></code> 子类。这意味着一旦创建了一个 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> ，它可以以非常相似的方式用于 <code class="docutils literal "><span class="pre">torch.Tensor</span></code> ，包括运行不同类型的 PyTorch 操作，就像在单个设备上运行一样，允许 PyTorch 操作进行适当的分布式计算。</p>
+<p>除了现有的 <code class="docutils literal "><span class="pre">torch.Tensor</span></code> 方法外，它还提供了一组与 <code class="docutils literal "><span class="pre">torch.Tensor</span></code> 交互的附加方法，例如将 DTensor Layout 转换为新的 DTensor，获取所有设备上的完整张量内容等。</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.tensor.DTensor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.tensor.</span></span><span class="sig-name descname"><span class="pre">DTensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">local_tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spec</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">requires_grad</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#torch.distributed.tensor.DTensor" title="Permalink to this definition">¶</a></dt>
+<dd><p> <code class="docutils literal "><span class="pre">DTensor</span></code> （分布式张量）是 <code class="docutils literal "><span class="pre">torch.Tensor</span></code> 的一个子类，它提供了对多设备 <code class="docutils literal "><span class="pre">torch.Tensor</span></code> 的单设备抽象，通过 <code class="xref py py-class docutils literal "><span class="pre">DeviceMesh</span></code> 和以下类型的 <code class="xref py py-class docutils literal "><span class="pre">Placement</span></code> 描述分布式张量分片布局（DTensor Layout）：</p>
+<ul class="simple">
+<li><p> <code class="xref py py-class docutils literal "><span class="pre">Shard</span></code> : 张量在张量维度 <code class="docutils literal "><span class="pre">dim</span></code> 上分片，位于 <code class="docutils literal "><span class="pre">DeviceMesh</span></code> 维度的设备上</p></li>
+<li><p> <code class="xref py py-class docutils literal "><span class="pre">Replicate</span></code> : 张量在 <code class="docutils literal "><span class="pre">DeviceMesh</span></code> 维度的设备上复制</p></li>
+<li><p> <code class="xref py py-class docutils literal "><span class="pre">Partial</span></code> : 张量在 <code class="docutils literal "><span class="pre">DeviceMesh</span></code> 维度的设备上等待归约</p></li>
+</ul>
+<p>当调用 PyTorch 运算符时， <code class="docutils literal "><span class="pre">DTensor</span></code> 会覆盖 PyTorch 运算符以执行分片计算并在必要时发出通信。除了运算符计算外， <code class="docutils literal "><span class="pre">DTensor</span></code> 还会根据运算符本身的语义正确地转换或传播放置（DTensor 布局）并生成新的 <code class="docutils literal "><span class="pre">DTensor</span></code> 输出。</p>
+<p>确保在调用 PyTorch 运算符时 <code class="docutils literal "><span class="pre">DTensor</span></code> 的数值正确性， <code class="docutils literal "><span class="pre">DTensor</span></code> 要求运算符的每个 Tensor 参数必须是 DTensor。</p>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>直接使用 Tensor 子类构造函数在这里不是推荐的方式创建一个 <code class="docutils literal "><span class="pre">DTensor</span></code> （即它不能正确处理 autograd，因此不是公共 API）。请参阅 create_dtensor 部分，了解如何创建一个 <code class="docutils literal "><span class="pre">DTensor</span></code> 。</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#torch.distributed.tensor.DTensor" title="torch.distributed.tensor.DTensor">DTensor</a></p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.tensor.DTensor.__create_chunk_list__">
+<span class="sig-name descname"><span class="pre">__create_chunk_list__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/tensor/_api.html#DTensor.__create_chunk_list__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/tensor/_api.py#L606"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.tensor.DTensor.__create_chunk_list__" title="Permalink to this definition">¶</a></dt>
+<dd><p>返回一个 ChunkStorageMetadata 列表，该数据类描述了当前 rank 上本地分片/副本的大小/偏移量。对于 DTensor，每个 rank 将有一个单独的本地分片/副本，因此返回的列表通常只有一个元素。</p>
+<p>该魔术方法主要用于分布式检查点目的。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回<span class="colon">:</span></dt>
+<dd class="field-odd"><p>表示当前 rank 上分片大小/偏移量的 List[ <code class="xref py py-class docutils literal "><span class="pre">ChunkStorageMetadata</span></code> ]对象。</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.tensor.DTensor.from_local">
+static from_local(local_tensor, device_mesh=None, placements=None, *, run_check=False, shape=None, stride=None)[source][source]</dt>
+<dd><p>根据指定的 <code class="docutils literal "><span class="pre">device_mesh</span></code> 和 <code class="docutils literal "><span class="pre">placements</span></code> 在每个 rank 上从本地 torch.Tensor 创建一个 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>local_tensor (torch.Tensor) – 每个 rank 上的本地 torch.Tensor。</p></li>
+<li><p>device_mesh ( <code class="xref py py-class docutils literal "><span class="pre">DeviceMesh</span></code> ，可选) – 放置张量的 DeviceMesh，如果未指定，必须在 DeviceMesh 上下文管理器下调用，默认：None</p></li>
+<li><p>placements (List[ <code class="xref py py-class docutils literal "><span class="pre">Placement</span></code> ]，可选) – 描述如何在 DeviceMesh 上放置本地 torch.Tensor 的 placements，必须与 <code class="docutils literal "><span class="pre">device_mesh.ndim</span></code> 具有相同数量的元素。</p></li>
+</ul>
+</dd>
+<dt class="field-even">关键字参数<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p>run_check (bool, 可选) – 以额外的通信为代价，在所有进程间执行一致性检查，以检查每个本地张量的元信息以确保正确性。如果存在 <code class="xref py py-class docutils literal "><span class="pre">Replicate</span></code> 在 <code class="docutils literal "><span class="pre">placements</span></code> 中，设备网格维度上的第一个进程的数据将被广播到其他进程。默认：False</p></li>
+<li><p>shape (torch.Size, 可选) – 一个指定 DTensor 大小的 int 列表，该 DTensor 基于 local_tensor 构建。注意，如果 <code class="docutils literal "><span class="pre">local_tensor</span></code> 的形状在不同进程间不同，则需要提供此信息。如果不提供，将假设给定的分布式张量在所有进程间均匀划分。默认：None</p></li>
+<li><p>stride (tuple, 可选) – 指定 DTensor 步长的 int 列表。如果不提供，将假设给定的分布式张量在所有进程间均匀划分。默认：None</p></li>
+</ul>
+</dd>
+<dt class="field-odd">返回<span class="colon">:</span></dt>
+<dd class="field-odd"><p>一个 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 对象</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#torch.distributed.tensor.DTensor" title="torch.distributed.tensor.DTensor"><em>DTensor</em></a></p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>当 <code class="docutils literal "><span class="pre">run_check=False</span></code> 时，用户有责任确保传入的本地张量在各个 rank 上正确（即张量已根据 <code class="docutils literal "><span class="pre">Shard(dim)</span></code> 放置进行分片或根据 <code class="docutils literal "><span class="pre">Replicate()</span></code> 放置进行复制）。如果不这样做，创建的 DTensor 的行为将是未定义的。</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>如果 <code class="docutils literal "><span class="pre">from_local</span></code> 可微分，则创建的 DTensor 对象的 requires_grad 将取决于 local_tensor 是否需要 requires_grad。</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.tensor.DTensor.full_tensor">
+<span class="sig-name descname"><span class="pre">full_tensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grad_placements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/tensor/_api.html#DTensor.full_tensor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/tensor/_api.py#L544"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.tensor.DTensor.full_tensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>返回此 DTensor 的全张量。它将执行必要的集体操作以收集其 DeviceMesh 中其他 rank 的本地张量并将它们连接在一起。这是以下代码的语法糖：</p>
+<p><code class="docutils literal "><span class="pre">dtensor.redistribute(placements=[Replicate()]</span> <span class="pre">*</span> <span class="pre">mesh.ndim).to_local()</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">关键字参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>grad_placements (List[ <code class="xref py py-class docutils literal "><span class="pre">Placement</span></code> ], 可选) – 该放置描述了从该函数返回的全 Tensor 的任何梯度布局的未来布局。full_tensor 将 DTensor 转换为全 torch.Tensor，返回的 torch.tensor 可能不会在代码中稍后用作原始复制的 DTensor 布局。此参数是用户可以向 autograd 提供的提示，如果返回张量的梯度布局与原始复制的 DTensor 布局不匹配。如果未指定，我们将假设全张量的梯度布局为复制。</p>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>表示此 DTensor 完整张量的一个对象。</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="tensors.html#torch.Tensor" title="torch.Tensor"><em>张量</em></a></p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p> <code class="docutils literal "><span class="pre">full_tensor</span></code> 是可微分的。</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.tensor.DTensor.redistribute">
+<span class="sig-name descname"><span class="pre">redistribute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device_mesh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">placements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">async_op</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/tensor/_api.html#DTensor.redistribute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/tensor/_api.py#L472"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.tensor.DTensor.redistribute" title="Permalink to this definition">¶</a></dt>
+<dd><p> <code class="docutils literal "><span class="pre">redistribute</span></code> 执行必要的集体操作，将当前 DTensor 从其当前放置位置重新分配到新的放置位置，或从当前 DeviceMesh 重新分配到新的 DeviceMesh。即，我们可以通过为 DeviceMesh 的每个维度指定复制放置，将分片 DTensor 转换为复制 DTensor。</p>
+<p>当从当前分配到新设备网格维度上的分配进行重新分配时，我们将执行以下操作，包括通信集体或局部操作：</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal "><span class="pre">Shard(dim)</span></code> -&gt; <code class="docutils literal "><span class="pre">Replicate()</span></code>: <code class="docutils literal "><span class="pre">all_gather</span></code></p></li>
+<li><p><code class="docutils literal "><span class="pre">Shard(src_dim)</span></code> -&gt; <code class="docutils literal "><span class="pre">Shard(dst_dim)</span></code>: <code class="docutils literal "><span class="pre">all_to_all</span></code></p></li>
+<li><p> <code class="docutils literal "><span class="pre">Replicate()</span></code> -&gt; <code class="docutils literal "><span class="pre">Shard(dim)</span></code> : 本地分块（即 <code class="docutils literal "><span class="pre">torch.chunk</span></code> ）</p></li>
+<li><p><code class="docutils literal "><span class="pre">Partial()</span></code> -&gt; <code class="docutils literal "><span class="pre">Replicate()</span></code>: <code class="docutils literal "><span class="pre">all_reduce</span></code></p></li>
+<li><p><code class="docutils literal "><span class="pre">Partial()</span></code> -&gt; <code class="docutils literal "><span class="pre">Shard(dim)</span></code>: <code class="docutils literal "><span class="pre">reduce_scatter</span></code></p></li>
+</ol>
+<p> <code class="docutils literal "><span class="pre">redistribute</span></code> 将正确地确定为在 1-D 或 N-D DeviceMesh 上创建的 DTensors 分配所需的重新分配步骤。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>device_mesh ( <code class="xref py py-class docutils literal "><span class="pre">DeviceMesh</span></code> , 可选) – 放置 DTensor 的 DeviceMesh。如未指定，将使用当前 DTensor 的 DeviceMesh。默认：None</p></li>
+<li><p>placements (List[ <code class="xref py py-class docutils literal "><span class="pre">Placement</span></code> ], 可选) – 描述如何将 DTensor 放置到 DeviceMesh 中的新放置，必须与 <code class="docutils literal "><span class="pre">device_mesh.ndim</span></code> 的元素数量相同。默认：在所有网格维度上复制</p></li>
+</ul>
+</dd>
+<dt class="field-even">关键字参数<span class="colon">:</span></dt>
+<dd class="field-even"><p>async_op (bool, 可选) – 是否异步执行 DTensor 重新分配操作。默认：False</p>
+</dd>
+<dt class="field-odd">返回<span class="colon">:</span></dt>
+<dd class="field-odd"><p>一个 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 对象</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#torch.distributed.tensor.DTensor" title="torch.distributed.tensor.DTensor"><em>DTensor</em></a></p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p> <code class="docutils literal "><span class="pre">redistribute</span></code> 可微，这意味着用户无需担心重新分配操作的逆向公式。</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p> <code class="docutils literal "><span class="pre">redistribute</span></code> 目前仅支持在同一 DeviceMesh 上重新分配 DTensor，如需将 DTensor 重新分配到不同的 DeviceMesh，请提交问题。</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.tensor.DTensor.to_local">
+<span class="sig-name descname"><span class="pre">to_local</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grad_placements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/tensor/_api.html#DTensor.to_local"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/tensor/_api.py#L435"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.tensor.DTensor.to_local" title="Permalink to this definition">¶</a></dt>
+<dd><p>获取此 DTensor 在其当前 rank 上的本地张量。对于分片，它返回逻辑张量视图的本地分片；对于复制，它返回当前 rank 上的副本。</p>
+<dl class="field-list simple">
+<dt class="field-odd">关键字参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>grad_placements（List[ <code class="xref py py-class docutils literal "><span class="pre">Placement</span></code> ]，可选）- 描述了从该函数返回的 Tensor 的任何梯度布局的未来布局。to_local 将 DTensor 转换为本地张量，返回的本地张量可能不会在代码的后续部分用作原始 DTensor 的布局。此参数是用户可以向 autograd 提供的提示，如果返回的张量梯度布局与原始 DTensor 布局不匹配。如果未指定，我们将假设梯度布局与原始 DTensor 保持相同，并使用该布局进行梯度计算。</p>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>一个 <code class="xref py py-class docutils literal "><span class="pre">torch.Tensor</span></code> 或 <code class="docutils literal "><span class="pre">AsyncCollectiveTensor</span></code> 对象。它代表当前 rank 上的本地张量。当返回 <code class="docutils literal "><span class="pre">AsyncCollectiveTensor</span></code> 对象时，表示本地张量尚未准备好（即通信尚未完成）。在这种情况下，用户需要调用 <code class="docutils literal "><span class="pre">wait</span></code> 以等待本地张量准备好。</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="tensors.html#torch.Tensor" title="torch.Tensor"><em>张量</em></a></p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p> <code class="docutils literal "><span class="pre">to_local</span></code> 可导，返回的局部张量的 <code class="docutils literal "><span class="pre">requires_grad</span></code> 将取决于 DTensor 是否需要梯度。</p>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="torch.distributed.tensor.DTensor.device_mesh">
+属性 device_meshDeviceMesh ¶</dt>
+<dd><p>与此 DTensor 对象关联的 <code class="xref py py-class docutils literal "><span class="pre">DeviceMesh</span></code> 属性。</p>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p> <code class="docutils literal "><span class="pre">device_mesh</span></code> 是只读属性，不能设置。</p>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="torch.distributed.tensor.DTensor.placements">
+属性放置 tuple[torch.distributed.tensor.placement_types.Placement...]</dt>
+<dd><p>该 DTensor 的 placements 属性描述了该 DTensor 在其 DeviceMesh 上的布局。</p>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p> <code class="docutils literal "><span class="pre">placements</span></code> 是一个只读属性，不能设置。</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="devicemesh-as-the-distributed-communicator">
+<h3>DeviceMesh 作为分布式通信器。</h3>
+<p> <code class="xref py py-class docutils literal "><span class="pre">DeviceMesh</span></code> 是从 DTensor 构建而成的抽象，用于描述集群的设备拓扑结构并表示多维通信器（在 <code class="docutils literal "><span class="pre">ProcessGroup</span></code> 之上）。有关如何创建/使用 DeviceMesh 的详细信息，请参阅 DeviceMesh 菜谱。</p>
+</section>
+<section id="module-torch.distributed.tensor.placement_types">
+<span id="dtensor-placement-types"></span><h3>DTensor 放置类型 ¶</h3>
+<p>DTensor 支持以下类型的 <code class="xref py py-class docutils literal "><span class="pre">Placement</span></code> 在每个 <code class="xref py py-class docutils literal "><span class="pre">DeviceMesh</span></code> 维度上：</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.tensor.placement_types.Shard">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.tensor.placement_types.</span></span><span class="sig-name descname"><span class="pre">Shard</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dim</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/tensor/placement_types.html#Shard"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/tensor/placement_types.py#L48"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.tensor.placement_types.Shard" title="Permalink to this definition">¶</a></dt>
+<dd><p> <code class="docutils literal "><span class="pre">Shard(dim)</span></code> 放置描述了在 <code class="docutils literal "><span class="pre">dim</span></code> 索引的 tensor 维度上对 DTensor 的分片，在 DeviceMesh 维度上，每个 rank 只持有全局 Tensor 的一个分片/片段。 <code class="docutils literal "><span class="pre">Shard(dim)</span></code> 放置遵循 <code class="docutils literal "><span class="pre">torch.chunk(dim)</span></code> 语义，当 tensor 维度不能被 DeviceMesh 维度整除时，DeviceMesh 维度上的最后几个分片可能为空。 <code class="docutils literal "><span class="pre">Shard</span></code> 放置可以被所有 DTensor API（例如 distribute_tensor、from_local 等）使用。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dim（int）- 描述 DTensor 在其对应的 DeviceMesh 维度上分片的 tensor 维度。</p>
+</dd>
+</dl>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>在 tensor 维度大小不能被 DeviceMesh 维度整除的情况下对 tensor 维度进行分片的功能目前处于实验阶段，可能发生变化。</p>
+</div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="torch.distributed.tensor.placement_types.Shard.dim">
+<span class="sig-name descname"><span class="pre">dim</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></em><a class="headerlink" href="#torch.distributed.tensor.placement_types.Shard.dim" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.tensor.placement_types.Replicate">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.tensor.placement_types.</span></span><span class="sig-name descname"><span class="pre">Replicate</span></span><a class="reference internal" href="_modules/torch/distributed/tensor/placement_types.html#Replicate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/tensor/placement_types.py#L543"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.tensor.placement_types.Replicate" title="Permalink to this definition">¶</a></dt>
+<dd><p> <code class="docutils literal "><span class="pre">Replicate()</span></code> 放置描述了在相应的 <code class="docutils literal "><span class="pre">DeviceMesh</span></code> 维度上复制的 DTensor，其中每个在 DeviceMesh 维度上的 rank 持有全局 Tensor 的副本。 <code class="docutils literal "><span class="pre">Replicate</span></code> 放置可由所有 DTensor API 使用（即 <code class="docutils literal "><span class="pre">distribute_tensor</span></code> ， <code class="docutils literal "><span class="pre">DTensor.from_local</span></code> ，等等）</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.tensor.placement_types.Partial">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.tensor.placement_types.</span></span><span class="sig-name descname"><span class="pre">Partial</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reduce_op</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sum'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/tensor/placement_types.html#Partial"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/tensor/placement_types.py#L595"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.tensor.placement_types.Partial" title="Permalink to this definition">¶</a></dt>
+<dd><p> <code class="docutils literal "><span class="pre">Partial(reduce_op)</span></code> 放置描述了在指定 <code class="docutils literal "><span class="pre">DeviceMesh</span></code> 维度上待减小的 DTensor，其中每个在 DeviceMesh 维度上的 rank 持有全局 Tensor 的部分值。用户可以使用 <code class="docutils literal "><span class="pre">redistribute</span></code> 将 <code class="docutils literal "><span class="pre">Partial</span></code> DTensor 重新分配到指定 <code class="docutils literal "><span class="pre">DeviceMesh</span></code> 维度上的 <code class="docutils literal "><span class="pre">Replicate</span></code> 或 <code class="docutils literal "><span class="pre">Shard(dim)</span></code> 放置，这将触发底层的必要通信操作（即 <code class="docutils literal "><span class="pre">allreduce</span></code> ， <code class="docutils literal "><span class="pre">reduce_scatter</span></code> ）</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>reduce_op (字符串，可选) – 用于将部分 DTensor 转换为 Replicated/Sharded DTensor 的缩减操作。仅支持元素级缩减操作，包括：“sum”（求和）、“avg”（平均值）、“product”（乘积）、“max”（最大值）、“min”（最小值），默认：“sum”。</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p> <code class="docutils literal "><span class="pre">Partial</span></code> 放置可以由 DTensor 操作生成，并且只能由 <code class="docutils literal "><span class="pre">DTensor.from_local</span></code> API 使用。</p>
+</div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="torch.distributed.tensor.placement_types.Partial.reduce_op">
+reduce_opstr='sum'</dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.tensor.placement_types.Placement">
+class torch.distributed.tensor.placement_types.Placement[source][source]</dt>
+<dd><p>放置类型的基类，其中描述了如何将 DTensor 放置到 <code class="docutils literal "><span class="pre">DeviceMesh</span></code> 。 <code class="docutils literal "><span class="pre">Placement</span></code> 和 <code class="docutils literal "><span class="pre">DeviceMesh</span></code> 一起可以描述 DTensor 的布局。它是三个主要 DTensor 放置类型的基础类： <code class="docutils literal "><span class="pre">Shard</span></code> ， <code class="docutils literal "><span class="pre">Replicate</span></code> ，和 <code class="docutils literal "><span class="pre">Partial</span></code> 。</p>
+<p>此类不打算直接使用，主要作为类型占位符。</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.tensor.placement_types.Placement.is_partial">
+is_partial()[来源][来源] ¶</dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">布尔型</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.tensor.placement_types.Placement.is_replicate">
+is_replicate()[来源][来源] ¶</dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">布尔型</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.tensor.placement_types.Placement.is_shard">
+<span class="sig-name descname"><span class="pre">is_shard</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/tensor/placement_types.html#Placement.is_shard"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/tensor/placement_types.py#L34"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.tensor.placement_types.Placement.is_shard" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">布尔型</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+<section id="different-ways-to-create-a-dtensor">
+<span id="create-dtensor"></span><h2>不同方式创建 DTensor</h2>
+<dl class="simple">
+<dt>有三种方式来构建一个 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> :</dt><dd><ul class="simple">
+<li><p> <code class="xref py py-meth docutils literal "><span class="pre">distribute_tensor()</span></code> 从每个 rank 上的逻辑或“全局” <code class="docutils literal "><span class="pre">torch.Tensor</span></code> 创建一个 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 。这可以用来分片叶节点 <code class="docutils literal "><span class="pre">torch.Tensor</span></code> （即模型参数/缓冲区和输入）。</p></li>
+<li><p>在每个进程上从本地创建一个，可用于从非叶子节点创建（即正向/反向过程中的中间激活张量）。</p></li>
+<li><p>DTensor 提供了专门的张量工厂函数（例如， <code class="xref py py-meth docutils literal "><span class="pre">empty()</span></code> 、 <code class="xref py py-meth docutils literal "><span class="pre">ones()</span></code> 、 <code class="xref py py-meth docutils literal "><span class="pre">randn()</span></code> 等），允许通过直接指定 <code class="xref py py-class docutils literal "><span class="pre">DeviceMesh</span></code> 和 <code class="xref py py-class docutils literal "><span class="pre">Placement</span></code> 来创建不同的 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 。与 <code class="xref py py-meth docutils literal "><span class="pre">distribute_tensor()</span></code> 相比，这可以直接在设备上物化分片内存，而不是在初始化逻辑张量内存后进行分片。</p></li>
+</ul>
+</dd>
+</dl>
+<section id="create-dtensor-from-a-logical-torch-tensor">
+<h3>从逻辑 torch.Tensor 创建 DTensor</h3>
+<p>SPMD（单程序，多数据）编程模型在 <code class="docutils literal "><span class="pre">torch.distributed</span></code> 中启动多个进程（即通过 <code class="docutils literal "><span class="pre">torchrun</span></code> ）来执行相同的程序，这意味着程序中的模型首先会在不同的进程中初始化（即模型可能首先在 CPU 上初始化，或在元设备上初始化，或者在有足够内存的情况下直接在 GPU 上初始化）。</p>
+<p>提供了一个 API，可以将模型权重或张量分片到 <code class="docutils literal "><span class="pre">DTensor</span></code> ，其中它会在每个进程中创建一个由“逻辑”张量构成的 DTensor。这将使创建的 <code class="docutils literal "><span class="pre">DTensor</span></code> 能够符合单设备语义，这对于数值正确性至关重要。</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.distributed.tensor.distribute_tensor">
+torch.distributed.tensor.distribute_tensor(tensor, device_mesh=None, placements=None, *, src_data_rank=0)[source]</dt>
+<dd><p>将叶 <code class="docutils literal "><span class="pre">torch.Tensor</span></code> （即 nn.Parameter/buffers）根据指定的 <code class="docutils literal "><span class="pre">placements</span></code> 分配到 <code class="docutils literal "><span class="pre">device_mesh</span></code> 。 <code class="docutils literal "><span class="pre">device_mesh</span></code> 和 <code class="docutils literal "><span class="pre">placements</span></code> 的 rank 必须相同。要分配的是逻辑或“全局”张量，API 将使用 DeviceMesh 维度的第一个 rank 的 <code class="docutils literal "><span class="pre">tensor</span></code> 作为真实来源以保持单设备语义。如果您想在 Autograd 计算过程中构建 DTensor，请使用 <code class="xref py py-meth docutils literal "><span class="pre">DTensor.from_local()</span></code> 。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>tensor (torch.Tensor) – 要分配的 torch.Tensor。注意，如果您想在不是该网格维度中设备数量整除的维度上分片张量，我们将使用 <code class="docutils literal "><span class="pre">torch.chunk</span></code> 语义来分片张量并分散碎片。不均匀分片行为是实验性的，可能随时更改。</p></li>
+<li><p>device_mesh ( <code class="xref py py-class docutils literal "><span class="pre">DeviceMesh</span></code> ，可选) – 将张量分布到 DeviceMesh 的 DeviceMesh，如果未指定，必须在 DeviceMesh 管理器下调用，默认：None</p></li>
+<li><p>placements (List[ <code class="xref py py-class docutils literal "><span class="pre">Placement</span></code> ]，可选) – 描述如何在 DeviceMesh 上放置张量的 placements，必须与 <code class="docutils literal "><span class="pre">device_mesh.ndim</span></code> 的元素数量相同。如果未指定，我们将默认将张量复制到 <code class="docutils literal "><span class="pre">device_mesh</span></code> 的设备_mesh 的每个维度的第一个秩。</p></li>
+</ul>
+</dd>
+<dt class="field-even">关键字参数<span class="colon">:</span></dt>
+<dd class="field-even"><p>src_data_rank (int，可选) – 逻辑/全局张量的源数据秩，它由 <code class="xref py py-meth docutils literal "><span class="pre">distribute_tensor()</span></code> 用于将碎片/副本分散/广播到其他秩。默认情况下，我们使用 <code class="docutils literal "><span class="pre">group_rank=0</span></code> 在每个 DeviceMesh 维度上作为源数据以保留单设备语义。如果显式传递 <code class="docutils literal "><span class="pre">None</span></code> ， <code class="xref py py-meth docutils literal "><span class="pre">distribute_tensor()</span></code> 将仅使用其本地数据，而不是尝试通过分散/广播来保留单设备语义。默认：0</p>
+</dd>
+<dt class="field-odd">返回<span class="colon">:</span></dt>
+<dd class="field-odd"><p>一种 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 或 <code class="docutils literal "><span class="pre">XLAShardedTensor</span></code> 对象。</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#torch.distributed.tensor.DTensor" title="torch.distributed.tensor.DTensor"><em>DTensor</em></a></p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>当使用 <code class="docutils literal "><span class="pre">xla</span></code> 设备类型初始化 DeviceMesh 时， <code class="docutils literal "><span class="pre">distribute_tensor</span></code> 返回 XLAShardedTensor。有关更多详细信息，请参阅此问题。XLA 集成是实验性的，可能会发生变化。</p>
+</div>
+</dd></dl>
+
+<p>除了 <code class="xref py py-meth docutils literal "><span class="pre">distribute_tensor()</span></code> 之外，DTensor 还提供了一个 <code class="xref py py-meth docutils literal "><span class="pre">distribute_module()</span></code> API，以允许在 <code class="xref py py-class docutils literal "><span class="pre">nn.Module</span></code> 层面上更容易地进行分片。</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.distributed.tensor.distribute_module">
+<span class="sig-prename descclassname"><span class="pre">torch.distributed.tensor.</span></span><span class="sig-name descname"><span class="pre">distribute_module</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device_mesh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">partition_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/tensor/_api.py#L821"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.tensor.distribute_module" title="Permalink to this definition">¶</a></dt>
+<dd><p>此函数暴露了三个函数来控制模块的参数/输入/输出：</p>
+<p>1. 在运行时之前对模块进行分片，通过指定 <code class="docutils literal "><span class="pre">partition_fn</span></code> （即允许用户根据指定的 partition_fn 将 Module 参数转换为 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 参数）。2. 通过指定 <code class="docutils literal "><span class="pre">input_fn</span></code> 和 <code class="docutils literal "><span class="pre">output_fn</span></code> 来控制模块在运行时的输入或输出。（即转换输入为 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> ，将输出转换回 <code class="docutils literal "><span class="pre">torch.Tensor</span></code> ）</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>module ( <code class="xref py py-class docutils literal "><span class="pre">nn.Module</span></code> ) – 要分片的用户模块。</p></li>
+<li><p>设备网格（ <code class="xref py py-class docutils literal "><span class="pre">DeviceMesh</span></code> ）- 放置模块的设备网格。</p></li>
+<li><p>partition_fn（可调用函数）- 分区参数的函数（即跨 <code class="docutils literal "><span class="pre">device_mesh</span></code> 分片某些参数）。如果未指定 <code class="docutils literal "><span class="pre">partition_fn</span></code> ，则默认情况下，将 <code class="docutils literal "><span class="pre">module</span></code> 的所有模块参数复制到网格中。</p></li>
+<li><p>input_fn（可调用函数）- 指定输入分布，即可以控制模块的输入如何分片。 <code class="docutils literal "><span class="pre">input_fn</span></code> 将作为模块 <code class="docutils literal "><span class="pre">forward_pre_hook</span></code> （预前向钩子）安装。</p></li>
+<li><p>output_fn（可调用函数）- 指定输出分布，即可以控制输出如何分片，或将它转换回 torch.Tensor。 <code class="docutils literal "><span class="pre">output_fn</span></code> 将作为模块 <code class="docutils literal "><span class="pre">forward_hook</span></code> （后向钩子）安装。</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>包含所有参数/缓冲区的模块，均为 <code class="docutils literal "><span class="pre">DTensor</span></code> 。</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p></p><p id="torch.nn.Module"><a class="reference internal" href="generated/torch.nn.Module.html#torch.nn.Module" title="torch.nn.modules.module.Module"><em>模块</em></a></p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>当使用 <code class="docutils literal "><span class="pre">xla</span></code> 设备类型初始化 DeviceMesh 时， <code class="docutils literal "><span class="pre">distribute_module</span></code> 返回具有 PyTorch/XLA SPMD 注解参数的 nn.Module。有关更多详细信息，请参阅此问题。XLA 集成是实验性的，可能会更改。</p>
+</div>
+</dd></dl>
+
+</section>
+<section id="dtensor-factory-functions">
+<h3>DTensor 工厂函数</h3>
+<p>DTensor 还提供了专门的张量工厂函数，允许通过指定 <code class="xref py py-class docutils literal "><span class="pre">DeviceMesh</span></code> 和 <code class="xref py py-class docutils literal "><span class="pre">Placement</span></code> 来直接使用 torch.Tensor 类似工厂函数 API（即 torch.ones、torch.empty 等）创建 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> ：</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.distributed.tensor.zeros">
+<span class="sig-prename descclassname"><span class="pre">torch.distributed.tensor.</span></span><span class="sig-name descname"><span class="pre">zeros</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">requires_grad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">torch.strided</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device_mesh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">placements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/tensor/_api.py#L1263"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.tensor.zeros" title="Permalink to this definition">¶</a></dt>
+<dd><p>返回一个填充了标量值 0 的 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>size (int...) – 定义输出 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 形状的整数序列。可以是可变数量的参数或类似列表或元组的集合。例如：zeros(1,2,3..) 或 zeros([1,2,3..]) 或 zeros((1,2,3..))</p>
+</dd>
+<dt class="field-even">关键字参数<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p>requires_grad（布尔值，可选）- 如果 autograd 应该记录返回的 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 的操作。默认： <code class="docutils literal "><span class="pre">False</span></code> 。</p></li>
+<li><p>dtype（ <code class="xref py py-class docutils literal "><span class="pre">torch.dtype</span></code> ，可选）- 返回的 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 的期望数据类型。默认：如果 <code class="docutils literal "><span class="pre">None</span></code> ，则使用全局默认值（见 <code class="xref py py-func docutils literal "><span class="pre">torch.set_default_dtype()</span></code> ）。</p></li>
+<li><p>layout（ <code class="xref py py-class docutils literal "><span class="pre">torch.layout</span></code> ，可选）- 返回的 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 的期望布局。默认： <code class="docutils literal "><span class="pre">torch.strided</span></code> 。</p></li>
+<li><p>装置网状结构 – <code class="xref py py-class docutils literal "><span class="pre">DeviceMesh</span></code> 类型，包含各 rank 的网状信息</p></li>
+<li><p>排放序列 – 一系列 <code class="docutils literal "><span class="pre">Shard</span></code> 类型: <code class="docutils literal "><span class="pre">Replicate</span></code> </p></li>
+</ul>
+</dd>
+<dt class="field-odd">返回<span class="colon">:</span></dt>
+<dd class="field-odd"><p>每个 rank 上的 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 对象</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#torch.distributed.tensor.DTensor" title="torch.distributed.tensor.DTensor"><em>DTensor</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.distributed.tensor.ones">
+<span class="sig-prename descclassname"><span class="pre">torch.distributed.tensor.</span></span><span class="sig-name descname"><span class="pre">ones</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">torch.strided</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">requires_grad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device_mesh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">placements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/tensor/_api.py#L1042"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.tensor.ones" title="Permalink to this definition">¶</a></dt>
+<dd><p>返回一个填充了标量值 1 的 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> ，其形状由变量参数 <code class="docutils literal "><span class="pre">size</span></code> 定义。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>size（int...）- 定义输出 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 形状的一组整数。可以是可变数量的参数或列表、元组等集合。例如：ones(1,2,3..) 或 ones([1,2,3..]) 或 ones((1,2,3..))</p>
+</dd>
+<dt class="field-even">关键字参数<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p>dtype ( <code class="xref py py-class docutils literal "><span class="pre">torch.dtype</span></code> ，可选) – 返回的 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 所期望的数据类型。默认：如果 <code class="docutils literal "><span class="pre">None</span></code> ，则使用全局默认值（见 <code class="xref py py-func docutils literal "><span class="pre">torch.set_default_dtype()</span></code> ）。</p></li>
+<li><p>layout ( <code class="xref py py-class docutils literal "><span class="pre">torch.layout</span></code> ，可选) – 返回 DTensor 所期望的布局。默认： <code class="docutils literal "><span class="pre">torch.strided</span></code> 。</p></li>
+<li><p>requires_grad (bool，可选) – 如果 autograd 应记录返回的 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 上的操作。默认： <code class="docutils literal "><span class="pre">False</span></code> 。</p></li>
+<li><p>device_mesh – <code class="xref py py-class docutils literal "><span class="pre">DeviceMesh</span></code> 类型，包含 ranks 的网格信息</p></li>
+<li><p>放置序列 – <code class="xref py py-class docutils literal "><span class="pre">Placement</span></code> 类型: <code class="docutils literal "><span class="pre">Shard</span></code> , <code class="docutils literal "><span class="pre">Replicate</span></code> </p></li>
+</ul>
+</dd>
+<dt class="field-odd">返回<span class="colon">:</span></dt>
+<dd class="field-odd"><p>每个等级上的一个 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 对象</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#torch.distributed.tensor.DTensor" title="torch.distributed.tensor.DTensor"><em>DTensor</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.distributed.tensor.empty">
+<span class="sig-prename descclassname"><span class="pre">torch.distributed.tensor.</span></span><span class="sig-name descname"><span class="pre">empty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">torch.strided</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">requires_grad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device_mesh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">placements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/tensor/_api.py#L1085"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.tensor.empty" title="Permalink to this definition">¶</a></dt>
+<dd><p>返回一个填充未初始化数据的 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 。 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 的形状由变量参数 <code class="docutils literal "><span class="pre">size</span></code> 定义。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>size (int...) – 定义输出 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 形状的整数序列。可以是可变数量的参数或列表、元组等集合。例如：empty(1,2,3..) 或 empty([1,2,3..]) 或 empty((1,2,3..))</p>
+</dd>
+<dt class="field-even">关键字参数<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p>dtype ( <code class="xref py py-class docutils literal "><span class="pre">torch.dtype</span></code> ，可选) – 返回 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 的期望数据类型。默认：如果 <code class="docutils literal "><span class="pre">None</span></code> ，则使用全局默认值（见 <code class="xref py py-func docutils literal "><span class="pre">torch.set_default_dtype()</span></code> ）。layout ( <code class="xref py py-class docutils literal "><span class="pre">torch.layout</span></code> ，可选)：返回 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 的期望布局。默认： <code class="docutils literal "><span class="pre">torch.strided</span></code> 。</p></li>
+<li><p>requires_grad（布尔值，可选）- 如果 autograd 应记录对返回的 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 的操作。默认： <code class="docutils literal "><span class="pre">False</span></code> 。</p></li>
+<li><p>device_mesh - <code class="xref py py-class docutils literal "><span class="pre">DeviceMesh</span></code> 类型，包含 rank 的网格信息</p></li>
+<li><p>placements - <code class="xref py py-class docutils literal "><span class="pre">Placement</span></code> 类型： <code class="docutils literal "><span class="pre">Shard</span></code> ， <code class="docutils literal "><span class="pre">Replicate</span></code> </p></li>
+</ul>
+</dd>
+<dt class="field-odd">返回<span class="colon">:</span></dt>
+<dd class="field-odd"><p>每个 rank 上的 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 对象</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#torch.distributed.tensor.DTensor" title="torch.distributed.tensor.DTensor"><em>DTensor</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.distributed.tensor.full">
+<span class="sig-prename descclassname"><span class="pre">torch.distributed.tensor.</span></span><span class="sig-name descname"><span class="pre">full</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fill_value</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">torch.strided</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">requires_grad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device_mesh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">placements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/tensor/_api.py#L1128"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.tensor.full" title="Permalink to this definition">¶</a></dt>
+<dd><p>返回一个根据 <code class="docutils literal "><span class="pre">device_mesh</span></code> 和 <code class="docutils literal "><span class="pre">placements</span></code> 填充的 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> ，形状由参数 <code class="docutils literal "><span class="pre">size</span></code> 定义。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>size (int...) – 定义输出 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 形状的一组整数。可以是多个参数，也可以是列表或元组等集合。例如：ones(1,2,3..)或 ones([1,2,3..])或 ones((1,2,3..))</p></li>
+<li><p>fill_value（标量）- 用于填充输出张量的值。</p></li>
+</ul>
+</dd>
+<dt class="field-even">关键字参数<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p>dtype（ <code class="xref py py-class docutils literal "><span class="pre">torch.dtype</span></code> ，可选）- 返回的 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 期望的数据类型。默认：如果 <code class="docutils literal "><span class="pre">None</span></code> ，则使用全局默认值（见 <code class="xref py py-func docutils literal "><span class="pre">torch.set_default_dtype()</span></code> ）。</p></li>
+<li><p>layout（ <code class="xref py py-class docutils literal "><span class="pre">torch.layout</span></code> ，可选）- 返回 DTensor 期望的布局。默认： <code class="docutils literal "><span class="pre">torch.strided</span></code> 。</p></li>
+<li><p>requires_grad（布尔值，可选）- 如果 autograd 应记录对返回的 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 的操作。默认： <code class="docutils literal "><span class="pre">False</span></code> 。</p></li>
+<li><p>device_mesh - <code class="xref py py-class docutils literal "><span class="pre">DeviceMesh</span></code> 类型，包含 rank 的网格信息。</p></li>
+<li><p>placements - <code class="xref py py-class docutils literal "><span class="pre">Placement</span></code> 类型的序列： <code class="docutils literal "><span class="pre">Shard</span></code> ， <code class="docutils literal "><span class="pre">Replicate</span></code> </p></li>
+</ul>
+</dd>
+<dt class="field-odd">返回<span class="colon">:</span></dt>
+<dd class="field-odd"><p>每个 rank 上的 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 对象</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#torch.distributed.tensor.DTensor" title="torch.distributed.tensor.DTensor"><em>DTensor</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.distributed.tensor.rand">
+<span class="sig-prename descclassname"><span class="pre">torch.distributed.tensor.</span></span><span class="sig-name descname"><span class="pre">rand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">requires_grad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">torch.strided</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device_mesh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">placements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/tensor/_api.py#L1175"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.tensor.rand" title="Permalink to this definition">¶</a></dt>
+<dd><p>返回一个用 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 填充的随机数，这些随机数来自区间 <code class="docutils literal "><span class="pre">[0,</span> <span class="pre">1)</span></code> 上的均匀分布。张量的形状由变量参数 <code class="docutils literal "><span class="pre">size</span></code> 定义。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>size (int...) – 定义输出 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 形状的一组整数。可以是多个参数的变量数量，也可以是列表或元组等集合。例如：ones(1,2,3..) 或 ones([1,2,3..]) 或 ones((1,2,3..))</p>
+</dd>
+<dt class="field-even">关键字参数<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p>dtype ( <code class="xref py py-class docutils literal "><span class="pre">torch.dtype</span></code> , 可选) – 返回的 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 的期望数据类型。默认：如果 <code class="docutils literal "><span class="pre">None</span></code> ，则使用全局默认值（见 <code class="xref py py-func docutils literal "><span class="pre">torch.set_default_dtype()</span></code> ）。</p></li>
+<li><p>layout ( <code class="xref py py-class docutils literal "><span class="pre">torch.layout</span></code> , 可选) – 返回 DTensor 的期望布局。默认： <code class="docutils literal "><span class="pre">torch.strided</span></code> 。</p></li>
+<li><p>requires_grad (bool, 可选) – 如果 autograd 应记录返回的 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 上的操作。默认： <code class="docutils literal "><span class="pre">False</span></code> 。</p></li>
+<li><p>装置网格 – <code class="xref py py-class docutils literal "><span class="pre">DeviceMesh</span></code> 类型，包含各 rank 的网格信息。</p></li>
+<li><p>排放 – <code class="xref py py-class docutils literal "><span class="pre">Placement</span></code> 类型: <code class="docutils literal "><span class="pre">Shard</span></code> ， <code class="docutils literal "><span class="pre">Replicate</span></code> </p></li>
+</ul>
+</dd>
+<dt class="field-odd">返回<span class="colon">:</span></dt>
+<dd class="field-odd"><p>每个 rank 上的 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 对象</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#torch.distributed.tensor.DTensor" title="torch.distributed.tensor.DTensor"><em>DTensor</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.distributed.tensor.randn">
+<span class="sig-prename descclassname"><span class="pre">torch.distributed.tensor.</span></span><span class="sig-name descname"><span class="pre">randn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">requires_grad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">torch.strided</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device_mesh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">placements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/tensor/_api.py#L1219"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.tensor.randn" title="Permalink to this definition">¶</a></dt>
+<dd><p>返回一个填充有均值为 0、方差为 1 的正态分布随机数的 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 。张量的形状由变量参数 <code class="docutils literal "><span class="pre">size</span></code> 定义。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>size（int...）- 定义输出 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 形状的一组整数。可以是可变数量的参数或列表、元组等集合。例如：ones(1,2,3..)或 ones([1,2,3..])或 ones((1,2,3..))。</p>
+</dd>
+<dt class="field-even">关键字参数<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p>dtype ( <code class="xref py py-class docutils literal "><span class="pre">torch.dtype</span></code> ，可选) – 返回的 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 所期望的数据类型。默认：如果 <code class="docutils literal "><span class="pre">None</span></code> ，则使用全局默认值（见 <code class="xref py py-func docutils literal "><span class="pre">torch.set_default_dtype()</span></code> ）。</p></li>
+<li><p>layout ( <code class="xref py py-class docutils literal "><span class="pre">torch.layout</span></code> ，可选) – 返回 DTensor 所期望的布局。默认： <code class="docutils literal "><span class="pre">torch.strided</span></code> 。</p></li>
+<li><p>requires_grad (bool，可选) – 如果 autograd 应记录返回的 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 上的操作。默认： <code class="docutils literal "><span class="pre">False</span></code> 。</p></li>
+<li><p>device_mesh – <code class="xref py py-class docutils literal "><span class="pre">DeviceMesh</span></code> 类型，包含 ranks 的网格信息。</p></li>
+<li><p>放置序列 – <code class="xref py py-class docutils literal "><span class="pre">Placement</span></code> 类型： <code class="docutils literal "><span class="pre">Shard</span></code> ， <code class="docutils literal "><span class="pre">Replicate</span></code> </p></li>
+</ul>
+</dd>
+<dt class="field-odd">返回<span class="colon">:</span></dt>
+<dd class="field-odd"><p>每个等级上都有一个 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 对象</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#torch.distributed.tensor.DTensor" title="torch.distributed.tensor.DTensor"><em>DTensor</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+<section id="module-torch.distributed.tensor.debug">
+<span id="debugging"></span><h2>调试</h2>
+<section id="logging">
+<h3>记录日志</h3>
+<p>当启动程序时，您可以使用 torch._logging 中的 TORCH_LOGS 环境变量开启额外的日志记录：</p>
+<ul class="simple">
+<li><p>TORCH_LOGS=+dtensor 将显示 logging.DEBUG 级别及其以上的日志信息。</p></li>
+<li><p>TORCH_LOGS=dtensor 将显示 logging.INFO 级别及其以上的日志信息。</p></li>
+<li><p>TORCH_LOGS=-dtensor 将显示 logging.WARNING 级别及其以上的日志信息。</p></li>
+</ul>
+</section>
+<section id="debugging-tools">
+<h3>调试工具 §</h3>
+<p>调试应用 DTensor 的程序，并深入了解底层发生的集体操作细节，DTensor 提供了 <code class="xref py py-class docutils literal "><span class="pre">CommDebugMode</span></code> ：</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.tensor.debug.CommDebugMode">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.tensor.debug.</span></span><span class="sig-name descname"><span class="pre">CommDebugMode</span></span><a class="headerlink" href="#torch.distributed.tensor.debug.CommDebugMode" title="Permalink to this definition">¶</a></dt>
+<dd><p> <code class="xref py py-class docutils literal "><span class="pre">CommDebugMode</span></code> 是一个上下文管理器，用于统计其上下文中功能集体的数量。它通过 <code class="docutils literal "><span class="pre">TorchDispatchMode</span></code> 来实现。</p>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>目前并非所有集体操作都得到支持。</p>
+</div>
+<p>演示用法</p>
+<div class="highlight-python "><div class="highlight"><pre><span></span><span class="n">mod</span> <span class="o">=</span> <span class="o">...</span>
+<span class="n">comm_mode</span> <span class="o">=</span> <span class="n">CommDebugMode</span><span class="p">()</span>
+<span class="k">with</span> <span class="n">comm_mode</span><span class="p">:</span>
+    <span class="n">mod</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">comm_mode</span><span class="o">.</span><span class="n">get_comm_counts</span><span class="p">())</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.tensor.debug.CommDebugMode.generate_comm_debug_tracing_table">
+generate_comm_debug_tracing_table(noise_level=3)[来源][来源] ¶</dt>
+<dd><p>生成详细表格，显示模块级别的操作和集体跟踪信息。信息量取决于 noise_level</p>
+<ol class="arabic simple" start="0">
+<li><p>打印模块级别的集体计数</p></li>
+<li><p>打印不包括在平凡操作中的 dTensor 操作，模块信息</p></li>
+<li><p>打印不包括在平凡操作中的操作</p></li>
+<li><p>打印所有操作</p></li>
+</ol>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.tensor.debug.CommDebugMode.generate_json_dump">
+生成_json_dump(file_name='comm_mode_log.json', noise_level=3)[source][source] ¶</dt>
+<dd><p>创建用于构建浏览器可视化的 json 文件 0. 打印模块级别的集体计数 1. 打印不包括在平凡操作中的 dTensor 操作 2. 打印不包括在平凡操作中的操作 3. 打印所有操作</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.tensor.debug.CommDebugMode.get_comm_counts">
+get_comm_counts()[source][source]</dt>
+<dd><p>返回通信计数作为字典。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回<span class="colon">:</span></dt>
+<dd class="field-odd"><p>通信计数作为字典。</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict[任意类型, int]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.tensor.debug.CommDebugMode.get_parameter_info">
+get_parameter_info()[来源][来源] ¶</dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[str, dict[str, Any]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.tensor.debug.CommDebugMode.get_sharding_info">
+get_sharding_info()[来源][来源] ¶</dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[str, dict[str, Any]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.tensor.debug.CommDebugMode.get_total_counts">
+<span class="sig-name descname"><span class="pre">get_total_counts</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/tensor/debug/_comm_mode.html#CommDebugMode.get_total_counts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/tensor/debug/_comm_mode.py#L567"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.tensor.debug.CommDebugMode.get_total_counts" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.tensor.debug.CommDebugMode.log_comm_debug_tracing_table_to_file">
+<span class="sig-name descname"><span class="pre">log_comm_debug_tracing_table_to_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'comm_mode_log.txt'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/tensor/debug/_comm_mode.html#CommDebugMode.log_comm_debug_tracing_table_to_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/tensor/debug/_comm_mode.py#L601"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.tensor.debug.CommDebugMode.log_comm_debug_tracing_table_to_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>控制台 CommDebugMode 输出的替代方案，将输出写入用户指定的文件</p>
+</dd></dl>
+
+</dd></dl>
+
+<p>为了可视化维度少于 3 的 DTensor 的划分，DTensor 提供了 <code class="xref py py-meth docutils literal "><span class="pre">visualize_sharding()</span></code> ：</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.distributed.tensor.debug.visualize_sharding">
+torch.distributed.tensor.debug.visualize_sharding(dtensor, header='')[source]</dt>
+<dd><p>在终端中可视化 1D 或 2D 的 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 的划分。</p>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>这需要 <code class="docutils literal "><span class="pre">tabulate</span></code> 包。对于空张量不会打印划分信息。</p>
+</div>
+</dd></dl>
+
+</section>
+</section>
+<section id="experimental-features">
+<h2>实验性功能</h2>
+<p> <code class="docutils literal "><span class="pre">DTensor</span></code> 还提供了一组实验性功能。这些功能处于原型设计阶段，或者基本功能已完成，但正在寻找用户反馈。如果您对这些功能有反馈，请向 PyTorch 提交问题。</p>
+<span class="target" id="module-torch.distributed.tensor.experimental"></span><dl class="py function">
+<dt class="sig sig-object py" id="torch.distributed.tensor.experimental.context_parallel">
+<span class="sig-prename descclassname"><span class="pre">torch.distributed.tensor.experimental.</span></span><span class="sig-name descname"><span class="pre">context_parallel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffer_seq_dims</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_restore_buffers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/tensor/experimental/_attention.py#L1292"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.tensor.experimental.context_parallel" title="Permalink to this definition">¶</a></dt>
+<dd><p> <code class="docutils literal "><span class="pre">context_parallel</span></code> 是一个实验性 API，用于启用上下文并行（CP）。此 API 执行两个操作：1) 将 SDPA（ <code class="docutils literal "><span class="pre">torch.nn.functional.scaled_dot_product_attention</span></code> ）替换为启用 CP 的版本，2) 沿序列维度划分 <code class="docutils literal "><span class="pre">buffers</span></code> ，每个 rank 将根据 <code class="docutils literal "><span class="pre">mesh</span></code> 保留相应的 shard。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>网格（ <code class="xref py py-class docutils literal "><span class="pre">DeviceMesh</span></code> ）- 上下文并行性的设备网格。</p></li>
+<li><p>缓冲区（可选[List[torch.Tensor]]）- 使用的缓冲区依赖于序列维度。例如，输入批次、标签和位置嵌入缓冲区。这些缓冲区必须沿序列维度分片以确保准确性。分片将在原地发生，缓冲区的形状将在上下文中改变。缓冲区将在上下文完成后恢复。可以使用 <code class="docutils literal "><span class="pre">no_restore_buffers</span></code> 来指定哪些缓冲区不需要恢复。请注意， <code class="docutils literal "><span class="pre">buffers</span></code> 不应包含任何 nn.Parameter。</p></li>
+<li><p>buffer_seq_dims（可选[List[int]]）- <code class="docutils literal "><span class="pre">buffers</span></code> 的序列维度。</p></li>
+<li><p>no_restore_buffers（可选[Set[torch.Tensor]]）- 这些集合中的缓冲区在上下文退出后不会恢复。此集合必须是 <code class="docutils literal "><span class="pre">buffers</span></code> 的子集。如果缓冲区在上下文退出后不再使用，可以将这些缓冲区放入此列表中，以避免额外的恢复时间。</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>生成器[None, None, None]</p>
+</dd>
+</dl>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>torch.distributed._tensor.experimental.attention.context_parallel 是 PyTorch 中的一个原型功能。该 API 可能会发生变化。</p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.distributed.tensor.experimental.local_map">
+<span class="sig-prename descclassname"><span class="pre">torch.distributed.tensor.experimental.</span></span><span class="sig-name descname"><span class="pre">local_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_placements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_placements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device_mesh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">redistribute_inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/tensor/experimental/_func_map.py#L25"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.tensor.experimental.local_map" title="Permalink to this definition">¶</a></dt>
+<dd><p> <code class="xref py py-meth docutils literal "><span class="pre">local_map()</span></code> 是一个实验性 API，允许用户将 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 传递给一个编写为应用于 <code class="docutils literal "><span class="pre">torch.Tensor</span></code> 的函数。这是通过提取 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 的本地组件，调用函数，并根据 <code class="docutils literal "><span class="pre">out_placements</span></code> 将输出封装到 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 来实现的。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>func (Callable) – 要应用于每个本地分片的 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 的函数。</p></li>
+<li><p>输出放置（Union[放置类型，Tuple[放置类型, ...]]）- <code class="docutils literal "><span class="pre">func</span></code> 展平输出中 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 的期望放置。如果展平的 <code class="docutils literal "><span class="pre">output</span></code> 是单个值，则 <code class="docutils literal "><span class="pre">out_placements</span></code> 应为类型 PlacementType。否则，如果展平的 <code class="docutils literal "><span class="pre">output</span></code> 有多个值，则 <code class="docutils literal "><span class="pre">out_placements</span></code> 应为与展平的 <code class="docutils literal "><span class="pre">output</span></code> 1:1 映射的 PlacementType 值的元组。此外，对于 <code class="xref py py-class docutils literal "><span class="pre">Tensor</span></code> 输出，我们使用 PlacementType 作为其放置（一个 Tuple[放置] 值）。对于非 Tensor 输出，PlacementType 应为 None。注意，唯一的例外是未传入任何 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 参数。在这种情况下，即使 out_placements 不为 None，结果函数也应忽略期望的放置，因为函数不是在 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 下运行的。</p></li>
+<li><p>in_placements (Tuple[PlacementType, …], optional) – <code class="docutils literal "><span class="pre">func</span></code> 的必需放置位置，在 <code class="docutils literal "><span class="pre">in_placements</span></code> 的扁平化输入中。如果指定了 <code class="xref py py-meth docutils literal "><span class="pre">local_map()</span></code> ，则 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 会检查每个 <code class="docutils literal "><span class="pre">redistribute_inputs</span></code> 参数的放置是否与必需放置相同。如果放置不同且 <code class="docutils literal "><span class="pre">False</span></code> 为 <code class="docutils literal "><span class="pre">redistribute_inputs</span></code> ，则会引发异常。否则，如果 <code class="docutils literal "><span class="pre">True</span></code> 为 <code class="docutils literal "><span class="pre">func</span></code> ，则参数将首先重新分配到必需的分区放置，然后再将其本地张量传递给 <code class="docutils literal "><span class="pre">None</span></code> 。唯一的例外是当必需放置不是 <code class="xref py py-class docutils literal "><span class="pre">torch.Tensor</span></code> 且参数为 <code class="docutils literal "><span class="pre">func</span></code> 时。在这种情况下，将跳过放置检查，并将参数直接传递给 <code class="docutils literal "><span class="pre">in_placements</span></code> 。如果 <code class="docutils literal "><span class="pre">None</span></code> 为 @15# ，则不会执行放置检查。默认：None</p></li>
+<li><p>device_mesh ( <code class="xref py py-class docutils literal "><span class="pre">DeviceMesh</span></code> , optional) – 所有 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 放置在其上的设备网格。如果没有指定，则将从输入 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 的设备网格中推断出来。local_map 要求每个 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 都放置在相同的设备网格上。默认：None。</p></li>
+<li><p>redistribute_inputs (bool, 可选) – 表示是否重新分片输入的 bool 值，当它们的放置与所需输入放置不同时。如果此值为 <code class="docutils literal "><span class="pre">False</span></code> 且某些 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 输入的放置不同，将引发异常。默认：False。</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>一个 <code class="docutils literal "><span class="pre">Callable</span></code> ，将 <code class="docutils literal "><span class="pre">func</span></code> 应用到输入的每个本地分片 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 上，并返回由 <code class="docutils literal "><span class="pre">func</span></code> 的返回值构造的 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 。</p>
+</dd>
+<dt class="field-odd">引发<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>AssertionError – 如果输入 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 未放置在同一设备网格上，或者如果它们放置在与传入的 <code class="docutils literal "><span class="pre">device_mesh</span></code> 参数不同的设备网格上。</p></li>
+<li><p>AssertionError – 对于任何非 DTensor 输出，我们要求其对应的输出放置在 <code class="docutils literal "><span class="pre">out_placements</span></code> 为 None。如果不满足此条件，将引发 AssertionError。</p></li>
+<li><p>ValueError – 如果 <code class="docutils literal "><span class="pre">redistribute_inputs=False</span></code> 但输入 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 需要根据 <code class="docutils literal "><span class="pre">in_placements</span></code> 进行重新分配。</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">mm_allreduce_forward</span><span class="p">(</span><span class="n">device_mesh</span><span class="p">,</span> <span class="n">W</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">partial_sum_tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mm</span><span class="p">(</span><span class="n">W</span><span class="p">,</span> <span class="n">X</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">reduced_tensor</span> <span class="o">=</span> <span class="n">funcol</span><span class="o">.</span><span class="n">all_reduce</span><span class="p">(</span><span class="n">partial_sum_tensor</span><span class="p">,</span> <span class="s2">"sum"</span><span class="p">,</span> <span class="n">device_mesh</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">return</span> <span class="n">reduced_tensor</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">W</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Y</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mm</span><span class="p">(</span><span class="n">W</span><span class="p">,</span> <span class="n">X</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">row_wise</span> <span class="o">=</span> <span class="p">[</span><span class="n">Shard</span><span class="p">(</span><span class="mi">0</span><span class="p">)]</span>  <span class="c1"># row-wise sharding placements on 1-d mesh</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">col_wise</span> <span class="o">=</span> <span class="p">[</span><span class="n">Shard</span><span class="p">(</span><span class="mi">1</span><span class="p">)]</span>  <span class="c1"># col-wise sharding placements on 1-d mesh</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># local_mm_allreduce_forward is the function wrapped with DTensor/Tensor convertion</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">local_mm_allreduce_forward</span> <span class="o">=</span> <span class="n">local_map</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">mm_allreduce_forward</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">out_placements</span><span class="o">=</span><span class="p">[</span><span class="n">Replicate</span><span class="p">()],</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">in_placements</span><span class="o">=</span><span class="p">[</span><span class="n">col_wise</span><span class="p">,</span> <span class="n">row_wise</span><span class="p">],</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">device_mesh</span><span class="o">=</span><span class="n">device_mesh</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">W_dt</span> <span class="o">=</span> <span class="n">distribute_tensor</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">W</span><span class="p">,</span> <span class="n">device_mesh</span><span class="p">,</span> <span class="p">(</span><span class="n">col_wise</span><span class="p">)</span>
+<span class="gp">... </span><span class="p">)</span>  <span class="c1"># col-wisely sharded W tensor</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X_dt</span> <span class="o">=</span> <span class="n">distribute_tensor</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">X</span><span class="p">,</span> <span class="n">device_mesh</span><span class="p">,</span> <span class="p">(</span><span class="n">row_wise</span><span class="p">)</span>
+<span class="gp">... </span><span class="p">)</span>  <span class="c1"># row-wisely sharded X tensor</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Y_dt</span> <span class="o">=</span> <span class="n">local_mm_allreduce_forward</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">device_mesh</span><span class="p">,</span> <span class="n">W_dt</span><span class="p">,</span> <span class="n">X_dt</span>
+<span class="gp">... </span><span class="p">)</span>  <span class="c1"># apply local_mm_allreduce_forward to DTensors</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>此 API 目前处于实验阶段，可能随时更改。</p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.distributed.tensor.experimental.register_sharding">
+<span class="sig-prename descclassname"><span class="pre">torch.distributed.tensor.experimental.</span></span><span class="sig-name descname"><span class="pre">register_sharding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">op</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/tensor/experimental/_register_sharding.py#L25"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.tensor.experimental.register_sharding" title="Permalink to this definition">¶</a></dt>
+<dd><p> <code class="xref py py-meth docutils literal "><span class="pre">register_sharding()</span></code> 是一个实验性 API，允许用户在张量输入和输出为 DTensor 时注册分片策略。当以下情况时可能很有用：(1) 对于 <code class="docutils literal "><span class="pre">op</span></code> 不存在默认分片策略，例如当 <code class="docutils literal "><span class="pre">op</span></code> 是一个不支持 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 的自定义操作符时；(2) 当用户想要覆盖现有操作符的默认分片策略时。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>op (Union[OpOverload, List[OpOverload]]) – 要注册自定义分片函数的操作符或操作符列表。</p>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>一个函数装饰器，可以用来包装定义 <code class="docutils literal "><span class="pre">op</span></code> 中指定操作符分片策略的函数。定义的分片策略将被注册到 DTensor，如果 DTensor 已经实现了该操作符，将覆盖默认分片策略。自定义分片函数接受与原始 op 相同的输入（如果参数是 <code class="xref py py-class docutils literal "><span class="pre">torch.Tensor</span></code> ，则将被 DTensor 内部使用的类似张量对象替换）。函数应返回一个由 2-元组组成的序列，每个 2-元组指定可接受的输出放置及其对应的输入放置。</p>
+</dd>
+</dl>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nd">@register_sharding</span><span class="p">(</span><span class="n">aten</span><span class="o">.</span><span class="n">_softmax</span><span class="o">.</span><span class="n">default</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">custom_softmax_sharding</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dim</span><span class="p">,</span> <span class="n">half_to_float</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">softmax_dim</span> <span class="o">=</span> <span class="n">dim</span> <span class="k">if</span> <span class="n">dim</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">dim</span> <span class="o">+</span> <span class="n">x</span><span class="o">.</span><span class="n">ndim</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">acceptable_shardings</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">all_replicate</span> <span class="o">=</span> <span class="p">([</span><span class="n">Replicate</span><span class="p">()],</span> <span class="p">[</span><span class="n">Replicate</span><span class="p">(),</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">acceptable_shardings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">all_replicate</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">for</span> <span class="n">sharding_dim</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">ndim</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="k">if</span> <span class="n">sharding_dim</span> <span class="o">!=</span> <span class="n">softmax_dim</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>            <span class="n">all_sharded</span> <span class="o">=</span> <span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>                <span class="p">[</span><span class="n">Shard</span><span class="p">(</span><span class="n">sharding_dim</span><span class="p">)],</span>
+<span class="gp">&gt;&gt;&gt; </span>                <span class="p">[</span><span class="n">Shard</span><span class="p">(</span><span class="n">sharding_dim</span><span class="p">),</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span>
+<span class="gp">&gt;&gt;&gt; </span>            <span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>            <span class="n">acceptable_shardings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">all_sharded</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">return</span> <span class="n">acceptable_shardings</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>此 API 目前处于实验阶段，内容可能随时更改</p>
+</div>
+</dd></dl>
+
+<span class="target" id="module-torch.distributed.tensor.device_mesh"></span></section>
+</section>
+
+
+             </article>
+             
+            </div>
+            <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        下一个 <img height="16" width="16" class="next-page" src="_static/images/chevron-right-orange.svg"> <img height="16" width="16" class="previous-page" src="_static/images/chevron-right-orange.svg"> 上一个
+      
+    </div>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>© 版权所有 PyTorch 贡献者。</p>
+  </div>
+    
+      <div>使用 Sphinx 构建，主题由 Read the Docs 提供。</div>
+     
+
+</footer>
+
+          </div>
+<script>
+
+var match = window.location.href.match(/\/_[a-zA-Z0-9_]*.html|_dynamo/gi);
+var url = window.location.href.lastIndexOf(match[match.length-1]);
+
+if (url)
+  {
+    var div = '<div class="admonition note"><p class="admonition-title">Note</p><p><i class="fa fa-exclamation-circle" aria-hidden="true">&nbsp</i> This page describes an internal API which is not intended to be used outside of the PyTorch codebase and can be modified or removed without notice.</p></div>'
+    document.getElementById("pytorch-article").insertAdjacentHTML('afterBegin', div)
+  }
+</script>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">torch.distributed.tensor</a><ul>
+<li><a class="reference internal" href="#pytorch-dtensor-distributed-tensor">PyTorch DTensor（分布式张量）</a><ul>
+<li><a class="reference internal" href="#dtensor-class-apis">DTensor 类 API</a></li>
+<li><a class="reference internal" href="#devicemesh-as-the-distributed-communicator">设备网格作为分布式通信器</a></li>
+<li><a class="reference internal" href="#module-torch.distributed.tensor.placement_types">DTensor 放置类型</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#different-ways-to-create-a-dtensor">创建 DTensor 的不同方法</a><ul>
+<li><a class="reference internal" href="#create-dtensor-from-a-logical-torch-tensor">从逻辑 torch.Tensor 创建 DTensor</a></li>
+<li><a class="reference internal" href="#dtensor-factory-functions">DTensor 工厂函数</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-torch.distributed.tensor.debug">调试</a><ul>
+<li><a class="reference internal" href="#logging">记录</a></li>
+<li><a class="reference internal" href="#debugging-tools">调试工具</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#experimental-features">实验性功能</a></li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+         <script src="_static/jquery.js"></script>
+         <script src="_static/underscore.js"></script>
+         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+         <script src="_static/doctools.js"></script>
+         <script src="_static/clipboard.min.js"></script>
+         <script src="_static/copybutton.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ 
+<script script="" type="text/javascript">
+  var collapsedSections = ['Developer Notes', 'Language Bindings', 'Libraries', 'Community'];
+</script>
+
+<img height="1" width="1" style="border-style:none;" alt="" src="https://www.googleadservices.com/pagead/conversion/795629140/?label=txkmCPmdtosBENSssfsC&amp;guid=ON&amp;script=0">
+
+
+  <!-- Begin Footer -->
+
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 text-center">
+          <h2>文档</h2>
+          <p>PyTorch 开发者文档全面访问</p>
+          <a class="with-right-arrow" href="https://pytorch.org/docs/stable/index.html">查看文档</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>教程</h2>
+          <p>获取初学者和高级开发者的深入教程</p>
+          <a class="with-right-arrow" href="https://pytorch.org/tutorials">查看教程</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>资源</h2>
+          <p>查找开发资源并获得您的疑问解答</p>
+          <a class="with-right-arrow" href="https://pytorch.org/resources">查看资源</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://pytorch.org/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/">PyTorch</a></li>
+            <li><a href="https://pytorch.org/get-started">开始使用</a></li>
+            <li><a href="https://pytorch.org/features">功能</a></li>
+            <li><a href="https://pytorch.org/ecosystem">生态系统</a></li>
+            <li><a href="https://pytorch.org/blog/">博客</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md">贡献</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/resources">资源</a></li>
+            <li><a href="https://pytorch.org/tutorials">教程</a></li>
+            <li><a href="https://pytorch.org/docs/stable/index.html">文档</a></li>
+            <li><a href="https://discuss.pytorch.org" target="_blank">讨论</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/issues" target="_blank">GitHub 问题和任务</a></li>
+            <li><a href="https://pytorch.org/assets/brand-guidelines/PyTorch-Brand-Guidelines.pdf" target="_blank">品牌指南</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">保持更新</li>
+            <li><a href="https://www.facebook.com/pytorch" target="_blank">Facebook</a></li>
+            <li><a href="https://twitter.com/pytorch" target="_blank">推特</a></li>
+            <li><a href="https://www.youtube.com/pytorch" target="_blank">YouTube</a></li>
+            <li><a href="https://www.linkedin.com/company/pytorch" target="_blank">领英</a></li>
+          </ul>  
+          </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">PyTorch 播客</li>
+            <li><a href="https://open.spotify.com/show/6UzHKeiy368jKfQMKKvJY5" target="_blank">Spotify</a></li>
+            <li><a href="https://podcasts.apple.com/us/podcast/pytorch-developer-podcast/id1566080008" target="_blank">苹果</a></li>
+            <li><a href="https://www.google.com/podcasts?feed=aHR0cHM6Ly9mZWVkcy5zaW1wbGVjYXN0LmNvbS9PQjVGa0lsOA%3D%3D" target="_blank">谷歌</a></li>
+            <li><a href="https://music.amazon.com/podcasts/7a4e6f0e-26c2-49e9-a478-41bd244197d0/PyTorch-Developer-Podcast?" target="_blank">亚马逊</a></li>
+          </ul>
+         </div>
+        </div>
+        
+        <div class="privacy-policy">
+          <ul>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/terms/" target="_blank">条款</a></li>
+            <li class="privacy-policy-links">|</li>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/privacy-policy/" target="_blank">隐私</a></li>
+          </ul>
+        </div>
+        <div class="copyright">
+        <p>© 版权所有 Linux 基金会。PyTorch 基金会是 Linux 基金会的一个项目。有关本网站的使用条款、商标政策以及其他适用于 PyTorch 基金会的政策，请参阅 www.linuxfoundation.org/policies/。PyTorch 基金会支持 PyTorch 开源项目，该项目已被确立为 LF Projects, LLC 的 PyTorch 项目系列。有关适用于 PyTorch 项目系列 LF Projects, LLC 的政策，请参阅 www.lfprojects.org/policies/。</p>
+      </div>
+     </div>
+
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">为分析流量并优化您的体验，我们在本网站上提供 cookies。通过点击或导航，您同意允许我们使用 cookies。作为本站点的当前维护者，Facebook 的 Cookies 政策适用。了解更多信息，包括可用的控制选项：Cookies 政策。</p>
+    <img class="close-button" src="_static/images/pytorch-x.svg" width="16" height="16">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+           <li class="resources-mobile-menu-title">
+             <a>学习</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/get-started">开始学习</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials">教程</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/basics/intro.html">学习基础知识</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/recipes/recipes_index.html">PyTorch 菜谱</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/introyt.html">PyTorch 入门 - YouTube 系列</a>
+             </li>
+           </ul>
+           <li class="resources-mobile-menu-title">
+             <a>生态系统</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/ecosystem">工具</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/#community-module">社区</a>
+             </li>
+             <li>
+               <a href="https://discuss.pytorch.org/">论坛</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/resources">开发者资源</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">贡献者奖项 - 2024</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>Edge</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/edge">关于 PyTorch Edge</a>
+             </li>
+             
+             <li>
+               <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch 文档</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>文档</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/docs/stable/index.html">PyTorch</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/pytorch-domains">PyTorch 领域</a>
+            </li>
+          </ul>
+
+          <li class="resources-mobile-menu-title">
+            <a>博客 &amp; 新闻</a>
+          </li>
+            
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/blog/">PyTorch 博客</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/community-blog">社区博客</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/videos">视频</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/community-stories">社区故事</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/events">活动</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">通讯</a>
+             </li>
+          </ul>
+          
+          <li class="resources-mobile-menu-title">
+            <a>关于</a>
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/foundation">PyTorch 基金会</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/governing-board">治理委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">云信用计划</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">技术顾问委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">员工</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">联系我们</a>
+            </li>
+          </ul>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body></html>

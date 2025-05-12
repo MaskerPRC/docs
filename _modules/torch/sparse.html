@@ -1,0 +1,1634 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+  <meta charset="UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>torch.sparse — PyTorch main documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pytorch.org/docs/stable/_modules/torch/sparse.html">
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css">
+  <!-- <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css">
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css">
+  <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="../../_static/katex-math.css" type="text/css">
+  <link rel="stylesheet" href="../../_static/sphinx-dropdown.css" type="text/css">
+  <link rel="stylesheet" href="../../_static/panels-bootstrap.min.css" type="text/css">
+  <link rel="stylesheet" href="../../_static/css/jit.css" type="text/css">
+  <link rel="stylesheet" href="../../_static/css/custom.css" type="text/css">
+    <link rel="index" title="Index" href="../../genindex.html">
+    <link rel="search" title="Search" href="../../search.html">
+
+<!--
+  Search engines should not index the main version of documentation.
+  Stable documentation are built without release == 'main'.
+-->
+<meta name="robots" content="noindex">
+
+
+  <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T8XT4PS');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+  <!-- Preload the theme fonts -->
+
+<link rel="preload" href="../../_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<!-- Preload the katex fonts -->
+
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Math-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size1-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size2-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Caligraphic-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
+</head><body class="pytorch-body"><div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+
+          <li class="main-menu-item">
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">学习</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/get-started">
+                  <span class="dropdown-title">开始使用</span>
+                  <p>在本地运行 PyTorch 或快速开始使用支持的云平台之一</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials">
+                  <span class="dropdown-title">教程</span><p></p>
+                  <p>PyTorch 教程中的新内容</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/basics/intro.html">
+                  <span class="dropdown-title">学习基础知识</span><p></p>
+                  <p>熟悉 PyTorch 概念和模块</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/recipes/recipes_index.html">
+                  <span class="dropdown-title">PyTorch 烹饪技巧</span><p></p>
+                  <p>精简型、可直接部署的 PyTorch 代码示例</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/introyt.html">
+                  <span class="dropdown-title">PyTorch 入门 - YouTube 系列</span><p></p>
+                  <p>通过我们引人入胜的 YouTube 教程系列掌握 PyTorch 基础知识</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">生态系统</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem">
+                  <span class="dropdown-title">工具</span><p></p>
+                  <p>了解 PyTorch 生态系统中的工具和框架</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
+                  <span class="dropdown-title">社区</span>
+                  <p>加入 PyTorch 开发者社区，贡献、学习并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
+                  <span class="dropdown-title">论坛</span>
+                  <p>讨论 PyTorch 代码、问题、安装、研究的地方</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/resources">
+                  <span class="dropdown-title">开发者资源</span>
+                  <p>查找资源并解答问题</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">2024 年度贡献者奖项</span><p></p>
+                  <p>本届 PyTorch 会议揭晓获奖者</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">
+                Edge
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/edge">
+                  <span class="dropdown-title">关于 PyTorch Edge</span><p></p>
+                  <p>为边缘设备构建创新和隐私感知的 AI 体验</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
+                  <span class="dropdown-title">ExecuTorch</span><p></p>
+                  <p>针对移动和边缘设备实现设备端推理能力的端到端解决方案</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch 文档</span><p></p>
+                </a>
+              </div>
+            </div>  
+          </li>
+
+          <li class="main-menu-item">
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">文档</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/docs/stable/index.html">
+                  <span class="dropdown-title">PyTorch</span><p></p>
+                  <p>探索文档以获取如何使用 PyTorch 的全面指南</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/pytorch-domains">
+                  <span class="dropdown-title">PyTorch 领域</span><p></p>
+                  <p>阅读 PyTorch 领域的文档以了解更多关于特定领域的库</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">博客与新闻</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/blog/">
+                  <span class="dropdown-title">PyTorch 博客</span><p></p>
+                  <p>跟上最新的技术新闻和动态</p>
+                </a>
+                 <a class="nav-dropdown-item" href="https://pytorch.org/community-blog">
+                  <span class="dropdown-title">社区博客</span><p></p>
+                  <p>PyTorch 生态系统故事</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/videos">
+                  <span class="dropdown-title">视频</span><p></p>
+                  <p>了解最新的 PyTorch 教程、新内容等</p>
+                </a><a class="nav-dropdown-item" href="https://pytorch.org/community-stories">
+                  <span class="dropdown-title">社区故事</span><p></p>
+                  <p>了解我们的社区如何使用 PyTorch 解决真实、日常的机器学习问题</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/events">
+                  <span class="dropdown-title">活动</span><p></p>
+                  <p>查找活动、网络研讨会和播客</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">通讯</span><p></p>
+                  <p>保持最新更新</p>
+                </a>
+            </div>
+          </div></li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">关于</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/foundation">
+                  <span class="dropdown-title">PyTorch 基金会</span><p></p>
+                  <p>了解更多关于 PyTorch 基金会的信息</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
+                  <span class="dropdown-title">管理委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">云信用计划</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">技术顾问委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">员工</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">联系我们</span><p></p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li class="main-menu-item">
+            <div class="no-dropdown">
+              <a href="https://pytorch.org/join" data-cta="join">成为会员</a>
+            </div>
+          </li>
+          <li>
+           <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="github-icon">
+             </a>
+           </div>
+          </li>
+          <!--- TODO: This block adds the search icon to the nav bar. We will enable it later. 
+          <li>
+            <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="search-icon">
+             </a>
+            </div>
+          </li>
+          --->
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+  </div>
+</div>
+
+
+
+   
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>目录</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+    <div class="version">
+      <a href="https://pytorch.org/docs/versions.html">主页 (2.7.0+cpu ) ▼</a>
+    </div>
+    <div id="searchBox">
+    <div class="searchbox" id="googleSearchBox">
+      <script async="" src="https://cse.google.com/cse.js?cx=e65585f8c3ea1440e"></script>
+      <div class="gcse-search"></div>
+    </div>
+    <div id="sphinxSearchBox" style="display: none;">
+      <div role="search">
+        <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+          <input type="text" name="q" placeholder="Search Docs">
+          <input type="hidden" name="check_keywords" value="yes">
+          <input type="hidden" name="area" value="default">
+        </form>
+      </div>
+    </div>
+  </div>
+  <form id="searchForm">
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="google" checked="">Google 搜索</label>
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="sphinx">经典搜索</label>
+  </form>
+
+  <script>
+     document.addEventListener('DOMContentLoaded', function() {
+      const searchForm = document.getElementById('searchForm');
+      const googleSearchBox = document.getElementById('googleSearchBox');
+      const sphinxSearchBox = document.getElementById('sphinxSearchBox');
+      // Function to toggle search box visibility
+      function toggleSearchBox(searchType) {
+        googleSearchBox.style.display = searchType === 'google' ? 'block' : 'none';
+        sphinxSearchBox.style.display = searchType === 'sphinx' ? 'block' : 'none';
+      }
+      // Determine the default search type
+      let defaultSearchType;
+      const currentUrl = window.location.href;
+      if (currentUrl.startsWith('https://pytorch.org/docs/stable')) {
+        // For the stable documentation, default to Google
+        defaultSearchType = localStorage.getItem('searchType') || 'google';
+      } else {
+        // For any other version, including docs-preview, default to Sphinx
+        defaultSearchType = 'sphinx';
+      }
+      // Set the default search type
+      document.querySelector(`input[name="searchType"][value="${defaultSearchType}"]`).checked = true;
+      toggleSearchBox(defaultSearchType);
+      // Event listener for changes in search type
+      searchForm.addEventListener('change', function(event) {
+        const selectedSearchType = event.target.value;
+        localStorage.setItem('searchType', selectedSearchType);
+        toggleSearchBox(selectedSearchType);
+      });
+      // Set placeholder text for Google search box
+      window.onload = function() {
+        var placeholderText = "Search Docs";
+        var googleSearchboxText = document.querySelector("#gsc-i-id1");
+        if (googleSearchboxText) {
+          googleSearchboxText.placeholder = placeholderText;
+          googleSearchboxText.style.fontFamily = 'FreightSans';
+          googleSearchboxText.style.fontSize = "1.2rem";
+          googleSearchboxText.style.color = '#262626';
+        }
+      };
+    });
+  </script>
+
+          </div>
+
+          
+
+<div>
+  <a style="color:#F05732" href="https://pytorch.org/docs/stable/_modules/torch/sparse.html">您正在查看不稳定开发者预览文档。请点击此处查看最新稳定版本的文档。</a>
+</div>
+
+
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">社区</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../community/build_ci_governance.html">PyTorch 治理 | 构建 + CI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../community/contribution_guide.html">PyTorch 贡献指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../community/design.html">PyTorch 设计哲学</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../community/governance.html">PyTorch 治理 | 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../community/persons_of_interest.html">PyTorch 治理 | 维护者</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发者笔记</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/amp_examples.html">自动混合精度示例</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/autograd.html">Autograd 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/broadcasting.html">广播语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/cpu_threading_torchscript_inference.html">CPU 线程和 TorchScript 推理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/cuda.html">CUDA 语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/custom_operators.html">PyTorch 自定义操作着陆页面</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/ddp.html">分布式数据并行</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/extending.html">扩展 PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/extending.func.html">扩展 torch.func 与 autograd.Function</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/faq.html">常见问题</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/fsdp.html">FSDP 笔记</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/get_start_xpu.html">在英特尔 GPU 上入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/gradcheck.html">毕业审核力学</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/hip.html">HIP (ROCm) 语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/large_scale_deployments.html">大规模部署功能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/libtorch_stable_abi.html">LibTorch 稳定 ABI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/modules.html">模块</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/mps.html">MPS 后端</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/multiprocessing.html">多进程最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/numerical_accuracy.html">数值精度</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/randomness.html">可复现性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/serialization.html">序列化语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/windows.html">Windows 常见问题解答</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">语言绑定</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../cpp_index.html">C++</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/javadoc/">Javadoc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../deploy.html">torch::deploy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../torch.html">torch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nn.html">torch.nn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nn.functional.html">torch.nn.functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tensors.html">torch.Tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tensor_attributes.html">Tensor 属性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tensor_view.html">张量视图</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../amp.html">torch.amp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../autograd.html">torch.autograd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../library.html">torch.library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../accelerator.html">torch 加速器</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cpu.html">torch.cpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cuda.html">torch.cuda</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../torch_cuda_memory.html">理解 CUDA 内存使用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../torch_cuda_memory.html#generating-a-snapshot">生成快照</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../torch_cuda_memory.html#using-the-visualizer">使用可视化器</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../torch_cuda_memory.html#snapshot-api-reference">快照 API 参考</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mps.html">torch.mps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../xpu.html">torch.xpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mtia.html">torch.mtia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mtia.memory.html">torch.mtia.memory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../meta.html">元设备</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../backends.html">torch.backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../export.html">torch.export</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../distributed.html">torch.distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../distributed.tensor.html">torch.distributed.tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../distributed.algorithms.join.html">torch.distributed.algorithms.join</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../distributed.elastic.html">torch.distributed.elastic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fsdp.html">torch.distributed.fsdp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../distributed.fsdp.fully_shard.html">torch.distributed.fsdp.fully_shard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../distributed.tensor.parallel.html">torch.distributed.tensor.parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../distributed.optim.html">torch.distributed.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../distributed.pipelining.html">torch.distributed.pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../distributed.checkpoint.html">torch.distributed.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../distributions.html">torch.distributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../torch.compiler.html">torch.compiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fft.html">torch.fft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../func.html">torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../futures.html">torch.futures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fx.html">torch.fx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fx.experimental.html">torch.fx.experimental</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hub.html">torch.hub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../jit.html">torch.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../linalg.html">torch.linalg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../monitor.html">torch.monitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../signal.html">torch.signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../special.html">torch.special</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../torch.overrides.html">torch.overrides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../package.html">torch.package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../profiler.html">torch.profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nn.init.html">torch.nn.init</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nn.attention.html">torch.nn.attention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../onnx.html">torch.onnx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../optim.html">torch.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../complex_numbers.html">复数</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ddp_comm_hooks.html">DDP 通信钩子</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quantization.html">量化</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../rpc.html">分布式 RPC 框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../random.html">torch.random</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../masked.html">torch.masked</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nested.html">torch.nested</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../size.html">torch.Size</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sparse.html">torch.sparse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../storage.html">torch 存储</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../testing.html">torch.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../utils.html">torch.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../benchmark_utils.html">torch.utils.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bottleneck.html">torch.utils.bottleneck</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../checkpoint.html">torch.utils.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cpp_extension.html">torch.utils.cpp_extension</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../data.html">torch.utils.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../deterministic.html">torch.utils.deterministic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../jit_utils.html">torch.utils.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dlpack.html">torch.utils.dlpack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mobile_optimizer.html">torch.utils.mobile_optimizer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../model_zoo.html">torch.utils.model_zoo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tensorboard.html">torch.utils.tensorboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_tracker.html">torch.utils.module_tracker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../type_info.html">类型信息</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../named_tensor.html">命名张量</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../name_inference.html">命名张量操作覆盖率</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../config_mod.html">torch.__config__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../future_mod.html">torch.__future__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../logging.html">torch._logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../torch_environment_variables.html">火炬环境变量</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">图书馆</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/audio/stable">torchaudio</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/data">TorchData</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/torchrec">火炬推荐</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/serve">TorchServe</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/text/stable">torchtext</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/vision/stable">torchvision</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/xla/">PyTorch 在 XLA 设备上</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/ao">torchao</a></li>
+</ul>
+
+            
+          
+
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        文档 &gt;</li>
+
+        
+          <li>模块代码 &gt;</li>
+        
+          <li><a href="../torch.html">torch</a> &gt;</li>
+        
+      <li>torch.sparse</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">快捷键</div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+
+          <!-- Google Tag Manager (noscript) -->
+          <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T8XT4PS" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+          <!-- End Google Tag Manager (noscript) -->
+          
+          <div class="rst-content">
+          
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <h1>torch.sparse 的源代码</font></font></font></h1><div class="highlight"><pre><span></span><span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># mypy: 允许未类型化定义</span>
+<span class="c1">该模块通过 python_tensor.cpp 添加了 Tensor 类</span>
+<span class="c1">为了同时支持 TorchScript 和 MyPy 的解决方案：</span>
+<span class="kn">来自</font></font></font></span> <span class="nn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">打字</font></font></font></span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">任何</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">可选</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类型检查</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">联合</span>
+
+<span class="kn">导入</font></font></font></span> <span class="nn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</span>
+<span class="kn">来自</font></font></font></span> <span class="nn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</span>
+<span class="kn">来自</font></font></font></span> <span class="nn">torch._C</span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_添加文档字符串</font></font></font></span><span class="p">,</span> <span class="n">_sparse</span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># 类型：忽略[已定义]</span>
+
+<span class="c1">半结构化稀疏度支持</span>
+<span class="kn">来自</font></font></font></span> <span class="nn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">.半结构化</font></font></font></span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</span> <span class="p">(</span>
+    <span class="n">稀疏半结构化张量</span><span class="p">,</span>
+    <span class="n">稀疏半结构化张量 CUSPARSELT</span><span class="p">,</span>
+    <span class="n">稀疏半结构化张量 CUTLASS</span><span class="p">,</span>
+    <span class="n">转换为稀疏半结构化</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="k">if</span> <span class="n">类型检查</span><span class="p">:</span>
+    <span class="kn">来自</font></font></font></span> <span class="nn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">torch 的类型</font></font></font></span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n">_dtype</span> <span class="k">as</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数据类型</span>
+
+    <span class="n">暗度</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">可选</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">联合</font></font></font></span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">元组</font></font></font></span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">]</font></font></font></span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">列表</span><span class="p">[</span><span class="nb">int</span><span class="p">]]]</span>
+<span class="k">否则</span><span class="p">:</span>
+    <span class="c1"># JIT 编译器不理解 Union，也不理解这里的 torch.dtype</span>
+    <span class="n">数据类型</font></font></font></span> <span class="o">=</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">整型</span>
+    <span class="n">暗度</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">可选</font></font></font></span><span class="p">[</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">元组</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span>
+
+
+<span class="n">全部</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">添加 mm</span><span class="p">,</span>
+    <span class="s2">检查稀疏张量不变性</span><span class="p">,</span>
+    <span class="s2">mm</span><span class="p">,</span>
+    <span class="s2">"求和"</span><span class="p">,</span>
+    <span class="s2">"softmax"</span><span class="p">,</span>
+    <span class="s2">"求解"</span><span class="p">,</span>
+    <span class="s2">"log_softmax"</span><span class="p">,</span>
+    <span class="s2">稀疏半结构化张量</span><span class="p">,</span>
+    <span class="s2">稀疏半结构化张量 CUTLASS</span><span class="p">,</span>
+    <span class="s2">稀疏半结构化张量 CUSPARSELT</span><span class="p">,</span>
+    <span class="s2">转换为稀疏半结构化</span><span class="p">,</span>
+    <span class="s2">as_sparse_gradcheck</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">addmm</span> <span class="o">=</span> <span class="n">_添加文档字符串</span><span class="p">(</span>
+    <span class="n">_sparse</span><span class="o">.</span><span class="n">_sparse_addmm</span><span class="p">,</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">""</span>
+<span class="sd">sparse.addmm(mat, mat1, mat2, *, beta=1., alpha=1.) -&gt; Tensor</span>
+
+<span class="sd">此函数与 :func:`torch.addmm` 在正向操作中执行完全相同的功能，</span>
+<span class="sd">但它支持稀疏 COO 矩阵 :attr:`mat1` 的反向操作。</span>
+<span class="sd">当 :attr:`mat1` 是 COO 张量时，它必须具有 `sparse_dim = 2`。</span>
+<span class="sd">当输入为 COO 张量时，此函数也支持对两个输入的逆向传播。</span>
+
+<span class="sd">支持 CSR 和 COO 存储格式。</span>
+
+<span class="sd">.. 注意：</span>
+<span class="sd">此函数不支持对 CSR 矩阵进行求导。</span>
+
+<span class="sd">参数：</span>
+<span class="sd">mat (Tensor)：要添加的密集矩阵</span>
+<span class="sd">mat1（张量）：要相乘的稀疏矩阵</span>
+<span class="sd">mat2（张量）：要相乘的稠密矩阵</span>
+<span class="sd">beta（数字，可选）：:attr:`mat`（:math:`\beta`）的乘数</span>
+<span class="sd">alpha（数字，可选）：:math:`mat1 @ mat2`（:math:`\alpha`）的乘数</span>
+<span class="sd">"""</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="n">mm</span> <span class="o">=</span> <span class="n">_添加文档字符串</span><span class="p">(</span>
+    <span class="n">_sparse</span><span class="o">.</span><span class="n">稀疏_mm</span><span class="p">,</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">""</span>
+<span class="sd">执行稀疏矩阵 :attr:`mat1` 的矩阵乘法</span>
+<span class="sd">与（稀疏或步进）矩阵 :attr:`mat2`。类似于 :func:`torch.mm`，如果 :attr:`mat1` 是</span>
+<span class="sd">math:`(n \times m)` 张量，:attr:`mat2` 是 :math:`(m \times p)` 张量，输出将是</span>
+<span class="sd">math:`(n \times p)` 张量。</span>
+<span class="sd">当`:attr:`mat1`是一个 COO 张量时，它必须具有`sparse_dim = 2`。</span>
+<span class="sd">当输入是 COO 张量时，此函数也支持对两个输入的反向传播。</span>
+
+<span class="sd">支持 CSR 和 COO 存储格式。</span>
+
+<span class="sd">.. 注意：</span>
+<span class="sd">此函数不支持对 CSR 矩阵进行求导。</span>
+
+<span class="sd">此函数还额外接受一个可选的：attr:`reduce` 参数，允许</span>
+<span class="sd">规格说明一个可选的缩减操作，在数学上执行以下操作：</span>
+
+<span class="sd">.. 数学表达式</span>
+
+<span class="sd">    z_{ij} = \bigoplus_{k = 0}^{K - 1} x_{ik} y_{kj}</span>
+
+<span class="sd">其中 :math:`\bigoplus` 定义了累加操作符。:attr:`reduce` 仅在 CPU 设备上的 CSR 存储格式中实现。</span>
+<span class="sd">CSR 存储格式在 CPU 设备上。</span>
+
+<span class="sd">参数：</span>
+<span class="sd">mat1 (Tensor)：要相乘的第一个稀疏矩阵</span>
+<span class="sd">mat2 (Tensor)：要相乘的第二个矩阵，可以是稀疏矩阵或稠密矩阵</span>
+<span class="sd">reduce (str, 可选)：应用于非唯一索引的降维操作</span>
+<span class="sd">(:obj:`"sum"`, :obj:`"mean"`, :obj:`"amax"`, :obj:`"amin"`). 默认 :obj:`"sum"`.</span>
+
+<span class="sd">形状：</span>
+<span class="sd">此函数的输出张量格式如下：</span>
+<span class="sd">- 稀疏 x 稀疏 -&gt; 稀疏</span>
+<span class="sd">- 稀疏 x 密集 -&gt; 密集</span>
+
+<span class="sd">示例::</span>
+
+<span class="sd">    &gt;&gt;&gt; a = torch.tensor([[1., 0, 2], [0, 3, 0]]).to_sparse().requires_grad_()</span>
+<span class="sd">    &gt;&gt;&gt; a</span>
+<span class="sd">    tensor(indices=tensor([[0, 0, 1],</span>
+<span class="sd">                           [0, 2, 1]]),</span>
+<span class="sd">values=tensor([1., 2., 3.])</span>
+<span class="sd">size=(2, 3), nnz=3, 布局=torch.sparse_coo, requires_grad=True)</span>
+<span class="sd">    &gt;&gt;&gt; b = torch.tensor([[0, 1.], [2, 0], [0, 0]], requires_grad=True)</span>
+<span class="sd">    &gt;&gt;&gt; b</span>
+<span class="sd">    tensor([[0., 1.],</span>
+<span class="sd">            [2., 0.],</span>
+<span class="sd">            [0., 0.]], requires_grad=True)</span>
+<span class="sd">    &gt;&gt;&gt; y = torch.sparse.mm(a, b)</span>
+<span class="sd">    &gt;&gt;&gt; y</span>
+<span class="sd">    tensor([[0., 1.],</span>
+<span class="sd">            [6., 0.]], grad_fn=&lt;SparseAddmmBackward0&gt;)</span>
+<span class="sd">    &gt;&gt;&gt; y.sum().backward()</span>
+<span class="sd">    &gt;&gt;&gt; a.grad</span>
+<span class="sd">    tensor(indices=tensor([[0, 0, 1],</span>
+<span class="sd">                           [0, 2, 1]]),</span>
+<span class="sd">           values=tensor([1., 0., 2.]),</span>
+<span class="sd">size=(2, 3), nnz=3, 布局=torch.sparse_coo)</span>
+<span class="sd">    &gt;&gt;&gt; c = a.detach().to_sparse_csr()</span>
+<span class="sd">    &gt;&gt;&gt; c</span>
+<span class="sd">    tensor(crow_indices=tensor([0, 2, 3]),</span>
+<span class="sd">           col_indices=tensor([0, 2, 1]),</span>
+<span class="sd">           values=tensor([1., 2., 3.]), size=(2, 3), nnz=3,</span>
+<span class="sd">           layout=torch.sparse_csr)</span>
+<span class="sd">    &gt;&gt;&gt; y1 = torch.sparse.mm(c, b, 'sum')</span>
+<span class="sd">    &gt;&gt;&gt; y1</span>
+<span class="sd">    tensor([[0., 1.],</span>
+<span class="sd">[[6., 0.]], grad_fn=<sparsemmreduceimplbackward0>)</sparsemmreduceimplbackward0></span>
+<span class="sd">    &gt;&gt;&gt; y2 = torch.sparse.mm(c, b, 'max')</span>
+<span class="sd">    &gt;&gt;&gt; y2</span>
+<span class="sd">    tensor([[0., 1.],</span>
+<span class="sd">[[6., 0.]], grad_fn=<sparsemmreduceimplbackward0>)</sparsemmreduceimplbackward0></span>
+<span class="sd">"""</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="n">sampled_addmm</span> <span class="o">=</span> <span class="n">_添加文档字符串</span><span class="p">(</span>
+    <span class="n">_sparse</span><span class="o">.</span><span class="n">稀疏采样加 MM</span><span class="p">,</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">""</span>
+<span class="sd">sparse.sampled_addmm(input, mat1, mat2, *, beta=1., alpha=1., out=None) -&gt; 张量</span>
+
+<span class="sd">执行密集矩阵 :attr:`mat1` 和 :attr:`mat2` 在 :attr:`input` 的稀疏模式指定的位置的矩阵乘法。</span>
+<span class="sd">矩阵 :attr:`input` 被添加到最终结果中。</span>
+
+<span class="sd">从数学上讲，这执行以下操作：</span>
+
+<span class="sd">.. 数学表达式</span>
+
+<span class="sd">    \text{out} = \alpha\ (\text{mat1} \mathbin{@} \text{mat2})*\text{spy}(\text{input}) + \beta\ \text{input}</span>
+
+<span class="sd">其中 :math:`\text{spy}(\text{input})` 是 :attr:`input` 的稀疏模式矩阵，:attr:`alpha`</span>
+<span class="sd">和 :attr:`beta` 是缩放因子。</span>
+<span class="sd">`spy(input)` 在 `input` 非零值的位置上取值为 1，其他位置取值为 0。</span>
+
+<span class="sd">.. 注意：</span>
+<span class="sd">`input` 必须是一个稀疏的 CSR 张量。`mat1` 和 `mat2` 必须是稠密张量。</span>
+
+<span class="sd">参数：</span>
+<span class="sd">输入 (Tensor)：一个形状为 `(m, n)` 的稀疏 CSR 矩阵，用于相加并用于计算</span>
+<span class="sd">样本矩阵乘法</span>
+<span class="sd">mat1（张量）：一个形状为（m，k）的密集矩阵，用于相乘</span>
+<span class="sd">mat2（张量）：一个形状为（k，n）的密集矩阵，用于相乘</span>
+
+<span class="sd">关键字参数:</span>
+<span class="sd">beta（数字，可选）：用于：attr:`input`（:math:`\beta`）的乘数</span>
+<span class="sd">alpha（数字，可选）：:math:`mat1 @ mat2`（:math:`\alpha`）的乘数</span>
+<span class="sd">out（张量，可选）：输出张量。如果为`None`则忽略。默认：`None`。</span>
+
+<span class="sd">示例::</span>
+
+<span class="sd">    &gt;&gt;&gt; input = torch.eye(3, device='cuda').to_sparse_csr()</span>
+<span class="sd">    &gt;&gt;&gt; mat1 = torch.randn(3, 5, device='cuda')</span>
+<span class="sd">    &gt;&gt;&gt; mat2 = torch.randn(5, 3, device='cuda')</span>
+<span class="sd">    &gt;&gt;&gt; torch.sparse.sampled_addmm(input, mat1, mat2)</span>
+<span class="sd">    tensor(crow_indices=tensor([0, 1, 2, 3]),</span>
+<span class="sd">        col_indices=tensor([0, 1, 2]),</span>
+<span class="sd">        values=tensor([ 0.2847, -0.7805, -0.1900]), device='cuda:0',</span>
+<span class="sd">size=(3, 3), nnz=3, 布局=torch.sparse_csr)</span>
+<span class="sd">    &gt;&gt;&gt; torch.sparse.sampled_addmm(input, mat1, mat2).to_dense()</span>
+<span class="sd">    tensor([[ 0.2847,  0.0000,  0.0000],</span>
+<span class="sd">        [ 0.0000, -0.7805,  0.0000],</span>
+<span class="sd">[[0.0000, 0.0000, -0.1900]], 设备='cuda:0'</span>
+<span class="sd">    &gt;&gt;&gt; torch.sparse.sampled_addmm(input, mat1, mat2, beta=0.5, alpha=0.5)</span>
+<span class="sd">    tensor(crow_indices=tensor([0, 1, 2, 3]),</span>
+<span class="sd">        col_indices=tensor([0, 1, 2]),</span>
+<span class="sd">        values=tensor([ 0.1423, -0.3903, -0.0950]), device='cuda:0',</span>
+<span class="sd">        size=(3, 3), nnz=3, layout=torch.sparse_csr)</span>
+<span class="sd">"""</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="sum"><a class="viewcode-back" href="../../generated/torch.sparse.sum.html#torch.sparse.sum">[文档]</font></font></font></a><span class="k">def</span> <span class="nf"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">总和</font></font></font></span><span class="p">(</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">维度</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">暗度</font></font></font></span> <span class="o">=</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数据类型</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">可选</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数据类型</font></font></font></span><span class="p">]</span> <span class="o">=</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</font></font></font></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">返回给定稀疏张量每行的和。</span>
+
+<span class="sd">返回给定稀疏张量 `input` 在指定维度 `dim` 上每行的和。</span>
+<span class="sd">如果 `dim` 是维度的列表，则</span>
+<span class="sd">对所有这些进行求和。当对所有 `sparse_dim` 求和时，此方法返回一个稠密张量而不是稀疏张量。</span>
+<span class="sd">返回一个稠密张量而不是稀疏张量。</span>
+
+<span class="sd">所有求和的 :attr:`dim` 都会被压缩（参见 :func:`torch.squeeze`），结果是一个维度比 :attr:`input` 少 :attr:`dim` 的输出张量。</span>
+<span class="sd">输出张量的维度比输入张量少 :attr:`dim`。</span>
+
+<span class="sd">在反向传播过程中，只有 `input` 的 ``nnz`` 位置处的梯度</span>
+<span class="sd">将传播回。注意：:attr:`input` 的梯度已合并。</span>
+
+<span class="sd">参数：</span>
+<span class="sd">输入（张量）：输入稀疏张量</span>
+<span class="sd">dim (int 或 int 的元组): 要降维的维度或维度列表。默认：reduce</span>
+<span class="sd">总维度。</span>
+<span class="sd">dtype (:class:`torch.dtype`, 可选): 返回 Tensor 的期望数据类型。</span>
+<span class="sd">默认：:attr:`input` 的数据类型。</span>
+
+<span class="sd">示例::</span>
+
+<span class="sd">        &gt;&gt;&gt; nnz = 3</span>
+<span class="sd">        &gt;&gt;&gt; dims = [5, 5, 2, 3]</span>
+<span class="sd">        &gt;&gt;&gt; I = torch.cat([torch.randint(0, dims[0], size=(nnz,)),</span>
+<span class="sd">                           torch.randint(0, dims[1], size=(nnz,))], 0).reshape(2, nnz)</span>
+<span class="sd">        &gt;&gt;&gt; V = torch.randn(nnz, dims[2], dims[3])</span>
+<span class="sd">        &gt;&gt;&gt; size = torch.Size(dims)</span>
+<span class="sd">&gt;&gt;&gt; # xdoctest: +IGNORE_WANT("非确定性")</span>
+<span class="sd">        &gt;&gt;&gt; S = torch.sparse_coo_tensor(I, V, size)</span>
+<span class="sd">        &gt;&gt;&gt; S</span>
+<span class="sd">        tensor(indices=tensor([[2, 0, 3],</span>
+<span class="sd">[[2, 4, 1]])</span>
+<span class="sd">values=tensor([[[[-0.6438, -1.6467,  1.4004],</span>
+<span class="sd">[[ 0.3411,  0.0918, -0.2312]],</span>
+
+<span class="sd">                              [[ 0.5348,  0.0634, -2.0494],</span>
+<span class="sd">[[-0.7125, -1.0646, 2.1844]]</span>
+
+<span class="sd">[[0.1276, 0.1874, -0.6334]]</span>
+<span class="sd">[[-1.9682, -0.5340, 0.7483]]</span>
+<span class="sd">size=(5, 5, 2, 3), nnz=3, layout=torch.sparse_coo</span>
+
+<span class="sd">当仅对 sparse_dims 的部分求和时，返回一个稀疏张量</span>
+<span class="sd">        &gt;&gt;&gt; torch.sparse.sum(S, [1, 3])</span>
+<span class="sd">        tensor(indices=tensor([[0, 2, 3]]),</span>
+<span class="sd">               values=tensor([[-1.4512,  0.4073],</span>
+<span class="sd">[-0.8901, 0.2017]</span>
+<span class="sd">[-0.3183, -1.7539]</span>
+<span class="sd">size=(5, 2), nnz=3, layout=torch.sparse_coo</span>
+
+<span class="sd">当对所有稀疏维度求和时，返回一个稠密张量</span>
+<span class="sd"># 压缩维度求和</span>
+<span class="sd">        &gt;&gt;&gt; torch.sparse.sum(S, [0, 1, 3])</span>
+<span class="sd">        tensor([-2.6596, -1.1450])</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">dtype</span> <span class="ow">是</font></font></font></span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">维度</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">不</font></font></font></span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">:</span>
+            <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</font></font></font></span><span class="o">.</span><span class="n">_sparse_sum</span><span class="p">(</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">维度</span><span class="p">)</span>
+        <span class="k">否则</span><span class="p">:</span>
+            <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</font></font></font></span><span class="o">.</span><span class="n">_sparse_sum</span><span class="p">(</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入</span><span class="p">)</span>
+    <span class="k">否则</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">维度</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">不</font></font></font></span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">:</span>
+            <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</font></font></font></span><span class="o">.</span><span class="n">_sparse_sum</span><span class="p">(</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">维度</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数据类型</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数据类型</span><span class="p">)</span>
+        <span class="k">否则</span><span class="p">:</span>
+            <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</font></font></font></span><span class="o">.</span><span class="n">_sparse_sum</span><span class="p">(</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数据类型</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数据类型</span><span class="p">)</span></div>
+
+
+<span class="n">softmax</span> <span class="o">=</span> <span class="n">_添加文档字符串</span><span class="p">(</span>
+    <span class="n">_sparse</span><span class="o">.</span><span class="n">稀疏 softmax</span><span class="p">,</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">""</span>
+<span class="sd">sparse.softmax(input, dim, *, dtype=None) -&gt; Tensor</span>
+
+<span class="sd">应用 softmax 函数。</span>
+
+<span class="sd">Softmax 定义为：</span>
+
+<span class="sd">\text{Softmax}(x_{i}) = \frac{exp(x_i)}{\sum_j exp(x_j)}\</span>
+
+<span class="sd">where :math:`i, j` 在稀疏张量索引和未指定范围内运行</span>
+<span class="sd">条目被忽略。这相当于定义未指定</span>
+<span class="sd">条目设为负无穷大，使得 :math:`exp(x_k) = 0` 当</span>
+<span class="sd">条目索引：`k` 未指定。</span>
+
+<span class="sd">它应用于`dim`的所有切片，并将它们重新缩放，使得</span>
+<span class="sd">元素位于范围 `[0, 1]` 内，并且总和为 1。</span>
+
+<span class="sd">参数：</span>
+<span class="sd">input (Tensor): 输入</span>
+<span class="sd">dim (int): softmax 将计算的维度</span>
+<span class="sd">dtype (:class:`torch.dtype`, 可选): 想要的数据类型</span>
+<span class="sd">返回张量的类型。如果指定，输入张量在操作执行前会被转换为 :attr:`dtype`</span>
+<span class="sd">转换。这在防止数据类型</span>
+<span class="sd">转换错误时很有用。</span>
+<span class="sd">溢出。默认值：无</span>
+<span class="sd">"""</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="n">spsolve</span> <span class="o">=</span> <span class="n">_添加文档字符串</span><span class="p">(</span>
+    <span class="n">_sparse</span><span class="o">.</span><span class="n">_spsolve</span><span class="p">,</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">""</span>
+<span class="sd">sparse.spsolve(input, other, *, left=True) -&gt; 张量</span>
+
+<span class="sd">计算一个线性方程组的解</span>
+<span class="sd">一个独特的解决方案。其目的是类似于：func:`torch.linalg.solve`</span>
+<span class="sd">除了系统由一个稀疏的 CSR 矩阵定义外</span>
+<span class="sd">`稀疏_csr`。</span>
+
+<span class="sd">参数：</span>
+<span class="sd">输入（张量）：表示线性系统系数的形状为`(n, n)`的稀疏 CSR 矩阵</span>
+<span class="sd">。</span>
+<span class="sd">其他（Tensor）：表示线性系统右侧的密集矩阵（n, ）</span>
+<span class="sd">左侧（bool，可选）：是否求解 `input @ out = other`（默认）或 `out @ input = other` 的系统。仅支持 `left=True`。</span>
+<span class="sd">left（bool，可选）：是否求解 `input @ out = other`（默认）或 `out @ input = other` 的系统。</span>
+<span class="sd">仅支持 `left=True`。</span>
+<span class="sd">"""</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">log_softmax</span> <span class="o">=</span> <span class="n">_添加文档字符串</span><span class="p">(</span>
+    <span class="n">_sparse</span><span class="o">.</span><span class="n">_sparse_log_softmax</span><span class="p">,</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">""</span>
+<span class="sd">sparse.log_softmax(input, dim, *, dtype=None) -&gt; Tensor</span>
+
+<span class="sd">应用 softmax 函数后跟对数。</span>
+
+<span class="sd">更多详情请参阅 :class:`~torch.sparse.softmax`。</span>
+
+<span class="sd">参数：</span>
+<span class="sd">input (Tensor): 输入</span>
+<span class="sd">dim (int): softmax 将计算的维度</span>
+<span class="sd">dtype (:class:`torch.dtype`, 可选): 想要的数据类型</span>
+<span class="sd">返回张量的类型。如果指定，输入张量在操作执行前会被转换为 :attr:`dtype`</span>
+<span class="sd">转换。这在防止数据类型</span>
+<span class="sd">转换错误时很有用。</span>
+<span class="sd">溢出。默认值：无</span>
+<span class="sd">"""</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="n">spdiags</span> <span class="o">=</span> <span class="n">_添加文档字符串</span><span class="p">(</span>
+    <span class="n">_sparse</span><span class="o">.</span><span class="n">_spdiags</span><span class="p">,</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">""</span>
+<span class="sd">sparse.spdiags(diagonals, offsets, shape, layout=None) -&gt; Tensor</span>
+
+<span class="sd">通过将 :attr:`diagonals` 的值放置在输出矩阵的指定对角线上创建一个稀疏二维张量</span>
+<span class="sd">attr:`对角线` 沿着指定的对角线排列</span>
+
+<span class="sd">attr:`offsets` 张量控制哪些对角线被设置。</span>
+
+<span class="sd">- 如果 :attr:`offsets[i]` = 0，则是主对角线</span>
+<span class="sd">- 如果 :attr:`offsets[i]` &lt; 0，则位于主对角线下方</span>
+<span class="sd">- 如果 :attr:`offsets[i]` &gt; 0，则位于主对角线上方</span>
+
+<span class="sd">对角线的行数必须与 :attr:`offsets` 的长度相匹配，</span>
+<span class="sd">并且偏移量不能重复。</span>
+
+<span class="sd">参数：</span>
+<span class="sd">对角线（Tensor）：按行存储对角线的矩阵</span>
+<span class="sd">偏移量（Tensor）：要设置的对角线，存储为向量</span>
+<span class="sd">形状（整数二元组）：结果期望的形状</span>
+<span class="sd">关键字参数:</span>
+<span class="sd">布局（:class:`torch.layout`，可选）：返回张量的期望布局</span>
+<span class="sd">支持的格式有 ``torch.sparse_coo``、``torch.sparse_csc`` 和 ``torch.sparse_csr``</span>
+<span class="sd">默认：``torch.sparse_coo``</span>
+
+<span class="sd">示例：</span>
+
+<span class="sd">设置矩阵的主对角线和前两个下对角线</span>
+
+<span class="sd">    &gt;&gt;&gt; diags = torch.arange(9).reshape(3, 3)</span>
+<span class="sd">    &gt;&gt;&gt; diags</span>
+<span class="sd">    tensor([[0, 1, 2],</span>
+<span class="sd">            [3, 4, 5],</span>
+<span class="sd">            [6, 7, 8]])</span>
+<span class="sd">    &gt;&gt;&gt; s = torch.sparse.spdiags(diags, torch.tensor([0, -1, -2]), (3, 3))</span>
+<span class="sd">    &gt;&gt;&gt; s</span>
+<span class="sd">    tensor(indices=tensor([[0, 1, 2, 1, 2, 2],</span>
+<span class="sd">                           [0, 1, 2, 0, 1, 0]]),</span>
+<span class="sd">           values=tensor([0, 1, 2, 3, 4, 6]),</span>
+<span class="sd">size=(3, 3), nnz=6, 布局=torch.sparse_coo)</span>
+<span class="sd">    &gt;&gt;&gt; s.to_dense()</span>
+<span class="sd">    tensor([[0, 0, 0],</span>
+<span class="sd">            [3, 1, 0],</span>
+<span class="sd">            [6, 4, 2]])</span>
+
+
+<span class="sd">更改输出布局</span>
+
+<span class="sd">    &gt;&gt;&gt; diags = torch.arange(9).reshape(3, 3)</span>
+<span class="sd">    &gt;&gt;&gt; diags</span>
+<span class="sd">tensor([[0, 1, 2],[3, 4, 5], [6, 7, 8]])</span>
+<span class="sd">    &gt;&gt;&gt; s = torch.sparse.spdiags(diags, torch.tensor([0, -1, -2]), (3, 3), layout=torch.sparse_csr)</span>
+<span class="sd">    &gt;&gt;&gt; s</span>
+<span class="sd">tensor(crow_indices=tensor([0, 1, 3, 6]))</span>
+<span class="sd">col_indices=tensor([0, 0, 1, 0, 1, 2])</span>
+<span class="sd">           values=tensor([0, 3, 1, 6, 4, 2]), size=(3, 3), nnz=6,</span>
+<span class="sd">           layout=torch.sparse_csr)</span>
+<span class="sd">    &gt;&gt;&gt; s.to_dense()</span>
+<span class="sd">    tensor([[0, 0, 0],</span>
+<span class="sd">            [3, 1, 0],</span>
+<span class="sd">            [6, 4, 2]])</span>
+
+<span class="sd">设置大输出部分的偏对角线::</span>
+
+<span class="sd">    &gt;&gt;&gt; diags = torch.tensor([[1, 2], [3, 4]])</span>
+<span class="sd">    &gt;&gt;&gt; offsets = torch.tensor([0, -1])</span>
+<span class="sd">    &gt;&gt;&gt; torch.sparse.spdiags(diags, offsets, (5, 5)).to_dense()</span>
+<span class="sd">    tensor([[1, 0, 0, 0, 0],</span>
+<span class="sd">[3, 2, 0, 0, 0]</span>
+<span class="sd">[0, 4, 0, 0, 0]</span>
+<span class="sd">[0, 0, 0, 0, 0]</span>
+<span class="sd">[0, 0, 0, 0, 0]</span>
+
+<span class="sd">.. 注意：</span>
+
+<span class="sd">当设置给定对角线上的值时，对角线中的索引</span>
+<span class="sd">并且将`:attr:`diagonals`中的行索引作为</span>
+<span class="sd">输出列索引。这会导致当设置对角线时</span>
+<span class="sd">使用正偏移量 `k`，该对角线上的第一个值将是</span>
+<span class="sd">对角线行 :attr:`diagonals` 中位置 `k` 的值</span>
+
+<span class="sd">指定正偏移量::</span>
+
+<span class="sd">    &gt;&gt;&gt; diags = torch.tensor([[1, 2, 3], [1, 2, 3], [1, 2, 3]])</span>
+<span class="sd">    &gt;&gt;&gt; torch.sparse.spdiags(diags, torch.tensor([0, 1, 2]), (5, 5)).to_dense()</span>
+<span class="sd">    tensor([[1, 2, 3, 0, 0],</span>
+<span class="sd">            [0, 2, 3, 0, 0],</span>
+<span class="sd">            [0, 0, 3, 0, 0],</span>
+<span class="sd">[0, 0, 0, 0, 0]</span>
+<span class="sd">[0, 0, 0, 0, 0]</span>
+<span class="sd">"""</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="check_sparse_tensor_invariants"><a class="viewcode-back" href="../../generated/torch.sparse.check_sparse_tensor_invariants.html#torch.sparse.check_sparse_tensor_invariants">[文档]</font></font></font></a><span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类</font></font></font></span> <span class="nc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">检查稀疏张量不变性</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">一个用于控制检查稀疏张量不变性的工具。</span>
+
+<span class="sd">管理稀疏张量不变量的以下选项存在</span>
+<span class="sd">在稀疏张量构建中进行检查：</span>
+
+<span class="sd">1. 使用上下文管理器：</span>
+
+<span class="sd">.. 代码块 :: python</span>
+
+<span class="sd">           with torch.sparse.check_sparse_tensor_invariants():</span>
+<span class="sd">               run_my_model()</span>
+
+<span class="sd">2. 采用程序化方法：</span>
+
+<span class="sd">.. 代码块 :: python</span>
+
+<span class="sd">           prev_checks_enabled = torch.sparse.check_sparse_tensor_invariants.is_enabled()</span>
+<span class="sd">           torch.sparse.check_sparse_tensor_invariants.enable()</span>
+
+<span class="sd">           run_my_model()</span>
+
+<span class="sd">如果没有 prev_checks_enabled:</span>
+<span class="sd">               torch.sparse.check_sparse_tensor_invariants.disable()</span>
+
+<span class="sd">3. 使用函数装饰：</span>
+
+<span class="sd">.. 代码块 :: python</span>
+
+<span class="sd">           @torch.sparse.check_sparse_tensor_invariants()</span>
+<span class="sd">           def run_my_model():</span>
+<span class="sd">               ...</span>
+
+<span class="sd">           run_my_model()</span>
+
+<span class="sd">在稀疏张量构造函数调用中使用 ``check_invariants`` 关键字参数。</span>
+<span class="sd">例如：</span>
+
+<span class="sd">       &gt;&gt;&gt; torch.sparse_csr_tensor([0, 1, 3], [0, 1], [1, 2], check_invariants=True)</span>
+<span class="sd">       Traceback (most recent call last):</span>
+<span class="sd">文件 "", 行 1，在  中</span>
+<span class="sd">运行时错误：`crow_indices[..., -1] == nnz` 不满足条件。</span>
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="check_sparse_tensor_invariants.is_enabled"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]    @staticmethod
+def is_enabled():
+r"""返回 True 如果稀疏张量不变性检查已启用。
+
+.. 注意::
+
+使用 :func:`torch.sparse.check_sparse_tensor_invariants.enable` 或
+func:`torch.sparse.check_sparse_tensor_invariants.disable` 来
+管理稀疏张量不变性检查的状态。
+"""
+返回 torch._C._check_sparse_tensor_invariants()</font></font></font></div>
+
+<div class="viewcode-block" id="check_sparse_tensor_invariants.enable"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]    @staticmethod
+def 启用():
+启用稀疏张量构造函数中的稀疏张量不变性检查。
+
+.. 注意::
+
+默认情况下，稀疏张量不变性检查是禁用的。使用
+func:`torch.sparse.check_sparse_tensor_invariants.is_enabled` 来
+检索稀疏张量不变性检查的当前状态。
+
+.. 注意::
+
+稀疏张量不变性检查标志对所有稀疏张量构造函数有效，包括 Python 和 ATen。
+稀疏张量构造函数，无论是 Python 还是 ATen，稀疏张量不变性检查标志都有效。
+
+标志可以被本地覆盖为 `check_invariants`
+可选参数为稀疏张量构造函数的参数。
+```python
+# 输入文本
+input_text = '"""'
+
+# 翻译函数（此处为示例，实际翻译功能需调用真实的翻译 API）
+def translate_to_simplified_chinese(text):
+    # 假设的翻译结果
+    return text
+
+# 输出翻译结果
+translated_text = translate_to_simplified_chinese(input_text)
+print(translated_text)
+```
+torch._C._set_check_sparse_tensor_invariants(True) 
+翻译为：torch._C._set_check_sparse_tensor_invariants(True)</font></font></font></div>
+
+<div class="viewcode-block" id="check_sparse_tensor_invariants.disable"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]    @staticmethod
+def 禁用():
+r"""在稀疏张量构造函数中禁用稀疏张量不变性检查。
+
+更多信息请参阅 :func:`torch.sparse.check_sparse_tensor_invariants.enable`。
+"""
+torch._C._set_check_sparse_tensor_invariants(False)</font></font></font></div>
+
+    <span class="c1"># 管道管理器支持</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">启用</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">状态</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">启用</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">保存状态</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">可选</font></font></font></span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span>
+
+    <span class="k">def</span> <span class="fm">__进入__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">保存状态</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">不</font></font></font></span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">:</span>
+            <span class="k">抛出</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">运行时错误</span><span class="p">(</span>
+                <span class="s2">"此上下文管理器实例已激活。"</span>
+                <span class="s2">"请使用不同的上下文管理器实例进行上下文嵌套。"</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">保存状态</font></font></font></span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">启用</span><span class="p">()</span>
+        <span class="n">PyTorch</font></font></font></span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">设置检查稀疏张量不变性</font></font></font></span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">状态</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__退出__</font></font></font></span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类型</font></font></font></span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">跟踪回溯</span><span class="p">):</span>
+        <span class="k">断言</font></font></font></span> <span class="bp">self</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">保存状态</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">不</font></font></font></span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span>
+        <span class="n">PyTorch</font></font></font></span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">设置检查稀疏张量不变性</font></font></font></span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">保存状态</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">保存状态</font></font></font></span> <span class="o">=</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span>
+
+    <span class="c1">装饰器支持</span>
+    <span class="k">def</span> <span class="fm">__调用__</font></font></font></span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">月</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">测试_mth</font></font></font></span><span class="p">(</span><span class="o">*</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="k">替换为</font></font></font></span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类型</font></font></font></span><span class="p">(</span><span class="bp">self</span><span class="p">)(</span><span class="bp">self</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">状态</span><span class="p">):</span>
+                <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">月</font></font></font></span><span class="p">(</span><span class="o">*</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">测试_mth</span></div>
+
+
+<div class="viewcode-block" id="as_sparse_gradcheck"><a class="viewcode-back" href="../../generated/torch.sparse.as_sparse_gradcheck.html#torch.sparse.as_sparse_gradcheck">[文档]</a><span class="k">def</span> <span class="nf">as_sparse_gradcheck</span><span class="p">(</span><span class="n">gradcheck</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">装饰函数，用于扩展稀疏张量的 gradcheck。</span>
+
+<span class="sd">torch.autograd.gradcheck 或其 functools.partial 的装饰器</span>
+<span class="sd">扩展 gradcheck 函数以支持输入变体的方法</span>
+<span class="sd">操作或返回稀疏张量的函数</span>
+
+<span class="sd">确保指定的 gradcheck 函数本身仅操作</span>
+<span class="sd">带有步长的张量</span>
+
+<span class="sd">例如：</span>
+
+<span class="sd">    &gt;&gt;&gt; gradcheck = torch.sparse.as_sparse_gradcheck(torch.autograd.gradcheck)</span>
+<span class="sd">    &gt;&gt;&gt; x = torch.tensor([[0, 1], [2, 3]], dtype=torch.float64).to_sparse_coo().requires_grad_(True)</span>
+<span class="sd">    &gt;&gt;&gt; gradcheck(lambda x: x.to_sparse_csr(), x)</span>
+<span class="sd">    True</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span> <span class="nf">gradcheck_with_sparse_support</span><span class="p">(</span><span class="n">函数</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">""</span>
+<span class="sd">创建支持稀疏张量的 gradcheck。</span>
+
+<span class="sd">与:func:`torch.autograd.gradcheck`相同，但支持稀疏张量的输入和输出。</span>
+<span class="sd">        """</span>
+        <span class="n">隐藏</font></font></font></span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">流行</font></font></font></span><span class="p">(</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">"掩码"</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">稀疏布局</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">PyTorch</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">稀疏 COO</span><span class="p">,</span>
+            <span class="n">PyTorch</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">稀疏压缩存储格式</span><span class="p">,</span>
+            <span class="n">PyTorch</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">稀疏压缩存储格式</span><span class="p">,</span>
+            <span class="n">PyTorch</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">稀疏_bsr</span><span class="p">,</span>
+            <span class="n">PyTorch</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">稀疏矩阵</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">稀疏压缩布局</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">PyTorch</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">稀疏压缩存储格式</span><span class="p">,</span>
+            <span class="n">PyTorch</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">稀疏压缩存储格式</span><span class="p">,</span>
+            <span class="n">PyTorch</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">稀疏_bsr</span><span class="p">,</span>
+            <span class="n">PyTorch</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">稀疏矩阵</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">稀疏块布局</font></font></font></span> <span class="o">=</span> <span class="p">{</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">稀疏_bsr</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">稀疏矩阵</span><span class="p">}</span>
+        <span class="n">STRIDED_REPRESENTATION</span> <span class="o">=</span> <span class="s2">"__STRIDED_REPRESENTATION__"</span>
+
+        <span class="k">def</span> <span class="nf">转换为步长表示形式</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">将可微的非分步张量转换为包含可微分步张量的表示形式。</span>
+            <span class="k">if</span> <span class="ow">不</font></font></font></span> <span class="nb">isinstance</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</font></font></font></span><span class="p">,</span> <span class="p">(</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">列表</font></font></font></span><span class="p">,</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">元组</span><span class="p">)):</span>
+                <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">参数</span><span class="p">,)</span>
+            <span class="n">新参数</font></font></font></span><span class="p">:</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">列表</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">任何</font></font></font></span><span class="p">]</span> <span class="o">=</span> <span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入文本为空，请提供需要翻译的文本</span>
+            <span class="k">为</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="nb">isinstance</span><span class="p">(</span><span class="n">对象</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</span><span class="p">)</span>
+                    <span class="ow">和</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">需要梯度</span>
+                    <span class="ow">和</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">布局</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">稀疏布局</span>
+                <span class="p">):</span>
+                    <span class="n">d</span> <span class="o">=</span> <span class="nb">字典</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">布局</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">布局</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">形状</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">形状</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">不</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">遮蔽</span><span class="p">:</span>
+                        <span class="c1"># 使用零值材料化未指定的元素</span>
+                        <span class="n">批处理维度</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">维数</font></font></font></span> <span class="o">-</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">稠密维度</font></font></font></span><span class="p">()</span> <span class="o">-</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">稀疏维度</span><span class="p">()</span>
+                        <span class="n">块大小</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="n">对象</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">值</font></font></font></span><span class="p">()</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">形状</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">批处理维度</font></font></font></span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">批处理维度</span> <span class="o">+</span> <span class="mi">3</span><span class="p">]</span>
+                            <span class="k">if</span> <span class="n">对象</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">布局</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">稀疏块布局</span>
+                            <span class="k">否则</font></font></font></span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span>
+                        <span class="p">)</span>
+                        <span class="n">完整掩码</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">一</span><span class="p">(</span>
+                            <span class="n">对象</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">形状</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">设备</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">设备</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数据类型</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">布尔值</span>
+                        <span class="p">)</span><span class="o">.</span><span class="n">转换为稀疏格式</span><span class="p">(</span>
+                            <span class="n">布局</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">布局</span><span class="p">,</span>
+                            <span class="n">块大小</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">块大小</span><span class="p">,</span>
+                            <span class="n">稠密维度</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">稠密维度</span><span class="p">(),</span>
+                        <span class="p">)</span>
+                        <span class="n">对象</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">转换为稠密格式</span><span class="p">()</span><span class="o">.</span><span class="n">sparse_mask</span><span class="p">(</span><span class="n">full_mask</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">对象</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">布局</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">稀疏 COO</span><span class="p">:</span>
+                        <span class="n">d</span><span class="o">.</span><span class="n">更新</span><span class="p">(</span>
+                            <span class="n">索引</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">索引</font></font></font></span><span class="p">(),</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是否合并</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是否合并</span><span class="p">()</span>
+                        <span class="p">)</span>
+                        <span class="n">values</span> <span class="o">=</span> <span class="n">对象</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">值</span><span class="p">()</span>
+                    <span class="k">如果...否则</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">布局</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在</font></font></font></span> <span class="p">{</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">稀疏压缩存储格式</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">稀疏_bsr</span><span class="p">}:</span>
+                        <span class="n">d</span><span class="o">.</span><span class="n">更新</span><span class="p">(</span>
+                            <span class="n">压缩索引</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">鸡索引</span><span class="p">(),</span>
+                            <span class="n">平凡索引</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">列索引</span><span class="p">(),</span>
+                        <span class="p">)</span>
+                        <span class="n">values</span> <span class="o">=</span> <span class="n">对象</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">值</span><span class="p">()</span>
+                    <span class="k">否则</span><span class="p">:</span>
+                        <span class="n">d</span><span class="o">.</span><span class="n">更新</span><span class="p">(</span>
+                            <span class="n">压缩索引</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">c 列索引</span><span class="p">(),</span>
+                            <span class="n">平凡索引</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">行索引</span><span class="p">(),</span>
+                        <span class="p">)</span>
+                        <span class="n">values</span> <span class="o">=</span> <span class="n">对象</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">值</span><span class="p">()</span>
+                    <span class="n">新参数</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">扩展</span><span class="p">(</span>
+                        <span class="p">(</span><span class="n">分步表示</font></font></font></span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">值</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">需要梯度_</span><span class="p">(</span><span class="kc">True</span><span class="p">))</span>
+                    <span class="p">)</span>
+                <span class="k">否则</span><span class="p">:</span>
+                    <span class="n">新参数</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">添加</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</span><span class="p">)</span>
+            <span class="k">返回</font></font></font></span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">元组</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">新参数</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">从分块表示恢复</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">"从它们的步长表示中恢复非步长可微张量。"</span>
+            <span class="n">new_args</span> <span class="o">=</span> <span class="p">输入文本为空，请提供需要翻译的文本</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="nb">列表</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="p">)</span>
+            <span class="k">当</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="p">:</span>
+                <span class="n">a</span> <span class="o">=</span> <span class="n">参数</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">流行</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">a</span> <span class="o">==</span> <span class="n">分步表示</span><span class="p">:</span>
+                    <span class="n">d</span><span class="p">,</span> <span class="n">values</span> <span class="o">=</span> <span class="n">参数</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">流行</font></font></font></span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">流行</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s2">布局</font></font></font></span><span class="p">]</span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">稀疏 COO</span><span class="p">:</span>
+                        <span class="n">a</span> <span class="o">=</span> <span class="n">PyTorch</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">稀疏 Coo 张量</span><span class="p">(</span>
+                            <span class="n">d</span><span class="p">[</span><span class="s2">索引</font></font></font></span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">]</span>
+                            <span class="n">值</span><span class="p">,</span>
+                            <span class="n">尺寸</font></font></font></span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">"形状"</font></font></font></span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">]</span>
+                            <span class="n">是否合并</font></font></font></span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是否合并</font></font></font></span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">]</span>
+                        <span class="p">)</span>
+                    <span class="k">如果...否则</font></font></font></span> <span class="n">d</span><span class="p">[</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">布局</font></font></font></span><span class="p">]</span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">稀疏压缩布局</span><span class="p">:</span>
+                        <span class="n">a</span> <span class="o">=</span> <span class="n">PyTorch</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">稀疏压缩张量</span><span class="p">(</span>
+                            <span class="n">d</span><span class="p">[</span><span class="s2">压缩索引</font></font></font></span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">]</span>
+                            <span class="n">d</span><span class="p">[</span><span class="s2">"普通索引"</font></font></font></span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">]</span>
+                            <span class="n">值</span><span class="p">,</span>
+                            <span class="n">尺寸</font></font></font></span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">"形状"</font></font></font></span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">]</span>
+                            <span class="n">布局</font></font></font></span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">布局</font></font></font></span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">]</span>
+                        <span class="p">)</span>
+                    <span class="k">否则</span><span class="p">:</span>
+                        <span class="k">抛出</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">不支持的操作异常</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s1">转换</font></font></font></span><span class="si">{</span><span class="n">d</span><span class="p">[</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">布局</font></font></font></span><span class="p">]</span><span class="si">}</span><span class="s1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">步长表示转换为张量'</span>
+                        <span class="p">)</span>
+                <span class="n">新参数</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">添加</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+            <span class="k">返回</font></font></font></span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">元组</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">新参数</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">函数包装器</font></font></font></span><span class="p">(</span><span class="o">*</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">恢复参数</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">从分块表示恢复</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="p">)</span>
+
+            <span class="c1"># 将可微输出稀疏张量转换为分块</span>
+            <span class="c1"># 张量：</span>
+            <span class="n">输出</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">函数</font></font></font></span><span class="p">(</span><span class="o">*</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">恢复参数</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="n">步长输出</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="nb">元组</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输出</font></font></font></span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输出</font></font></font></span><span class="p">,</span> <span class="p">(</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">列表</font></font></font></span><span class="p">,</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">元组</font></font></font></span><span class="p">))</span> <span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">否则</font></font></font></span> <span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输出</span><span class="p">,)</span>
+            <span class="p">)</span>
+            <span class="n">步长输出</font></font></font></span> <span class="o">=</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">元组</span><span class="p">(</span>
+                <span class="p">(</span>
+                    <span class="n">o</span><span class="o">.</span><span class="n">转换为稠密格式</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">掩码梯度</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">遮蔽</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">PyTorch</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</span><span class="p">)</span>
+                    <span class="ow">和</font></font></font></span> <span class="n">o</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">需要梯度</span>
+                    <span class="ow">和</font></font></font></span> <span class="n">o</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">布局</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">稀疏布局</span>
+                    <span class="k">否则</span> <span class="n">o</span>
+                <span class="p">)</span>
+                <span class="k">为</font></font></font></span> <span class="n">o</span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">步长输出</span>
+            <span class="p">)</span>
+
+            <span class="k">返回</span> <span class="p">(</span>
+                <span class="n">步长输出</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">输出</font></font></font></span><span class="p">,</span> <span class="p">(</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">列表</font></font></font></span><span class="p">,</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">元组</span><span class="p">))</span>
+                <span class="k">否则</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">步长输出</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="p">)</span>
+
+        <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">函数包装器</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">转换为步长表示形式</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入</span><span class="p">))</span>
+
+        <span class="k">返回</font></font></font></span> <span class="n">gradcheck</span><span class="p">(</span><span class="o">*</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">返回</span> <span class="n">gradcheck_with_sparse_support</span></div>
+</pre></div>
+
+             </article>
+             
+            </div>
+            <footer>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>© 版权所有 PyTorch 贡献者。</p>
+  </div>
+    
+      <div>使用 Sphinx 构建，并使用 Read the Docs 提供的主题。</div>
+     
+
+</footer>
+
+          </div>
+<script>
+
+var match = window.location.href.match(/\/_[a-zA-Z0-9_]*.html|_dynamo/gi);
+var url = window.location.href.lastIndexOf(match[match.length-1]);
+
+if (url)
+  {
+    var div = '<div class="admonition note"><p class="admonition-title">Note</p><p><i class="fa fa-exclamation-circle" aria-hidden="true">&nbsp</i> This page describes an internal API which is not intended to be used outside of the PyTorch codebase and can be modified or removed without notice.</p></div>'
+    document.getElementById("pytorch-article").insertAdjacentHTML('afterBegin', div)
+  }
+</script>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+         <script src="../../_static/jquery.js"></script>
+         <script src="../../_static/underscore.js"></script>
+         <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+         <script src="../../_static/doctools.js"></script>
+         <script src="../../_static/clipboard.min.js"></script>
+         <script src="../../_static/copybutton.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="../../_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="../../_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ 
+<script script="" type="text/javascript">
+  var collapsedSections = ['Developer Notes', 'Language Bindings', 'Libraries', 'Community'];
+</script>
+
+<img height="1" width="1" style="border-style:none;" alt="" src="https://www.googleadservices.com/pagead/conversion/795629140/?label=txkmCPmdtosBENSssfsC&amp;guid=ON&amp;script=0">
+
+
+  <!-- Begin Footer -->
+
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 text-center">
+          <h2>文档</h2>
+          <p>查看 PyTorch 的全面开发者文档</p>
+          <a class="with-right-arrow" href="https://pytorch.org/docs/stable/index.html">查看文档</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>教程</h2>
+          <p>深入了解初学者和高级开发者的教程</p>
+          <a class="with-right-arrow" href="https://pytorch.org/tutorials">查看教程</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>资源</h2>
+          <p>查找开发资源，获取您的疑问解答</p>
+          <a class="with-right-arrow" href="https://pytorch.org/resources">查看资源</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://pytorch.org/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/">PyTorch</a></li>
+            <li><a href="https://pytorch.org/get-started">开始使用</a></li>
+            <li><a href="https://pytorch.org/features">功能</a></li>
+            <li><a href="https://pytorch.org/ecosystem">生态系统</a></li>
+            <li><a href="https://pytorch.org/blog/">博客</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md">贡献</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/resources">资源</a></li>
+            <li><a href="https://pytorch.org/tutorials">教程</a></li>
+            <li><a href="https://pytorch.org/docs/stable/index.html">文档</a></li>
+            <li><a href="https://discuss.pytorch.org" target="_blank">讨论</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/issues" target="_blank">Github 问题</a></li>
+            <li><a href="https://pytorch.org/assets/brand-guidelines/PyTorch-Brand-Guidelines.pdf" target="_blank">品牌指南</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">保持更新</li>
+            <li><a href="https://www.facebook.com/pytorch" target="_blank">Facebook</a></li>
+            <li><a href="https://twitter.com/pytorch" target="_blank">推特</a></li>
+            <li><a href="https://www.youtube.com/pytorch" target="_blank">YouTube</a></li>
+            <li><a href="https://www.linkedin.com/company/pytorch" target="_blank">领英</a></li>
+          </ul>  
+          </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">PyTorch 播客</li>
+            <li><a href="https://open.spotify.com/show/6UzHKeiy368jKfQMKKvJY5" target="_blank">Spotify</a></li>
+            <li><a href="https://podcasts.apple.com/us/podcast/pytorch-developer-podcast/id1566080008" target="_blank">苹果</a></li>
+            <li><a href="https://www.google.com/podcasts?feed=aHR0cHM6Ly9mZWVkcy5zaW1wbGVjYXN0LmNvbS9PQjVGa0lsOA%3D%3D" target="_blank">谷歌</a></li>
+            <li><a href="https://music.amazon.com/podcasts/7a4e6f0e-26c2-49e9-a478-41bd244197d0/PyTorch-Developer-Podcast?" target="_blank">亚马逊</a></li>
+          </ul>
+         </div>
+        </div>
+        
+        <div class="privacy-policy">
+          <ul>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/terms/" target="_blank">条款</a></li>
+            <li class="privacy-policy-links">|</li>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/privacy-policy/" target="_blank">隐私</a></li>
+          </ul>
+        </div>
+        <div class="copyright">
+        <p>© 版权所有 Linux 基金会。PyTorch 基金会是 Linux 基金会的一个项目。有关 PyTorch 基金会的网站使用条款、商标政策以及其他适用政策，请参阅 www.linuxfoundation.org/policies/。PyTorch 基金会支持 PyTorch 开源项目，该项目已被确立为 LF Projects, LLC 的 PyTorch 项目系列。有关适用于 PyTorch 项目系列 LF Projects, LLC 的政策，请参阅 www.lfprojects.org/policies/。</p>
+      </div>
+     </div>
+
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">为了分析流量并优化您的体验，我们在本网站上使用 cookies。通过点击或导航，您同意允许我们使用 cookies。作为本网站的当前维护者，适用 Facebook 的 Cookies 政策。了解更多信息，包括关于可用控制的信息：Cookies 政策。</p>
+    <img class="close-button" src="../../_static/images/pytorch-x.svg" width="16" height="16">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+           <li class="resources-mobile-menu-title">
+             <a>学习</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/get-started">开始使用</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials">教程</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/basics/intro.html">学习基础知识</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/recipes/recipes_index.html">PyTorch 食谱</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/introyt.html">PyTorch 入门 - YouTube 系列</a>
+             </li>
+           </ul>
+           <li class="resources-mobile-menu-title">
+             <a>生态系统</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/ecosystem">工具</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/#community-module">社区</a>
+             </li>
+             <li>
+               <a href="https://discuss.pytorch.org/">论坛</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/resources">开发者资源</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">贡献者奖项 - 2024</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>Edge</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/edge">关于 PyTorch Edge</a>
+             </li>
+             
+             <li>
+               <a href="https://pytorch.org/executorch-overview">执行火炬</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch 文档</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>文档</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/docs/stable/index.html">PyTorch</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/pytorch-domains">PyTorch 领域</a>
+            </li>
+          </ul>
+
+          <li class="resources-mobile-menu-title">
+            <a>博客 &amp; 新闻</a>
+          </li>
+            
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/blog/">PyTorch 博客</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/community-blog">社区博客</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/videos">视频</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/community-stories">社区故事</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/events">活动</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">新闻简报</a>
+             </li>
+          </ul>
+          
+          <li class="resources-mobile-menu-title">
+            <a>关于</a>
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/foundation">PyTorch 基金会</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/governing-board">治理委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">云信用计划</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">技术咨询委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">员工</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">联系我们</a>
+            </li>
+          </ul>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="../../_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body></html>

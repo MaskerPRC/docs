@@ -1,0 +1,1621 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Extending PyTorch — PyTorch main documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pytorch.org/docs/stable/notes/extending.html">
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css">
+  <!-- <link rel="stylesheet" href="../_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css">
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css">
+  <link rel="stylesheet" href="../_static/copybutton.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="../_static/katex-math.css" type="text/css">
+  <link rel="stylesheet" href="../_static/sphinx-dropdown.css" type="text/css">
+  <link rel="stylesheet" href="../_static/panels-bootstrap.min.css" type="text/css">
+  <link rel="stylesheet" href="../_static/css/jit.css" type="text/css">
+  <link rel="stylesheet" href="../_static/css/custom.css" type="text/css">
+    <link rel="index" title="Index" href="../genindex.html">
+    <link rel="search" title="Search" href="../search.html">
+    <link rel="next" title="Extending torch.func with autograd.Function" href="extending.func.html">
+    <link rel="prev" title="Distributed Data Parallel" href="ddp.html">
+
+<!--
+  Search engines should not index the main version of documentation.
+  Stable documentation are built without release == 'main'.
+-->
+<meta name="robots" content="noindex">
+
+
+  <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T8XT4PS');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+  <!-- Preload the theme fonts -->
+
+<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<!-- Preload the katex fonts -->
+
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Math-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size1-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size2-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Caligraphic-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
+</head><body class="pytorch-body"><div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+
+          <li class="main-menu-item">
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">学习</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/get-started">
+                  <span class="dropdown-title">开始使用</span>
+                  <p>在本地运行 PyTorch 或快速开始使用支持的云平台之一</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials">
+                  <span class="dropdown-title">教程</span><p></p>
+                  <p>PyTorch 教程中的新内容</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/basics/intro.html">
+                  <span class="dropdown-title">学习基础知识</span><p></p>
+                  <p>熟悉 PyTorch 的概念和模块</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/recipes/recipes_index.html">
+                  <span class="dropdown-title">PyTorch 烹饪技巧</span><p></p>
+                  <p>精简型、可直接部署的 PyTorch 代码示例</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/introyt.html">
+                  <span class="dropdown-title">PyTorch 入门 - YouTube 系列</span><p></p>
+                  <p>通过我们引人入胜的 YouTube 教程系列掌握 PyTorch 基础知识</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">生态系统</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem">
+                  <span class="dropdown-title">工具</span><p></p>
+                  <p>了解 PyTorch 生态系统中的工具和框架</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
+                  <span class="dropdown-title">社区</span>
+                  <p>加入 PyTorch 开发者社区，贡献、学习并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
+                  <span class="dropdown-title">论坛</span>
+                  <p>讨论 PyTorch 代码、问题、安装、研究的地方</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/resources">
+                  <span class="dropdown-title">开发者资源</span>
+                  <p>查找资源并解答问题</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">2024 年度贡献者奖项</span><p></p>
+                  <p>本届 PyTorch 会议揭晓获奖者</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">
+                Edge
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/edge">
+                  <span class="dropdown-title">关于 PyTorch Edge</span><p></p>
+                  <p>为边缘设备构建创新和隐私感知的 AI 体验</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
+                  <span class="dropdown-title">ExecuTorch</span><p></p>
+                  <p>针对移动和边缘设备实现设备端推理能力的端到端解决方案</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch 文档</span><p></p>
+                </a>
+              </div>
+            </div>  
+          </li>
+
+          <li class="main-menu-item">
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">文档</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/docs/stable/index.html">
+                  <span class="dropdown-title">PyTorch</span><p></p>
+                  <p>探索文档以获取如何使用 PyTorch 的全面指南</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/pytorch-domains">
+                  <span class="dropdown-title">PyTorch 领域</span><p></p>
+                  <p>阅读 PyTorch 领域的文档以了解更多关于特定领域的库</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">博客与新闻</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/blog/">
+                  <span class="dropdown-title">PyTorch 博客</span><p></p>
+                  <p>跟上最新的技术新闻和动态</p>
+                </a>
+                 <a class="nav-dropdown-item" href="https://pytorch.org/community-blog">
+                  <span class="dropdown-title">社区博客</span><p></p>
+                  <p>PyTorch 生态系统故事</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/videos">
+                  <span class="dropdown-title">视频</span><p></p>
+                  <p>了解最新的 PyTorch 教程、新内容等</p>
+                </a><a class="nav-dropdown-item" href="https://pytorch.org/community-stories">
+                  <span class="dropdown-title">社区故事</span><p></p>
+                  <p>了解我们的社区如何使用 PyTorch 解决真实、日常的机器学习问题</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/events">
+                  <span class="dropdown-title">活动</span><p></p>
+                  <p>查找活动、网络研讨会和播客</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">通讯</span><p></p>
+                  <p>保持最新更新</p>
+                </a>
+            </div>
+          </div></li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">关于</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/foundation">
+                  <span class="dropdown-title">PyTorch 基金会</span><p></p>
+                  <p>了解更多关于 PyTorch 基金会的信息</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
+                  <span class="dropdown-title">管理委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">云信用计划</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">技术顾问委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">员工</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">联系我们</span><p></p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li class="main-menu-item">
+            <div class="no-dropdown">
+              <a href="https://pytorch.org/join" data-cta="join">成为会员</a>
+            </div>
+          </li>
+          <li>
+           <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="github-icon">
+             </a>
+           </div>
+          </li>
+          <!--- TODO: This block adds the search icon to the nav bar. We will enable it later. 
+          <li>
+            <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="search-icon">
+             </a>
+            </div>
+          </li>
+          --->
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+  </div>
+</div>
+
+
+
+   
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>目录</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+    <div class="version">
+      <a href="https://pytorch.org/docs/versions.html">主页 (2.7.0+cpu ) ▼</a>
+    </div>
+    <div id="searchBox">
+    <div class="searchbox" id="googleSearchBox">
+      <script async="" src="https://cse.google.com/cse.js?cx=e65585f8c3ea1440e"></script>
+      <div class="gcse-search"></div>
+    </div>
+    <div id="sphinxSearchBox" style="display: none;">
+      <div role="search">
+        <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+          <input type="text" name="q" placeholder="Search Docs">
+          <input type="hidden" name="check_keywords" value="yes">
+          <input type="hidden" name="area" value="default">
+        </form>
+      </div>
+    </div>
+  </div>
+  <form id="searchForm">
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="google" checked="">Google 搜索</label>
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="sphinx">经典搜索</label>
+  </form>
+
+  <script>
+     document.addEventListener('DOMContentLoaded', function() {
+      const searchForm = document.getElementById('searchForm');
+      const googleSearchBox = document.getElementById('googleSearchBox');
+      const sphinxSearchBox = document.getElementById('sphinxSearchBox');
+      // Function to toggle search box visibility
+      function toggleSearchBox(searchType) {
+        googleSearchBox.style.display = searchType === 'google' ? 'block' : 'none';
+        sphinxSearchBox.style.display = searchType === 'sphinx' ? 'block' : 'none';
+      }
+      // Determine the default search type
+      let defaultSearchType;
+      const currentUrl = window.location.href;
+      if (currentUrl.startsWith('https://pytorch.org/docs/stable')) {
+        // For the stable documentation, default to Google
+        defaultSearchType = localStorage.getItem('searchType') || 'google';
+      } else {
+        // For any other version, including docs-preview, default to Sphinx
+        defaultSearchType = 'sphinx';
+      }
+      // Set the default search type
+      document.querySelector(`input[name="searchType"][value="${defaultSearchType}"]`).checked = true;
+      toggleSearchBox(defaultSearchType);
+      // Event listener for changes in search type
+      searchForm.addEventListener('change', function(event) {
+        const selectedSearchType = event.target.value;
+        localStorage.setItem('searchType', selectedSearchType);
+        toggleSearchBox(selectedSearchType);
+      });
+      // Set placeholder text for Google search box
+      window.onload = function() {
+        var placeholderText = "Search Docs";
+        var googleSearchboxText = document.querySelector("#gsc-i-id1");
+        if (googleSearchboxText) {
+          googleSearchboxText.placeholder = placeholderText;
+          googleSearchboxText.style.fontFamily = 'FreightSans';
+          googleSearchboxText.style.fontSize = "1.2rem";
+          googleSearchboxText.style.color = '#262626';
+        }
+      };
+    });
+  </script>
+
+          </div>
+
+          
+
+<div>
+  <a style="color:#F05732" href="https://pytorch.org/docs/stable/notes/extending.html">您正在查看不稳定开发者预览文档。请点击此处查看最新稳定版本的文档。</a>
+</div>
+
+
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">社区</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../community/build_ci_governance.html">PyTorch 治理 | 构建 + CI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community/contribution_guide.html">PyTorch 贡献指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community/design.html">PyTorch 设计哲学</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community/governance.html">PyTorch 治理 | 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community/persons_of_interest.html">PyTorch 治理 | 维护者</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发者笔记</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="amp_examples.html">自动混合精度示例</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autograd.html">Autograd 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="broadcasting.html">广播语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpu_threading_torchscript_inference.html">CPU 线程和 TorchScript 推理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">CUDA 语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_operators.html">PyTorch 自定义操作着陆页面</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ddp.html">分布式数据并行</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">扩展 PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extending.func.html">扩展 torch.func 与 autograd.Function</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">常见问题</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fsdp.html">FSDP 笔记</a></li>
+<li class="toctree-l1"><a class="reference internal" href="get_start_xpu.html">在英特尔 GPU 上入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gradcheck.html">毕业审核力学</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hip.html">HIP (ROCm) 语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="large_scale_deployments.html">大规模部署功能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="libtorch_stable_abi.html">LibTorch 稳定 ABI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">模块</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mps.html">MPS 后端</a></li>
+<li class="toctree-l1"><a class="reference internal" href="multiprocessing.html">多进程最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerical_accuracy.html">数值精度</a></li>
+<li class="toctree-l1"><a class="reference internal" href="randomness.html">可复现性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="serialization.html">序列化语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="windows.html">Windows 常见问题解答</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">语言绑定</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../cpp_index.html">C++</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/javadoc/">Javadoc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deploy.html">torch::deploy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../torch.html">torch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../nn.html">torch.nn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../nn.functional.html">torch.nn.functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tensors.html">torch.Tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tensor_attributes.html">Tensor 属性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tensor_view.html">张量视图</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../amp.html">torch.amp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../autograd.html">torch.autograd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library.html">torch.library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../accelerator.html">torch 加速器</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cpu.html">torch.cpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cuda.html">torch.cuda</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch_cuda_memory.html">理解 CUDA 内存使用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch_cuda_memory.html#generating-a-snapshot">生成快照</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch_cuda_memory.html#using-the-visualizer">使用可视化器</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch_cuda_memory.html#snapshot-api-reference">快照 API 参考</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mps.html">torch.mps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../xpu.html">torch.xpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mtia.html">torch.mtia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mtia.memory.html">torch.mtia.memory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../meta.html">元设备</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../backends.html">torch.backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../export.html">torch.export</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.html">torch.distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.tensor.html">torch.distributed.tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.algorithms.join.html">torch.distributed.algorithms.join</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.elastic.html">torch.distributed.elastic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fsdp.html">torch.distributed.fsdp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.fsdp.fully_shard.html">torch.distributed.fsdp.fully_shard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.tensor.parallel.html">torch.distributed.tensor.parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.optim.html">torch.distributed.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.pipelining.html">torch.distributed.pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.checkpoint.html">torch.distributed.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributions.html">torch.distributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch.compiler.html">torch.compiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fft.html">torch.fft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../func.html">torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../futures.html">torch.futures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fx.html">torch.fx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fx.experimental.html">torch.fx.experimental</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hub.html">torch.hub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../jit.html">torch.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../linalg.html">torch.linalg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../monitor.html">torch.monitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../signal.html">torch.signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../special.html">torch.special</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch.overrides.html">torch.overrides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../package.html">torch.package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../profiler.html">torch.profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../nn.init.html">torch.nn.init</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../nn.attention.html">torch.nn.attention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../onnx.html">torch.onnx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../optim.html">torch.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../complex_numbers.html">复数</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ddp_comm_hooks.html">DDP 通信钩子</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quantization.html">量化</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rpc.html">分布式 RPC 框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../random.html">torch.random</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../masked.html">torch.masked</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../nested.html">torch.nested</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../size.html">torch.Size</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sparse.html">torch.sparse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../storage.html">torch 存储</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../testing.html">torch.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils.html">torch.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../benchmark_utils.html">torch.utils.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bottleneck.html">torch.utils.bottleneck</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../checkpoint.html">torch.utils.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cpp_extension.html">torch.utils.cpp_extension</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data.html">torch.utils.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deterministic.html">torch.utils.deterministic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../jit_utils.html">torch.utils.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dlpack.html">torch.utils.dlpack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mobile_optimizer.html">torch.utils.mobile_optimizer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../model_zoo.html">torch.utils.model_zoo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tensorboard.html">torch.utils.tensorboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../module_tracker.html">torch.utils.module_tracker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../type_info.html">类型信息</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../named_tensor.html">命名张量</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../name_inference.html">命名张量操作覆盖率</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../config_mod.html">torch.__config__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../future_mod.html">torch.__future__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../logging.html">torch._logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch_environment_variables.html">火炬环境变量</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">图书馆</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/audio/stable">torchaudio</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/data">TorchData</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/torchrec">火炬推荐</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/serve">TorchServe</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/text/stable">torchtext</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/vision/stable">torchvision</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/xla/">PyTorch 在 XLA 设备上</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/ao">torchao</a></li>
+</ul>
+
+            
+          
+
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        文档 &gt;</li>
+
+        
+      <li>扩展 PyTorch</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/notes/extending.rst.txt" rel="nofollow"><img src="../_static/images/view-page-source-icon.svg" width="16" height="16"></a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">快捷键</div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+
+          <!-- Google Tag Manager (noscript) -->
+          <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T8XT4PS" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+          <!-- End Google Tag Manager (noscript) -->
+          
+          <div class="rst-content">
+          
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <section id="extending-pytorch">
+<h1>扩展 PyTorch ¶</h1>
+<p>在这篇笔记中，我们将介绍扩展 <code class="xref py py-mod docutils literal "><span class="pre">torch.nn</span></code> ， <code class="xref py py-mod docutils literal "><span class="pre">torch.autograd</span></code> ， <code class="xref py py-mod docutils literal "><span class="pre">torch</span></code> 以及编写自定义 C++ 扩展的方法。</p>
+<section id="adding-new-operators">
+<h2>添加新的算子 ¶</h2>
+<p>PyTorch 提供了一个大型算子库，这些算子可以在张量上工作（例如 <code class="xref py py-func docutils literal "><span class="pre">torch.add()</span></code> ， <code class="xref py py-func docutils literal "><span class="pre">torch.sum()</span></code> 等）。然而，您可能希望将一个新的自定义操作引入 PyTorch，并使其表现得像 PyTorch 的内置算子一样。为此，您必须通过 Python 的 torch.library 或 C++的 TORCH_LIBRARY API 将自定义操作注册到 PyTorch 中。</p>
+<p>请参阅 PyTorch 自定义算子介绍页面以获取更多详细信息。</p>
+</section>
+<section id="extending-torch-autograd">
+<span id="extending-autograd"></span><h2>扩展 <code class="xref py py-mod docutils literal "><span class="pre">torch.autograd</span></code> ¶</h2>
+<p>向 <code class="xref py py-mod docutils literal "><span class="pre">autograd</span></code> 添加操作需要为每个操作实现一个新的 <code class="xref py py-class docutils literal "><span class="pre">Function</span></code> 子类。回想一下，函数是 <code class="xref py py-mod docutils literal "><span class="pre">autograd</span></code> 使用来编码操作历史和计算梯度的。</p>
+<p>这份文档的第一部分专注于反向模式自动微分，因为它是使用最广泛的功能。文档末尾讨论了正向模式自动微分的扩展。</p>
+<section id="when-to-use">
+<h3>何时使用 ¶</h3>
+<p>通常情况下，如果您想在模型中执行不可微分的计算或依赖于非 PyTorch 库（例如 NumPy）的操作，但仍然希望您的操作可以与其他操作链式调用并使用 autograd 引擎，则应实现自定义函数。</p>
+<p>在某些情况下，自定义函数也可以用来提高性能和内存使用：如果您使用 C++扩展实现了正向和反向传递，则可以将它们包装在 <code class="xref py py-class docutils literal "><span class="pre">Function</span></code> 中以与 autograd 引擎接口。如果您想减少反向传递保存的缓冲区数量，可以使用自定义函数将操作组合在一起。</p>
+</section>
+<section id="when-not-to-use">
+<h3>何时不使用 ¶</h3>
+<p>如果您已经可以用 PyTorch 的内置操作来编写您的函数，那么其反向图（很可能）已经能够被 autograd 记录。在这种情况下，您不需要自己实现反向函数。考虑使用普通的 Python 函数。</p>
+<p>如果您需要维护状态，即训练参数，您也应该（同样）使用自定义模块。请参阅下文有关扩展 <code class="xref py py-mod docutils literal "><span class="pre">torch.nn</span></code> 的更多信息。</p>
+<p>如果您想在反向传播过程中修改梯度或执行副作用，请考虑注册一个张量或 Module 钩子。</p>
+</section>
+<section id="how-to-use">
+<h3>如何使用 ¶</h3>
+<p>执行以下步骤：1. 继承 <code class="xref py py-class docutils literal "><span class="pre">Function</span></code> 并实现 <code class="xref py py-meth docutils literal "><span class="pre">forward()</span></code> 方法，(可选) <code class="xref py py-meth docutils literal "><span class="pre">setup_context()</span></code> 和 <code class="xref py py-meth docutils literal "><span class="pre">backward()</span></code> 方法。2. 在 ctx 参数上调用适当的方法。3. 声明你的函数是否支持双向回溯。4. 使用 gradcheck 验证你的梯度是否正确。</p>
+<p>步骤 1：在继承 <code class="xref py py-class docutils literal "><span class="pre">Function</span></code> 之后，你需要定义 3 个方法：</p>
+<ul class="simple">
+<li><p> <code class="xref py py-meth docutils literal "><span class="pre">forward()</span></code> 是执行操作的代码。它可以接受任意数量的参数，其中一些参数是可选的，如果你指定了默认值。这里接受所有类型的 Python 对象。 <code class="xref py py-class docutils literal "><span class="pre">Tensor</span></code> 参数跟踪历史（即，带有 <code class="docutils literal "><span class="pre">requires_grad=True</span></code> 的参数）将在调用之前转换为不跟踪历史的参数，并且它们的使用将记录在图中。请注意，此逻辑不会遍历列表/字典/任何其他数据结构，而只会考虑调用中的直接参数张量。你可以返回单个 <code class="xref py py-class docutils literal "><span class="pre">Tensor</span></code> 输出，或者如果有多个输出，则返回一个 <code class="xref py py-class docutils literal "><span class="pre">tuple</span></code> 张量数组。另外，请参阅 <code class="xref py py-class docutils literal "><span class="pre">Function</span></code> 的文档，以找到只能从 <code class="xref py py-meth docutils literal "><span class="pre">forward()</span></code> 调用的有用方法的描述。</p></li>
+<li><p> <code class="xref py py-meth docutils literal "><span class="pre">setup_context()</span></code> （可选）。可以编写一个接受 <code class="xref py py-meth docutils literal "><span class="pre">forward()</span></code> 对象的“组合” <code class="docutils literal "><span class="pre">ctx</span></code> ，或者（从 PyTorch 2.0 开始）一个不接收 <code class="xref py py-meth docutils literal "><span class="pre">forward()</span></code> 的单独 <code class="docutils literal "><span class="pre">ctx</span></code> ，以及一个 <code class="xref py py-meth docutils literal "><span class="pre">setup_context()</span></code> 方法，其中 <code class="docutils literal "><span class="pre">ctx</span></code> 的修改发生。 <code class="xref py py-meth docutils literal "><span class="pre">forward()</span></code> 应该负责计算，而 <code class="xref py py-meth docutils literal "><span class="pre">setup_context()</span></code> 只应负责 <code class="docutils literal "><span class="pre">ctx</span></code> 的修改（而不进行任何计算）。一般来说，单独的 <code class="xref py py-meth docutils literal "><span class="pre">forward()</span></code> 和 <code class="xref py py-meth docutils literal "><span class="pre">setup_context()</span></code> 更接近 PyTorch 原生操作的方式，因此与各种 PyTorch 子系统更易于组合。有关详细信息，请参阅“组合或分离 forward()和 setup_context()”。</p></li>
+<li><p> <code class="xref py py-meth docutils literal "><span class="pre">backward()</span></code> （或 <code class="xref py py-meth docutils literal "><span class="pre">vjp()</span></code> ）定义了梯度公式。它将根据输出数量提供 <code class="xref py py-class docutils literal "><span class="pre">Tensor</span></code> 个参数，每个参数代表相对于该输出的梯度。重要的是永远不要就地修改这些。它应该返回与输入数量相同的张量，每个张量包含相对于其对应输入的梯度。如果您的输入不需要梯度（ <code class="xref py py-attr docutils literal "><span class="pre">needs_input_grad</span></code> 是一个布尔值元组，指示每个输入是否需要梯度计算），或者是非 <code class="xref py py-class docutils literal "><span class="pre">Tensor</span></code> 对象，则可以返回 <code class="xref py py-class docutils literal "><span class="pre">python:None</span></code> 。如果 <code class="xref py py-meth docutils literal "><span class="pre">forward()</span></code> 有可选参数，则可以返回比输入更多的梯度，只要它们都是 <code class="docutils literal "><span class="pre">None</span></code> 。</p></li>
+</ul>
+<p>步骤 2：确保新功能 <code class="xref py py-class docutils literal "><span class="pre">Function</span></code> 正确使用 <code class="docutils literal "><span class="pre">ctx</span></code> 的函数，以使新功能与自动微分引擎正常工作。</p>
+<ul class="simple">
+<li><p> <code class="xref py py-meth docutils literal "><span class="pre">save_for_backward()</span></code> 必须用于保存任何需要在反向传播中使用的张量。非张量应直接存储在 ctx 上。如果保存了既不是输入也不是输出的张量进行反向传播，则你的 <code class="xref py py-class docutils literal "><span class="pre">Function</span></code> 可能不支持双重反向（见步骤 3）。</p></li>
+<li><p> <code class="xref py py-meth docutils literal "><span class="pre">mark_dirty()</span></code> 必须用于标记任何被前向函数就地修改的输入。</p></li>
+<li><p> <code class="xref py py-meth docutils literal "><span class="pre">mark_non_differentiable()</span></code> 必须用于告知引擎某个输出是否不可微分。默认情况下，所有可微分的输出张量都将设置为需要梯度。非可微分类型（即整型）的张量永远不会标记为需要梯度。</p></li>
+<li><p> <code class="xref py py-meth docutils literal "><span class="pre">set_materialize_grads()</span></code> 可以用来告诉自动微分引擎在输出不依赖于输入的情况下优化梯度计算，即不将给 backward 函数的 grad 张量实体化。也就是说，如果设置为 False，Python 中的 None 对象或 C++ 中的“未定义张量”（x.defined() 为 False 的张量 x）在调用 backward 之前不会转换为填充零的张量，因此您的代码需要将这些对象作为填充零的张量来处理。此设置的默认值为 True。</p></li>
+</ul>
+<p>步骤 3：如果您的 <code class="xref py py-class docutils literal "><span class="pre">Function</span></code> 不支持双反向，则应通过装饰 backward 使用 <code class="xref py py-func docutils literal "><span class="pre">once_differentiable()</span></code> 显式声明。使用此装饰器，尝试通过您的函数执行双反向将产生错误。有关双反向的更多信息，请参阅我们的双反向教程。</p>
+<p>步骤 4：建议您使用 <code class="xref py py-func docutils literal "><span class="pre">torch.autograd.gradcheck()</span></code> 检查您的 backward 函数是否正确计算了前向的梯度，通过使用您的 backward 函数计算雅可比矩阵，并逐元素与使用有限差分法数值计算的雅可比矩阵进行比较。</p>
+</section>
+<section id="example">
+<h3>示例</h3>
+<p>下面您可以找到 <code class="docutils literal "><span class="pre">Linear</span></code> 函数的代码，其中包含额外的注释：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="c1"># Inherit from Function</span>
+<span class="k">class</span> <span class="nc">LinearFunction</span><span class="p">(</span><span class="n">Function</span><span class="p">):</span>
+
+    <span class="c1"># Note that forward, setup_context, and backward are @staticmethods</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="n">bias</span><span class="p">):</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="nb">input</span><span class="o">.</span><span class="n">mm</span><span class="p">(</span><span class="n">weight</span><span class="o">.</span><span class="n">t</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">bias</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">output</span> <span class="o">+=</span> <span class="n">bias</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">expand_as</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">output</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="c1"># inputs is a Tuple of all of the inputs passed to forward.</span>
+    <span class="c1"># output is the output of the forward().</span>
+    <span class="k">def</span> <span class="nf">setup_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">output</span><span class="p">):</span>
+        <span class="nb">input</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="n">bias</span> <span class="o">=</span> <span class="n">inputs</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">save_for_backward</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="n">bias</span><span class="p">)</span>
+
+    <span class="c1"># This function has only a single output, so it gets only one gradient</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">backward</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">grad_output</span><span class="p">):</span>
+        <span class="c1"># This is a pattern that is very convenient - at the top of backward</span>
+        <span class="c1"># unpack saved_tensors and initialize all gradients w.r.t. inputs to</span>
+        <span class="c1"># None. Thanks to the fact that additional trailing Nones are</span>
+        <span class="c1"># ignored, the return statement is simple even when the function has</span>
+        <span class="c1"># optional inputs.</span>
+        <span class="nb">input</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="n">bias</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">saved_tensors</span>
+        <span class="n">grad_input</span> <span class="o">=</span> <span class="n">grad_weight</span> <span class="o">=</span> <span class="n">grad_bias</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># These needs_input_grad checks are optional and there only to</span>
+        <span class="c1"># improve efficiency. If you want to make your code simpler, you can</span>
+        <span class="c1"># skip them. Returning gradients for inputs that don't require it is</span>
+        <span class="c1"># not an error.</span>
+        <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">needs_input_grad</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="n">grad_input</span> <span class="o">=</span> <span class="n">grad_output</span><span class="o">.</span><span class="n">mm</span><span class="p">(</span><span class="n">weight</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">needs_input_grad</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">grad_weight</span> <span class="o">=</span> <span class="n">grad_output</span><span class="o">.</span><span class="n">t</span><span class="p">()</span><span class="o">.</span><span class="n">mm</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">bias</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">ctx</span><span class="o">.</span><span class="n">needs_input_grad</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span>
+            <span class="n">grad_bias</span> <span class="o">=</span> <span class="n">grad_output</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">grad_input</span><span class="p">,</span> <span class="n">grad_weight</span><span class="p">,</span> <span class="n">grad_bias</span>
+</pre></div>
+</div>
+<p>现在为了让这些自定义操作更容易使用，我们建议要么给它们起别名，要么将它们封装在函数中。将它们封装在函数中可以让我们支持默认参数和关键字参数：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="c1"># Option 1: alias</span>
+<span class="n">linear</span> <span class="o">=</span> <span class="n">LinearFunction</span><span class="o">.</span><span class="n">apply</span>
+
+<span class="c1"># Option 2: wrap in a function, to support default args and keyword args.</span>
+<span class="k">def</span> <span class="nf">linear</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">LinearFunction</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="n">bias</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>这里，我们给出一个由非 Tensor 参数参数化的函数的额外示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MulConstant</span><span class="p">(</span><span class="n">Function</span><span class="p">):</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">constant</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">tensor</span> <span class="o">*</span> <span class="n">constant</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">setup_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">output</span><span class="p">):</span>
+        <span class="c1"># ctx is a context object that can be used to stash information</span>
+        <span class="c1"># for backward computation</span>
+        <span class="n">tensor</span><span class="p">,</span> <span class="n">constant</span> <span class="o">=</span> <span class="n">inputs</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">constant</span> <span class="o">=</span> <span class="n">constant</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">backward</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">grad_output</span><span class="p">):</span>
+        <span class="c1"># We return as many input gradients as there were arguments.</span>
+        <span class="c1"># Gradients of non-Tensor arguments to forward must be None.</span>
+        <span class="k">return</span> <span class="n">grad_output</span> <span class="o">*</span> <span class="n">ctx</span><span class="o">.</span><span class="n">constant</span><span class="p">,</span> <span class="kc">None</span>
+</pre></div>
+</div>
+<p>这里，我们通过调用 set_materialize_grads(False)优化了上面的示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MulConstant</span><span class="p">(</span><span class="n">Function</span><span class="p">):</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">constant</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">tensor</span> <span class="o">*</span> <span class="n">constant</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">setup_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">output</span><span class="p">):</span>
+        <span class="n">tensor</span><span class="p">,</span> <span class="n">constant</span> <span class="o">=</span> <span class="n">inputs</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">set_materialize_grads</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">constant</span> <span class="o">=</span> <span class="n">constant</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">backward</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">grad_output</span><span class="p">):</span>
+        <span class="c1"># Here we must handle None grad_output tensor. In this case we</span>
+        <span class="c1"># can skip unnecessary computations and just return None.</span>
+        <span class="k">if</span> <span class="n">grad_output</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+
+        <span class="c1"># We return as many input gradients as there were arguments.</span>
+        <span class="c1"># Gradients of non-Tensor arguments to forward must be None.</span>
+        <span class="k">return</span> <span class="n">grad_output</span> <span class="o">*</span> <span class="n">ctx</span><span class="o">.</span><span class="n">constant</span><span class="p">,</span> <span class="kc">None</span>
+</pre></div>
+</div>
+<p>如果需要在 <code class="xref py py-meth docutils literal "><span class="pre">forward()</span></code> 中计算的任何“中间”Tensor 被保存，它们必须作为输出返回，或者将 <code class="docutils literal "><span class="pre">forward</span></code> 和 <code class="xref py py-meth docutils literal "><span class="pre">setup_context()</span></code> （参见 Combined 或 separate forward()和 setup_context()）组合起来。请注意，这意味着如果您想让梯度通过这些中间值流动，您需要为它们定义梯度公式（也请参阅双反向教程）：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyCube</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">autograd</span><span class="o">.</span><span class="n">Function</span><span class="p">):</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="c1"># We wish to save dx for backward. In order to do so, it must</span>
+        <span class="c1"># be returned as an output.</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">x</span> <span class="o">**</span> <span class="mi">2</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">x</span> <span class="o">**</span> <span class="mi">3</span>
+        <span class="k">return</span> <span class="n">result</span><span class="p">,</span> <span class="n">dx</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">setup_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">output</span><span class="p">):</span>
+        <span class="n">x</span><span class="p">,</span> <span class="o">=</span> <span class="n">inputs</span>
+        <span class="n">result</span><span class="p">,</span> <span class="n">dx</span> <span class="o">=</span> <span class="n">output</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">save_for_backward</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dx</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">backward</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">grad_output</span><span class="p">,</span> <span class="n">grad_dx</span><span class="p">):</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">dx</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">saved_tensors</span>
+        <span class="c1"># In order for the autograd.Function to work with higher-order</span>
+        <span class="c1"># gradients, we must add the gradient contribution of `dx`,</span>
+        <span class="c1"># which is grad_dx * 6 * x.</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">grad_output</span> <span class="o">*</span> <span class="n">dx</span> <span class="o">+</span> <span class="n">grad_dx</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">*</span> <span class="n">x</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+<span class="c1"># Wrap MyCube in a function so that it is clearer what the output is</span>
+<span class="k">def</span> <span class="nf">my_cube</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="n">result</span><span class="p">,</span> <span class="n">dx</span> <span class="o">=</span> <span class="n">MyCube</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>输入到 <code class="docutils literal "><span class="pre">backward</span></code> ，即 <code class="xref py py-attr docutils literal "><span class="pre">grad_output</span></code> ，也可以是跟踪历史的张量。所以如果 <code class="docutils literal "><span class="pre">backward</span></code> 使用可微操作实现（例如调用另一个自定义的 <code class="xref py py-class docutils literal "><span class="pre">Function</span></code> ），高阶导数将正常工作。在这种情况下，使用 <code class="docutils literal "><span class="pre">save_for_backward</span></code> 保存的张量也可以用于反向传播，并且梯度可以反向流动，但保存到 <code class="docutils literal "><span class="pre">ctx</span></code> 的张量则不会有梯度反向流动。如果您需要使保存到 <code class="docutils literal "><span class="pre">ctx</span></code> 的张量有梯度反向流动，您应该将其作为自定义 <code class="docutils literal "><span class="pre">Function</span></code> 的输出并使用 <code class="docutils literal "><span class="pre">save_for_backward</span></code> 保存。</p>
+</div>
+<p>您可能想检查您实现的反向方法是否实际上计算了您函数的导数。这可以通过使用小有限差分与数值近似进行比较来实现：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">torch.autograd</span> <span class="kn">import</span> <span class="n">gradcheck</span>
+
+<span class="c1"># gradcheck takes a tuple of tensors as input, check if your gradient</span>
+<span class="c1"># evaluated with these tensors are close enough to numerical</span>
+<span class="c1"># approximations and returns True if they all verify this condition.</span>
+<span class="nb">input</span> <span class="o">=</span> <span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">double</span><span class="p">,</span><span class="n">requires_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">double</span><span class="p">,</span><span class="n">requires_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+<span class="n">test</span> <span class="o">=</span> <span class="n">gradcheck</span><span class="p">(</span><span class="n">linear</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">test</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>更多关于有限差分梯度比较的细节请参阅数值梯度检查。如果您的函数用于高阶导数（对反向传播进行微分）中，您可以使用同一包中的 <code class="docutils literal "><span class="pre">gradgradcheck</span></code> 函数来检查高阶导数。</p>
+</section>
+<section id="combined-or-separate-forward-and-setup-context">
+<span id="combining-forward-context"></span><h3>组合或分离的 <code class="xref py py-meth docutils literal "><span class="pre">forward()</span></code> 和 <code class="xref py py-meth docutils literal "><span class="pre">setup_context()</span></code> ¶</h3>
+<p>定义 <code class="xref py py-class docutils literal "><span class="pre">Function</span></code> 主要有两种方式。要么：</p>
+<ul class="simple">
+<li><p>将前向计算逻辑与 <code class="xref py py-meth docutils literal "><span class="pre">setup_context()</span></code> 结合定义一个 <code class="xref py py-meth docutils literal "><span class="pre">forward()</span></code> </p></li>
+<li><p>（截至 PyTorch 2.0）分别定义一个 <code class="xref py py-meth docutils literal "><span class="pre">forward()</span></code> 和 <code class="xref py py-meth docutils literal "><span class="pre">setup_context()</span></code> </p></li>
+</ul>
+<p>我们推荐第二种方案（分别定义 <code class="xref py py-meth docutils literal "><span class="pre">forward()</span></code> 和 <code class="xref py py-meth docutils literal "><span class="pre">setup_context()</span></code> ），因为这更接近 PyTorch 原生操作的实现方式，并且可以与 <code class="xref py py-mod docutils literal "><span class="pre">torch.func</span></code> 转换器进行组合。然而，我们计划在将来支持两种方法；将 <code class="xref py py-meth docutils literal "><span class="pre">forward()</span></code> 与 <code class="xref py py-meth docutils literal "><span class="pre">setup_context()</span></code> 结合：由于可以保存中间结果而不必作为输出返回，因此这提供了更多的灵活性。</p>
+<p>请参阅上一节了解如何定义 <code class="xref py py-class docutils literal "><span class="pre">Function</span></code> ，其中包含独立的 <code class="xref py py-meth docutils literal "><span class="pre">forward()</span></code> 和 <code class="xref py py-meth docutils literal "><span class="pre">setup_context()</span></code> 。</p>
+<p>下面是一个如何定义包含合并的 <code class="xref py py-meth docutils literal "><span class="pre">forward()</span></code> 和 <code class="xref py py-meth docutils literal "><span class="pre">setup_context()</span></code> 的 <code class="xref py py-class docutils literal "><span class="pre">Function</span></code> 的例子：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">LinearFunction</span><span class="p">(</span><span class="n">Function</span><span class="p">):</span>
+    <span class="nd">@staticmethod</span>
+    <span class="c1"># ctx is the first argument to forward</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># The forward pass can use ctx.</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">save_for_backward</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="n">bias</span><span class="p">)</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="nb">input</span><span class="o">.</span><span class="n">mm</span><span class="p">(</span><span class="n">weight</span><span class="o">.</span><span class="n">t</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">bias</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">output</span> <span class="o">+=</span> <span class="n">bias</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">expand_as</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">output</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">backward</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">grad_output</span><span class="p">):</span>
+        <span class="nb">input</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="n">bias</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">saved_tensors</span>
+        <span class="n">grad_input</span> <span class="o">=</span> <span class="n">grad_weight</span> <span class="o">=</span> <span class="n">grad_bias</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">needs_input_grad</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="n">grad_input</span> <span class="o">=</span> <span class="n">grad_output</span><span class="o">.</span><span class="n">mm</span><span class="p">(</span><span class="n">weight</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">needs_input_grad</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">grad_weight</span> <span class="o">=</span> <span class="n">grad_output</span><span class="o">.</span><span class="n">t</span><span class="p">()</span><span class="o">.</span><span class="n">mm</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">bias</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">ctx</span><span class="o">.</span><span class="n">needs_input_grad</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span>
+            <span class="n">grad_bias</span> <span class="o">=</span> <span class="n">grad_output</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">grad_input</span><span class="p">,</span> <span class="n">grad_weight</span><span class="p">,</span> <span class="n">grad_bias</span>
+</pre></div>
+</div>
+</section>
+<section id="forward-mode-ad">
+<span id="forward-ad-autograd-function"></span><h3>前向模式 AD ¶</h3>
+<p>覆盖前向模式 AD 公式具有非常相似的 API，但也有一些细微差别。您可以实现 <code class="xref py py-meth docutils literal "><span class="pre">jvp()</span></code> 函数。</p>
+<p>将提供与输入数量相等的 <code class="xref py py-class docutils literal "><span class="pre">Tensor</span></code> 参数，每个参数代表相对于该输入的梯度。应返回与输出数量相等的张量，每个张量包含相对于其对应输出的梯度。 <code class="xref py py-meth docutils literal "><span class="pre">jvp()</span></code> 将在 <code class="xref py py-meth docutils literal "><span class="pre">forward()</span></code> 方法之后、 <code class="xref py py-meth docutils literal "><span class="pre">apply()</span></code> 返回之前被调用。</p>
+<p> <code class="xref py py-meth docutils literal "><span class="pre">jvp()</span></code> 与 <code class="xref py py-meth docutils literal "><span class="pre">backward()</span></code> 函数有一些细微的区别：</p>
+<ul class="simple">
+<li><p>可以使用 ctx 从 <code class="xref py py-meth docutils literal "><span class="pre">forward()</span></code> 传递任何数据到 <code class="xref py py-meth docutils literal "><span class="pre">jvp()</span></code> 函数。如果该状态对于 <code class="xref py py-meth docutils literal "><span class="pre">backward()</span></code> 不需要，可以在 <code class="xref py py-meth docutils literal "><span class="pre">jvp()</span></code> 函数结束时显式释放它，执行 <code class="docutils literal "><span class="pre">del</span> <span class="pre">ctx.foo</span></code> 。</p></li>
+<li><p> <code class="xref py py-meth docutils literal "><span class="pre">jvp()</span></code> 的实现必须是可反向求导的，或者显式检查给定的正向模式梯度是否没有设置 <code class="docutils literal "><span class="pre">requires_grad</span></code> 。</p></li>
+<li><p>函数 <code class="xref py py-meth docutils literal "><span class="pre">jvp()</span></code> 必须匹配视图/inplace 行为 <code class="xref py py-meth docutils literal "><span class="pre">forward()</span></code> 。例如，如果第 <code class="docutils literal "><span class="pre">i</span></code> 个输入被就地修改，那么第 <code class="docutils literal "><span class="pre">i</span></code> 个梯度必须就地更新。同样地，如果第 <code class="docutils literal "><span class="pre">j</span></code> 个输出是第 <code class="docutils literal "><span class="pre">k</span></code> 个输入的视图。那么返回的第 <code class="docutils literal "><span class="pre">j</span></code> 个输出梯度必须是给定第 <code class="docutils literal "><span class="pre">k</span></code> 个输入梯度的视图。</p></li>
+<li><p>因为用户无法指定需要计算哪个梯度，所以 <code class="xref py py-meth docutils literal "><span class="pre">jvp()</span></code> 函数应该始终计算所有输出的梯度。</p></li>
+<li><p>前向模式梯度会尊重 <code class="xref py py-meth docutils literal "><span class="pre">set_materialize_grads()</span></code> 设置的标志，并且当此功能禁用时，您可以获取 None 输入梯度。</p></li>
+</ul>
+</section>
+<section id="torch-func-transforms-and-or-torch-vmap">
+<h3> <code class="xref py py-mod docutils literal "><span class="pre">torch.func</span></code> 转换和/或 <code class="xref py py-func docutils literal "><span class="pre">torch.vmap()</span></code> ¶</h3>
+<p>请参阅使用 autograd.Function 扩展 torch.func 的详细信息。</p>
+</section>
+</section>
+<section id="extending-torch-nn">
+<h2> <code class="xref py py-mod docutils literal "><span class="pre">torch.nn</span></code> ¶</h2>
+<p> <code class="xref py py-mod docutils literal "><span class="pre">nn</span></code> 导出两种接口 - 模块及其功能版本。您可以通过这两种方式扩展它，但我们建议对于所有持有任何参数或缓冲区的层，使用模块，并建议使用无参数的功能形式进行操作，如激活函数、池化等。</p>
+<p>操作的功能版本已在上述章节中完全介绍。</p>
+<section id="adding-a-module">
+<h3>添加一个 <code class="xref py py-class docutils literal "><span class="pre">Module</span></code> ¶</h3>
+<p>由于 <code class="xref py py-mod docutils literal "><span class="pre">nn</span></code> 严重依赖 <code class="xref py py-mod docutils literal "><span class="pre">autograd</span></code> ，添加一个新 <code class="xref py py-class docutils literal "><span class="pre">Module</span></code> 需要实现一个执行操作并能计算梯度的 <code class="xref py py-class docutils literal "><span class="pre">Function</span></code> 。从现在开始，让我们假设我们想要实现一个 <code class="docutils literal "><span class="pre">Linear</span></code> 模块，并且我们已经实现了如上所示的功能。添加这个功能所需的代码非常少。现在，需要实现两个函数：</p>
+<ul class="simple">
+<li><p> <code class="docutils literal "><span class="pre">__init__</span></code> （可选）- 接受诸如内核大小、特征数量等参数并初始化参数和缓冲区。</p></li>
+<li><p> <code class="xref py py-meth docutils literal "><span class="pre">forward()</span></code> - 实例化一个 <code class="xref py py-class docutils literal "><span class="pre">Function</span></code> 并使用它来执行操作。它与上面显示的功能包装器非常相似。</p></li>
+</ul>
+<p>这就是如何实现一个 <code class="docutils literal "><span class="pre">Linear</span></code> 模块的示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Linear</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_features</span><span class="p">,</span> <span class="n">output_features</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_features</span> <span class="o">=</span> <span class="n">input_features</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_features</span> <span class="o">=</span> <span class="n">output_features</span>
+
+        <span class="c1"># nn.Parameter is a special kind of Tensor, that will get</span>
+        <span class="c1"># automatically registered as Module's parameter once it's assigned</span>
+        <span class="c1"># as an attribute. Parameters and buffers need to be registered, or</span>
+        <span class="c1"># they won't appear in .parameters() (doesn't apply to buffers), and</span>
+        <span class="c1"># won't be converted when e.g. .cuda() is called. You can use</span>
+        <span class="c1"># .register_buffer() to register buffers.</span>
+        <span class="c1"># nn.Parameters require gradients by default.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weight</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">output_features</span><span class="p">,</span> <span class="n">input_features</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">bias</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bias</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">output_features</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># You should always register all possible parameters, but the</span>
+            <span class="c1"># optional ones can be None if you want.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">register_parameter</span><span class="p">(</span><span class="s1">'bias'</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="c1"># Not a very smart way to initialize weights</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">uniform_</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weight</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bias</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">uniform_</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bias</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">):</span>
+        <span class="c1"># See the autograd section for explanation of what happens here.</span>
+        <span class="k">return</span> <span class="n">LinearFunction</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bias</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">extra_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># (Optional)Set the extra information about this module. You can test</span>
+        <span class="c1"># it by printing an object of this class.</span>
+        <span class="k">return</span> <span class="s1">'input_features=</span><span class="si">{}</span><span class="s1">, output_features=</span><span class="si">{}</span><span class="s1">, bias=</span><span class="si">{}</span><span class="s1">'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">input_features</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_features</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bias</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="extending-torch-python-api">
+<span id="extending-torch-python"></span><h2>扩展 <code class="xref py py-mod docutils literal "><span class="pre">torch</span></code> Python API ¶</h2>
+<p>您可以通过定义一个具有匹配 <code class="xref py py-class docutils literal "><span class="pre">Tensor</span></code> 方法的自定义类来创建模拟 <code class="xref py py-class docutils literal "><span class="pre">Tensor</span></code> 的自定义类型。但您想将这些类型传递给像 <code class="xref py py-func docutils literal "><span class="pre">torch.add()</span></code> 这样的函数，这些函数位于顶层 <code class="xref py py-mod docutils literal "><span class="pre">torch</span></code> 命名空间中，并接受 <code class="xref py py-class docutils literal "><span class="pre">Tensor</span></code> 操作数呢？</p>
+<p>如果您的自定义 Python 类型定义了一个名为 <code class="docutils literal "><span class="pre">__torch_function__</span></code> 的方法，当您的自定义类的实例传递给 <code class="xref py py-mod docutils literal "><span class="pre">torch</span></code> 命名空间中的函数时，PyTorch 将调用您的 <code class="docutils literal "><span class="pre">__torch_function__</span></code> 实现。这使得您可以定义任何 <code class="xref py py-mod docutils literal "><span class="pre">torch</span></code> 命名空间中函数的定制实现，您的 <code class="docutils literal "><span class="pre">__torch_function__</span></code> 实现可以调用这些函数，允许您的用户使用您自定义的类型与现有 PyTorch 工作流程相结合，这些工作流程是他们已经为 <code class="xref py py-class docutils literal "><span class="pre">Tensor</span></code> 编写的。这也适用于与 <code class="xref py py-class docutils literal "><span class="pre">Tensor</span></code> 无关的“鸭子”类型以及用户定义的 <code class="xref py py-class docutils literal "><span class="pre">Tensor</span></code> 子类。</p>
+<section id="extending-torch-with-a-tensor-like-type">
+<h3>使用类似 <code class="xref py py-class docutils literal "><span class="pre">Tensor</span></code> 的类型扩展 <code class="xref py py-mod docutils literal "><span class="pre">torch</span></code> -</h3>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>此功能灵感来源于 NumPy 的 <code class="docutils literal "><span class="pre">__array_function__</span></code> 协议。有关更多详细信息，请参阅 NumPy 文档和 NEP-0018。</p>
+</div>
+<p>为了具体说明，让我们从一个简单的例子开始，该例子说明了 API 分派机制。我们将创建一个自定义类型，该类型表示一个二维标量张量，由顺序 <code class="docutils literal "><span class="pre">N</span></code> 和对角线元素的值 <code class="docutils literal "><span class="pre">value</span></code> 参数化：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ScalarTensor</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+   <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+       <span class="bp">self</span><span class="o">.</span><span class="n">_N</span> <span class="o">=</span> <span class="n">N</span>
+       <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">value</span>
+
+   <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+       <span class="k">return</span> <span class="s2">"ScalarTensor(N=</span><span class="si">{}</span><span class="s2">, value=</span><span class="si">{}</span><span class="s2">)"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span>
+
+   <span class="k">def</span> <span class="nf">tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+       <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_N</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>此设计的第一个迭代版本并不十分有用。 <code class="docutils literal "><span class="pre">ScalarTensor</span></code> 的主要功能是提供比基类张量更紧凑的标量张量字符串表示形式：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">d</span> <span class="o">=</span> <span class="n">ScalarTensor</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span>
+<span class="go">ScalarTensor(N=5, value=2)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span><span class="o">.</span><span class="n">tensor</span><span class="p">()</span>
+<span class="go">tensor([[2., 0., 0., 0., 0.],</span>
+<span class="go">        [0., 2., 0., 0., 0.],</span>
+<span class="go">        [0., 0., 2., 0., 0.],</span>
+<span class="go">        [0., 0., 0., 2., 0.],</span>
+<span class="go">        [0., 0., 0., 0., 2.]])</span>
+</pre></div>
+</div>
+<p>如果我们尝试使用此对象与 <code class="xref py py-mod docutils literal "><span class="pre">torch</span></code> API 一起使用，我们将遇到问题：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+<span class="go">TypeError: mean(): argument 'input' (position 1) must be Tensor, not ScalarTensor</span>
+</pre></div>
+</div>
+<p>将 <code class="docutils literal "><span class="pre">__torch_function__</span></code> 实现添加到 <code class="docutils literal "><span class="pre">ScalarTensor</span></code> 中可以使上述操作成功。让我们重新实现我们的实现，这次添加一个 <code class="docutils literal "><span class="pre">__torch_function__</span></code> 实现：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">HANDLED_FUNCTIONS</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">class</span> <span class="nc">ScalarTensor</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_N</span> <span class="o">=</span> <span class="n">N</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">"ScalarTensor(N=</span><span class="si">{}</span><span class="s2">, value=</span><span class="si">{}</span><span class="s2">)"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_N</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">__torch_function__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">types</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(),</span> <span class="n">kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">func</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">HANDLED_FUNCTIONS</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span>
+            <span class="nb">issubclass</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">ScalarTensor</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">types</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="bp">NotImplemented</span>
+        <span class="k">return</span> <span class="n">HANDLED_FUNCTIONS</span><span class="p">[</span><span class="n">func</span><span class="p">](</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+</div>
+<p> <code class="docutils literal "><span class="pre">__torch_function__</span></code> 方法接受四个参数： <code class="docutils literal "><span class="pre">func</span></code> ，被覆盖的 torch API 函数的引用， <code class="docutils literal "><span class="pre">types</span></code> ，实现 <code class="docutils literal "><span class="pre">__torch_function__</span></code> 的 Tensor-like 类型的列表， <code class="docutils literal "><span class="pre">args</span></code> ，传递给函数的参数元组，以及 <code class="docutils literal "><span class="pre">kwargs</span></code> ，传递给函数的关键字参数字典。它使用名为 <code class="docutils literal "><span class="pre">HANDLED_FUNCTIONS</span></code> 的全局调度表来存储自定义实现。该字典的键是 <code class="docutils literal "><span class="pre">torch</span></code> 命名空间中的函数，值是 <code class="docutils literal "><span class="pre">ScalarTensor</span></code> 的实现。</p>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>使用全局调度表不是 <code class="docutils literal "><span class="pre">__torch_function__</span></code> API 的要求，它只是结构化你的覆盖实现的有用设计模式。</p>
+</div>
+<p>这个类定义还不够，使得当我们传递一个 <code class="docutils literal "><span class="pre">ScalarTensor</span></code> 给 <code class="docutils literal "><span class="pre">torch.mean</span></code> 时，它不能正确地执行——我们还需要为 <code class="docutils literal "><span class="pre">ScalarTensor</span></code> 操作数定义一个 <code class="docutils literal "><span class="pre">torch.mean</span></code> 的实现，并将其添加到 <code class="docutils literal "><span class="pre">HANDLED_FUNCTIONS</span></code> 分派表字典中。实现这一目标的一种方法是为我们的覆盖实现定义一个装饰器：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">functools</span>
+<span class="k">def</span> <span class="nf">implements</span><span class="p">(</span><span class="n">torch_function</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Register a torch function override for ScalarTensor"""</span>
+    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+        <span class="n">functools</span><span class="o">.</span><span class="n">update_wrapper</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">torch_function</span><span class="p">)</span>
+        <span class="n">HANDLED_FUNCTIONS</span><span class="p">[</span><span class="n">torch_function</span><span class="p">]</span> <span class="o">=</span> <span class="n">func</span>
+        <span class="k">return</span> <span class="n">func</span>
+    <span class="k">return</span> <span class="n">decorator</span>
+</pre></div>
+</div>
+<p>这可以应用于我们的覆盖实现的实现：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="nd">@implements</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">mean</span><span class="p">(</span><span class="nb">input</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="nb">input</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span> <span class="o">/</span> <span class="nb">input</span><span class="o">.</span><span class="n">_N</span>
+</pre></div>
+</div>
+<p>通过这个更改，我们现在可以使用 <code class="docutils literal "><span class="pre">torch.mean</span></code> 和 <code class="docutils literal "><span class="pre">ScalarTensor</span></code> ：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">d</span> <span class="o">=</span> <span class="n">ScalarTensor</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+<span class="go">0.4</span>
+</pre></div>
+</div>
+<p>当然， <code class="docutils literal "><span class="pre">torch.mean</span></code> 是一种最简单的覆盖函数的例子，因为它只接受一个操作数。我们可以使用相同的机制来覆盖接受一个以上操作数的函数，其中任何一个操作数可能是一个定义了 <code class="docutils literal "><span class="pre">__torch_function__</span></code> 的张量或类似张量，例如用于 <code class="xref py py-func docutils literal "><span class="pre">torch.add()</span></code> ：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">ensure_tensor</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ScalarTensor</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">tensor</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+<span class="nd">@implements</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">add</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+   <span class="k">try</span><span class="p">:</span>
+       <span class="k">if</span> <span class="nb">input</span><span class="o">.</span><span class="n">_N</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_N</span><span class="p">:</span>
+           <span class="k">return</span> <span class="n">ScalarTensor</span><span class="p">(</span><span class="nb">input</span><span class="o">.</span><span class="n">_N</span><span class="p">,</span> <span class="nb">input</span><span class="o">.</span><span class="n">_value</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span>
+       <span class="k">else</span><span class="p">:</span>
+           <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Shape mismatch!"</span><span class="p">)</span>
+   <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+       <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ensure_tensor</span><span class="p">(</span><span class="nb">input</span><span class="p">),</span> <span class="n">ensure_tensor</span><span class="p">(</span><span class="n">other</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>本版本在两个操作数都是 <code class="docutils literal "><span class="pre">ScalarTensor</span></code> 实例时具有快速路径，同时还有一个较慢的路径，当任一操作数不是 <code class="docutils literal "><span class="pre">ScalarTensor</span></code> 时退化到将数据转换为张量。这使得当任一操作数是 <code class="docutils literal "><span class="pre">ScalarTensor</span></code> 或常规的 <code class="xref py py-class docutils literal "><span class="pre">Tensor</span></code> 时，覆盖函数能够正确执行：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <span class="n">ScalarTensor</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">torch</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+<span class="go">ScalarTensor(N=2, value=4)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">torch</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+<span class="go">tensor([[3., 1.],</span>
+<span class="go">        [1., 3.]])</span>
+</pre></div>
+</div>
+<p>注意，我们的 <code class="docutils literal "><span class="pre">add</span></code> 实现不像 <code class="xref py py-func docutils literal "><span class="pre">torch.add()</span></code> 那样将 <code class="docutils literal "><span class="pre">alpha</span></code> 或 <code class="docutils literal "><span class="pre">out</span></code> 作为关键字参数：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">torch</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">TypeError: add() got an unexpected keyword argument 'alpha'</span>
+</pre></div>
+</div>
+<p>为了速度和灵活性， <code class="docutils literal "><span class="pre">__torch_function__</span></code> 调度机制不会检查覆盖函数的签名是否与被覆盖函数在 <code class="xref py py-mod docutils literal "><span class="pre">torch</span></code> API 中的签名匹配。对于某些应用程序，忽略可选参数是可以接受的，但为了确保与 <code class="xref py py-class docutils literal "><span class="pre">Tensor</span></code> 完全兼容，用户实现的 torch API 函数应确保精确模拟被覆盖函数的 API。</p>
+<p> <code class="xref py py-mod docutils literal "><span class="pre">torch</span></code> API 中未明确覆盖的函数将从 <code class="docutils literal "><span class="pre">__torch_function__</span></code> 返回 <code class="docutils literal "><span class="pre">NotImplemented</span></code> 。如果所有带有 <code class="docutils literal "><span class="pre">__torch_function__</span></code> 定义的操作数都返回 <code class="docutils literal "><span class="pre">NotImplemented</span></code> ，PyTorch 将引发 <code class="docutils literal "><span class="pre">TypeError</span></code> 。这意味着大多数情况下，没有为特定类型明确覆盖的操作将在传递此类类型的实例时引发 <code class="docutils literal "><span class="pre">TypeError</span></code> 。</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">torch</span><span class="o">.</span><span class="n">mul</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="go">TypeError: no implementation found for 'torch.mul' on types that</span>
+<span class="go">implement __torch_function__: [ScalarTensor]</span>
+</pre></div>
+</div>
+<p>在实践中这意味着，如果您想使用 <code class="docutils literal "><span class="pre">__torch_function__</span></code> 实现来实施覆盖，您需要明确实现完整的 <code class="xref py py-mod docutils literal "><span class="pre">torch</span></code> API 或您用例中关心的整个 API 子集。这可能是一项艰巨的任务，因为完整的 <code class="xref py py-mod docutils literal "><span class="pre">torch</span></code> API 相当广泛。</p>
+<p>另一种选择是对于未处理的操作不返回 <code class="docutils literal "><span class="pre">NotImplemented</span></code> ，而是当没有覆盖时将 <code class="xref py py-class docutils literal "><span class="pre">Tensor</span></code> 传递给原始的 <code class="xref py py-mod docutils literal "><span class="pre">torch</span></code> 函数。例如，如果我们将 <code class="docutils literal "><span class="pre">__torch_function__</span></code> 的 <code class="docutils literal "><span class="pre">ScalarTensor</span></code> 实现更改为以下内容：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="nd">@classmethod</span>
+<span class="k">def</span> <span class="nf">__torch_function__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">types</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(),</span> <span class="n">kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="n">func</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">HANDLED_FUNCTIONS</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span>
+            <span class="nb">issubclass</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">ScalarTensor</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">types</span>
+        <span class="p">):</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">tensor</span><span class="p">()</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="s1">'tensor'</span><span class="p">)</span> <span class="k">else</span> <span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">args</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">HANDLED_FUNCTIONS</span><span class="p">[</span><span class="n">func</span><span class="p">](</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>那么 <code class="xref py py-func docutils literal "><span class="pre">torch.mul()</span></code> 将正常工作，尽管返回类型始终是 <code class="xref py py-class docutils literal "><span class="pre">Tensor</span></code> 而不是 <code class="xref py py-class docutils literal "><span class="pre">ScalarTensor</span></code> ，即使两个操作数都是 <code class="xref py py-class docutils literal "><span class="pre">ScalarTensor</span></code> 实例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <span class="n">ScalarTensor</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">torch</span><span class="o">.</span><span class="n">mul</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+<span class="go">tensor([[4., 0.],</span>
+<span class="go">        [0., 4.]])</span>
+</pre></div>
+</div>
+<p>还请参阅下面的 <code class="docutils literal "><span class="pre">MetadataTensor</span></code> 示例，了解此模式的另一种变体，但始终返回 <code class="docutils literal "><span class="pre">MetadataTensor</span></code> 以通过 <code class="xref py py-mod docutils literal "><span class="pre">torch</span></code> API 中的操作传播元数据。</p>
+<p> <code class="docutils literal "><span class="pre">__torch_function__</span></code> 协议旨在全面覆盖 API，部分覆盖可能导致不理想的结果，特别是某些函数会引发 <code class="docutils literal "><span class="pre">TypeError</span></code> 。这对于子类尤其如此，即使它们返回的结果完全相同，也必须覆盖 torch.add、torch.Tensor.__add__ 和 torch.Tensor.add 这三个。未能做到这一点可能会导致无限递归。如果需要从 <code class="docutils literal "><span class="pre">torch.Tensor</span></code> 子类中实现函数，必须在实现中使用 <code class="docutils literal "><span class="pre">super().__torch_function__</span></code> 。</p>
+</section>
+<section id="subclassing-torch-tensor">
+<h3>子类化 <code class="docutils literal "><span class="pre">torch.Tensor</span></code> </h3>
+<p>自 1.7.0 版本起， <code class="docutils literal "><span class="pre">torch.Tensor</span></code> 上的方法和应用于 <code class="docutils literal "><span class="pre">torch.Tensor</span></code> 子类的公共 <code class="docutils literal "><span class="pre">torch.*</span></code> 命名空间中的函数将返回子类实例而不是 <code class="docutils literal "><span class="pre">torch.Tensor</span></code> 实例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">SubTensor</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">pass</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">SubTensor</span><span class="p">([</span><span class="mi">0</span><span class="p">]),</span> <span class="n">SubTensor</span><span class="p">([</span><span class="mi">1</span><span class="p">])))</span><span class="o">.</span><span class="vm">__name__</span>
+<span class="go">'SubTensor'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">SubTensor</span><span class="p">([</span><span class="mi">0</span><span class="p">]),</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">1</span><span class="p">])))</span><span class="o">.</span><span class="vm">__name__</span>
+<span class="go">'SubTensor'</span>
+</pre></div>
+</div>
+<p>如果存在多个子类，则默认选择层次结构中最低的子类。如果没有唯一的方法来确定这种情况，则引发 <code class="docutils literal "><span class="pre">TypeError</span></code> 异常：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">SubTensor2</span><span class="p">([</span><span class="mi">0</span><span class="p">]),</span> <span class="n">SubTensor</span><span class="p">([</span><span class="mi">1</span><span class="p">])))</span><span class="o">.</span><span class="vm">__name__</span>
+<span class="go">'SubTensor2'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">SubTensor2</span><span class="p">([</span><span class="mi">0</span><span class="p">]),</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">1</span><span class="p">])))</span><span class="o">.</span><span class="vm">__name__</span>
+<span class="go">'SubTensor2'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">torch</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">SubTensor</span><span class="p">([</span><span class="mi">0</span><span class="p">]),</span> <span class="n">OtherSubTensor</span><span class="p">([</span><span class="mi">1</span><span class="p">]))</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">"&lt;stdin&gt;"</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">TypeError</span>: <span class="n">no implementation found for 'torch.add' on types that implement __torch_function__: [SubTensor, OtherSubTensor]</span>
+</pre></div>
+</div>
+<p>如果希望对所有张量方法进行全局覆盖，可以使用 <code class="docutils literal "><span class="pre">__torch_function__</span></code> 。以下是一个记录所有函数/方法调用的示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">LoggingTensor</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">__torch_function__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">types</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(),</span> <span class="n">kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># NOTE: Logging calls Tensor.__repr__, so we can't log __repr__ without infinite recursion</span>
+        <span class="k">if</span> <span class="n">func</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"func: </span><span class="si">{</span><span class="n">func</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">, args: </span><span class="si">{</span><span class="n">args</span><span class="si">!r}</span><span class="s2">, kwargs: </span><span class="si">{</span><span class="n">kwargs</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__torch_function__</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">types</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>然而，如果希望覆盖 Tensor 子类的方法，可以通过直接覆盖该方法（为子类定义它）或使用 <code class="docutils literal "><span class="pre">__torch_function__</span></code> 并与 <code class="docutils literal "><span class="pre">func</span></code> 匹配来实现。</p>
+<p>应当注意，在 <code class="docutils literal "><span class="pre">__torch_function__</span></code> 中对于子类，始终调用 <code class="docutils literal "><span class="pre">super().__torch_function__(func,</span> <span class="pre">...)</span></code> 而不是直接调用 <code class="docutils literal "><span class="pre">func</span></code> ，正如在版本 1.7.0 之前的情况。未能这样做可能会导致 <code class="docutils literal "><span class="pre">func</span></code> 递归回 <code class="docutils literal "><span class="pre">__torch_function__</span></code> ，从而引起无限递归。</p>
+</section>
+<section id="extending-torch-with-a-tensor-wrapper-type">
+<h3>使用 <code class="xref py py-class docutils literal "><span class="pre">Tensor</span></code> 包装类型扩展 <code class="xref py py-mod docutils literal "><span class="pre">torch</span></code> </h3>
+<p>另一个有用的例子是包装 <code class="xref py py-class docutils literal "><span class="pre">Tensor</span></code> 的类型，无论是作为属性还是通过子类化。下面我们实现这种类型的一个特殊情况，即 <code class="docutils literal "><span class="pre">MetadataTensor</span></code> ，它将元数据字典附加到通过 <code class="xref py py-mod docutils literal "><span class="pre">torch</span></code> 操作传播的 <code class="xref py py-class docutils literal "><span class="pre">Tensor</span></code> 。由于这是一种通用的包装类型，用于完整的 <code class="xref py py-mod docutils literal "><span class="pre">torch</span></code> API，因此我们不需要单独实现每个覆盖，这样可以使 <code class="docutils literal "><span class="pre">__torch_function__</span></code> 的实现对允许的操作更加宽容：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MetadataTensor</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_t</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="n">metadata</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">"Metadata:</span><span class="se">\n</span><span class="si">{}</span><span class="se">\n\n</span><span class="s2">data:</span><span class="se">\n</span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_t</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">__torch_function__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">types</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(),</span> <span class="n">kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">metadatas</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">_metadata</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">args</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="s1">'_metadata'</span><span class="p">))</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="nb">getattr</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="s1">'_t'</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">args</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">metadatas</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">MetadataTensor</span><span class="p">(</span><span class="n">ret</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">metadatas</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>这种简单的实现并不一定适用于 <code class="xref py py-mod docutils literal "><span class="pre">torch</span></code> API 中的每个函数，但它足以捕获大多数常见操作：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'owner'</span><span class="p">:</span> <span class="s1">'Ministry of Silly Walks'</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">MetadataTensor</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]],</span> <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">torch</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
+<span class="go">Metadata:</span>
+<span class="go">{'owner': 'Ministry of Silly Walks'}</span>
+
+<span class="go">data:</span>
+<span class="go">tensor([[2, 4],</span>
+<span class="go">        [4, 6]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">torch</span><span class="o">.</span><span class="n">mul</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
+<span class="go">Metadata:</span>
+<span class="go">{'owner': 'Ministry of Silly Walks'}</span>
+
+<span class="go">data:</span>
+<span class="go">tensor([[1, 4],</span>
+<span class="go">        [3, 8]])</span>
+</pre></div>
+</div>
+</section>
+<section id="operations-on-multiple-types-that-define-torch-function">
+<h3>对定义 <code class="docutils literal "><span class="pre">__torch_function__</span></code> 的多个类型的操作</h3>
+<p>可以使用 torch API 与多个具有 <code class="docutils literal "><span class="pre">__torch_function__</span></code> 实现的独立类型，但必须特别注意。在这种情况下，规则是：</p>
+<ul class="simple">
+<li><p>调度操作收集每个操作数所有不同的 <code class="docutils literal "><span class="pre">__torch_function__</span></code> 实现，并按顺序调用它们：先子类后父类，并在运算符表达式中从左到右。</p></li>
+<li><p>如果返回的不是 <code class="docutils literal "><span class="pre">NotImplemented</span></code> 以外的任何值，则该值作为结果返回。实现可以注册它们不实现操作，通过返回 <code class="docutils literal "><span class="pre">NotImplemented</span></code> 来完成。</p></li>
+<li><p>如果所有的 <code class="docutils literal "><span class="pre">__torch_function__</span></code> 实现都返回 <code class="docutils literal "><span class="pre">NotImplemented</span></code> ，PyTorch 将引发一个 <code class="docutils literal "><span class="pre">TypeError</span></code> 。</p></li>
+</ul>
+</section>
+<section id="testing-coverage-of-overrides-for-the-pytorch-api">
+<h3>PyTorch API 覆盖测试覆盖率</h3>
+<p>实现 <code class="docutils literal "><span class="pre">__torch_function__</span></code> 的一个麻烦之处在于，如果某些操作有覆盖而其他操作没有，用户最多只能看到不一致的体验，最坏的情况是在运行时使用没有覆盖的功能时引发错误。为了简化这个过程，PyTorch 提供了一个面向开发者的 API，以确保对 <code class="docutils literal "><span class="pre">__torch_function__</span></code> 覆盖的全面支持。这个 API 是私有的，并且未来可能会在没有警告的情况下进行更改。</p>
+<p>首先，要获取所有可覆盖函数的列表，请使用 <code class="docutils literal "><span class="pre">torch.overrides._get_overridable_functions</span></code> 。这将返回一个字典，其键是 <code class="docutils literal "><span class="pre">PyTorch</span></code> Python API 中的命名空间，其值是该命名空间中可以覆盖的函数列表。例如，让我们打印出可以覆盖的前 5 个函数的名称：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torch.overrides</span> <span class="kn">import</span> <span class="n">get_overridable_functions</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">func_dict</span> <span class="o">=</span> <span class="n">get_overridable_functions</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nn_funcs</span> <span class="o">=</span> <span class="n">func_dict</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">functional</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">([</span><span class="n">f</span><span class="o">.</span><span class="vm">__name__</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">nn_funcs</span><span class="p">[:</span><span class="mi">5</span><span class="p">])</span>
+<span class="go">['adaptive_avg_pool1d', 'adaptive_avg_pool2d', 'adaptive_avg_pool3d',</span>
+<span class="go"> 'adaptive_max_pool1d', 'adaptive_max_pool1d_with_indices']</span>
+</pre></div>
+</div>
+<p>这个函数列表使得可以遍历所有可重写的函数，然而在实践中，如果不费劲地手动复制每个函数的签名，就无法为这些函数编写测试。为了简化这个过程， <code class="docutils literal "><span class="pre">torch.overrides._get_testing_overrides</span></code> 函数返回一个字典，将 <code class="docutils literal "><span class="pre">PyTorch</span></code> API 中的可重写函数映射到具有与原始函数相同签名的哑 lambda 函数，这些函数无条件返回 -1。这些函数与 <code class="docutils literal "><span class="pre">inspect</span></code> 结合使用时最为有用，可以分析原始 <code class="docutils literal "><span class="pre">PyTorch</span></code> 函数的函数签名：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">inspect</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torch.overrides</span> <span class="kn">import</span> <span class="n">get_testing_overrides</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">override_dict</span> <span class="o">=</span> <span class="n">get_testing_overrides</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dummy_add</span> <span class="o">=</span> <span class="n">override_dict</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">add</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">dummy_add</span><span class="p">)</span>
+<span class="go">&lt;Signature (input, other, out=None)&gt;</span>
+</pre></div>
+</div>
+<p>最后， <code class="docutils literal "><span class="pre">torch.overrides.get_ignored_functions</span></code> 返回一个元组，其中包含 <code class="docutils literal "><span class="pre">__torch_function__</span></code> 明确不能被重写的函数。此列表可以用来确认不在 <code class="docutils literal "><span class="pre">get_overridable_functions</span></code> 返回的字典中的函数不能被重写。</p>
+</section>
+</section>
+<section id="extending-torch-native-api">
+<span id="extending-torch-c"></span><h2>扩展 <code class="xref py py-mod docutils literal "><span class="pre">torch</span></code> 原生 API</h2>
+<p>虽然 <code class="docutils literal "><span class="pre">__torch_function__</span></code> 允许用户有效地扩展 PyTorch 的纯 Python 组件的行为，但它不允许扩展用 C++ 实现的 PyTorch 部分。为此， <code class="xref py py-class docutils literal "><span class="pre">Tensor</span></code> 子类还可以定义 <code class="docutils literal "><span class="pre">__torch_dispatch__</span></code> ，这将能够在 C++ 层面上覆盖行为。</p>
+<p>为了有效地使用此功能，了解 PyTorch 原生部分的实现方式很重要。其中最重要的组件就是我们所说的“调度器”（最佳描述可以在这篇博客文章中找到，尽管它有些过时）。正如其名所示，它负责为特定函数调用调用正确的后端函数。例如，在调用 <code class="docutils literal "><span class="pre">torch.add(a,</span> <span class="pre">b)</span></code> 时，调度器将检查两个参数，确定应该使用哪个“功能”（自动微分、自动类型转换、函数化等）以及哪个“后端”（CPU、CUDA、MPS 等）来处理这个特定调用，并最终调用所有正确的内核。内核经常执行的操作是“重新调度”。例如，当使用自动类型转换在 GPU 上运行您的神经网络时，第一次调用将是自动类型转换内核，它将处理任何潜在的自动类型转换逻辑并重新调度。下一个功能将是自动微分，它将正确创建自动微分图，然后重新调度。最后，我们到达 CUDA 的后端内核，它将启动正确的 CUDA 内核并返回最终结果。 在退出过程中，autograd 会将图附加到输出上，最后 autocast 将有机会在退出时进行任何必要的更新。</p>
+<p>分派器的一种配置是所有这些特征和后端键的调用顺序。最新的列表及其顺序可以在 <code class="docutils literal "><span class="pre">DispatchKey</span></code> 枚举中的 <code class="docutils literal "><span class="pre">DispatchKey.h</span></code> 中找到。为了扩展 torch，本次讨论中重要的排序子集是：</p>
+<p>vmap -&gt; Autocast -&gt; Autograd -&gt; ZeroTensor -&gt; Neg/Conj -&gt; Functionalize -&gt; Python -&gt; Backends</p>
+<p>对于本次讨论来说，最重要的键是 <code class="docutils literal "><span class="pre">Python</span></code> ，因为每个定义了 <code class="docutils literal "><span class="pre">__torch_dispatch__</span></code> 方法的 Tensor 子类都会调用这个功能。用户定义的方法就是从这里被调用，并且行为可以被任意覆盖。从这里再次调用提供的 <code class="docutils literal "><span class="pre">func</span></code> 将执行“重新分派”。</p>
+<p>该实现的某些重要影响包括：</p>
+<ul class="simple">
+<li><p>此代码运行在“所有功能”之下。因此，它仅负责，就像常规后端一样，生成每个张量的输出值（并且可以，也应该忽略所有高级功能，如自动微分、自动类型转换等）。</p></li>
+<li><p>如果任何高级功能在未重新调度的情况下实现了给定函数，则它将永远不会到达 <code class="docutils literal "><span class="pre">Python</span></code> 键，因此 <code class="docutils literal "><span class="pre">__torch_dispatch__</span></code> 回调也永远不会被触发。这特别适用于在自动微分级别上不进行重新调度而评估的复合隐式自动微分函数。这是因为复合隐式自动微分函数通过隐式调用其他原生操作来指定其自动微分公式，因此在自动微分级别上，函数被分解为其原生操作，并评估这些操作。</p></li>
+<li><p>在回调到 Python 并包装结果时，使用与常规 PyTorch Python/C++绑定相同的转换。特别是，某些对象无法在 Python 中表示，需要特殊处理（例如，未定义的张量变为 None）。</p></li>
+<li><p>我们的本机函数以 <code class="docutils literal "><span class="pre">torch.ops.{namespace}.{func_name}.{overload_name}</span></code> 的形式懒加载为可调用的 Python 对象，以便轻松地从 Python 中与之交互。 <code class="docutils literal "><span class="pre">func</span></code> 对象总是来自此命名空间的一个条目。此命名空间可以直接调用本机操作，绕过常规的 Python API 和绑定代码。</p></li>
+</ul>
+<p>类似地， <code class="docutils literal "><span class="pre">__torch_function__</span></code> 能够介入 torch 的所有 Python API 和 Tensor 方法， <code class="docutils literal "><span class="pre">__torch_dispatch__</span></code> 能够拦截所有对 aten 本机 API 的调用。请注意，在进入分发器之前，Tensor 上的所有方法都转换为函数调用，因此在这里将显示为函数调用： <code class="docutils literal "><span class="pre">torch.add(a,</span> <span class="pre">2)</span></code> 和 <code class="docutils literal "><span class="pre">a</span> <span class="pre">+</span> <span class="pre">2</span></code> 将导致完全相同的 aten 调用。这些函数中的大多数都在 <code class="docutils literal "><span class="pre">native_functions.yaml</span></code> 中定义，它指定了这些函数的属性以及它们的后端实现。然后，通过 codegen 自动注册它们的实现和指定功能。一些更特殊的函数或功能也注册在 C++代码库的其他地方或用户定义的 C++扩展中。</p>
+<p>也可以使用 <code class="xref py py-mod docutils literal "><span class="pre">torch.library</span></code> 来添加新的本地函数。这个 Python 特性允许定义和/或添加本地函数的新实现。这可以用来添加缺失的内核、替换现有的内核或定义全新的本地函数。</p>
+<p>你可以在子类动物园仓库中找到许多基于 <code class="docutils literal "><span class="pre">__torch_dispatch__</span></code> 的子类的示例。</p>
+<section id="torch-dispatch-calling-convention">
+<span id="id1"></span><h3> <code class="docutils literal "><span class="pre">__torch_dispatch__</span></code> 调用约定 ¶</h3>
+<div class="highlight-python "><div class="highlight"><pre><span></span><span class="nd">@classmethod</span>
+<span class="k">def</span> <span class="nf">__torch_dispatch__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">types</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(),</span> <span class="n">kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p>当用户使用具有 <code class="docutils literal "><span class="pre">__torch_dispatch__</span></code> 的输入调用运算符时，该调用可能会转发到 <code class="docutils literal "><span class="pre">__torch_dispatch__</span></code> 。在调用 <code class="docutils literal "><span class="pre">__torch_dispatch__</span></code> 之前，args 和 kwargs 会进行归一化，即：</p>
+<ul class="simple">
+<li><p>操作符模式中仅包含关键字参数。如果关键字参数等于模式中的默认值，则不会传递。</p></li>
+<li><p>包含所有其他参数，无论它们是如何传递给操作符的（位置参数或关键字参数）。如果一个参数等于其默认值，并且它是最右边的位置参数或其右侧的所有参数都没有传递，则不会传递。</p></li>
+</ul>
+</section>
+</section>
+<section id="extending-all-torch-api-with-modes">
+<h2>扩展所有 API 的模式</h2>
+<p>不幸的是，有一些函数不接受 Tensor 输入。这意味着上述描述的子类方法不能用来覆盖 PyTorch 中所有函数的行为。此外，如果用例需要拦截每个函数调用，将每个 Tensor 改为子类可能会过于侵入。</p>
+<p>为了解决这个用例，我们引入了“模式”的概念。这些模式分别用于 <code class="docutils literal "><span class="pre">__torch_function__</span></code> 和 <code class="docutils literal "><span class="pre">__torch_dispatch__</span></code> 覆盖，通过分别子类化 <code class="xref py py-class docutils literal "><span class="pre">torch.overrides.TorchFunctionMode</span></code> 和 <code class="xref py py-class docutils literal "><span class="pre">torch.utils._python_dispatch.TorchDispatchMode</span></code> 来创建，并用作上下文管理器。</p>
+<p>为了简化对它与子类和其他模式交互的描述，每当进入某个模式的上下文管理器时，每个函数的行为都好像在参数列表的开头多了一个 Tensor 参数，该参数为该模式的子类。这意味着特别是所有模式处理程序都将先于任何子类处理程序被调用，并且对应于内部上下文管理器的模式将始终首先运行。</p>
+<p>还需要注意的是，在给定的模式处理程序内部，此特定模式被禁用，可以通过执行 <code class="docutils literal "><span class="pre">with</span> <span class="pre">self:</span></code> 手动重新启用。</p>
+<p>下面是一个示例，展示了每种类型的日志模式：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torch.overrides</span> <span class="kn">import</span> <span class="n">TorchFunctionMode</span><span class="p">,</span> <span class="n">resolve_name</span>
+<span class="kn">from</span> <span class="nn">torch.utils._python_dispatch</span> <span class="kn">import</span> <span class="n">TorchDispatchMode</span>
+
+<span class="k">class</span> <span class="nc">FunctionLog</span><span class="p">(</span><span class="n">TorchFunctionMode</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__torch_function__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">types</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Function Log: </span><span class="si">{</span><span class="n">resolve_name</span><span class="p">(</span><span class="n">func</span><span class="p">)</span><span class="si">}</span><span class="s2">(*</span><span class="si">{</span><span class="n">args</span><span class="si">}</span><span class="s2">, **</span><span class="si">{</span><span class="n">kwargs</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="p">(</span><span class="n">kwargs</span> <span class="ow">or</span> <span class="p">{}))</span>
+
+<span class="k">class</span> <span class="nc">DispatchLog</span><span class="p">(</span><span class="n">TorchDispatchMode</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__torch_dispatch__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">types</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Dispatch Log: </span><span class="si">{</span><span class="n">func</span><span class="si">}</span><span class="s2">(*</span><span class="si">{</span><span class="n">args</span><span class="si">}</span><span class="s2">, **</span><span class="si">{</span><span class="n">kwargs</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="p">(</span><span class="n">kwargs</span> <span class="ow">or</span> <span class="p">{}))</span>
+
+<span class="k">def</span> <span class="nf">f</span><span class="p">():</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">a</span> <span class="o">*</span> <span class="mi">2</span>
+    <span class="n">b</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"TorchFunctionMode logging:"</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">FunctionLog</span><span class="p">():</span>
+    <span class="n">f</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"TorchDispatchMode logging:"</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">DispatchLog</span><span class="p">():</span>
+    <span class="n">f</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>输出以下内容，并添加额外注释：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">TorchFunctionMode</span> <span class="n">logging</span><span class="p">:</span>
+<span class="n">Function</span> <span class="n">Log</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="mi">10</span><span class="p">,),</span> <span class="o">**</span><span class="p">{</span><span class="s1">'requires_grad'</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+<span class="n">Function</span> <span class="n">Log</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="o">.</span><span class="n">mul</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">tensor</span><span class="p">([</span><span class="mf">0.7164</span><span class="p">,</span> <span class="mf">0.9897</span><span class="p">,</span> <span class="mf">0.1745</span><span class="p">,</span> <span class="mf">0.9336</span><span class="p">,</span> <span class="mf">0.4287</span><span class="p">,</span> <span class="mf">0.7989</span><span class="p">,</span> <span class="mf">0.2169</span><span class="p">,</span> <span class="mf">0.7474</span><span class="p">,</span> <span class="mf">0.5624</span><span class="p">,</span>
+        <span class="mf">0.5970</span><span class="p">],</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="mi">2</span><span class="p">),</span> <span class="o">**</span><span class="kc">None</span><span class="p">)</span>
+<span class="n">Function</span> <span class="n">Log</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">tensor</span><span class="p">([</span><span class="mf">1.4328</span><span class="p">,</span> <span class="mf">1.9794</span><span class="p">,</span> <span class="mf">0.3490</span><span class="p">,</span> <span class="mf">1.8671</span><span class="p">,</span> <span class="mf">0.8573</span><span class="p">,</span> <span class="mf">1.5977</span><span class="p">,</span> <span class="mf">0.4338</span><span class="p">,</span> <span class="mf">1.4948</span><span class="p">,</span> <span class="mf">1.1249</span><span class="p">,</span>
+        <span class="mf">1.1939</span><span class="p">],</span> <span class="n">grad_fn</span><span class="o">=&lt;</span><span class="n">MulBackward0</span><span class="o">&gt;</span><span class="p">),),</span> <span class="o">**</span><span class="kc">None</span><span class="p">)</span>
+<span class="c1"># Note that at the python level, we only see the call to backward but not what happens in the autograd engine.</span>
+<span class="n">Function</span> <span class="n">Log</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">tensor</span><span class="p">(</span><span class="mf">12.3307</span><span class="p">,</span> <span class="n">grad_fn</span><span class="o">=&lt;</span><span class="n">SumBackward0</span><span class="o">&gt;</span><span class="p">),),</span> <span class="o">**</span><span class="p">{</span><span class="s1">'gradient'</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">'retain_graph'</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">'create_graph'</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">'inputs'</span><span class="p">:</span> <span class="kc">None</span><span class="p">})</span>
+
+<span class="n">TorchDispatchMode</span> <span class="n">logging</span><span class="p">:</span>
+<span class="c1"># Here the requires_grad flag from autograd is removed while default arguments were populated.</span>
+<span class="n">Dispatch</span> <span class="n">Log</span><span class="p">:</span> <span class="n">aten</span><span class="o">.</span><span class="n">rand</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="o">*</span><span class="p">([</span><span class="mi">10</span><span class="p">],),</span> <span class="o">**</span><span class="p">{</span><span class="s1">'device'</span><span class="p">:</span> <span class="n">device</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">'cpu'</span><span class="p">),</span> <span class="s1">'pin_memory'</span><span class="p">:</span> <span class="kc">False</span><span class="p">})</span>
+<span class="n">Dispatch</span> <span class="n">Log</span><span class="p">:</span> <span class="n">aten</span><span class="o">.</span><span class="n">mul</span><span class="o">.</span><span class="n">Tensor</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">tensor</span><span class="p">([</span><span class="mf">0.2151</span><span class="p">,</span> <span class="mf">0.6018</span><span class="p">,</span> <span class="mf">0.8415</span><span class="p">,</span> <span class="mf">0.9060</span><span class="p">,</span> <span class="mf">0.2974</span><span class="p">,</span> <span class="mf">0.7708</span><span class="p">,</span> <span class="mf">0.6668</span><span class="p">,</span> <span class="mf">0.0352</span><span class="p">,</span> <span class="mf">0.7948</span><span class="p">,</span>
+        <span class="mf">0.6023</span><span class="p">],</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="mi">2</span><span class="p">),</span> <span class="o">**</span><span class="p">{})</span>
+<span class="n">Dispatch</span> <span class="n">Log</span><span class="p">:</span> <span class="n">aten</span><span class="o">.</span><span class="n">sum</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">tensor</span><span class="p">([</span><span class="mf">0.4303</span><span class="p">,</span> <span class="mf">1.2036</span><span class="p">,</span> <span class="mf">1.6831</span><span class="p">,</span> <span class="mf">1.8120</span><span class="p">,</span> <span class="mf">0.5949</span><span class="p">,</span> <span class="mf">1.5416</span><span class="p">,</span> <span class="mf">1.3335</span><span class="p">,</span> <span class="mf">0.0705</span><span class="p">,</span> <span class="mf">1.5897</span><span class="p">,</span>
+        <span class="mf">1.2046</span><span class="p">],</span> <span class="n">grad_fn</span><span class="o">=&lt;</span><span class="n">MulBackward0</span><span class="o">&gt;</span><span class="p">),),</span> <span class="o">**</span><span class="p">{})</span>
+<span class="c1"># Here we don't see the call to backward itself, but its constituents. Starting here with the factory function that creates the initial gradient.</span>
+<span class="n">Dispatch</span> <span class="n">Log</span><span class="p">:</span> <span class="n">aten</span><span class="o">.</span><span class="n">ones_like</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">tensor</span><span class="p">(</span><span class="mf">11.4637</span><span class="p">,</span> <span class="n">grad_fn</span><span class="o">=&lt;</span><span class="n">SumBackward0</span><span class="o">&gt;</span><span class="p">),),</span> <span class="o">**</span><span class="p">{</span><span class="s1">'pin_memory'</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">'memory_format'</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">preserve_format</span><span class="p">})</span>
+<span class="c1"># This is the backward of the sum</span>
+<span class="n">Dispatch</span> <span class="n">Log</span><span class="p">:</span> <span class="n">aten</span><span class="o">.</span><span class="n">expand</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">tensor</span><span class="p">(</span><span class="mf">1.</span><span class="p">),</span> <span class="p">[</span><span class="mi">10</span><span class="p">]),</span> <span class="o">**</span><span class="p">{})</span>
+<span class="n">Dispatch</span> <span class="n">Log</span><span class="p">:</span> <span class="n">aten</span><span class="o">.</span><span class="n">mul</span><span class="o">.</span><span class="n">Tensor</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">tensor</span><span class="p">([</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">]),</span> <span class="mi">2</span><span class="p">),</span> <span class="o">**</span><span class="p">{})</span>
+<span class="n">Dispatch</span> <span class="n">Log</span><span class="p">:</span> <span class="n">aten</span><span class="o">.</span><span class="n">detach</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">tensor</span><span class="p">([</span><span class="mf">2.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">]),),</span> <span class="o">**</span><span class="p">{})</span>
+<span class="n">Dispatch</span> <span class="n">Log</span><span class="p">:</span> <span class="n">aten</span><span class="o">.</span><span class="n">detach</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">tensor</span><span class="p">([</span><span class="mf">2.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">]),),</span> <span class="o">**</span><span class="p">{})</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+             </article>
+             
+            </div>
+            <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        下一个 <img height="16" width="16" class="next-page" src="../_static/images/chevron-right-orange.svg"> <img height="16" width="16" class="previous-page" src="../_static/images/chevron-right-orange.svg"> 上一个
+      
+    </div>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>© 版权所有 PyTorch 贡献者。</p>
+  </div>
+    
+      <div>使用 Sphinx 构建，并使用 Read the Docs 提供的主题。</div>
+     
+
+</footer>
+
+          </div>
+<script>
+
+var match = window.location.href.match(/\/_[a-zA-Z0-9_]*.html|_dynamo/gi);
+var url = window.location.href.lastIndexOf(match[match.length-1]);
+
+if (url)
+  {
+    var div = '<div class="admonition note"><p class="admonition-title">Note</p><p><i class="fa fa-exclamation-circle" aria-hidden="true">&nbsp</i> This page describes an internal API which is not intended to be used outside of the PyTorch codebase and can be modified or removed without notice.</p></div>'
+    document.getElementById("pytorch-article").insertAdjacentHTML('afterBegin', div)
+  }
+</script>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">扩展 PyTorch</a><ul>
+<li><a class="reference internal" href="#adding-new-operators">添加新的算子</a></li>
+<li><a class="reference internal" href="#extending-torch-autograd">扩展 <code class="xref py py-mod docutils literal "><span class="pre">torch.autograd</span></code> </a><ul>
+<li><a class="reference internal" href="#when-to-use">何时使用</a></li>
+<li><a class="reference internal" href="#when-not-to-use">何时不使用</a></li>
+<li><a class="reference internal" href="#how-to-use">如何使用</a></li>
+<li><a class="reference internal" href="#example">示例</a></li>
+<li><a class="reference internal" href="#combined-or-separate-forward-and-setup-context">组合或分开使用 <code class="xref py py-meth docutils literal "><span class="pre">forward()</span></code> 和 <code class="xref py py-meth docutils literal "><span class="pre">setup_context()</span></code> </a></li>
+<li><a class="reference internal" href="#forward-mode-ad">前向模式 AD</a></li>
+<li><a class="reference internal" href="#torch-func-transforms-and-or-torch-vmap"> <code class="xref py py-mod docutils literal "><span class="pre">torch.func</span></code> 转换和/或 <code class="xref py py-func docutils literal "><span class="pre">torch.vmap()</span></code> </a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#extending-torch-nn">扩展 <code class="xref py py-mod docutils literal "><span class="pre">torch.nn</span></code> </a><ul>
+<li><a class="reference internal" href="#adding-a-module">添加一个 <code class="xref py py-class docutils literal "><span class="pre">Module</span></code> </a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#extending-torch-python-api">扩展 <code class="xref py py-mod docutils literal "><span class="pre">torch</span></code> Python API</a><ul>
+<li><a class="reference internal" href="#extending-torch-with-a-tensor-like-type">以 <code class="xref py py-class docutils literal "><span class="pre">Tensor</span></code> 类似的方式扩展 <code class="xref py py-mod docutils literal "><span class="pre">torch</span></code> </a></li>
+<li><a class="reference internal" href="#subclassing-torch-tensor">继承 <code class="docutils literal "><span class="pre">torch.Tensor</span></code> </a></li>
+<li><a class="reference internal" href="#extending-torch-with-a-tensor-wrapper-type">使用 <code class="xref py py-class docutils literal "><span class="pre">Tensor</span></code> 包装器类型扩展 <code class="xref py py-mod docutils literal "><span class="pre">torch</span></code> </a></li>
+<li><a class="reference internal" href="#operations-on-multiple-types-that-define-torch-function">多种类型的操作定义 <code class="docutils literal "><span class="pre">__torch_function__</span></code> </a></li>
+<li><a class="reference internal" href="#testing-coverage-of-overrides-for-the-pytorch-api">测试 PyTorch API 的覆盖范围覆盖</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#extending-torch-native-api">扩展 <code class="xref py py-mod docutils literal "><span class="pre">torch</span></code> 原生 API</a><ul>
+<li><a class="reference internal" href="#torch-dispatch-calling-convention"> <code class="docutils literal "><span class="pre">__torch_dispatch__</span></code> 调用约定</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#extending-all-torch-api-with-modes">扩展所有 <code class="xref py py-mod docutils literal "><span class="pre">torch</span></code> API 以支持模式</a></li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+         <script src="../_static/jquery.js"></script>
+         <script src="../_static/underscore.js"></script>
+         <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+         <script src="../_static/doctools.js"></script>
+         <script src="../_static/clipboard.min.js"></script>
+         <script src="../_static/copybutton.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="../_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="../_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ 
+<script script="" type="text/javascript">
+  var collapsedSections = ['Developer Notes', 'Language Bindings', 'Libraries', 'Community'];
+</script>
+
+<img height="1" width="1" style="border-style:none;" alt="" src="https://www.googleadservices.com/pagead/conversion/795629140/?label=txkmCPmdtosBENSssfsC&amp;guid=ON&amp;script=0">
+
+
+  <!-- Begin Footer -->
+
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 text-center">
+          <h2>文档</h2>
+          <p>PyTorch 的全面开发者文档</p>
+          <a class="with-right-arrow" href="https://pytorch.org/docs/stable/index.html">查看文档</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>教程</h2>
+          <p>深入了解初学者和高级开发者的教程</p>
+          <a class="with-right-arrow" href="https://pytorch.org/tutorials">查看教程</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>资源</h2>
+          <p>查找开发资源并获得您的疑问解答</p>
+          <a class="with-right-arrow" href="https://pytorch.org/resources">查看资源</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://pytorch.org/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/">PyTorch</a></li>
+            <li><a href="https://pytorch.org/get-started">开始使用</a></li>
+            <li><a href="https://pytorch.org/features">功能</a></li>
+            <li><a href="https://pytorch.org/ecosystem">生态系统</a></li>
+            <li><a href="https://pytorch.org/blog/">博客</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md">贡献</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/resources">资源</a></li>
+            <li><a href="https://pytorch.org/tutorials">教程</a></li>
+            <li><a href="https://pytorch.org/docs/stable/index.html">文档</a></li>
+            <li><a href="https://discuss.pytorch.org" target="_blank">讨论</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/issues" target="_blank">Github 问题</a></li>
+            <li><a href="https://pytorch.org/assets/brand-guidelines/PyTorch-Brand-Guidelines.pdf" target="_blank">品牌指南</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">保持更新</li>
+            <li><a href="https://www.facebook.com/pytorch" target="_blank">脸书</a></li>
+            <li><a href="https://twitter.com/pytorch" target="_blank">推特</a></li>
+            <li><a href="https://www.youtube.com/pytorch" target="_blank">YouTube</a></li>
+            <li><a href="https://www.linkedin.com/company/pytorch" target="_blank">领英</a></li>
+          </ul>  
+          </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">PyTorch 播客</li>
+            <li><a href="https://open.spotify.com/show/6UzHKeiy368jKfQMKKvJY5" target="_blank">Spotify</a></li>
+            <li><a href="https://podcasts.apple.com/us/podcast/pytorch-developer-podcast/id1566080008" target="_blank">苹果</a></li>
+            <li><a href="https://www.google.com/podcasts?feed=aHR0cHM6Ly9mZWVkcy5zaW1wbGVjYXN0LmNvbS9PQjVGa0lsOA%3D%3D" target="_blank">谷歌</a></li>
+            <li><a href="https://music.amazon.com/podcasts/7a4e6f0e-26c2-49e9-a478-41bd244197d0/PyTorch-Developer-Podcast?" target="_blank">亚马逊</a></li>
+          </ul>
+         </div>
+        </div>
+        
+        <div class="privacy-policy">
+          <ul>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/terms/" target="_blank">条款</a></li>
+            <li class="privacy-policy-links">|</li>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/privacy-policy/" target="_blank">隐私</a></li>
+          </ul>
+        </div>
+        <div class="copyright">
+        <p>© 版权所有 Linux 基金会。PyTorch 基金会是 Linux 基金会的一个项目。有关 PyTorch 基金会的网站使用条款、商标政策以及其他适用政策，请参阅 www.linuxfoundation.org/policies/。PyTorch 基金会支持 PyTorch 开源项目，该项目已被确立为 LF Projects, LLC 的 PyTorch 项目系列。有关适用于 PyTorch 项目系列 LF Projects, LLC 的政策，请参阅 www.lfprojects.org/policies/。</p>
+      </div>
+     </div>
+
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">为了分析流量并优化您的体验，我们在本网站上使用 cookies。通过点击或导航，您同意允许我们使用 cookies。作为本网站的当前维护者，适用 Facebook 的 Cookies 政策。了解更多信息，包括关于可用控制的信息：Cookies 政策。</p>
+    <img class="close-button" src="../_static/images/pytorch-x.svg" width="16" height="16">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+           <li class="resources-mobile-menu-title">
+             <a>学习</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/get-started">开始使用</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials">教程</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/basics/intro.html">学习基础知识</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/recipes/recipes_index.html">PyTorch 食谱</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/introyt.html">PyTorch 入门 - YouTube 系列</a>
+             </li>
+           </ul>
+           <li class="resources-mobile-menu-title">
+             <a>生态系统</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/ecosystem">工具</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/#community-module">社区</a>
+             </li>
+             <li>
+               <a href="https://discuss.pytorch.org/">论坛</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/resources">开发者资源</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">贡献者奖项 - 2024</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>Edge</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/edge">关于 PyTorch Edge</a>
+             </li>
+             
+             <li>
+               <a href="https://pytorch.org/executorch-overview">执行火炬</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch 文档</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>文档</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/docs/stable/index.html">PyTorch</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/pytorch-domains">PyTorch 领域</a>
+            </li>
+          </ul>
+
+          <li class="resources-mobile-menu-title">
+            <a>博客 &amp; 新闻</a>
+          </li>
+            
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/blog/">PyTorch 博客</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/community-blog">社区博客</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/videos">视频</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/community-stories">社区故事</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/events">活动</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">新闻简报</a>
+             </li>
+          </ul>
+          
+          <li class="resources-mobile-menu-title">
+            <a>关于</a>
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/foundation">PyTorch 基金会</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/governing-board">治理委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">云信用计划</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">技术咨询委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">员工</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">联系我们</a>
+            </li>
+          </ul>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="../_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body></html>

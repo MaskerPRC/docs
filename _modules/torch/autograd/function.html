@@ -1,0 +1,1786 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+  <meta charset="UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>torch.autograd.function — PyTorch main documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pytorch.org/docs/stable/_modules/torch/autograd/function.html">
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css">
+  <!-- <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css">
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css">
+  <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="../../../_static/katex-math.css" type="text/css">
+  <link rel="stylesheet" href="../../../_static/sphinx-dropdown.css" type="text/css">
+  <link rel="stylesheet" href="../../../_static/panels-bootstrap.min.css" type="text/css">
+  <link rel="stylesheet" href="../../../_static/css/jit.css" type="text/css">
+  <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css">
+    <link rel="index" title="Index" href="../../../genindex.html">
+    <link rel="search" title="Search" href="../../../search.html">
+
+<!--
+  Search engines should not index the main version of documentation.
+  Stable documentation are built without release == 'main'.
+-->
+<meta name="robots" content="noindex">
+
+
+  <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T8XT4PS');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+  <!-- Preload the theme fonts -->
+
+<link rel="preload" href="../../../_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<!-- Preload the katex fonts -->
+
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Math-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size1-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size2-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Caligraphic-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
+</head><body class="pytorch-body"><div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+
+          <li class="main-menu-item">
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">学习</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/get-started">
+                  <span class="dropdown-title">开始使用</span>
+                  <p>在本地运行 PyTorch 或快速开始使用支持的云平台之一</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials">
+                  <span class="dropdown-title">教程</span><p></p>
+                  <p>PyTorch 教程中的新内容</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/basics/intro.html">
+                  <span class="dropdown-title">学习基础知识</span><p></p>
+                  <p>熟悉 PyTorch 概念和模块</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/recipes/recipes_index.html">
+                  <span class="dropdown-title">PyTorch 烹饪技巧</span><p></p>
+                  <p>精简型、可直接部署的 PyTorch 代码示例</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/introyt.html">
+                  <span class="dropdown-title">PyTorch 入门 - YouTube 系列</span><p></p>
+                  <p>通过我们引人入胜的 YouTube 教程系列掌握 PyTorch 基础知识</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">生态系统</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem">
+                  <span class="dropdown-title">工具</span><p></p>
+                  <p>了解 PyTorch 生态系统中的工具和框架</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
+                  <span class="dropdown-title">社区</span>
+                  <p>加入 PyTorch 开发者社区，贡献、学习并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
+                  <span class="dropdown-title">论坛</span>
+                  <p>讨论 PyTorch 代码、问题、安装、研究的地方</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/resources">
+                  <span class="dropdown-title">开发者资源</span>
+                  <p>查找资源并解答问题</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">2024 年度贡献者奖项</span><p></p>
+                  <p>本届 PyTorch 会议揭晓获奖者</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">
+                Edge
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/edge">
+                  <span class="dropdown-title">关于 PyTorch Edge</span><p></p>
+                  <p>为边缘设备构建创新和隐私感知的 AI 体验</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
+                  <span class="dropdown-title">ExecuTorch</span><p></p>
+                  <p>针对移动和边缘设备实现设备端推理能力的端到端解决方案</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch 文档</span><p></p>
+                </a>
+              </div>
+            </div>  
+          </li>
+
+          <li class="main-menu-item">
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">文档</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/docs/stable/index.html">
+                  <span class="dropdown-title">PyTorch</span><p></p>
+                  <p>探索文档以获取如何使用 PyTorch 的全面指南</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/pytorch-domains">
+                  <span class="dropdown-title">PyTorch 领域</span><p></p>
+                  <p>阅读 PyTorch 领域的文档以了解更多关于特定领域的库</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">博客与新闻</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/blog/">
+                  <span class="dropdown-title">PyTorch 博客</span><p></p>
+                  <p>跟上最新的技术新闻和动态</p>
+                </a>
+                 <a class="nav-dropdown-item" href="https://pytorch.org/community-blog">
+                  <span class="dropdown-title">社区博客</span><p></p>
+                  <p>PyTorch 生态系统故事</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/videos">
+                  <span class="dropdown-title">视频</span><p></p>
+                  <p>了解最新的 PyTorch 教程、新内容等</p>
+                </a><a class="nav-dropdown-item" href="https://pytorch.org/community-stories">
+                  <span class="dropdown-title">社区故事</span><p></p>
+                  <p>了解我们的社区如何使用 PyTorch 解决真实、日常的机器学习问题</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/events">
+                  <span class="dropdown-title">活动</span><p></p>
+                  <p>查找活动、网络研讨会和播客</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">通讯</span><p></p>
+                  <p>保持最新更新</p>
+                </a>
+            </div>
+          </div></li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">关于</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/foundation">
+                  <span class="dropdown-title">PyTorch 基金会</span><p></p>
+                  <p>了解更多关于 PyTorch 基金会的信息</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
+                  <span class="dropdown-title">管理委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">云信用计划</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">技术顾问委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">员工</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">联系我们</span><p></p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li class="main-menu-item">
+            <div class="no-dropdown">
+              <a href="https://pytorch.org/join" data-cta="join">成为会员</a>
+            </div>
+          </li>
+          <li>
+           <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="github-icon">
+             </a>
+           </div>
+          </li>
+          <!--- TODO: This block adds the search icon to the nav bar. We will enable it later. 
+          <li>
+            <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="search-icon">
+             </a>
+            </div>
+          </li>
+          --->
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+  </div>
+</div>
+
+
+
+   
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>目录</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+    <div class="version">
+      <a href="https://pytorch.org/docs/versions.html">主页 (2.7.0+cpu ) ▼</a>
+    </div>
+    <div id="searchBox">
+    <div class="searchbox" id="googleSearchBox">
+      <script async="" src="https://cse.google.com/cse.js?cx=e65585f8c3ea1440e"></script>
+      <div class="gcse-search"></div>
+    </div>
+    <div id="sphinxSearchBox" style="display: none;">
+      <div role="search">
+        <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+          <input type="text" name="q" placeholder="Search Docs">
+          <input type="hidden" name="check_keywords" value="yes">
+          <input type="hidden" name="area" value="default">
+        </form>
+      </div>
+    </div>
+  </div>
+  <form id="searchForm">
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="google" checked="">Google 搜索</label>
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="sphinx">经典搜索</label>
+  </form>
+
+  <script>
+     document.addEventListener('DOMContentLoaded', function() {
+      const searchForm = document.getElementById('searchForm');
+      const googleSearchBox = document.getElementById('googleSearchBox');
+      const sphinxSearchBox = document.getElementById('sphinxSearchBox');
+      // Function to toggle search box visibility
+      function toggleSearchBox(searchType) {
+        googleSearchBox.style.display = searchType === 'google' ? 'block' : 'none';
+        sphinxSearchBox.style.display = searchType === 'sphinx' ? 'block' : 'none';
+      }
+      // Determine the default search type
+      let defaultSearchType;
+      const currentUrl = window.location.href;
+      if (currentUrl.startsWith('https://pytorch.org/docs/stable')) {
+        // For the stable documentation, default to Google
+        defaultSearchType = localStorage.getItem('searchType') || 'google';
+      } else {
+        // For any other version, including docs-preview, default to Sphinx
+        defaultSearchType = 'sphinx';
+      }
+      // Set the default search type
+      document.querySelector(`input[name="searchType"][value="${defaultSearchType}"]`).checked = true;
+      toggleSearchBox(defaultSearchType);
+      // Event listener for changes in search type
+      searchForm.addEventListener('change', function(event) {
+        const selectedSearchType = event.target.value;
+        localStorage.setItem('searchType', selectedSearchType);
+        toggleSearchBox(selectedSearchType);
+      });
+      // Set placeholder text for Google search box
+      window.onload = function() {
+        var placeholderText = "Search Docs";
+        var googleSearchboxText = document.querySelector("#gsc-i-id1");
+        if (googleSearchboxText) {
+          googleSearchboxText.placeholder = placeholderText;
+          googleSearchboxText.style.fontFamily = 'FreightSans';
+          googleSearchboxText.style.fontSize = "1.2rem";
+          googleSearchboxText.style.color = '#262626';
+        }
+      };
+    });
+  </script>
+
+          </div>
+
+          
+
+<div>
+  <a style="color:#F05732" href="https://pytorch.org/docs/stable/_modules/torch/autograd/function.html">您正在查看不稳定开发者预览文档。请点击此处查看最新稳定版本的文档。</a>
+</div>
+
+
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">社区</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../community/build_ci_governance.html">PyTorch 治理 | 构建 + CI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../community/contribution_guide.html">PyTorch 贡献指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../community/design.html">PyTorch 设计哲学</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../community/governance.html">PyTorch 治理 | 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../community/persons_of_interest.html">PyTorch 治理 | 维护者</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发者笔记</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/amp_examples.html">自动混合精度示例</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/autograd.html">Autograd 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/broadcasting.html">广播语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/cpu_threading_torchscript_inference.html">CPU 线程和 TorchScript 推理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/cuda.html">CUDA 语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/custom_operators.html">PyTorch 自定义操作着陆页面</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/ddp.html">分布式数据并行</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/extending.html">扩展 PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/extending.func.html">扩展 torch.func 与 autograd.Function</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/faq.html">常见问题</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/fsdp.html">FSDP 笔记</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/get_start_xpu.html">在英特尔 GPU 上入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/gradcheck.html">毕业审核力学</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/hip.html">HIP (ROCm) 语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/large_scale_deployments.html">大规模部署功能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/libtorch_stable_abi.html">LibTorch 稳定 ABI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/modules.html">模块</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/mps.html">MPS 后端</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/multiprocessing.html">多进程最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/numerical_accuracy.html">数值精度</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/randomness.html">可复现性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/serialization.html">序列化语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/windows.html">Windows 常见问题解答</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">语言绑定</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../cpp_index.html">C++</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/javadoc/">Javadoc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../deploy.html">torch::deploy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../torch.html">torch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nn.html">torch.nn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nn.functional.html">torch.nn.functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tensors.html">torch.Tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tensor_attributes.html">Tensor 属性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tensor_view.html">张量视图</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../amp.html">torch.amp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autograd.html">torch.autograd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../library.html">torch.library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../accelerator.html">torch 加速器</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cpu.html">torch.cpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cuda.html">torch.cuda</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../torch_cuda_memory.html">理解 CUDA 内存使用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../torch_cuda_memory.html#generating-a-snapshot">生成快照</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../torch_cuda_memory.html#using-the-visualizer">使用可视化器</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../torch_cuda_memory.html#snapshot-api-reference">快照 API 参考</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../mps.html">torch.mps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../xpu.html">torch.xpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../mtia.html">torch.mtia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../mtia.memory.html">torch.mtia.memory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../meta.html">元设备</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../backends.html">torch.backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../export.html">torch.export</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../distributed.html">torch.distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../distributed.tensor.html">torch.distributed.tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../distributed.algorithms.join.html">torch.distributed.algorithms.join</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../distributed.elastic.html">torch.distributed.elastic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../fsdp.html">torch.distributed.fsdp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../distributed.fsdp.fully_shard.html">torch.distributed.fsdp.fully_shard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../distributed.tensor.parallel.html">torch.distributed.tensor.parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../distributed.optim.html">torch.distributed.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../distributed.pipelining.html">torch.distributed.pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../distributed.checkpoint.html">torch.distributed.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../distributions.html">torch.distributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../torch.compiler.html">torch.compiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../fft.html">torch.fft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../func.html">torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../futures.html">torch.futures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../fx.html">torch.fx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../fx.experimental.html">torch.fx.experimental</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../hub.html">torch.hub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../jit.html">torch.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../linalg.html">torch.linalg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../monitor.html">torch.monitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../signal.html">torch.signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../special.html">torch.special</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../torch.overrides.html">torch.overrides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../package.html">torch.package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../profiler.html">torch.profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nn.init.html">torch.nn.init</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nn.attention.html">torch.nn.attention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../onnx.html">torch.onnx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../optim.html">torch.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../complex_numbers.html">复数</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ddp_comm_hooks.html">DDP 通信钩子</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quantization.html">量化</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../rpc.html">分布式 RPC 框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../random.html">torch.random</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../masked.html">torch.masked</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nested.html">torch.nested</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../size.html">torch.Size</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sparse.html">torch.sparse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../storage.html">torch 存储</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../testing.html">torch.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils.html">torch.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../benchmark_utils.html">torch.utils.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bottleneck.html">torch.utils.bottleneck</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../checkpoint.html">torch.utils.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cpp_extension.html">torch.utils.cpp_extension</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../data.html">torch.utils.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../deterministic.html">torch.utils.deterministic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../jit_utils.html">torch.utils.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dlpack.html">torch.utils.dlpack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../mobile_optimizer.html">torch.utils.mobile_optimizer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../model_zoo.html">torch.utils.model_zoo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tensorboard.html">torch.utils.tensorboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_tracker.html">torch.utils.module_tracker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../type_info.html">类型信息</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../named_tensor.html">命名张量</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../name_inference.html">命名张量操作覆盖率</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../config_mod.html">torch.__config__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../future_mod.html">torch.__future__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../logging.html">torch._logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../torch_environment_variables.html">火炬环境变量</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">图书馆</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/audio/stable">torchaudio</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/data">TorchData</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/torchrec">火炬推荐</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/serve">TorchServe</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/text/stable">torchtext</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/vision/stable">torchvision</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/xla/">PyTorch 在 XLA 设备上</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/ao">torchao</a></li>
+</ul>
+
+            
+          
+
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        文档 &gt;</li>
+
+        
+          <li>模块代码 &gt;</li>
+        
+          <li><a href="../../torch.html">torch</a> &gt;</li>
+        
+          <li><a href="../autograd.html">torch.autograd</a> &gt;</li>
+        
+      <li>torch.autograd.function</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">快捷键</div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+
+          <!-- Google Tag Manager (noscript) -->
+          <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T8XT4PS" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+          <!-- End Google Tag Manager (noscript) -->
+          
+          <div class="rst-content">
+          
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <h1>torch.autograd.function 源代码</font></font></font></h1><div class="highlight"><pre><span></span><span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># mypy: 允许未类型化定义</span>
+<span class="kn">导入</span> <span class="nn">functools</span>
+<span class="kn">导入</font></font></font></span> <span class="nn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">检查</span>
+<span class="kn">导入</span> <span class="nn">itertools</span>
+<span class="kn">导入</font></font></font></span> <span class="nn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">警告</span>
+<span class="kn">来自</font></font></font></span> <span class="nn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">集合</font></font></font></span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</span> <span class="n">OrderedDict</span>
+<span class="kn">来自</font></font></font></span> <span class="nn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">打字</font></font></font></span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">任何</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">可选</span>
+<span class="kn">来自</font></font></font></span> <span class="nn">typing_extensions</span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">已弃用</span>
+
+<span class="kn">导入</font></font></font></span> <span class="nn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</span>
+<span class="kn">导入</span> <span class="nn">torch._C</span> <span class="k">as</span> <span class="nn">_C</span>
+<span class="kn">导入</span> <span class="nn">torch._functorch</span> <span class="k">as</span> <span class="nn">_functorch</span>
+<span class="kn">导入</font></font></font></span> <span class="nn">torch.utils.hooks</span> <span class="k">as</span> <span class="nn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">钩子</span>
+<span class="kn">来自</font></font></font></span> <span class="nn">torch._C</span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">函数</span>
+<span class="kn">来自</font></font></font></span> <span class="nn">torch._functorch.autograd_function</span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">自定义函数调用</span>
+
+
+<span class="n">全部</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">函数上下文</span><span class="p">,</span>
+    <span class="s2">向后 C 函数</span><span class="p">,</span>
+    <span class="s2">"功能元"</span><span class="p">,</span>
+    <span class="s2">"功能"</span><span class="p">,</span>
+    <span class="s2">"一次可微分"</span><span class="p">,</span>
+    <span class="s2">"就地函数"</span><span class="p">,</span>
+    <span class="s2">"嵌套 IO 函数"</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="c1"># 每个继承自 Function 的类的唯一 ID 提供者</span>
+<span class="c1"># 在类定义期间在 FunctionMeta 中递增</span>
+<span class="n">AUTOGRAD_FUNCTION_COUNTER</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">数量</span><span class="p">()</span>
+
+
+<span class="c1"># 之前称为：_ContextMethodMixin</span>
+<span class="k">类</font></font></font></span> <span class="nc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">函数上下文</span><span class="p">:</span>
+<div class="viewcode-block" id="FunctionCtx.save_for_backward"><a class="viewcode-back" href="../../../generated/torch.autograd.function.FunctionCtx.save_for_backward.html#torch.autograd.FunctionCtx.save_for_backward">[文档]</font></font></font></a>    <span class="k">def</span> <span class="nf"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">保存用于回放</font></font></font></span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">将给定的张量保存以供后续调用 :func:`~Function.backward`。</span>
+
+<span class="sd">``save_for_backward`` 应最多调用一次，在 :func:`setup_context` 或 :func:`forward` 方法中，并且仅针对张量。</span>
+<span class="sd">所有打算在反向传播中使用的张量都应该被保存。</span>
+
+<span class="sd">所有打算在反向传播中使用的张量都应该被保存。</span>
+<span class="sd">使用 `save_for_backward`（而不是直接在 `ctx` 上）来防止</span>
+<span class="sd">不正确的梯度计算和内存泄漏，并启用保存张量的钩子应用。</span>
+<span class="sd">查看 :class:`torch.autograd.graph.saved_tensors_hooks`。</span>
+
+<span class="sd">注意，如果中间张量，即既不是输入也不是输出的张量</span>
+<span class="sd">forward 函数的输出在反向传播时不会被保存，您的自定义函数</span>
+<span class="sd">可能不支持双重反向传播。</span>
+<span class="sd">不支持双重反向传播的自定义函数应该使用 ``@once_differentiable`` 装饰其</span>
+<span class="sd">backward 方法，以便执行</span>
+<span class="sd">双向求导会引发错误。如果您想支持双向求导，</span>
+<span class="sd">您可以选择根据输入在反向过程中重新计算中间变量，</span>
+<span class="sd">或者将中间变量作为自定义函数的输出返回。请参阅 `双向求导教程 `_</span>
+<span class="sd">`双向求导教程 `_</span>
+<span class="sd">更多详情请查看。</span>
+
+<span class="sd">在 :func:`backward` 函数中，可以通过 :attr:`saved_tensors` 属性访问保存的张量。</span>
+<span class="sd">在将它们返回给用户之前，会进行检查以确保它们没有被用于任何修改其内容的就地操作。</span>
+<span class="sd">属性。在返回之前，会检查它们是否被用于任何修改其内容的就地操作。</span>
+
+<span class="sd">参数也可以是 `None`。这是一个无操作。</span>
+
+<span class="sd">更多关于如何使用此方法的详细信息，请参阅 :ref:`扩展 autograd`。</span>
+
+<span class="sd">示例::</span>
+<span class="sd">            &gt;&gt;&gt; # xdoctest: +REQUIRES(env:TORCH_DOCTEST_AUTOGRAD)</span>
+<span class="sd">            &gt;&gt;&gt; class Func(Function):</span>
+<span class="sd">            &gt;&gt;&gt;     @staticmethod</span>
+<span class="sd">            &gt;&gt;&gt;     def forward(ctx, x: torch.Tensor, y: torch.Tensor, z: int):</span>
+<span class="sd">            &gt;&gt;&gt;         w = x * z</span>
+<span class="sd">            &gt;&gt;&gt;         out = x * y + y * z + w * y</span>
+<span class="sd">            &gt;&gt;&gt;         ctx.save_for_backward(x, y, w, out)</span>
+<span class="sd">&gt;&gt;&gt;         ctx.z = z  # z 不是张量</span>
+<span class="sd">            &gt;&gt;&gt;         return out</span>
+<span class="sd">...</span>
+<span class="sd">            &gt;&gt;&gt;     @staticmethod</span>
+<span class="sd">            &gt;&gt;&gt;     @once_differentiable</span>
+<span class="sd">            &gt;&gt;&gt;     def backward(ctx, grad_out):</span>
+<span class="sd">            &gt;&gt;&gt;         x, y, w, out = ctx.saved_tensors</span>
+<span class="sd">            &gt;&gt;&gt;         z = ctx.z</span>
+<span class="sd">            &gt;&gt;&gt;         gx = grad_out * (y + y * z)</span>
+<span class="sd">            &gt;&gt;&gt;         gy = grad_out * (x + z + w)</span>
+<span class="sd">            &gt;&gt;&gt;         gz = None</span>
+<span class="sd">            &gt;&gt;&gt;         return gx, gy, gz</span>
+<span class="sd">...</span>
+<span class="sd">            &gt;&gt;&gt; a = torch.tensor(1., requires_grad=True, dtype=torch.double)</span>
+<span class="sd">            &gt;&gt;&gt; b = torch.tensor(2., requires_grad=True, dtype=torch.double)</span>
+<span class="sd">            &gt;&gt;&gt; c = 4</span>
+<span class="sd">            &gt;&gt;&gt; d = Func.apply(a, b, c)</span>
+
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">保存</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</span></div>
+
+    <span class="k">def</span> <span class="nf">保存以供转发</font></font></font></span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">将给定的张量保存，以供将来调用 :func:`~Function.jvp` 的调用。</span>
+
+<span class="sd">``save_for_forward`` 应最多调用一次，无论是在 ...</span>
+<span class="sd">`setup_context` 或 `forward` 方法，以及所有参数</span>
+<span class="sd">应该是张量。</span>
+
+<span class="sd">在 `jvp` 中，可以通过 `saved_tensors` 属性访问已保存的对象。</span>
+<span class="sd">属性。</span>
+
+<span class="sd">参数也可以是 `None`。这是一个无操作。</span>
+
+<span class="sd">更多关于如何使用此方法的详细信息，请参阅 :ref:`扩展 autograd`。</span>
+
+<span class="sd">示例::</span>
+<span class="sd">            &gt;&gt;&gt; # xdoctest: +SKIP</span>
+<span class="sd">            &gt;&gt;&gt; class Func(torch.autograd.Function):</span>
+<span class="sd">            &gt;&gt;&gt;     @staticmethod</span>
+<span class="sd">            &gt;&gt;&gt;     def forward(ctx, x: torch.Tensor, y: torch.Tensor, z: int):</span>
+<span class="sd">            &gt;&gt;&gt;         ctx.save_for_backward(x, y)</span>
+<span class="sd">            &gt;&gt;&gt;         ctx.save_for_forward(x, y)</span>
+<span class="sd">            &gt;&gt;&gt;         ctx.z = z</span>
+<span class="sd">&gt;&gt;&gt;         返回 x * y * z</span>
+<span class="sd">...</span>
+<span class="sd">            &gt;&gt;&gt;     @staticmethod</span>
+<span class="sd">            &gt;&gt;&gt;     def jvp(ctx, x_t, y_t, _):</span>
+<span class="sd">            &gt;&gt;&gt;         x, y = ctx.saved_tensors</span>
+<span class="sd">            &gt;&gt;&gt;         z = ctx.z</span>
+<span class="sd">            &gt;&gt;&gt;         return z * (y * x_t + x * y_t)</span>
+<span class="sd">...</span>
+<span class="sd">            &gt;&gt;&gt;     @staticmethod</span>
+<span class="sd">            &gt;&gt;&gt;     def vjp(ctx, grad_out):</span>
+<span class="sd">            &gt;&gt;&gt;         x, y = ctx.saved_tensors</span>
+<span class="sd">            &gt;&gt;&gt;         z = ctx.z</span>
+<span class="sd">            &gt;&gt;&gt;         return z * grad_out * y, z * grad_out * x, None</span>
+<span class="sd">...</span>
+<span class="sd">            &gt;&gt;&gt;     a = torch.tensor(1., requires_grad=True, dtype=torch.double)</span>
+<span class="sd">            &gt;&gt;&gt;     t = torch.tensor(1., dtype=torch.double)</span>
+<span class="sd">            &gt;&gt;&gt;     b = torch.tensor(2., requires_grad=True, dtype=torch.double)</span>
+<span class="sd">            &gt;&gt;&gt;     c = 4</span>
+<span class="sd">...</span>
+<span class="sd">            &gt;&gt;&gt;     with fwAD.dual_level():</span>
+<span class="sd">            &gt;&gt;&gt;         a_dual = fwAD.make_dual(a, t)</span>
+<span class="sd">            &gt;&gt;&gt;         d = Func.apply(a_dual, b, c)</span>
+
+<span class="sd">        """</span>
+        <span class="k">for</span> <span class="n">张量</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</span><span class="p">:</span>
+            <span class="k">断言</font></font></font></span> <span class="nb">isinstance</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</font></font></font></span><span class="p">)</span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">或者</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是</font></font></font></span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">,</span> <span class="p">(</span>
+                <span class="s2">"save_for_forward 期望所有参数都是张量；你应该 "</span>
+                <span class="s2">"将非张量作为 ctx 的属性保存。"</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">保存以供转发</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</span>
+
+<div class="viewcode-block" id="FunctionCtx.mark_dirty"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]    def mark_dirty(self, *args: torch.Tensor):
+r"""将给定的张量标记为就地操作中的已修改。
+
+这应该在 :func:`setup_context` 中最多调用一次。
+或：func:`forward` 方法，所有参数应为输入。
+
+每个在调用 :func:`forward` 中就地修改的张量
+应传递给此函数，以确保我们检查的正确性。
+它无关紧要，函数是在调用之前还是之后
+修改。
+
+示例::
+&gt;&gt;&gt; # xdoctest: +REQUIRES(env:TORCH_DOCTEST_AUTOGRAD)
+&gt;&gt;&gt; class Inplace(函数):
+&gt;&gt;&gt; @staticmethod
+&gt;&gt;&gt; def forward(ctx, x):
+&gt;&gt;&gt;         x_npy = x.numpy() # x_npy 与 x 共享存储
+&gt;&gt;&gt;         x_npy += 1
+&gt;&gt;&gt;         ctx.mark_dirty(x)
+&gt;&gt;&gt;         返回 x
+&gt;&gt;&gt;
+&gt;&gt;&gt;     @staticmethod
+&gt;&gt;&gt;     @once_differentiable
+&gt;&gt;&gt;     def backward(ctx, grad_output):
+&gt;&gt;&gt;         return grad_output
+&gt;&gt;&gt;
+&gt;&gt;&gt; a = torch.tensor(1., requires_grad=True, dtype=torch.double).clone()
+&gt;&gt;&gt; b = a * a
+&gt;&gt;&gt; Inplace.apply(a)  # 这会导致错误的梯度！
+&gt;&gt;&gt;                   # 但引擎不知道，除非我们标记为脏
+&gt;&gt;&gt; # xdoctest: +SKIP
+&gt;&gt;&gt; b.backward() # 运行时错误：所需的变量之一在就地操作中被修改以进行梯度计算
+&gt;&gt;&gt;              # 计算过程中所需的变量已被就地操作修改
+
+"""
+self.dirty_tensors = args</font></font></font></div>
+
+    <span class="nd">@deprecated</span><span class="p">(</span>
+        <span class="s2">"`mark_shared_storage` 已弃用。"</span>
+        <span class="s2">具有共享存储的张量会自动跟踪。</span>
+        <span class="s2">注意，对 `set_()` 的调用不会被跟踪。</span><span class="p">,</span>
+        <span class="n">分类</font></font></font></span><span class="o">=</span><span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">未来警告</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">def</span> <span class="nf">mark_shared_storage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">pairs</span><span class="p">):</span>
+        <span class="k">通过</span>
+
+<div class="viewcode-block" id="FunctionCtx.mark_non_differentiable"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]    def mark_non_differentiable(self, *args: torch.Tensor):
+r"""标记输出为不可微分。
+
+这应该在 :func:`setup_context` 中最多调用一次，
+或：func:`forward` 方法，所有参数应为张量输出。
+
+这将标记输出不需要梯度，增加
+反向计算的效率。您仍然需要接受梯度
+对于每个输出在：:meth:`~Function.backward`中，但它始终会
+与相应输出的形状相同的零张量
+例如，用于从排序中返回的索引。请参见示例：
+
+这用于例如从排序中返回的索引。请参见示例：
+class Func(Function):
+&gt;&gt;&gt; @staticmethod
+&gt;&gt;&gt; def forward(ctx, x):
+&gt;&gt;&gt; sorted, idx = x.sort()
+&gt;&gt;&gt; ctx.mark_non_differentiable(idx)
+&gt;&gt;&gt;         ctx.save_for_backward(x, idx)
+&gt;&gt;&gt;         return sorted, idx
+&gt;&gt;&gt;
+&gt;&gt;&gt;     @staticmethod
+&gt;&gt;&gt; @once_differentiable
+&gt;&gt;&gt; def backward(ctx, g1, g2):  # 仍然需要接受 g2
+&gt;&gt;&gt;         x, idx = ctx.saved_tensors
+&gt;&gt;&gt;         grad_input = torch.zeros_like(x)
+&gt;&gt;&gt; grad_input.index_add_(0, idx, g1)
+&gt;&gt;&gt; return grad_input
+
+"""
+self.non_differentiable = args</font></font></font></div>
+
+<div class="viewcode-block" id="FunctionCtx.set_materialize_grads"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]    def set_materialize_grads(self, value: bool):
+r"""设置是否实例化梯度张量。默认为 ``True``。
+
+应仅从 :func:`setup_context` 或
+func:`forward` 方法中调用。
+
+如果为 ``True``，未定义的梯度张量将被扩展为全零的张量
+在调用 :func:`backward` 和 :func:`jvp` 方法之前。
+
+示例::
+&gt;&gt;&gt; # xdoctest: +REQUIRES(env:TORCH_DOCTEST_AUTOGRAD)
+&gt;&gt;&gt; class SimpleFunc(Function):
+&gt;&gt;&gt;     @staticmethod
+&gt;&gt;&gt;     def forward(ctx, x):
+&gt;&gt;&gt;         return x.clone(), x.clone()
+&gt;&gt;&gt;
+&gt;&gt;&gt; @staticmethod
+&gt;&gt;&gt; @once_differentiable
+&gt;&gt;&gt; def backward(ctx, g1, g2):
+&gt;&gt;&gt; 返回 g1 + g2  # 无需检查 None
+&gt;&gt;&gt;
+&gt;&gt;&gt; 我们修改 SimpleFunc 以处理非物化梯度输出
+&gt;&gt;&gt; class Func(Function):
+&gt;&gt;&gt; @staticmethod
+&gt;&gt;&gt; def forward(ctx, x):
+&gt;&gt;&gt; ctx.set_materialize_grads(False)
+&gt;&gt;&gt; ctx.save_for_backward(x)
+&gt;&gt;&gt;         返回 x 的克隆，x 的克隆
+&gt;&gt;&gt;
+&gt;&gt;&gt;     @staticmethod
+&gt;&gt;&gt;     @once_differentiable
+&gt;&gt;&gt;     def backward(ctx, g1, g2):
+&gt;&gt;&gt;         x, = ctx.saved_tensors
+&gt;&gt;&gt;         grad_input = torch.zeros_like(x)
+&gt;&gt;&gt;         if g1 is not None:  # 我们现在必须检查 None
+&gt;&gt;&gt; grad_input += g1
+&gt;&gt;&gt; 如果 g2 不为 None：
+&gt;&gt;&gt; grad_input += g2
+&gt;&gt;&gt; 返回 grad_input
+&gt;&gt;&gt;
+&gt;&gt;&gt; a = torch.tensor(1., requires_grad=True)
+&gt;&gt;&gt; b, _ = Func.apply(a)  # 诱导 g2 未定义
+
+"""
+self.materialize_grads = value</font></font></font></div>
+
+
+<span class="c1"># DO NOT USE: 仅用于加载旧序列化模型</span>
+<span class="n">_ContextMethodMixin</span> <span class="o">=</span> <span class="n">函数上下文</span>
+
+
+<span class="k">类</span> <span class="nc">_HookMixin</span><span class="p">:</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_register_hook</span><span class="p">(</span><span class="n">后退钩子</span><span class="p">,</span> <span class="n">hook</span><span class="p">):</span>
+        <span class="k">如果</font></font></font></span> <span class="n">backward_hooks</span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是</font></font></font></span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">:</span>
+            <span class="n">backward_hooks</span> <span class="o">=</span> <span class="n">有序字典</span><span class="p">()</span>
+        <span class="n">handle</span> <span class="o">=</span> <span class="n">钩子</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">可移除句柄</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">后退钩子</span><span class="p">)</span>
+        <span class="n">后退钩子</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">处理</font></font></font></span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">钩子</span>
+        <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">后退钩子</span><span class="p">,</span> <span class="n">handle</span>
+
+
+<div class="viewcode-block" id="BackwardCFunction"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]类 BackwardCFunction(_C._FunctionBase, FunctionCtx, _HookMixin):
+r"""
+这个类用于内部自动微分工作。请勿使用。
+"""
+
+</font></font></font><div class="viewcode-block" id="BackwardCFunction.apply"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]    def apply(self, *args):
+r"""
+应用在执行此节点时使用的反向方法
+```python
+# 输入文本
+input_text = '"""'
+
+# 翻译函数（此处为示例，实际翻译功能需调用真实的翻译 API）
+def translate_to_simplified_chinese(text):
+    # 假设的翻译结果
+    return text
+
+# 输出翻译结果
+translated_text = translate_to_simplified_chinese(input_text)
+print(translated_text)
+```
+# _forward_cls 由派生类定义
+用户应定义反向或 vjp，但不能同时定义两者。
+backward_fn = self._forward_cls.backward  # 忽略属性定义
+vjp_fn = self._forward_cls.vjp  # 忽略属性定义
+if backward_fn is not Function.backward and vjp_fn is not Function.vjp:
+raise RuntimeError(
+实现自定义函数的“反向”和“vjp”功能
+不允许同时实现这两个功能。您应该只实现其中一个
+的功能。
+            )
+user_fn = vjp_fn if vjp_fn is not Function.vjp else backward_fn
+return user_fn(self, *args)</font></font></font></div>
+
+<div class="viewcode-block" id="BackwardCFunction.apply_jvp"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]    def apply_jvp(self, *args):
+r"""
+在执行前向模式自动微分时使用的方法
+"""
+# _forward_cls 由派生类定义
+return self._forward_cls.jvp(self, *args)  # 类型：忽略[属性定义]</font></font></font></div>def _compiled_autograd_key(self): return self._forward_cls._compiled_autograd_key(self) # 类型：忽略[属性定义]</div>
+
+
+<span class="k">类</font></font></font></span> <span class="nc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">函数元信息</font></font></font></span><span class="p">(</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类型</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">函数元类。</span>
+
+<span class="sd">这个元类设置了以下属性：</span>
+<span class="sd">_backward_cls：对应于微分操作的函数类</span>
+<span class="sd">此函数的版本（由该函数动态生成）</span>
+<span class="sd">元类</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">类</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</font></font></font></span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">属性</span><span class="p">):</span>
+        <span class="n">backward_fn</span> <span class="o">=</span> <span class="nb">类型</span><span class="p">(</span>
+            <span class="n">名称</font></font></font></span> <span class="o">+</span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">"向后"</font></font></font></span><span class="p">,</span> <span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">向后 C 函数</font></font></font></span><span class="p">,),</span> <span class="p">{</span><span class="s2">"_forward_cls"</span><span class="p">:</span> <span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类</span><span class="p">}</span>
+        <span class="p">)</span>
+        <span class="n">backward_fn</span><span class="o">.</span><span class="n">自动微分函数 ID</font></font></font></span> <span class="o">=</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">下一</font></font></font></span><span class="p">(</span><span class="n">AUTOGRAD_FUNCTION_COUNTER</span><span class="p">)</span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># 类型：忽略[已定义]</span>
+        <span class="n">backward_fn</span><span class="o">.</span><span class="n">_bw_module</span> <span class="o">=</span> <span class="kc">无</font></font></font></span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># 类型：忽略[已定义]</span>
+        <span class="k">如果</font></font></font></span> <span class="nb">getattr</span><span class="p">(</span><span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类</font></font></font></span><span class="p">,</span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_lazy_backward_info</font></font></font></span><span class="p">,</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">):</span>
+            <span class="n">backward_fn</span><span class="o">.</span><span class="n">_bw_module</span> <span class="o">=</span> <span class="bp">类</font></font></font></span><span class="o">.</span><span class="n">_lazy_backward_info</span><span class="o">.</span><span class="n">bw_module</span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># 类型：忽略[已定义]</span>
+        <span class="bp">类</span><span class="o">.</span><span class="n">_backward_cls</span> <span class="o">=</span> <span class="n">backward_fn</span>
+
+        <span class="nb">超级</font></font></font></span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</font></font></font></span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">属性</span><span class="p">)</span>
+
+
+<span class="k">类</font></font></font></span> <span class="nc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">单级函数</span><span class="p">(</span>
+    <span class="n">_C</span><span class="o">.</span><span class="n">_函数基类</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">函数上下文</font></font></font></span><span class="p">,</span> <span class="n">_HookMixin</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">元类</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">函数元信息</span>
+<span class="p">):</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">前向</font></font></font></span><span class="p">(</span><span class="o">*</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">任何</font></font></font></span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">任何</font></font></font></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">任何</span><span class="p">:</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">定义自定义自动微分函数的前向操作。</span>
+
+<span class="sd">此函数必须由所有子类重写。</span>
+<span class="sd">定义前向有两种方式：</span>
+
+<span class="sd">使用 1（组合前向和 ctx）：</span>
+
+<span class="sd">            @staticmethod</span>
+<span class="sd">            def forward(ctx: Any, *args: Any, **kwargs: Any) -&gt; Any:</span>
+<span class="sd">通过</span>
+
+<span class="sd">- 它必须接受一个上下文 ctx 作为第一个参数，后面可以跟任何</span>
+<span class="sd">参数数量（张量或其他类型）。</span>
+<span class="sd">- 更多详情请参阅 :ref:`结合前向上下文`</span>
+
+<span class="sd">使用方法 2（分离前向和 ctx）::</span>
+
+<span class="sd">            @staticmethod</span>
+<span class="sd">            def forward(*args: Any, **kwargs: Any) -&gt; Any:</span>
+<span class="sd">通过</span>
+
+<span class="sd">            @staticmethod</span>
+<span class="sd">            def setup_context(ctx: Any, inputs: Tuple[Any, ...], output: Any) -&gt; None:</span>
+<span class="sd">通过</span>
+
+<span class="sd">前向函数不再接受 ctx 参数。</span>
+<span class="sd">取而代之，您必须重写 :meth:`torch.autograd.Function.setup_context`</span>
+<span class="sd">静态方法来处理设置 ``ctx`` 对象。</span>
+<span class="sd">``output`` 是前向的输出，``inputs`` 是输入的元组</span>
+<span class="sd">到前向的。</span>
+<span class="sd">- 更多详情请参阅 :ref:`extending-autograd`</span>
+
+<span class="sd">上下文可以用来存储任意数据，然后</span>
+<span class="sd">在反向传播过程中检索。张量不应直接存储在 `ctx` 上（尽管这目前没有强制执行，以保持向后兼容）。相反，如果张量打算用于反向传播，则应使用 :func:`ctx.save_for_backward` 保存。</span>
+<span class="sd">直接在 `ctx` 上（尽管这目前没有强制执行，以保持向后兼容）。相反，张量应保存为 :func:`ctx.save_for_backward`，如果它们打算用于反向传播。</span>
+<span class="sd">（尽管这目前没有强制执行，以保持向后兼容）。相反，如果张量打算用于反向传播，则应使用 :func:`ctx.save_for_backward` 保存。</span>
+<span class="sd">如果它们打算用于反向传播，则应使用 :func:`ctx.save_for_backward` 保存。</span>
+<span class="sd">``backward``（等价于 ``vjp``）或 :func:`ctx.save_for_forward`</span>
+<span class="sd">如果它们打算用于 ``jvp``。</span>
+<span class="sd">        """</span>
+        <span class="k">抛出</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">不支持的操作异常</span><span class="p">(</span>
+            <span class="s2">"你必须实现自定义 autograd.Function 的前向函数。"</span>
+        <span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">设置上下文</font></font></font></span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">任何</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入</font></font></font></span><span class="p">:</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">元组</font></font></font></span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">]</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输出</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">任何</font></font></font></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">任何</span><span class="p">:</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">"""定义 autograd.Function 的前向传递有两种方式。</span>
+
+<span class="sd">        Either:</span>
+
+<span class="sd">1. 使用签名 `forward(ctx, *args, **kwargs)` 覆盖 forward。</span>
+<span class="sd">`setup_context` 未被覆盖。设置 ctx 用于 backward 发生在 `forward` 内部。</span>
+<span class="sd">发生在 `forward` 内部。</span>
+<span class="sd">2. 使用签名 `forward(*args, **kwargs)` 覆盖 forward 并</span>
+<span class="sd">覆盖 `setup_context`。设置 ctx 以支持向后操作</span>
+<span class="sd">在 `setup_context` 内部（与在 `forward` 内部相对）</span>
+
+<span class="sd">请参阅 :meth:`torch.autograd.Function.forward` 和 :ref:`extending-autograd` 以获取更多详细信息。</span>
+<span class="sd">        """</span>
+        <span class="k">抛出</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">不支持的操作异常</font></font></font></span><span class="p">(</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">"setup_context 尚未实现。"</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">反向</font></font></font></span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">任何</font></font></font></span><span class="p">,</span> <span class="o">*</span><span class="n">grad_outputs</span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">任何</font></font></font></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">任何</span><span class="p">:</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">定义使用向后模式自动微分对操作进行求导的公式。</span>
+
+<span class="sd">此函数必须由所有子类重写。</span>
+<span class="sd">定义此函数等同于定义 ``vjp`` 函数。</span>
+
+<span class="sd">它必须接受一个上下文 :attr:`ctx` 作为第一个参数，后面可以跟</span>
+<span class="sd">任意多个输出，这些输出与 :func:`forward` 返回的相同（对于非张量输出，将传递 None），</span>
+<span class="sd">逗号分隔，逗号后面可以跟任意多个输出，这些输出与 :func:`forward` 返回的相同（对于非张量输出，将传递 None），</span>
+<span class="sd">应返回与输入数量相同的张量，</span>
+<span class="sd">func:`forward`。每个参数是相对于给定输出的梯度，</span>
+<span class="sd">每个返回值应该是相对于相应输入的梯度。</span>
+<span class="sd">如果一个输入不是张量，或者是一个非张量的张量，</span>
+<span class="sd">需要梯度时，您可以为该输入传递 None 作为梯度。</span>
+
+<span class="sd">上下文可以用来检索在正向传播过程中保存的张量</span>
+<span class="sd">通过。它还有一个属性：:attr:`ctx.needs_input_grad` 作为元组</span>
+<span class="sd">表示每个输入是否需要梯度的布尔值。例如：</span>
+<span class="sd">`:func:`backward` 将设置 `ctx.needs_input_grad[0] = True`，如果 `:func:`forward` 的第一个输入需要计算关于输出的梯度。</span>
+<span class="sd">第一个输入需要计算关于输出的梯度。</span>
+<span class="sd">您必须实现 `backward` 或 `vjp` 方法之一。</span>
+<span class="sd">        """</span>
+        <span class="k">抛出</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">不支持的操作异常</span><span class="p">(</span>
+            <span class="s2">"你必须实现 `backward` 或 `vjp` 方法之一。"</span>
+            <span class="s2">"自定义 autograd.Function 以使用它进行反向传播"</span>
+            <span class="s2">"模式 AD。"</span>
+        <span class="p">)</span>
+
+    <span class="c1"># vjp 和 backward 是彼此的别名</span>
+    <span class="n">vjp</span> <span class="o">=</span> <span class="n">向后</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">jvp</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">任何</font></font></font></span><span class="p">,</span> <span class="o">*</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">梯度输入</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">任何</font></font></font></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">任何</span><span class="p">:</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">定义使用前向模式自动微分进行操作微分的公式。</span>
+
+<span class="sd">此函数必须由所有子类重写。</span>
+<span class="sd">它必须接受一个上下文 :attr:`ctx` 作为第一个参数，后面可以跟</span>
+<span class="sd">如 :func:`forward` 所获得的那么多输入（将传递 None）</span>
+<span class="sd">对于前向函数的非张量输入），</span>
+<span class="sd">应返回与输出数量相同的张量，</span>
+<span class="sd">func:`forward`。每个参数是相对于给定输入的梯度，</span>
+<span class="sd">每个返回值应该是相对于相应输入的梯度。</span>
+<span class="sd">相应的输出。如果输出不是张量或者该函数对输出不可微分，你可以为该输入传递 None 作为梯度。</span>
+<span class="sd">你可以使用：attr：`ctx`对象从正向传递任何值到这个函数。</span>
+<span class="sd">你可以传递 None 作为该输入的梯度。</span>
+
+<span class="sd">你可以使用：attr：`ctx`对象从正向传递任何值到这个函数。</span>
+<span class="sd">函数。</span>
+<span class="sd">        """</span>
+        <span class="k">抛出</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">不支持的操作异常</span><span class="p">(</span>
+            <span class="s2">您必须实现自定义的 jvp 函数</span>
+            <span class="s2">自动微分的前向模式 AD 使用的 autograd.Function。</span>
+        <span class="p">)</span>
+
+
+<div class="viewcode-block" id="Function"><a class="viewcode-back" href="../../../autograd.html#torch.autograd.Function">[文档]</font></font></font></a><span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类</font></font></font></span> <span class="nc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">函数</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">单级函数</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">基础类，用于创建自定义 `autograd.Function`。</span>
+
+<span class="sd">创建自定义 `autograd.Function`，继承此类并实现</span>
+<span class="sd">the :meth:`forward` 和 :meth:`backward` 静态方法。然后，为了使用您的自定义</span>
+<span class="sd">在正向传播中，调用类的 ``apply`` 方法。不要调用</span>
+<span class="sd">直接使用 :meth:`forward` 方法。</span>
+
+<span class="sd">确保正确性和最佳性能，请确保您正在调用正确的</span>
+<span class="sd">``ctx`` 上的正确方法，并使用 :func:`torch.autograd.gradcheck` 验证您的反向函数。</span>
+<span class="sd">使用 :func:`torch.autograd.gradcheck` 验证您的反向函数。</span>
+
+<span class="sd">查看更多关于如何使用此类的详细信息，请参阅：:ref:`extending-autograd`。</span>
+
+<span class="sd">示例：</span>
+
+<span class="sd">        &gt;&gt;&gt; # xdoctest: +REQUIRES(env:TORCH_DOCTEST_AUTOGRAD)</span>
+<span class="sd">        &gt;&gt;&gt; class Exp(Function):</span>
+<span class="sd">        &gt;&gt;&gt;     @staticmethod</span>
+<span class="sd">        &gt;&gt;&gt;     def forward(ctx, i):</span>
+<span class="sd">        &gt;&gt;&gt;         result = i.exp()</span>
+<span class="sd">        &gt;&gt;&gt;         ctx.save_for_backward(result)</span>
+<span class="sd">        &gt;&gt;&gt;         return result</span>
+<span class="sd">...</span>
+<span class="sd">        &gt;&gt;&gt;     @staticmethod</span>
+<span class="sd">        &gt;&gt;&gt;     def backward(ctx, grad_output):</span>
+<span class="sd">        &gt;&gt;&gt;         result, = ctx.saved_tensors</span>
+<span class="sd">        &gt;&gt;&gt;         return grad_output * result</span>
+<span class="sd">...</span>
+<span class="sd">&gt;&gt;&gt; # 使用它，请调用 apply 方法：</span>
+<span class="sd">        &gt;&gt;&gt; # xdoctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; output = Exp.apply(input)</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">参数</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">警告</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">警告</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">类</font></font></font></span><span class="si">}</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">应该不被实例化。自动微分函数的方法</span>
+            <span class="s2">都是静态的，所以你应该在类本身上调用它们。</span>
+            <span class="s2">实例化一个 autograd 函数将引发一个</span>
+            <span class="s2">错误出现在 PyTorch 的将来版本中。</span><span class="p">,</span>
+            <span class="ne">弃用警告</span><span class="p">,</span>
+            <span class="n">栈级别</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__调用__</font></font></font></span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">抛出</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">运行时错误</span><span class="p">(</span>
+            <span class="s2">遗留的具有非静态前向方法的 autograd 函数已弃用。</span>
+            <span class="s2">请使用具有静态前向方法的新的 autograd 函数。</span>
+            <span class="s2">"(示例：https://pytorch.org/docs/stable/autograd.html#torch.autograd.Function)"</span>
+        <span class="p">)</span>
+
+<span class="w">    </span><span class="sd">""</span>
+<span class="sd">指定 PyTorch 是否尝试自动生成布尔值</span>
+<span class="sd">func:`torch.vmap` 对此 autograd.Function 的支持。您可能需要将其设置为</span>
+<span class="sd">仅当此 autograd.Function 的 forward、backward 和 jvp（如果有的话）为 True</span>
+<span class="sd">存在（exist）的函数是用 PyTorch 操作编写的；否则，请覆盖</span>
+<span class="sd">使用 :meth:`torch.autograd.Function.vmap` 添加对 :func:`torch.vmap` 的支持。</span>
+
+<span class="sd">更多详情请参阅 :ref:`func-autograd-function`。</span>
+<span class="sd">    """</span>
+    <span class="n">generate_vmap_rule</span> <span class="o">=</span> <span class="kc">假</span>
+
+<div class="viewcode-block" id="Function.vmap"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]    @staticmethod
+def vmap(info, in_dims, *args):
+在 :func:`torch.vmap` 下定义此 autograd.Function 的行为。
+
+为了使 :func:`torch.autograd.Function` 支持
+`torch.vmap`，你必须重写这个静态方法，或者将`generate_vmap_rule`设置为`True`（你不能两者都做）。
+如果你选择重写这个 staticmethod：它必须接受一个`info`对象作为第一个参数。`info.batch_size`
+
+如果你选择重写这个静态方法：它必须接受
+
+- 一个`info`对象作为第一个参数。`info.batch_size`
+指定了进行 vmapped 的维度大小，
+而 `info.randomness` 是传递给 :func:`torch.vmap` 的随机性选项，
+func:`torch.vmap`。
+- 作为第二个参数的 `in_dims` 元组。
+对于每个 arg 在`args`中，`in_dims`都有一个对应的
+``Optional[int]``. 它是 ``None`` 如果参数不是一个张量或者
+参数没有被映射到虚拟内存中，否则它是一个整数
+指定 Tensor 的哪个维度正在被 vmapped。
+`*args` 与 :meth:`~Function.forward` 的参数相同。
+
+vmap 静态方法的返回值是一个 `(output, out_dims)` 的元组。
+与 `in_dims` 类似，`out_dims` 应该与 `output` 具有相同的结构。
+`output` 和包含一个 `out_dim` 的结构，每个 `out_dim` 指定每个输出是否
+输出具有 vmapped 维度及其索引。
+
+请参阅：:ref:`func-autograd-function` 了解更多详情。
+```python
+# 输入文本
+input_text = '"""'
+
+# 翻译函数（此处为示例，实际翻译功能需调用真实的翻译 API）
+def translate_to_simplified_chinese(text):
+    # 假设的翻译结果
+    return text
+
+# 输出翻译结果
+translated_text = translate_to_simplified_chinese(input_text)
+print(translated_text)
+```
+引发未实现错误(NotImplementedError)
+使用 autograd.Function 与 vmap 一起使用时，你必须要么覆盖 "
+vmap 静态方法或设置 generate_vmap_rule=True。
+        )</font></font></font></div>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">应用</font></font></font></span><span class="p">(</span><span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类</font></font></font></span><span class="p">,</span> <span class="o">*</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">绑定默认参数</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">函数</font></font></font></span><span class="p">,</span> <span class="o">*</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">签名</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">检查</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">签名</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">函数</span><span class="p">)</span>
+            <span class="n">绑定参数</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">签名</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">绑定</font></font></font></span><span class="p">(</span><span class="o">*</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">绑定参数</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">应用默认值</span><span class="p">()</span>
+
+            <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">绑定参数</span><span class="o">.</span><span class="n">args</span>
+
+        <span class="n">是否已定义设置上下文</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_是否已定义设置上下文</font></font></font></span><span class="p">(</span><span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">设置上下文</span><span class="p">)</span>
+        <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是否已定义设置上下文</span><span class="p">:</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="n">绑定默认参数</font></font></font></span><span class="p">(</span><span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">前向</font></font></font></span><span class="p">,</span> <span class="o">*</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">如果</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">不</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</font></font></font></span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">都是 functorch 转换激活</span><span class="p">():</span>
+            <span class="c1"># 注意：[functorch vjp 和 autograd 交互]</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="n">_functorch</span><span class="o">.</span><span class="n">工具</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">解包无效包装器</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="p">)</span>
+            <span class="k">返回</font></font></font></span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">超级</font></font></font></span><span class="p">()</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">应用</font></font></font></span><span class="p">(</span><span class="o">*</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</font></font></font></span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># 类型：忽略[杂项]</span>
+
+        <span class="k">如果</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">不</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是否已定义设置上下文</span><span class="p">:</span>
+            <span class="k">抛出</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">运行时错误</span><span class="p">(</span>
+                <span class="s2">为了使用 functorch 转换与 autograd.Function 一起</span>
+                <span class="s2">(vmap, grad, jvp, jacrev, ...), 必须重写 setup_context</span>
+                <span class="s2">staticmethod. 更多详情，请参阅</span>
+                <span class="s2">https://pytorch.org/docs/main/notes/扩展.func.html</span>
+            <span class="p">)</span>
+
+        <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">自定义函数调用</font></font></font></span><span class="p">(</span><span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类</font></font></font></span><span class="p">,</span> <span class="o">*</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_编译自动微分键</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+        <span class="k">返回</font></font></font></span> <span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_自动微分函数 ID</span><span class="p">,)</span></div>
+
+
+<span class="k">def</span> <span class="nf">_是否已定义设置上下文</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">函数</span><span class="p">):</span>
+    <span class="k">返回</font></font></font></span> <span class="n">fn</span> <span class="o">!=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">单级函数</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">设置上下文</span>
+
+
+<div class="viewcode-block" id="once_differentiable"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]def 一次可微分(fn):
+    @functools.wraps(fn)
+def wrapper(ctx, *args):
+with torch.no_grad():
+outputs = fn(ctx, *args)
+
+if not torch.is_grad_enabled():
+返回输出
+
+如果任何输入具有 requires_grad=True，我们强制输出
+需要具有 requires_grad=True 但指向一个抛出异常的 grad_fn
+# 双向传播过程中的错误信息。
+# XXX：这只是一个对 requires_grad 的近似——没有办法
+# 确定如果 fn 没有使用 ctx.saved_tensors，那么即使没有参数，某些 Tensor 也可能需要梯度。
+# 不幸的是，这会导致意外的错误信息（“没有节点”）
+# “Unfortunately, this leads to unexpected error messages ("no nodes")
+# 需要计算梯度"),但我没有更好的主意。
+这些函数在反向传播中无论如何都会引发错误。
+requires_grad = any(
+isinstance(arg, torch.Tensor) and arg.requires_grad for arg in args
+翻译：arg 属于 torch.Tensor 类型且 arg 需要梯度，对于 args 中的每个 arg
+        )
+如果不需要梯度：
+返回输出
+
+如果输出不是元组类型：
+outputs = (outputs,)
+
+err_fn = _functions.DelayedError(
+尝试对标记了 @once_differentiable 的函数进行两次微分
+with @once_differentiable
+len(outputs),
+        )
+
+# 创建每个需要 requires_grad=True 的输出的别名。我们需要
+# 至少一个输入到 err_fn 需要梯度，以便
+# output will have a grad_fn.
+def fake_requires_grad(var):
+if var is not None:
+var = var.detach()
+var.requires_grad = True
+return var
+
+return err_fn(*[fake_requires_grad(v) for v in outputs])
+
+return wrapper</font></font></font></div>
+
+
+<div class="viewcode-block" id="InplaceFunction"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]class InplaceFunction(Function):
+r"""
+这个类仅为了向后兼容而存在。
+对于任何新的用例，请使用 :class:`Function` 而不是这个。
+"""
+"""
+
+def __init__(self, inplace=False):
+super().__init__()
+self.inplace = inplace</font></font></font></div>
+
+
+<span class="k">def</span> <span class="nf">_nested_map</span><span class="p">(</span><span class="n">condition</span><span class="p">,</span> <span class="n">函数</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">条件消息</font></font></font></span><span class="o">=</span><span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_map</span><span class="p">(</span><span class="n">对象</span><span class="p">):</span>
+        <span class="k">如果</font></font></font></span> <span class="n">condition</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</span><span class="p">):</span>
+            <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">函数</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</span><span class="p">)</span>
+        <span class="k">如果...否则</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是</font></font></font></span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">:</span>
+            <span class="k">返回</font></font></font></span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span>
+        <span class="k">如果...否则</font></font></font></span> <span class="nb">isinstance</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</font></font></font></span><span class="p">,</span> <span class="p">(</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">列表</font></font></font></span><span class="p">,</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">元组</span><span class="p">)):</span>
+            <span class="n">已映射</font></font></font></span> <span class="o">=</span> <span class="p">(</span><span class="n">_map</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</span><span class="p">)</span>
+            <span class="k">如果</font></font></font></span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">有属性</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</font></font></font></span><span class="p">,</span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">"_字段"</span><span class="p">):</span>
+                <span class="c1"># obj 是命名元组</span>
+                <span class="k">返回</font></font></font></span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类型</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</font></font></font></span><span class="p">)(</span><span class="o">*</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">映射</span><span class="p">)</span>
+            <span class="k">返回</font></font></font></span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类型</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</font></font></font></span><span class="p">)(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">映射</span><span class="p">)</span>
+        <span class="k">如果...否则</font></font></font></span> <span class="nb">isinstance</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</font></font></font></span><span class="p">,</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">字典</span><span class="p">):</span>
+            <span class="k">返回</font></font></font></span> <span class="p">{</span><span class="n">x</span><span class="p">:</span> <span class="n">_map</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</font></font></font></span><span class="p">[</span><span class="n">x</span><span class="p">])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</span><span class="p">}</span>
+        <span class="k">否则</span><span class="p">:</span>
+            <span class="k">抛出</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">值错误</span><span class="p">(</span>
+                <span class="s2">"自动嵌套不知道如何处理 "</span>
+                <span class="s2">"一个输入对象类型为"</span>
+                <span class="o">+</span> <span class="n">PyTorch</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类型名</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</span><span class="p">)</span>
+                <span class="o">+</span> <span class="p">(</span>
+                    <span class="s2">"。支持的类型："</font></font></font></span> <span class="o">+</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">条件消息</font></font></font></span> <span class="o">+</span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">"，或它们的列表/元组"</span>
+                    <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">条件消息</span>
+                    <span class="k">否则</font></font></font></span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">请提供需要翻译的文本</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+    <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">地图</span>
+
+
+<span class="k">def</span> <span class="nf">_jit_unwrap_structured</span><span class="p">(</span><span class="n">对象</span><span class="p">):</span>
+    <span class="k">如果</font></font></font></span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">有属性</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</span><span class="p">,</span> <span class="s2">"_jit_unwrap"</span><span class="p">):</span>
+        <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</span><span class="o">.</span><span class="n">_jit_unwrap</span><span class="p">()</span>
+    <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</span>
+
+
+<span class="k">def</span> <span class="nf">迭代过滤</font></font></font></span><span class="p">(</span><span class="n">condition</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">允许未知</font></font></font></span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">条件消息</font></font></font></span><span class="o">=</span><span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">转换</font></font></font></span><span class="o">=</span><span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_迭代</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</span><span class="p">):</span>
+        <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">转换</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">不</font></font></font></span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">:</span>
+            <span class="n">对象</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">转换</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</span><span class="p">)</span>
+        <span class="k">如果</font></font></font></span> <span class="n">condition</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</span><span class="p">):</span>
+            <span class="k">产生</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</span>
+        <span class="k">如果...否则</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是</font></font></font></span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">:</span>
+            <span class="k">返回</span>
+        <span class="k">如果...否则</font></font></font></span> <span class="nb">isinstance</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</font></font></font></span><span class="p">,</span> <span class="p">(</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">列表</font></font></font></span><span class="p">,</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">元组</span><span class="p">)):</span>
+            <span class="k">for</span> <span class="n">o</span> <span class="ow">在</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</span><span class="p">:</span>
+                <span class="k">yield from</span> <span class="n">_迭代</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+        <span class="k">如果...否则</font></font></font></span> <span class="nb">isinstance</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</font></font></font></span><span class="p">,</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">字典</span><span class="p">):</span>
+            <span class="c1">仅接受原始键类型，因此无需检查它们</span>
+            <span class="k">for</span> <span class="n">o</span> <span class="ow">在</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">值</span><span class="p">():</span>
+                <span class="k">yield from</span> <span class="n">_迭代</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+        <span class="k">如果...否则</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">允许未知</span><span class="p">:</span>
+            <span class="k">产生</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</span>
+        <span class="k">否则</span><span class="p">:</span>
+            <span class="k">抛出</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">值错误</span><span class="p">(</span>
+                <span class="s2">"自动嵌套不知道如何处理 "</span>
+                <span class="s2">"一个输入对象类型为"</span>
+                <span class="o">+</span> <span class="n">PyTorch</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类型名</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</span><span class="p">)</span>
+                <span class="o">+</span> <span class="p">(</span>
+                    <span class="s2">"。支持的类型："</font></font></font></span> <span class="o">+</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">条件消息</font></font></font></span> <span class="o">+</span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">"，或它们的列表/元组"</span>
+                    <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">条件消息</span>
+                    <span class="k">否则</font></font></font></span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">请提供需要翻译的文本</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+    <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_迭代</span>
+
+
+<span class="k">def</span> <span class="nf">_unflatten</span><span class="p">(</span><span class="nb">输入</span><span class="p">,</span> <span class="n">proto</span><span class="p">):</span>
+    <span class="c1"># 将列表或元组输入展开成嵌套列表/元组结构</span>
+    <span class="c1"># specified by proto</span>
+    <span class="k">def</span> <span class="nf">unflatten_helper</span><span class="p">(</span><span class="nb">输入</span><span class="p">,</span> <span class="n">proto</span><span class="p">):</span>
+        <span class="n">资源</font></font></font></span><span class="p">:</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">列表</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">可选</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</font></font></font></span><span class="p">]]</span> <span class="o">=</span> <span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入文本为空，请提供需要翻译的文本</span>
+        <span class="k">如果</font></font></font></span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">有属性</font></font></font></span><span class="p">(</span><span class="n">proto</span><span class="p">,</span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_jit_wrap</span><span class="p">):</span>
+            <span class="k">返回</font></font></font></span> <span class="n">proto</span><span class="o">.</span><span class="n">_jit_wrap</span><span class="p">(</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入</span><span class="p">)</span>
+        <span class="k">如果</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">不</font></font></font></span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">proto</span><span class="p">,</span> <span class="p">(</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">列表</font></font></font></span><span class="p">,</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">元组</span><span class="p">)):</span>
+            <span class="k">返回</font></font></font></span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入</font></font></font></span><span class="p">[</span><span class="mi">0</span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">]</font></font></font></span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入</font></font></font></span><span class="p">[</span><span class="mi">1</span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">]</span>
+        <span class="k">for</span> <span class="n">e</span> <span class="ow">在</span> <span class="n">proto</span><span class="p">:</span>
+            <span class="k">如果</font></font></font></span> <span class="n">e</span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是</font></font></font></span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">:</span>
+                <span class="n">资源</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">添加</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="k">否则</span><span class="p">:</span>
+                <span class="n">res_e</span><span class="p">,</span> <span class="nb">输入</font></font></font></span> <span class="o">=</span> <span class="n">unflatten_helper</span><span class="p">(</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+                <span class="n">资源</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">添加</span><span class="p">(</span><span class="n">res_e</span><span class="p">)</span>
+        <span class="k">返回</font></font></font></span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类型</font></font></font></span><span class="p">(</span><span class="n">proto</span><span class="p">)(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">资源</font></font></font></span><span class="p">),</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入</span>
+
+    <span class="k">返回</font></font></font></span> <span class="n">unflatten_helper</span><span class="p">(</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入</font></font></font></span><span class="p">,</span> <span class="n">proto</span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">)]</span><span class="mi">0</span><span class="p">]</span>
+
+
+<span class="n">迭代_jit_values</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">迭代过滤</span><span class="p">(</span>
+    <span class="k">Lambda 函数</font></font></font></span> <span class="n">o</span><span class="p">:</span> <span class="n">o</span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是</font></font></font></span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">或者</font></font></font></span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</font></font></font></span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">值</span><span class="p">),</span>
+    <span class="n">条件消息</font></font></font></span><span class="o">=</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">JIT 的值或 None</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">_iter_tensors</span> <span class="o">=</span> <span class="n">迭代过滤</span><span class="p">(</span>
+    <span class="k">Lambda 函数</font></font></font></span> <span class="n">x</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</span><span class="p">),</span>
+    <span class="n">条件消息</font></font></font></span><span class="o">=</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</span><span class="p">,</span>
+    <span class="n">转换</span><span class="o">=</span><span class="n">_jit_unwrap_structured</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">_iter_tensors_permissive</span> <span class="o">=</span> <span class="n">迭代过滤</span><span class="p">(</span>
+    <span class="k">Lambda 函数</font></font></font></span> <span class="n">x</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</span><span class="p">),</span>
+    <span class="n">允许未知</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">条件消息</font></font></font></span><span class="o">=</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量（宽松）</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">_iter_None_tensors</span> <span class="o">=</span> <span class="n">迭代过滤</span><span class="p">(</span>
+    <span class="k">Lambda 函数</font></font></font></span> <span class="n">o</span><span class="p">:</span> <span class="n">o</span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是</font></font></font></span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">或者</font></font></font></span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</font></font></font></span><span class="p">),</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">条件消息</font></font></font></span><span class="o">=</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">"张量或无"</span>
+<span class="p">)</span>
+<span class="n">_map_tensor_data</span> <span class="o">=</span> <span class="n">_nested_map</span><span class="p">(</span>
+    <span class="k">Lambda 函数</font></font></font></span> <span class="n">x</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</font></font></font></span><span class="p">),</span> <span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">Lambda 函数</font></font></font></span> <span class="n">o</span><span class="p">:</span> <span class="n">o</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数据</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">条件消息</font></font></font></span><span class="o">=</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="NestedIOFunction"><a class="viewcode-back" href="../../../generated/torch.autograd.function.NestedIOFunction.html#torch.autograd.NestedIOFunction">[文档]</font></font></font></a><span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类</font></font></font></span> <span class="nc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">嵌套 IO 函数</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">函数</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">""</span>
+<span class="sd">这个类仅为了向后兼容而存在。</span>
+<span class="sd">请使用 :class:`Function` 而不是这个，以用于任何新的用例。</span>
+<span class="sd">    """</span>
+    <span class="c1">因为这些函数在这里被声明为 '@staticmethod'，所以需要 'type: ignore' 语句</span>
+    <span class="c1">超类（Function）是静态方法，但在这里是实例方法，mypy 报告为不兼容</span>
+
+    <span class="k">def</span> <span class="nf">_执行前向</font></font></font></span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_nested_input</span> <span class="o">=</span> <span class="nb">输入</span>
+        <span class="n">平面输入</font></font></font></span> <span class="o">=</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">元组</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_迭代张量</font></font></font></span><span class="p">(</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入</span><span class="p">))</span>
+        <span class="n">平面输出</font></font></font></span> <span class="o">=</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">超级</font></font></font></span><span class="p">()</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_执行前向</font></font></font></span><span class="p">(</span><span class="o">*</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">平面输入</font></font></font></span><span class="p">)</span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># 类型：忽略[杂项]</span>
+        <span class="n">嵌套张量</font></font></font></span> <span class="o">=</span> <span class="n">_unflatten</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">平面输出</font></font></font></span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_嵌套输出</span><span class="p">)</span>
+        <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">嵌套张量</span>
+
+    <span class="k">def</span> <span class="nf">执行反向操作</font></font></font></span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">渐变</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">保留变量</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">保留变量</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">保留变量</span>
+        <span class="n">结果</font></font></font></span> <span class="o">=</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">超级</font></font></font></span><span class="p">()</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">执行反向操作</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">渐变</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">保留变量</font></font></font></span><span class="p">)</span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># 类型：忽略[杂项]</span>
+        <span class="k">如果</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">不</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">保留变量</span><span class="p">:</span>
+            <span class="k">删除</font></font></font></span> <span class="bp">self</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_嵌套输出</span>
+            <span class="k">删除</font></font></font></span> <span class="bp">self</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">保存嵌套</span>
+        <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">结果</span>
+
+<div class="viewcode-block" id="NestedIOFunction.backward"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]    def backward(self, *gradients: Any) -&gt; Any:  # type: ignore[override]
+r"""
+共享反向工具。
+"""
+nested_gradients = _unflatten(gradients, self._nested_output)
+result = self.backward_extended(*nested_gradients)  # 忽略[func-returns-value]
+return tuple(_iter_None_tensors(result))</font></font></font></div>
+
+    <span class="fm">__call__</span> <span class="o">=</span> <span class="n">_do_forward</span>
+
+<div class="viewcode-block" id="NestedIOFunction.forward"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]    def forward(self, *args: Any) -&gt; Any:  # type: ignore[override]
+r"""
+共享前向实用程序。
+""
+nested_tensors = _map_tensor_data(self._nested_input)
+result = self.forward_extended(*nested_tensors)  # 忽略[func-returns-value]类型
+删除 self._nested_input
+self._nested_output = result
+返回 tuple(_iter_tensors(result))</font></font></font></div>
+
+<div class="viewcode-block" id="NestedIOFunction.save_for_backward"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档] def save_for_backward(self, *args: Any) -&gt; None:
+r"""
+查看 :meth:`Function.save_for_backward`。
+"""
+self.to_save = tuple(_iter_tensors(args))
+self._to_save_nested = args</font></font></font></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">已保存的张量</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">""</span>
+<span class="sd">查看 :meth:`Function.saved_tensors`。</span>
+<span class="sd">        """</span>
+        <span class="n">平坦张量</font></font></font></span> <span class="o">=</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">超级</font></font></font></span><span class="p">()</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">保存的张量</font></font></font></span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># 类型：忽略[杂项]</span>
+        <span class="k">返回</span> <span class="n">_unflatten</span><span class="p">(</span><span class="n">flat_tensors</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_to_save_nested</span><span class="p">)</span>
+
+<div class="viewcode-block" id="NestedIOFunction.mark_dirty"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]    def mark_dirty(self, *args: Any, **kwargs: Any) -&gt; None:
+r"""
+查看 :meth:`Function.mark_dirty`。
+"""
+self.dirty_tensors = tuple(_iter_tensors((args, kwargs)))</font></font></font></div>
+
+<div class="viewcode-block" id="NestedIOFunction.mark_non_differentiable"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]    def mark_non_differentiable(self, *args: Any, **kwargs: Any) -&gt; None:
+r"""
+查看 :meth:`Function.mark_non_differentiable`.
+"""
+self.non_differentiable = tuple(_iter_tensors((args, kwargs)))</font></font></font></div>
+
+<div class="viewcode-block" id="NestedIOFunction.forward_extended"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档] def forward_extended(self, *input: Any) -&gt; None:
+r"""
+用户自定义的前向函数。
+"``"
+引发未实现异常</font></font></font></div>
+
+<div class="viewcode-block" id="NestedIOFunction.backward_extended"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]    def backward_extended(self, *grad_output: Any) -&gt; None:
+r"""
+用户自定义反向操作。
+"""
+引发未实现错误</font></font></font></div></div>
+</pre></div>
+
+             </article>
+             
+            </div>
+            <footer>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>© 版权所有 PyTorch 贡献者。</p>
+  </div>
+    
+      <div>使用 Sphinx 构建，并使用 Read the Docs 提供的主题。</div>
+     
+
+</footer>
+
+          </div>
+<script>
+
+var match = window.location.href.match(/\/_[a-zA-Z0-9_]*.html|_dynamo/gi);
+var url = window.location.href.lastIndexOf(match[match.length-1]);
+
+if (url)
+  {
+    var div = '<div class="admonition note"><p class="admonition-title">Note</p><p><i class="fa fa-exclamation-circle" aria-hidden="true">&nbsp</i> This page describes an internal API which is not intended to be used outside of the PyTorch codebase and can be modified or removed without notice.</p></div>'
+    document.getElementById("pytorch-article").insertAdjacentHTML('afterBegin', div)
+  }
+</script>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+         <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+         <script src="../../../_static/jquery.js"></script>
+         <script src="../../../_static/underscore.js"></script>
+         <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+         <script src="../../../_static/doctools.js"></script>
+         <script src="../../../_static/clipboard.min.js"></script>
+         <script src="../../../_static/copybutton.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="../../../_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ 
+<script script="" type="text/javascript">
+  var collapsedSections = ['Developer Notes', 'Language Bindings', 'Libraries', 'Community'];
+</script>
+
+<img height="1" width="1" style="border-style:none;" alt="" src="https://www.googleadservices.com/pagead/conversion/795629140/?label=txkmCPmdtosBENSssfsC&amp;guid=ON&amp;script=0">
+
+
+  <!-- Begin Footer -->
+
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 text-center">
+          <h2>文档</h2>
+          <p>查看 PyTorch 的全面开发者文档</p>
+          <a class="with-right-arrow" href="https://pytorch.org/docs/stable/index.html">查看文档</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>教程</h2>
+          <p>深入了解初学者和高级开发者的教程</p>
+          <a class="with-right-arrow" href="https://pytorch.org/tutorials">查看教程</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>资源</h2>
+          <p>查找开发资源，获取您的疑问解答</p>
+          <a class="with-right-arrow" href="https://pytorch.org/resources">查看资源</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://pytorch.org/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/">PyTorch</a></li>
+            <li><a href="https://pytorch.org/get-started">开始使用</a></li>
+            <li><a href="https://pytorch.org/features">功能</a></li>
+            <li><a href="https://pytorch.org/ecosystem">生态系统</a></li>
+            <li><a href="https://pytorch.org/blog/">博客</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md">贡献</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/resources">资源</a></li>
+            <li><a href="https://pytorch.org/tutorials">教程</a></li>
+            <li><a href="https://pytorch.org/docs/stable/index.html">文档</a></li>
+            <li><a href="https://discuss.pytorch.org" target="_blank">讨论</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/issues" target="_blank">Github 问题</a></li>
+            <li><a href="https://pytorch.org/assets/brand-guidelines/PyTorch-Brand-Guidelines.pdf" target="_blank">品牌指南</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">保持更新</li>
+            <li><a href="https://www.facebook.com/pytorch" target="_blank">Facebook</a></li>
+            <li><a href="https://twitter.com/pytorch" target="_blank">推特</a></li>
+            <li><a href="https://www.youtube.com/pytorch" target="_blank">YouTube</a></li>
+            <li><a href="https://www.linkedin.com/company/pytorch" target="_blank">领英</a></li>
+          </ul>  
+          </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">PyTorch 播客</li>
+            <li><a href="https://open.spotify.com/show/6UzHKeiy368jKfQMKKvJY5" target="_blank">Spotify</a></li>
+            <li><a href="https://podcasts.apple.com/us/podcast/pytorch-developer-podcast/id1566080008" target="_blank">苹果</a></li>
+            <li><a href="https://www.google.com/podcasts?feed=aHR0cHM6Ly9mZWVkcy5zaW1wbGVjYXN0LmNvbS9PQjVGa0lsOA%3D%3D" target="_blank">谷歌</a></li>
+            <li><a href="https://music.amazon.com/podcasts/7a4e6f0e-26c2-49e9-a478-41bd244197d0/PyTorch-Developer-Podcast?" target="_blank">亚马逊</a></li>
+          </ul>
+         </div>
+        </div>
+        
+        <div class="privacy-policy">
+          <ul>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/terms/" target="_blank">条款</a></li>
+            <li class="privacy-policy-links">|</li>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/privacy-policy/" target="_blank">隐私</a></li>
+          </ul>
+        </div>
+        <div class="copyright">
+        <p>© 版权所有 Linux 基金会。PyTorch 基金会是 Linux 基金会的一个项目。有关 PyTorch 基金会的网站使用条款、商标政策以及其他适用政策，请参阅 www.linuxfoundation.org/policies/。PyTorch 基金会支持 PyTorch 开源项目，该项目已被确立为 LF Projects, LLC 的 PyTorch 项目系列。有关适用于 PyTorch 项目系列 LF Projects, LLC 的政策，请参阅 www.lfprojects.org/policies/。</p>
+      </div>
+     </div>
+
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">为了分析流量并优化您的体验，我们在本网站上使用 cookies。通过点击或导航，您同意允许我们使用 cookies。作为本网站的当前维护者，适用 Facebook 的 Cookies 政策。了解更多信息，包括关于可用控制的信息：Cookies 政策。</p>
+    <img class="close-button" src="../../../_static/images/pytorch-x.svg" width="16" height="16">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+           <li class="resources-mobile-menu-title">
+             <a>学习</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/get-started">开始使用</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials">教程</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/basics/intro.html">学习基础知识</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/recipes/recipes_index.html">PyTorch 食谱</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/introyt.html">PyTorch 入门 - YouTube 系列</a>
+             </li>
+           </ul>
+           <li class="resources-mobile-menu-title">
+             <a>生态系统</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/ecosystem">工具</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/#community-module">社区</a>
+             </li>
+             <li>
+               <a href="https://discuss.pytorch.org/">论坛</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/resources">开发者资源</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">贡献者奖项 - 2024</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>Edge</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/edge">关于 PyTorch Edge</a>
+             </li>
+             
+             <li>
+               <a href="https://pytorch.org/executorch-overview">执行火炬</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch 文档</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>文档</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/docs/stable/index.html">PyTorch</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/pytorch-domains">PyTorch 领域</a>
+            </li>
+          </ul>
+
+          <li class="resources-mobile-menu-title">
+            <a>博客 &amp; 新闻</a>
+          </li>
+            
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/blog/">PyTorch 博客</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/community-blog">社区博客</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/videos">视频</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/community-stories">社区故事</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/events">活动</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">新闻简报</a>
+             </li>
+          </ul>
+          
+          <li class="resources-mobile-menu-title">
+            <a>关于</a>
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/foundation">PyTorch 基金会</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/governing-board">治理委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">云信用计划</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">技术咨询委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">员工</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">联系我们</a>
+            </li>
+          </ul>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="../../../_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body></html>

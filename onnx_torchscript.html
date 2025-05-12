@@ -1,0 +1,1756 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>TorchScript-based ONNX Exporter — PyTorch main documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pytorch.org/docs/stable/onnx_torchscript.html">
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css">
+  <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css">
+  <link rel="stylesheet" href="_static/copybutton.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="_static/katex-math.css" type="text/css">
+  <link rel="stylesheet" href="_static/sphinx-dropdown.css" type="text/css">
+  <link rel="stylesheet" href="_static/panels-bootstrap.min.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/jit.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css">
+    <link rel="index" title="Index" href="genindex.html">
+    <link rel="search" title="Search" href="search.html">
+    <link rel="next" title="JitScalarType" href="generated/torch.onnx.JitScalarType.html">
+    <link rel="prev" title="ONNX Backend for TorchDynamo" href="onnx_dynamo_onnxruntime_backend.html">
+
+<!--
+  Search engines should not index the main version of documentation.
+  Stable documentation are built without release == 'main'.
+-->
+<meta name="robots" content="noindex">
+
+
+  <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T8XT4PS');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+  <!-- Preload the theme fonts -->
+
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<!-- Preload the katex fonts -->
+
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Math-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size1-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size2-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Caligraphic-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
+</head><body class="pytorch-body"><div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+
+          <li class="main-menu-item">
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">学习</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/get-started">
+                  <span class="dropdown-title">开始使用</span>
+                  <p>在本地运行 PyTorch 或快速开始使用支持的云平台之一</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials">
+                  <span class="dropdown-title">教程</span><p></p>
+                  <p>PyTorch 教程中的新内容</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/basics/intro.html">
+                  <span class="dropdown-title">学习基础知识</span><p></p>
+                  <p>熟悉 PyTorch 的概念和模块</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/recipes/recipes_index.html">
+                  <span class="dropdown-title">PyTorch 食谱</span><p></p>
+                  <p>精简版、可直接部署的 PyTorch 代码示例</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/introyt.html">
+                  <span class="dropdown-title">PyTorch 入门 - YouTube 系列</span><p></p>
+                  <p>通过我们引人入胜的 YouTube 教程系列掌握 PyTorch 基础知识</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">生态系统</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem">
+                  <span class="dropdown-title">工具</span><p></p>
+                  <p>了解 PyTorch 生态系统中的工具和框架</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
+                  <span class="dropdown-title">社区</span>
+                  <p>加入 PyTorch 开发者社区，贡献、学习并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
+                  <span class="dropdown-title">论坛</span>
+                  <p>讨论 PyTorch 代码、问题、安装、研究的地方</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/resources">
+                  <span class="dropdown-title">开发者资源</span>
+                  <p>查找资源并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">贡献者奖项 - 2024</span><p></p>
+                  <p>本届 PyTorch 会议揭晓获奖者</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">
+                Edge
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/edge">
+                  <span class="dropdown-title">关于 PyTorch Edge</span><p></p>
+                  <p>为边缘设备构建创新和隐私感知的 AI 体验</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
+                  <span class="dropdown-title">ExecuTorch</span><p></p>
+                  <p>基于移动和边缘设备的端到端推理能力解决方案</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch 文档</span><p></p>
+                </a>
+              </div>
+            </div>  
+          </li>
+
+          <li class="main-menu-item">
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">文档</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/docs/stable/index.html">
+                  <span class="dropdown-title">PyTorch</span><p></p>
+                  <p>探索文档以获取全面指导，了解如何使用 PyTorch</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/pytorch-domains">
+                  <span class="dropdown-title">PyTorch 领域</span><p></p>
+                  <p>阅读 PyTorch 领域的文档，了解更多关于特定领域库的信息</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">博客与新闻</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/blog/">
+                  <span class="dropdown-title">PyTorch 博客</span><p></p>
+                  <p>捕捉最新的技术新闻和事件</p>
+                </a>
+                 <a class="nav-dropdown-item" href="https://pytorch.org/community-blog">
+                  <span class="dropdown-title">社区博客</span><p></p>
+                  <p>PyTorch 生态系统故事</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/videos">
+                  <span class="dropdown-title">视频</span><p></p>
+                  <p>了解最新的 PyTorch 教程、新内容等</p>
+                </a><a class="nav-dropdown-item" href="https://pytorch.org/community-stories">
+                  <span class="dropdown-title">社区故事</span><p></p>
+                  <p>学习如何我们的社区使用 PyTorch 解决真实、日常的机器学习问题</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/events">
+                  <span class="dropdown-title">活动</span><p></p>
+                  <p>查找活动、网络研讨会和播客</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">通讯</span><p></p>
+                  <p>跟踪最新更新</p>
+                </a>
+            </div>
+          </div></li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">关于</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/foundation">
+                  <span class="dropdown-title">PyTorch 基金会</span><p></p>
+                  <p>了解更多关于 PyTorch 基金会的信息</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
+                  <span class="dropdown-title">管理委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">云信用计划</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">技术顾问委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">员工</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">联系我们</span><p></p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li class="main-menu-item">
+            <div class="no-dropdown">
+              <a href="https://pytorch.org/join" data-cta="join">成为会员</a>
+            </div>
+          </li>
+          <li>
+           <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="github-icon">
+             </a>
+           </div>
+          </li>
+          <!--- TODO: This block adds the search icon to the nav bar. We will enable it later. 
+          <li>
+            <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="search-icon">
+             </a>
+            </div>
+          </li>
+          --->
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+  </div>
+</div>
+
+
+
+   
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>目录</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+    <div class="version">
+      <a href="https://pytorch.org/docs/versions.html">主程序 (2.7.0+cpu ) ▼</a>
+    </div>
+    <div id="searchBox">
+    <div class="searchbox" id="googleSearchBox">
+      <script async="" src="https://cse.google.com/cse.js?cx=e65585f8c3ea1440e"></script>
+      <div class="gcse-search"></div>
+    </div>
+    <div id="sphinxSearchBox" style="display: none;">
+      <div role="search">
+        <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+          <input type="text" name="q" placeholder="Search Docs">
+          <input type="hidden" name="check_keywords" value="yes">
+          <input type="hidden" name="area" value="default">
+        </form>
+      </div>
+    </div>
+  </div>
+  <form id="searchForm">
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="google" checked="">谷歌搜索</label>
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="sphinx">经典搜索</label>
+  </form>
+
+  <script>
+     document.addEventListener('DOMContentLoaded', function() {
+      const searchForm = document.getElementById('searchForm');
+      const googleSearchBox = document.getElementById('googleSearchBox');
+      const sphinxSearchBox = document.getElementById('sphinxSearchBox');
+      // Function to toggle search box visibility
+      function toggleSearchBox(searchType) {
+        googleSearchBox.style.display = searchType === 'google' ? 'block' : 'none';
+        sphinxSearchBox.style.display = searchType === 'sphinx' ? 'block' : 'none';
+      }
+      // Determine the default search type
+      let defaultSearchType;
+      const currentUrl = window.location.href;
+      if (currentUrl.startsWith('https://pytorch.org/docs/stable')) {
+        // For the stable documentation, default to Google
+        defaultSearchType = localStorage.getItem('searchType') || 'google';
+      } else {
+        // For any other version, including docs-preview, default to Sphinx
+        defaultSearchType = 'sphinx';
+      }
+      // Set the default search type
+      document.querySelector(`input[name="searchType"][value="${defaultSearchType}"]`).checked = true;
+      toggleSearchBox(defaultSearchType);
+      // Event listener for changes in search type
+      searchForm.addEventListener('change', function(event) {
+        const selectedSearchType = event.target.value;
+        localStorage.setItem('searchType', selectedSearchType);
+        toggleSearchBox(selectedSearchType);
+      });
+      // Set placeholder text for Google search box
+      window.onload = function() {
+        var placeholderText = "Search Docs";
+        var googleSearchboxText = document.querySelector("#gsc-i-id1");
+        if (googleSearchboxText) {
+          googleSearchboxText.placeholder = placeholderText;
+          googleSearchboxText.style.fontFamily = 'FreightSans';
+          googleSearchboxText.style.fontSize = "1.2rem";
+          googleSearchboxText.style.color = '#262626';
+        }
+      };
+    });
+  </script>
+
+          </div>
+
+          
+
+<div>
+  <a style="color:#F05732" href="https://pytorch.org/docs/stable/onnx_torchscript.html">您正在查看不稳定开发者预览文档。请点击此处查看最新稳定版本的文档。</a>
+</div>
+
+
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">社区</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="community/build_ci_governance.html">PyTorch 治理 | 构建 + CI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/contribution_guide.html">PyTorch 贡献指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/design.html">PyTorch 设计哲学</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/governance.html">PyTorch 治理 | 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/persons_of_interest.html">PyTorch 治理 | 维护者</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发者笔记</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="notes/amp_examples.html">自动混合精度示例</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/autograd.html">Autograd 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/broadcasting.html">广播语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/cpu_threading_torchscript_inference.html">CPU 多线程和 TorchScript 推理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/cuda.html">CUDA 语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/custom_operators.html">PyTorch 自定义算子页面</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/ddp.html">分布式数据并行</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/extending.html">扩展 PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/extending.func.html">使用 autograd.Function 扩展 torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/faq.html">常见问题解答</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/fsdp.html">FSDP 笔记</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/get_start_xpu.html">在 Intel GPU 上入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/gradcheck.html">Gradcheck 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/hip.html">HIP (ROCm)语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/large_scale_deployments.html">大规模部署功能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/libtorch_stable_abi.html">LibTorch 稳定 ABI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/modules.html">模块</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/mps.html">MPS 后端</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/multiprocessing.html">多进程最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/numerical_accuracy.html">数值精度</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/randomness.html">可重现性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/serialization.html">序列化语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/windows.html">Windows 常见问题解答</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">语言绑定</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cpp_index.html">C++</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/javadoc/">Javadoc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deploy.html">torch::deploy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="torch.html">torch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.html">torch.nn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.functional.html">torch.nn.functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensors.html">torch.Tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensor_attributes.html">张量属性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensor_view.html">张量视图</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amp.html">torch.amp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autograd.html">torch.autograd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="library.html">torch.library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accelerator.html">torch.accelerator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpu.html">torch.cpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">torch.cuda</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html">理解 CUDA 内存使用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#generating-a-snapshot">生成快照</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#using-the-visualizer">使用可视化工具</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#snapshot-api-reference">快照 API 参考</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mps.html">torch.mps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="xpu.html">torch.xpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mtia.html">torch.mtia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mtia.memory.html">torch.mtia.memory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="meta.html">元设备</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backends.html">torch.backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="export.html">torch.export</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.html">torch.distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.tensor.html">torch.distributed.tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.algorithms.join.html">torch.distributed.algorithms.join</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.elastic.html">torch.distributed.elastic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fsdp.html">torch.distributed.fsdp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.fsdp.fully_shard.html">torch.distributed.fsdp.fully_shard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.tensor.parallel.html">torch.distributed.tensor.parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.optim.html">torch.distributed.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.pipelining.html">torch.distributed.pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.checkpoint.html">torch.distributed.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributions.html">torch.distributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch.compiler.html">torch.compiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fft.html">torch.fft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="func.html">torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="futures.html">torch.futures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fx.html">torch.fx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fx.experimental.html">torch.fx.experimental</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hub.html">torch.hub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jit.html">torch.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="linalg.html">torch.linalg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitor.html">torch.monitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="signal.html">torch.signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="special.html">torch.special</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch.overrides.html">torch.overrides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="package.html">torch.package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="profiler.html">torch.profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.init.html">torch.nn.init</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.attention.html">torch.nn.attention</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="onnx.html">torch.onnx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="optim.html">torch.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="complex_numbers.html">复数</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ddp_comm_hooks.html">DDP 通信钩子</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quantization.html">量化</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rpc.html">分布式 RPC 框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="random.html">torch.random</a></li>
+<li class="toctree-l1"><a class="reference internal" href="masked.html">torch.masked</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nested.html">torch.nested</a></li>
+<li class="toctree-l1"><a class="reference internal" href="size.html">torch.Size</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sparse.html">torch.sparse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="storage.html">torch.Storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">torch.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">torch.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmark_utils.html">torch.utils.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bottleneck.html">torch.utils.bottleneck</a></li>
+<li class="toctree-l1"><a class="reference internal" href="checkpoint.html">torch.utils.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp_extension.html">torch.utils.cpp_extension</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data.html">torch.utils.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deterministic.html">torch.utils.deterministic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jit_utils.html">torch.utils.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dlpack.html">torch.utils.dlpack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mobile_optimizer.html">torch.utils.mobile_optimizer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_zoo.html">torch.utils.model_zoo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensorboard.html">torch.utils.tensorboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_tracker.html">torch.utils.module_tracker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="type_info.html">类型信息</a></li>
+<li class="toctree-l1"><a class="reference internal" href="named_tensor.html">命名张量</a></li>
+<li class="toctree-l1"><a class="reference internal" href="name_inference.html">命名张量操作覆盖率</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config_mod.html">torch.__config__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="future_mod.html">torch.__future__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">torch._logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_environment_variables.html">火炬环境变量</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">库</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/audio/stable">torchaudio</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/data">TorchData</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/torchrec">火炬推荐</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/serve">TorchServe</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/text/stable">torchtext</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/vision/stable">torchvision</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/xla/">PyTorch 在 XLA 设备上</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/ao">torchao</a></li>
+</ul>
+
+            
+          
+
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        文档 &gt;</li>
+
+        
+          <li><a href="onnx.html">torch.onnx</a> &gt;</li>
+        
+      <li>基于 TorchScript 的 ONNX 导出器</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+            
+            <a href="_sources/onnx_torchscript.rst.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg" width="16" height="16"></a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">快捷键</div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+
+          <!-- Google Tag Manager (noscript) -->
+          <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T8XT4PS" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+          <!-- End Google Tag Manager (noscript) -->
+          
+          <div class="rst-content">
+          
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <section id="torchscript-based-onnx-exporter">
+<h1>基于 TorchScript 的 ONNX 导出器 ¶</h1>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>要使用 TorchDynamo 而不是 TorchScript 导出 ONNX 模型，请参阅有关基于 TorchDynamo 的 ONNX 导出器的更多信息</p>
+</div>
+<nav class="contents local" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#example-alexnet-from-pytorch-to-onnx" id="id3">示例：将 PyTorch 的 AlexNet 转换为 ONNX</a></p></li>
+<li><p><a class="reference internal" href="#tracing-vs-scripting" id="id4">追踪与脚本化</a></p></li>
+<li><p><a class="reference internal" href="#avoiding-pitfalls" id="id5">避免陷阱</a></p>
+<ul>
+<li><p><a class="reference internal" href="#avoid-numpy-and-built-in-python-types" id="id6">避免使用 NumPy 和内置 Python 类型</a></p></li>
+<li><p><a class="reference internal" href="#avoid-tensor-data" id="id7">避免使用 Tensor.data</a></p></li>
+<li><p><a class="reference internal" href="#avoid-in-place-operations-when-using-tensor-shape-in-tracing-mode" id="id8">在跟踪模式下使用 tensor.shape 时避免原地操作</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#limitations" id="id9">局限性</a></p>
+<ul>
+<li><p><a class="reference internal" href="#types" id="id10">类型</a></p></li>
+<li><p><a class="reference internal" href="#differences-in-operator-implementations" id="id11">运算符实现差异</a></p></li>
+<li><p><a class="reference internal" href="#unsupported-tensor-indexing-patterns" id="id12">不支持的张量索引模式</a></p>
+<ul>
+<li><p><a class="reference internal" href="#reads-gets" id="id13">读取 / 获取</a></p></li>
+<li><p><a class="reference internal" href="#writes-sets" id="id14">写入 / 设置</a></p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#adding-support-for-operators" id="id15">添加对运算符的支持</a></p>
+<ul>
+<li><p><a class="reference internal" href="#onnx-exporter-internals" id="id16">ONNX 导出器内部机制</a></p></li>
+<li><p><a class="reference internal" href="#aten-operators" id="id17">ATen 运算符</a></p>
+<ul>
+<li><p><a class="reference internal" href="#list-of-supported-operators" id="id18">支持的运算符列表</a></p></li>
+<li><p><a class="reference internal" href="#adding-support-for-an-aten-or-quantized-operator" id="id19">添加对 aten 或量化算子的支持</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#torch-autograd-functions" id="id20">torch.autograd.Functions</a></p>
+<ul>
+<li><p><a class="reference internal" href="#static-symbolic-method" id="id21">静态符号方法</a></p></li>
+<li><p><a class="reference internal" href="#inline-autograd-function" id="id22">内联 Autograd 函数</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#custom-operators" id="id23">自定义运算符</a></p>
+<ul>
+<li><p><a class="reference internal" href="#onnx-script-functions" id="id24">ONNX 脚本函数</a></p></li>
+<li><p><a class="reference internal" href="#c-operators" id="id25">C++运算符</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#discovering-all-unconvertible-aten-ops-at-once" id="id26">一次性发现所有不可转换的 ATen 运算符</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#frequently-asked-questions" id="id27">常见问题解答</a></p></li>
+<li><p><a class="reference internal" href="#module-torch.onnx" id="id28">Python API</a></p>
+<ul>
+<li><p><a class="reference internal" href="#functions" id="id29">函数</a></p></li>
+<li><p><a class="reference internal" href="#classes" id="id30">类</a></p></li>
+</ul>
+</li>
+</ul>
+</nav>
+<section id="example-alexnet-from-pytorch-to-onnx">
+<h2>示例：将 PyTorch 的 AlexNet 转换为 ONNX ¶</h2>
+<p>这里是一个简单的脚本，用于将预训练的 AlexNet 导出为名为 <code class="docutils literal "><span class="pre">alexnet.onnx</span></code> 的 ONNX 文件。调用 <code class="docutils literal "><span class="pre">torch.onnx.export</span></code> 将运行模型一次以跟踪其执行，然后将跟踪的模型导出到指定的文件：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torchvision</span>
+
+<span class="n">dummy_input</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">224</span><span class="p">,</span> <span class="mi">224</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s2">"cuda"</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">torchvision</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">alexnet</span><span class="p">(</span><span class="n">pretrained</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+
+<span class="c1"># Providing input and output names sets the display names for values</span>
+<span class="c1"># within the model's graph. Setting these does not change the semantics</span>
+<span class="c1"># of the graph; it is only for readability.</span>
+<span class="c1">#</span>
+<span class="c1"># The inputs to the network consist of the flat list of inputs (i.e.</span>
+<span class="c1"># the values you would pass to the forward() method) followed by the</span>
+<span class="c1"># flat list of parameters. You can partially specify names, i.e. provide</span>
+<span class="c1"># a list here shorter than the number of inputs to the model, and we will</span>
+<span class="c1"># only set that subset of names, starting from the beginning.</span>
+<span class="n">input_names</span> <span class="o">=</span> <span class="p">[</span> <span class="s2">"actual_input_1"</span> <span class="p">]</span> <span class="o">+</span> <span class="p">[</span> <span class="s2">"learned_</span><span class="si">%d</span><span class="s2">"</span> <span class="o">%</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span> <span class="p">]</span>
+<span class="n">output_names</span> <span class="o">=</span> <span class="p">[</span> <span class="s2">"output1"</span> <span class="p">]</span>
+
+<span class="n">torch</span><span class="o">.</span><span class="n">onnx</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">dummy_input</span><span class="p">,</span> <span class="s2">"alexnet.onnx"</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">input_names</span><span class="o">=</span><span class="n">input_names</span><span class="p">,</span> <span class="n">output_names</span><span class="o">=</span><span class="n">output_names</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>生成的 <code class="docutils literal "><span class="pre">alexnet.onnx</span></code> 文件包含一个二进制协议缓冲区，其中包含您导出的模型（在这种情况下为 AlexNet）的网络结构和参数。参数 <code class="docutils literal "><span class="pre">verbose=True</span></code> 会导致导出器打印出模型的人类可读表示：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="c1"># These are the inputs and parameters to the network, which have taken on</span>
+<span class="c1"># the names we specified earlier.</span>
+<span class="n">graph</span><span class="p">(</span><span class="o">%</span><span class="n">actual_input_1</span> <span class="p">:</span> <span class="n">Float</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">224</span><span class="p">,</span> <span class="mi">224</span><span class="p">)</span>
+      <span class="o">%</span><span class="n">learned_0</span> <span class="p">:</span> <span class="n">Float</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">11</span><span class="p">)</span>
+      <span class="o">%</span><span class="n">learned_1</span> <span class="p">:</span> <span class="n">Float</span><span class="p">(</span><span class="mi">64</span><span class="p">)</span>
+      <span class="o">%</span><span class="n">learned_2</span> <span class="p">:</span> <span class="n">Float</span><span class="p">(</span><span class="mi">192</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+      <span class="o">%</span><span class="n">learned_3</span> <span class="p">:</span> <span class="n">Float</span><span class="p">(</span><span class="mi">192</span><span class="p">)</span>
+      <span class="c1"># ---- omitted for brevity ----</span>
+      <span class="o">%</span><span class="n">learned_14</span> <span class="p">:</span> <span class="n">Float</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">4096</span><span class="p">)</span>
+      <span class="o">%</span><span class="n">learned_15</span> <span class="p">:</span> <span class="n">Float</span><span class="p">(</span><span class="mi">1000</span><span class="p">))</span> <span class="p">{</span>
+  <span class="c1"># Every statement consists of some output tensors (and their types),</span>
+  <span class="c1"># the operator to be run (with its attributes, e.g., kernels, strides,</span>
+  <span class="c1"># etc.), its input tensors (%actual_input_1, %learned_0, %learned_1)</span>
+  <span class="o">%</span><span class="mi">17</span> <span class="p">:</span> <span class="n">Float</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">55</span><span class="p">,</span> <span class="mi">55</span><span class="p">)</span> <span class="o">=</span> <span class="n">onnx</span><span class="p">::</span><span class="n">Conv</span><span class="p">[</span><span class="n">dilations</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">group</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">kernel_shape</span><span class="o">=</span><span class="p">[</span><span class="mi">11</span><span class="p">,</span> <span class="mi">11</span><span class="p">],</span> <span class="n">pads</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">strides</span><span class="o">=</span><span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">]](</span><span class="o">%</span><span class="n">actual_input_1</span><span class="p">,</span> <span class="o">%</span><span class="n">learned_0</span><span class="p">,</span> <span class="o">%</span><span class="n">learned_1</span><span class="p">),</span> <span class="n">scope</span><span class="p">:</span> <span class="n">AlexNet</span><span class="o">/</span><span class="n">Sequential</span><span class="p">[</span><span class="n">features</span><span class="p">]</span><span class="o">/</span><span class="n">Conv2d</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+  <span class="o">%</span><span class="mi">18</span> <span class="p">:</span> <span class="n">Float</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">55</span><span class="p">,</span> <span class="mi">55</span><span class="p">)</span> <span class="o">=</span> <span class="n">onnx</span><span class="p">::</span><span class="n">Relu</span><span class="p">(</span><span class="o">%</span><span class="mi">17</span><span class="p">),</span> <span class="n">scope</span><span class="p">:</span> <span class="n">AlexNet</span><span class="o">/</span><span class="n">Sequential</span><span class="p">[</span><span class="n">features</span><span class="p">]</span><span class="o">/</span><span class="n">ReLU</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+  <span class="o">%</span><span class="mi">19</span> <span class="p">:</span> <span class="n">Float</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">27</span><span class="p">,</span> <span class="mi">27</span><span class="p">)</span> <span class="o">=</span> <span class="n">onnx</span><span class="p">::</span><span class="n">MaxPool</span><span class="p">[</span><span class="n">kernel_shape</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="n">pads</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">strides</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]](</span><span class="o">%</span><span class="mi">18</span><span class="p">),</span> <span class="n">scope</span><span class="p">:</span> <span class="n">AlexNet</span><span class="o">/</span><span class="n">Sequential</span><span class="p">[</span><span class="n">features</span><span class="p">]</span><span class="o">/</span><span class="n">MaxPool2d</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+  <span class="c1"># ---- omitted for brevity ----</span>
+  <span class="o">%</span><span class="mi">29</span> <span class="p">:</span> <span class="n">Float</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span> <span class="o">=</span> <span class="n">onnx</span><span class="p">::</span><span class="n">MaxPool</span><span class="p">[</span><span class="n">kernel_shape</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="n">pads</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">strides</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]](</span><span class="o">%</span><span class="mi">28</span><span class="p">),</span> <span class="n">scope</span><span class="p">:</span> <span class="n">AlexNet</span><span class="o">/</span><span class="n">Sequential</span><span class="p">[</span><span class="n">features</span><span class="p">]</span><span class="o">/</span><span class="n">MaxPool2d</span><span class="p">[</span><span class="mi">12</span><span class="p">]</span>
+  <span class="c1"># Dynamic means that the shape is not known. This may be because of a</span>
+  <span class="c1"># limitation of our implementation (which we would like to fix in a</span>
+  <span class="c1"># future release) or shapes which are truly dynamic.</span>
+  <span class="o">%</span><span class="mi">30</span> <span class="p">:</span> <span class="n">Dynamic</span> <span class="o">=</span> <span class="n">onnx</span><span class="p">::</span><span class="n">Shape</span><span class="p">(</span><span class="o">%</span><span class="mi">29</span><span class="p">),</span> <span class="n">scope</span><span class="p">:</span> <span class="n">AlexNet</span>
+  <span class="o">%</span><span class="mi">31</span> <span class="p">:</span> <span class="n">Dynamic</span> <span class="o">=</span> <span class="n">onnx</span><span class="p">::</span><span class="n">Slice</span><span class="p">[</span><span class="n">axes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ends</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">starts</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">]](</span><span class="o">%</span><span class="mi">30</span><span class="p">),</span> <span class="n">scope</span><span class="p">:</span> <span class="n">AlexNet</span>
+  <span class="o">%</span><span class="mi">32</span> <span class="p">:</span> <span class="n">Long</span><span class="p">()</span> <span class="o">=</span> <span class="n">onnx</span><span class="p">::</span><span class="n">Squeeze</span><span class="p">[</span><span class="n">axes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">]](</span><span class="o">%</span><span class="mi">31</span><span class="p">),</span> <span class="n">scope</span><span class="p">:</span> <span class="n">AlexNet</span>
+  <span class="o">%</span><span class="mi">33</span> <span class="p">:</span> <span class="n">Long</span><span class="p">()</span> <span class="o">=</span> <span class="n">onnx</span><span class="p">::</span><span class="n">Constant</span><span class="p">[</span><span class="n">value</span><span class="o">=</span><span class="p">{</span><span class="mi">9216</span><span class="p">}](),</span> <span class="n">scope</span><span class="p">:</span> <span class="n">AlexNet</span>
+  <span class="c1"># ---- omitted for brevity ----</span>
+  <span class="o">%</span><span class="n">output1</span> <span class="p">:</span> <span class="n">Float</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">=</span> <span class="n">onnx</span><span class="p">::</span><span class="n">Gemm</span><span class="p">[</span><span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">broadcast</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">transB</span><span class="o">=</span><span class="mi">1</span><span class="p">](</span><span class="o">%</span><span class="mi">45</span><span class="p">,</span> <span class="o">%</span><span class="n">learned_14</span><span class="p">,</span> <span class="o">%</span><span class="n">learned_15</span><span class="p">),</span> <span class="n">scope</span><span class="p">:</span> <span class="n">AlexNet</span><span class="o">/</span><span class="n">Sequential</span><span class="p">[</span><span class="n">classifier</span><span class="p">]</span><span class="o">/</span><span class="n">Linear</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span>
+  <span class="k">return</span> <span class="p">(</span><span class="o">%</span><span class="n">output1</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>您还可以使用 ONNX 库验证输出，您可以使用 <code class="docutils literal "><span class="pre">pip</span></code> 安装此库：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">onnx</span>
+</pre></div>
+</div>
+<p>然后，您可以运行：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">onnx</span>
+
+<span class="c1"># Load the ONNX model</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">onnx</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">"alexnet.onnx"</span><span class="p">)</span>
+
+<span class="c1"># Check that the model is well formed</span>
+<span class="n">onnx</span><span class="o">.</span><span class="n">checker</span><span class="o">.</span><span class="n">check_model</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+
+<span class="c1"># Print a human readable representation of the graph</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">onnx</span><span class="o">.</span><span class="n">helper</span><span class="o">.</span><span class="n">printable_graph</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">graph</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>您也可以使用支持 ONNX 的众多运行时之一来运行导出的模型。例如，在安装 ONNX 运行时后，您可以加载并运行该模型：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">onnxruntime</span> <span class="k">as</span> <span class="nn">ort</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">ort_session</span> <span class="o">=</span> <span class="n">ort</span><span class="o">.</span><span class="n">InferenceSession</span><span class="p">(</span><span class="s2">"alexnet.onnx"</span><span class="p">)</span>
+
+<span class="n">outputs</span> <span class="o">=</span> <span class="n">ort_session</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+    <span class="kc">None</span><span class="p">,</span>
+    <span class="p">{</span><span class="s2">"actual_input_1"</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">224</span><span class="p">,</span> <span class="mi">224</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)},</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">outputs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>这里是一个更详细的教程，介绍如何导出模型并使用 ONNX 运行时运行它。</p>
+</section>
+<section id="tracing-vs-scripting">
+<span id="id1"></span><h2>追踪与脚本化比较</h2>
+<p>内部， <code class="xref py py-func docutils literal "><span class="pre">torch.onnx.export()</span></code> 需要一个 <code class="xref py py-class docutils literal "><span class="pre">torch.jit.ScriptModule</span></code> 而不是 <code class="xref py py-class docutils literal "><span class="pre">torch.nn.Module</span></code> 。如果传入的模型尚未是 <code class="docutils literal "><span class="pre">ScriptModule</span></code> ， <code class="docutils literal "><span class="pre">export()</span></code> 将使用追踪将其转换为一种：</p>
+<ul class="simple">
+<li><p>跟踪：如果使用 <code class="docutils literal "><span class="pre">torch.onnx.export()</span></code> 调用一个尚未成为 <code class="docutils literal "><span class="pre">ScriptModule</span></code> 的模块，它首先执行 <code class="xref py py-func docutils literal "><span class="pre">torch.jit.trace()</span></code> 的等效操作，即使用给定的 <code class="docutils literal "><span class="pre">args</span></code> 执行模型一次，并记录执行过程中发生的所有操作。这意味着如果您的模型是动态的，例如根据输入数据改变行为，则导出的模型将无法捕获这种动态行为。我们建议检查导出的模型，确保操作符合理。跟踪将展开循环和 if 语句，导出与跟踪运行完全相同的静态图。如果您想导出具有动态控制流的模型，则需要使用脚本。</p></li>
+<li><p>脚本：通过脚本编译模型可以保留动态控制流，适用于不同大小的输入。要使用脚本：</p>
+<ul>
+<li><p>使用 <code class="xref py py-func docutils literal "><span class="pre">torch.jit.script()</span></code> 生成 <code class="docutils literal "><span class="pre">ScriptModule</span></code> 。</p></li>
+<li><p>使用 <code class="docutils literal "><span class="pre">torch.onnx.export()</span></code> 调用模型，其中 <code class="docutils literal "><span class="pre">ScriptModule</span></code> 作为模型。 <code class="docutils literal "><span class="pre">args</span></code> 仍然需要，但它们将仅用于内部生成示例输出，以便捕获输出类型和形状。不会执行跟踪。</p></li>
+</ul>
+</li>
+</ul>
+<p>查看 TorchScript 和 TorchScript 的介绍以获取更多详细信息，包括如何组合跟踪和脚本以适应不同模型的特定要求。</p>
+</section>
+<section id="avoiding-pitfalls">
+<h2>避免陷阱</h2>
+<section id="avoid-numpy-and-built-in-python-types">
+<h3>避免使用 NumPy 和内置 Python 类型</h3>
+<p>PyTorch 模型可以使用 NumPy 或 Python 类型和函数编写，但在跟踪过程中，任何 NumPy 或 Python 类型的变量（而不是 torch.Tensor）都将转换为常量，如果这些值应根据输入而变化，则会产生错误的结果。</p>
+<p>例如，而不是在 numpy.ndarrays 上使用 numpy 函数：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="c1"># Bad! Will be replaced with constants during tracing.</span>
+<span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>使用 torch 的 torch.Tensors 运算符：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="c1"># Good! Tensor operations will be captured during tracing.</span>
+<span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>而不是使用 <code class="xref py py-func docutils literal "><span class="pre">torch.Tensor.item()</span></code> （它将 Tensor 转换为 Python 内置数字）：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="c1"># Bad! y.item() will be replaced with a constant during tracing.</span>
+<span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>使用 torch 对单元素张量的隐式转换支持：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="c1"># Good! y will be preserved as a variable during tracing.</span>
+<span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="avoid-tensor-data">
+<h3>避免使用 Tensor.data ¶</h3>
+<p>使用 Tensor.data 字段可能会产生错误的追踪，因此生成错误的 ONNX 图。请使用 <code class="xref py py-func docutils literal "><span class="pre">torch.Tensor.detach()</span></code> 代替。（正在进行移除 Tensor.data 的相关工作）。</p>
+</section>
+<section id="avoid-in-place-operations-when-using-tensor-shape-in-tracing-mode">
+<h3>在追踪模式下使用 tensor.shape 时避免原地操作 ¶</h3>
+<p>在追踪模式下，从 <code class="docutils literal "><span class="pre">tensor.shape</span></code> 获取的形状被视为张量，并共享相同的内存。这可能会导致最终输出值不匹配。作为解决方案，在这些情况下避免使用原地操作。例如，在以下模型中：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">states</span><span class="p">):</span>
+      <span class="n">batch_size</span><span class="p">,</span> <span class="n">seq_length</span> <span class="o">=</span> <span class="n">states</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+      <span class="n">real_seq_length</span> <span class="o">=</span> <span class="n">seq_length</span>
+      <span class="n">real_seq_length</span> <span class="o">+=</span> <span class="mi">2</span>
+      <span class="k">return</span> <span class="n">real_seq_length</span> <span class="o">+</span> <span class="n">seq_length</span>
+</pre></div>
+</div>
+<p>在跟踪模式下， <code class="docutils literal "><span class="pre">real_seq_length</span></code> 和 <code class="docutils literal "><span class="pre">seq_length</span></code> 共享相同的内存。这可以通过重写原地操作来避免：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">real_seq_length</span> <span class="o">=</span> <span class="n">real_seq_length</span> <span class="o">+</span> <span class="mi">2</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="limitations">
+<h2>限制条件</h2>
+<section id="types">
+<h3>类型</h3>
+<ul class="simple">
+<li><p>仅支持 <code class="xref py py-class docutils literal "><span class="pre">torch.Tensors</span></code> ，可以简单转换为 torch.Tensors 的数值类型（例如 float、int），以及这些类型的元组和列表作为模型输入或输出。在跟踪模式下，接受 dict 和 str 输入和输出，但：</p>
+<ul>
+<li><p>任何依赖于 dict 或 str 输入值的计算都将被替换为在单次跟踪执行期间看到的常量值。</p></li>
+<li><p>任何输出为字典的都将静默地替换为其值的扁平序列（键将被移除）。例如， <code class="docutils literal "><span class="pre">{"foo":</span> <span class="pre">1,</span> <span class="pre">"bar":</span> <span class="pre">2}</span></code> 变为 <code class="docutils literal "><span class="pre">(1,</span> <span class="pre">2)</span></code> 。</p></li>
+<li><p>任何输出为 str 的都将被静默移除。</p></li>
+</ul>
+</li>
+<li><p>由于 ONNX 对嵌套序列支持有限，脚本模式下不支持涉及元组和列表的某些操作。特别是将元组追加到列表中是不支持的。在跟踪模式下，嵌套序列将在跟踪过程中自动展平。</p></li>
+</ul>
+</section>
+<section id="differences-in-operator-implementations">
+<h3>操作实现差异</h3>
+<p>由于操作符实现的不同，在不同的运行时上运行导出的模型可能会产生不同的结果，或者与 PyTorch 的结果不同。通常这些差异在数值上很小，因此只有在您的应用程序对这种小差异敏感时才应引起关注。</p>
+</section>
+<section id="unsupported-tensor-indexing-patterns">
+<span id="tensor-indexing"></span><h3>不支持的张量索引模式</h3>
+<p>以下列出了无法导出的张量索引模式。如果您遇到的问题导出的模型不包含以下任何不支持的模式，请务必检查您是否使用最新的 <code class="docutils literal "><span class="pre">opset_version</span></code> 导出。</p>
+<section id="reads-gets">
+<h4>读取/获取</h4>
+<p>当对张量进行索引读取时，以下模式不受支持：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="c1"># Tensor indices that includes negative values.</span>
+<span class="n">data</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">]]),</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])]</span>
+<span class="c1"># Workarounds: use positive index values.</span>
+</pre></div>
+</div>
+</section>
+<section id="writes-sets">
+<h4>写入/设置</h4>
+<p>当对 Tensor 进行索引写入时，以下模式不受支持：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="c1"># Multiple tensor indices if any has rank &gt;= 2</span>
+<span class="n">data</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]]),</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])]</span> <span class="o">=</span> <span class="n">new_data</span>
+<span class="c1"># Workarounds: use single tensor index with rank &gt;= 2,</span>
+<span class="c1">#              or multiple consecutive tensor indices with rank == 1.</span>
+
+<span class="c1"># Multiple tensor indices that are not consecutive</span>
+<span class="n">data</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]),</span> <span class="p">:,</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])]</span> <span class="o">=</span> <span class="n">new_data</span>
+<span class="c1"># Workarounds: transpose `data` such that tensor indices are consecutive.</span>
+
+<span class="c1"># Tensor indices that includes negative values.</span>
+<span class="n">data</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">]),</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])]</span> <span class="o">=</span> <span class="n">new_data</span>
+<span class="c1"># Workarounds: use positive index values.</span>
+
+<span class="c1"># Implicit broadcasting required for new_data.</span>
+<span class="n">data</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]),</span> <span class="mi">1</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_data</span>
+<span class="c1"># Workarounds: expand new_data explicitly.</span>
+<span class="c1"># Example:</span>
+<span class="c1">#   data shape: [3, 4, 5]</span>
+<span class="c1">#   new_data shape: [5]</span>
+<span class="c1">#   expected new_data shape after broadcasting: [2, 2, 2, 5]</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="adding-support-for-operators">
+<h2>添加对运算符的支持</h2>
+<p>当导出包含不受支持的运算符的模型时，您将看到类似以下错误信息：</p>
+<div class="highlight-text "><div class="highlight"><pre><span></span>RuntimeError: ONNX export failed: Couldn't export operator foo
+</pre></div>
+</div>
+<p>当这种情况发生时，您可以尝试以下几种方法：</p>
+<ol class="arabic simple">
+<li><p>将模型修改为不使用该运算符。</p></li>
+<li><p>创建一个符号函数来转换该运算符，并将其注册为自定义符号函数。</p></li>
+<li><p>为 PyTorch 贡献代码，将相同的符号函数添加到 <code class="xref py py-mod docutils literal "><span class="pre">torch.onnx</span></code> 本身。</p></li>
+</ol>
+<p>如果您决定实现一个符号函数（我们希望您将其贡献回 PyTorch！），以下是您如何开始的方法：</p>
+<section id="onnx-exporter-internals">
+<h3>ONNX 导出器内部机制</h3>
+<p>“符号函数”是一种将 PyTorch 操作符分解为一系列 ONNX 操作符组合的函数。</p>
+<p>在导出过程中，TorchScript 图中的每个节点（包含 PyTorch 操作符）都会按照拓扑顺序被导出器访问。访问节点时，导出器会寻找该操作符已注册的符号函数。符号函数是用 Python 实现的。名为 <code class="docutils literal "><span class="pre">foo</span></code> 的操作符的符号函数可能看起来像这样：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">foo</span><span class="p">(</span>
+  <span class="n">g</span><span class="p">,</span>
+  <span class="n">input_0</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n">Value</span><span class="p">,</span>
+  <span class="n">input_1</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n">Value</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n">Value</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n">Value</span><span class="p">]]:</span>
+<span class="w">  </span><span class="sd">"""</span>
+<span class="sd">  Adds the ONNX operations representing this PyTorch function by updating the</span>
+<span class="sd">  graph g with `g.op()` calls.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    g (Graph): graph to write the ONNX representation into.</span>
+<span class="sd">    input_0 (Value): value representing the variables which contain</span>
+<span class="sd">        the first input for this operator.</span>
+<span class="sd">    input_1 (Value): value representing the variables which contain</span>
+<span class="sd">        the second input for this operator.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    A Value or List of Values specifying the ONNX nodes that compute something</span>
+<span class="sd">    equivalent to the original PyTorch operator with the given inputs.</span>
+
+<span class="sd">    None if it cannot be converted to ONNX.</span>
+<span class="sd">  """</span>
+  <span class="o">...</span>
+</pre></div>
+</div>
+<p> <code class="docutils literal "><span class="pre">torch._C</span></code> 类型是围绕在 ir.h 中定义的 C++ 类型上的 Python 包装器。</p>
+<p>添加符号函数的过程取决于操作符的类型。</p>
+</section>
+<section id="aten-operators">
+<span id="adding-support-aten"></span><h3>ATen 操作符 ¶</h3>
+<p>ATen 是 PyTorch 的内置张量库。如果操作符是 ATen 操作符（在 TorchScript 图中以 <code class="docutils literal "><span class="pre">aten::</span></code> 为前缀显示），请确保它已经得到支持。</p>
+<section id="list-of-supported-operators">
+<h4>支持的操作符列表</h4>
+<p>访问自动生成的支持 TorchScript 操作符列表，以了解哪些操作符在各个 <code class="docutils literal "><span class="pre">opset_version</span></code> 中得到支持。</p>
+</section>
+<section id="adding-support-for-an-aten-or-quantized-operator">
+<h4>添加 aten 或量化操作符的支持</h4>
+<p>如果操作符不在上述列表中：</p>
+<ul class="simple">
+<li><p>在 <code class="docutils literal "><span class="pre">torch/onnx/symbolic_opset&lt;version&gt;.py</span></code> 中定义符号函数，例如 torch/onnx/symbolic_opset9.py。确保函数名称与 ATen 函数相同，该函数可能声明在 <code class="docutils literal "><span class="pre">torch/_C/_VariableFunctions.pyi</span></code> 或 <code class="docutils literal "><span class="pre">torch/nn/functional.pyi</span></code> 中（这些文件在构建时生成，因此不会出现在您的签出中，直到您构建 PyTorch）。</p></li>
+<li><p>默认情况下，第一个参数是 ONNX 图。其他参数名称必须与 <code class="docutils literal "><span class="pre">.pyi</span></code> 文件中的名称完全匹配，因为分派是通过关键字参数完成的。</p></li>
+<li><p>在符号函数中，如果操作符在 ONNX 标准操作符集中，我们只需要在图中创建一个节点来表示 ONNX 操作符。如果不是，我们可以组合几个具有与 ATen 操作符等效语义的标准操作符。</p></li>
+</ul>
+<p>这里是一个处理缺失的符号函数 <code class="docutils literal "><span class="pre">ELU</span></code> 运算符的例子。</p>
+<p>如果我们运行以下代码：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span>
+    <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">ELU</span><span class="p">(),</span> <span class="c1"># module</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>   <span class="c1"># example input</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">graph</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>我们会看到类似的情况：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">graph</span><span class="p">(</span><span class="o">%</span><span class="bp">self</span> <span class="p">:</span> <span class="n">__torch__</span><span class="o">.</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">activation</span><span class="o">.</span><span class="n">___torch_mangle_0</span><span class="o">.</span><span class="n">ELU</span><span class="p">,</span>
+      <span class="o">%</span><span class="nb">input</span> <span class="p">:</span> <span class="n">Float</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">requires_grad</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">cpu</span><span class="p">)):</span>
+  <span class="o">%</span><span class="mi">4</span> <span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">prim</span><span class="p">::</span><span class="n">Constant</span><span class="p">[</span><span class="n">value</span><span class="o">=</span><span class="mf">1.</span><span class="p">]()</span>
+  <span class="o">%</span><span class="mi">5</span> <span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">prim</span><span class="p">::</span><span class="n">Constant</span><span class="p">[</span><span class="n">value</span><span class="o">=</span><span class="mi">1</span><span class="p">]()</span>
+  <span class="o">%</span><span class="mi">6</span> <span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">prim</span><span class="p">::</span><span class="n">Constant</span><span class="p">[</span><span class="n">value</span><span class="o">=</span><span class="mi">1</span><span class="p">]()</span>
+  <span class="o">%</span><span class="mi">7</span> <span class="p">:</span> <span class="n">Float</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">requires_grad</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">cpu</span><span class="p">)</span> <span class="o">=</span> <span class="n">aten</span><span class="p">::</span><span class="n">elu</span><span class="p">(</span><span class="o">%</span><span class="nb">input</span><span class="p">,</span> <span class="o">%</span><span class="mi">4</span><span class="p">,</span> <span class="o">%</span><span class="mi">5</span><span class="p">,</span> <span class="o">%</span><span class="mi">6</span><span class="p">)</span>
+  <span class="k">return</span> <span class="p">(</span><span class="o">%</span><span class="mi">7</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>由于我们在图中看到了 <code class="docutils literal "><span class="pre">aten::elu</span></code> ，我们知道这是一个 ATen 运算符。</p>
+<p>我们检查 ONNX 算子列表，并确认 <code class="docutils literal "><span class="pre">Elu</span></code> 在 ONNX 中是标准化的。</p>
+<p>我们在 <code class="docutils literal "><span class="pre">torch/nn/functional.pyi</span></code> 中找到了 <code class="docutils literal "><span class="pre">elu</span></code> 的签名：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">elu</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span> <span class="n">inplace</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span> <span class="o">...</span>
+</pre></div>
+</div>
+<p>我们将以下行添加到 <code class="docutils literal "><span class="pre">symbolic_opset9.py</span></code> 中：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">elu</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Value</span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Value</span><span class="p">,</span> <span class="n">inplace</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">g</span><span class="o">.</span><span class="n">op</span><span class="p">(</span><span class="s2">"Elu"</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">alpha_f</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>现在，PyTorch 能够导出包含 <code class="docutils literal "><span class="pre">aten::elu</span></code> 算子的模型了！</p>
+<p>请参阅 <code class="docutils literal "><span class="pre">torch/onnx/symbolic_opset*.py</span></code> 文件以获取更多示例。</p>
+</section>
+</section>
+<section id="torch-autograd-functions">
+<h3><a class="toc-backref" href="#id20" role="doc-backlink">torch.autograd.Functions</a><a class="headerlink" href="#torch-autograd-functions" title="Permalink to this heading">¶</a></h3>
+<p>如果操作符是 <code class="xref py py-class docutils literal "><span class="pre">torch.autograd.Function</span></code> 的子类，有三种方式可以导出它。</p>
+<section id="static-symbolic-method">
+<h4>静态符号方法 ¶</h4>
+<p>你可以在函数类中添加一个名为 <code class="docutils literal "><span class="pre">symbolic</span></code> 的静态方法。它应该返回表示函数行为的 ONNX 算子。例如：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyRelu</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">autograd</span><span class="o">.</span><span class="n">Function</span><span class="p">):</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">save_for_backward</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">input</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">symbolic</span><span class="p">(</span><span class="n">g</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Graph</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Value</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Value</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">g</span><span class="o">.</span><span class="n">op</span><span class="p">(</span><span class="s2">"Clip"</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">op</span><span class="p">(</span><span class="s2">"Constant"</span><span class="p">,</span> <span class="n">value_t</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float</span><span class="p">)))</span>
+</pre></div>
+</div>
+</section>
+<section id="inline-autograd-function">
+<h4>内联 Autograd 函数</h4>
+<p>在没有为后续的 <code class="xref py py-class docutils literal "><span class="pre">torch.autograd.Function</span></code> 提供静态符号方法，或者没有提供将 <code class="docutils literal "><span class="pre">prim::PythonOp</span></code> 注册为自定义符号函数的函数的情况下， <code class="xref py py-func docutils literal "><span class="pre">torch.onnx.export()</span></code> 会尝试内联与该 <code class="xref py py-class docutils literal "><span class="pre">torch.autograd.Function</span></code> 对应的图，将此函数分解为函数内部使用的各个算子。只要这些单个算子得到支持，导出就会成功。例如：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyLogExp</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">autograd</span><span class="o">.</span><span class="n">Function</span><span class="p">):</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">save_for_backward</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="nb">input</span><span class="o">.</span><span class="n">exp</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">h</span><span class="o">.</span><span class="n">log</span><span class="p">()</span><span class="o">.</span><span class="n">log</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>对于这个模型，没有提供静态符号方法，但它被导出如下：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">graph</span><span class="p">(</span><span class="o">%</span><span class="nb">input</span> <span class="p">:</span> <span class="n">Float</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">requires_grad</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">cpu</span><span class="p">)):</span>
+    <span class="o">%</span><span class="mi">1</span> <span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">onnx</span><span class="p">::</span><span class="n">Exp</span><span class="p">[](</span><span class="o">%</span><span class="nb">input</span><span class="p">)</span>
+    <span class="o">%</span><span class="mi">2</span> <span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">onnx</span><span class="p">::</span><span class="n">Log</span><span class="p">[](</span><span class="o">%</span><span class="mi">1</span><span class="p">)</span>
+    <span class="o">%</span><span class="mi">3</span> <span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">onnx</span><span class="p">::</span><span class="n">Log</span><span class="p">[](</span><span class="o">%</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="o">%</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>如果需要避免内联 <code class="xref py py-class docutils literal "><span class="pre">torch.autograd.Function</span></code> ，则应导出模型时将 <code class="docutils literal "><span class="pre">operator_export_type</span></code> 设置为 <code class="docutils literal "><span class="pre">ONNX_FALLTHROUGH</span></code> 或 <code class="docutils literal "><span class="pre">ONNX_ATEN_FALLBACK</span></code> 。</p>
+</section>
+</section>
+<section id="custom-operators">
+<h3>自定义算子 ¶</h3>
+<p>您可以使用包含许多标准 ONNX 算子的自定义算子导出模型，或者由自定义的 C++后端驱动。</p>
+<section id="onnx-script-functions">
+<h4>ONNX-script 函数 ¶</h4>
+<p>如果一个操作符不是标准的 ONNX 操作符，但可以由多个现有的 ONNX 操作符组合而成，您可以使用 ONNX-script 创建一个外部 ONNX 函数来支持该操作符。您可以通过以下示例进行导出：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">onnxscript</span>
+<span class="c1"># There are three opset version needed to be aligned</span>
+<span class="c1"># This is (1) the opset version in ONNX function</span>
+<span class="kn">from</span> <span class="nn">onnxscript.onnx_opset</span> <span class="kn">import</span> <span class="n">opset15</span> <span class="k">as</span> <span class="n">op</span>
+<span class="n">opset_version</span> <span class="o">=</span> <span class="mi">15</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">SELU</span><span class="p">()</span>
+
+<span class="n">custom_opset</span> <span class="o">=</span> <span class="n">onnxscript</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">Opset</span><span class="p">(</span><span class="n">domain</span><span class="o">=</span><span class="s2">"onnx-script"</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="nd">@onnxscript</span><span class="o">.</span><span class="n">script</span><span class="p">(</span><span class="n">custom_opset</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">Selu</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+    <span class="n">alpha</span> <span class="o">=</span> <span class="mf">1.67326</span>  <span class="c1"># auto wrapped as Constants</span>
+    <span class="n">gamma</span> <span class="o">=</span> <span class="mf">1.0507</span>
+    <span class="n">alphaX</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">CastLike</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="n">X</span><span class="p">)</span>
+    <span class="n">gammaX</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">CastLike</span><span class="p">(</span><span class="n">gamma</span><span class="p">,</span> <span class="n">X</span><span class="p">)</span>
+    <span class="n">neg</span> <span class="o">=</span> <span class="n">gammaX</span> <span class="o">*</span> <span class="p">(</span><span class="n">alphaX</span> <span class="o">*</span> <span class="n">op</span><span class="o">.</span><span class="n">Exp</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="o">-</span> <span class="n">alphaX</span><span class="p">)</span>
+    <span class="n">pos</span> <span class="o">=</span> <span class="n">gammaX</span> <span class="o">*</span> <span class="n">X</span>
+    <span class="n">zero</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">CastLike</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">X</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">op</span><span class="o">.</span><span class="n">Where</span><span class="p">(</span><span class="n">X</span> <span class="o">&lt;=</span> <span class="n">zero</span><span class="p">,</span> <span class="n">neg</span><span class="p">,</span> <span class="n">pos</span><span class="p">)</span>
+
+<span class="c1"># setType API provides shape/type to ONNX shape/type inference</span>
+<span class="k">def</span> <span class="nf">custom_selu</span><span class="p">(</span><span class="n">g</span><span class="p">:</span> <span class="n">jit_utils</span><span class="o">.</span><span class="n">GraphContext</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">g</span><span class="o">.</span><span class="n">onnxscript_op</span><span class="p">(</span><span class="n">Selu</span><span class="p">,</span> <span class="n">X</span><span class="p">)</span><span class="o">.</span><span class="n">setType</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">type</span><span class="p">())</span>
+
+<span class="c1"># Register custom symbolic function</span>
+<span class="c1"># There are three opset version needed to be aligned</span>
+<span class="c1"># This is (2) the opset version in registry</span>
+<span class="n">torch</span><span class="o">.</span><span class="n">onnx</span><span class="o">.</span><span class="n">register_custom_op_symbolic</span><span class="p">(</span>
+    <span class="n">symbolic_name</span><span class="o">=</span><span class="s2">"aten::selu"</span><span class="p">,</span>
+    <span class="n">symbolic_fn</span><span class="o">=</span><span class="n">custom_selu</span><span class="p">,</span>
+    <span class="n">opset_version</span><span class="o">=</span><span class="n">opset_version</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># There are three opset version needed to be aligned</span>
+<span class="c1"># This is (2) the opset version in exporter</span>
+<span class="n">torch</span><span class="o">.</span><span class="n">onnx</span><span class="o">.</span><span class="n">export</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">,</span>
+    <span class="n">x</span><span class="p">,</span>
+    <span class="s2">"model.onnx"</span><span class="p">,</span>
+    <span class="n">opset_version</span><span class="o">=</span><span class="n">opset_version</span><span class="p">,</span>
+    <span class="c1"># only needed if you want to specify an opset version &gt; 1.</span>
+    <span class="n">custom_opsets</span><span class="o">=</span><span class="p">{</span><span class="s2">"onnx-script"</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>上述示例将其导出为“onnx-script”操作集的自定义操作符。当导出自定义操作符时，您可以使用导出时的 <code class="docutils literal "><span class="pre">custom_opsets</span></code> 字典指定自定义域版本。如果没有指定，自定义操作集版本默认为 1。</p>
+<p>注意：请仔细对齐上述示例中提到的操作集版本，并确保它们在导出步骤中被消费。关于如何编写 onnx-script 函数的示例使用目前处于 onnx-script 活跃开发阶段的 beta 版本。请遵循最新的 ONNX-script</p>
+</section>
+<section id="c-operators">
+<h4>C++ 操作符 ＿</h4>
+<p>如果模型使用在《通过自定义 C++运算符扩展 TorchScript》中描述的自定义运算符，可以通过以下示例进行导出：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">torch.onnx</span> <span class="kn">import</span> <span class="n">symbolic_helper</span>
+
+
+<span class="c1"># Define custom symbolic function</span>
+<span class="nd">@symbolic_helper</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="s2">"v"</span><span class="p">,</span> <span class="s2">"v"</span><span class="p">,</span> <span class="s2">"f"</span><span class="p">,</span> <span class="s2">"i"</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">symbolic_foo_forward</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">input1</span><span class="p">,</span> <span class="n">input2</span><span class="p">,</span> <span class="n">attr1</span><span class="p">,</span> <span class="n">attr2</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">g</span><span class="o">.</span><span class="n">op</span><span class="p">(</span><span class="s2">"custom_domain::Foo"</span><span class="p">,</span> <span class="n">input1</span><span class="p">,</span> <span class="n">input2</span><span class="p">,</span> <span class="n">attr1_f</span><span class="o">=</span><span class="n">attr1</span><span class="p">,</span> <span class="n">attr2_i</span><span class="o">=</span><span class="n">attr2</span><span class="p">)</span>
+
+
+<span class="c1"># Register custom symbolic function</span>
+<span class="n">torch</span><span class="o">.</span><span class="n">onnx</span><span class="o">.</span><span class="n">register_custom_op_symbolic</span><span class="p">(</span><span class="s2">"custom_ops::foo_forward"</span><span class="p">,</span> <span class="n">symbolic_foo_forward</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">FooModel</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr1</span><span class="p">,</span> <span class="n">attr2</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attr1</span> <span class="o">=</span> <span class="n">attr1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attr2</span> <span class="o">=</span> <span class="n">attr2</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input1</span><span class="p">,</span> <span class="n">input2</span><span class="p">):</span>
+        <span class="c1"># Calling custom op</span>
+        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">custom_ops</span><span class="o">.</span><span class="n">foo_forward</span><span class="p">(</span><span class="n">input1</span><span class="p">,</span> <span class="n">input2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">attr1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">attr2</span><span class="p">)</span>
+
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">FooModel</span><span class="p">(</span><span class="n">attr1</span><span class="p">,</span> <span class="n">attr2</span><span class="p">)</span>
+<span class="n">torch</span><span class="o">.</span><span class="n">onnx</span><span class="o">.</span><span class="n">export</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">,</span>
+    <span class="p">(</span><span class="n">example_input1</span><span class="p">,</span> <span class="n">example_input1</span><span class="p">),</span>
+    <span class="s2">"model.onnx"</span><span class="p">,</span>
+    <span class="c1"># only needed if you want to specify an opset version &gt; 1.</span>
+    <span class="n">custom_opsets</span><span class="o">=</span><span class="p">{</span><span class="s2">"custom_domain"</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>上面的示例将其导出为“custom_domain”运算符集的自定义运算符。当导出自定义运算符时，您可以使用导出时的 <code class="docutils literal "><span class="pre">custom_opsets</span></code> 字典指定自定义域版本。如果没有指定，自定义运算符集版本默认为 1。</p>
+<p>消费模型的运行时需要支持自定义运算符。请参阅 Caffe2 自定义运算符、ONNX 运行时自定义运算符或您选择的运行时的文档。</p>
+</section>
+</section>
+<section id="discovering-all-unconvertible-aten-ops-at-once">
+<h3>一次性发现所有不可转换的 ATen 运算符</h3>
+<p>当导出失败是由于无法转换的 ATen 操作时，实际上可能不止一个这样的操作，但错误信息只提到了第一个。要一次性发现所有无法转换的操作，你可以：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="c1"># prepare model, args, opset_version</span>
+<span class="o">...</span>
+
+<span class="n">torch_script_graph</span><span class="p">,</span> <span class="n">unconvertible_ops</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">onnx</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">unconvertible_ops</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">opset_version</span><span class="o">=</span><span class="n">opset_version</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">unconvertible_ops</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>集合是近似的，因为在转换过程中可能会删除一些操作，这些操作不需要转换。一些其他操作可能只有部分支持，在特定输入下会失败转换，但这应该能给你一个大致了解哪些操作不受支持。请随时在 GitHub 上提交操作支持请求的问题。</p>
+</section>
+</section>
+<section id="frequently-asked-questions">
+<h2>常见问题解答 ¶</h2>
+<p>问：我已经导出了我的 LSTM 模型，但它的输入大小看起来是固定的吗？</p>
+<blockquote>
+<div><p>跟踪器记录示例输入的形状。如果模型应该接受动态形状的输入，请在调用 <code class="xref py py-func docutils literal "><span class="pre">torch.onnx.export()</span></code> 时设置 <code class="docutils literal "><span class="pre">dynamic_axes</span></code> 。</p>
+</div></blockquote>
+<p>Q: 如何导出包含循环的模型？</p>
+<blockquote>
+<div><p>查看跟踪与脚本的区别。</p>
+</div></blockquote>
+<p>Q: 如何导出具有原始类型输入（例如 int、float）的模型？</p>
+<blockquote>
+<div><p>PyTorch 1.9 版本中增加了对原始数值类型输入的支持。然而，导出器不支持具有 str 输入的模型。</p>
+</div></blockquote>
+<p>Q: ONNX 支持隐式标量数据类型转换吗？</p>
+<blockquote>
+<div><p>ONNX 标准不支持，但导出器会尝试处理这部分。标量以常量张量的形式导出。导出器会确定标量的正确数据类型。在极少数无法做到的情况下，您需要手动指定数据类型，例如使用 dtype=torch.float32。如果您看到任何错误，请[在 GitHub 上创建问题](https://github.com/pytorch/pytorch/issues)。</p>
+</div></blockquote>
+<p>Q: 张量列表可导出到 ONNX 吗？</p>
+<blockquote>
+<div><p>是的，从 <code class="docutils literal "><span class="pre">opset_version</span></code> &gt;= 11 开始，因为 ONNX 在 opset 11 中引入了 Sequence 类型。</p>
+</div></blockquote>
+</section>
+<section id="module-torch.onnx">
+<span id="python-api"></span><h2><a class="toc-backref" href="#id28" role="doc-backlink">Python API</a><a class="headerlink" href="#module-torch.onnx" title="Permalink to this heading">¶</a></h2>
+<section id="functions">
+<h3>函数 ¶</h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.onnx.export">
+<span class="sig-prename descclassname"><span class="pre">torch.onnx.</span></span><span class="sig-name descname"><span class="pre">export</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args=()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">export_params=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_names=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_names=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opset_version=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dynamic_axes=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_initializers_as_inputs=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dynamo=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">external_data=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dynamic_shapes=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_translation_table=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">report=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimize=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verify=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profile=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dump_exported_program=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">artifacts_dir='.'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fallback=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training=&lt;TrainingMode.EVAL:</span> <span class="pre">0&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operator_export_type=&lt;OperatorExportTypes.ONNX:</span> <span class="pre">0&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do_constant_folding=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_opsets=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">export_modules_as_functions=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">autograd_inlining=True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/onnx.html#export"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/onnx/__init__.py#L131"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.onnx.export" title="Permalink to this definition">¶</a></dt>
+<dd><p>将模型导出为 ONNX 格式。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>导出模型（torch.nn.Module | torch.export.ExportedProgram | torch.jit.ScriptModule | torch.jit.ScriptFunction）- 要导出的模型。</p></li>
+<li><p>args (tuple[Any, ...]) – 示例位置输入。任何非 Tensor 参数将被硬编码到导出的模型中；任何 Tensor 参数将成为导出模型的输入，其顺序与元组中出现的顺序相同。</p></li>
+<li><p>f (str | os.PathLike | None) – 输出 ONNX 模型文件的路径。例如：“model.onnx”。</p></li>
+<li><p>kwargs (dict[str, Any] | None) – 可选的示例关键字输入。</p></li>
+<li><p>export_params (bool) – 如果为 false，则不会导出参数（权重）。</p></li>
+<li><p>verbose (bool | None) – 是否启用详细日志记录。</p></li>
+<li><p>input_names (Sequence[str] | None) – 按顺序分配给图输入节点的名称。</p></li>
+<li><p>output_names (Sequence[str] | None) – 按顺序分配给图输出节点的名称。</p></li>
+<li><p>opset_version (int | None) – 要针对的目标默认（ai.onnx）opset 版本。必须大于等于 7。</p></li>
+<li><p><strong>dynamic_axes</strong> (<em>Mapping</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>Mapping</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>]</em><em>] </em><em>| </em><em>Mapping</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>Sequence</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em><em>] </em><em>| </em><em>None</em>) – </p><p>默认情况下，导出的模型将具有所有输入和输出张量的形状，与在 <code class="docutils literal "><span class="pre">args</span></code> 中给出的形状完全匹配。要指定张量的轴为动态（即在运行时才知道），请将 <code class="docutils literal "><span class="pre">dynamic_axes</span></code> 设置为具有以下模式的字典：</p>
+<ul>
+<li><dl class="simple">
+<dt>KEY (str): 输入或输出名称。每个名称也必须在 <code class="docutils literal "><span class="pre">input_names</span></code> 中提供。</dt><dd><p><code class="docutils literal "><span class="pre">output_names</span></code>.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>VALUE (字典或列表)：如果是一个字典，键是轴索引，值是轴名称。如果是列表，</font></font></font></dt><dd><p><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">则每个元素是一个轴索引。</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>例如：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SumModule</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+
+<span class="n">torch</span><span class="o">.</span><span class="n">onnx</span><span class="o">.</span><span class="n">export</span><span class="p">(</span>
+    <span class="n">SumModule</span><span class="p">(),</span>
+    <span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),),</span>
+    <span class="s2">"onnx.pb"</span><span class="p">,</span>
+    <span class="n">input_names</span><span class="o">=</span><span class="p">[</span><span class="s2">"x"</span><span class="p">],</span>
+    <span class="n">output_names</span><span class="o">=</span><span class="p">[</span><span class="s2">"sum"</span><span class="p">],</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>生成：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="nb">input</span> <span class="p">{</span>
+  <span class="n">name</span><span class="p">:</span> <span class="s2">"x"</span>
+  <span class="o">...</span>
+      <span class="n">shape</span> <span class="p">{</span>
+        <span class="n">dim</span> <span class="p">{</span>
+          <span class="n">dim_value</span><span class="p">:</span> <span class="mi">2</span>  <span class="c1"># axis 0</span>
+        <span class="p">}</span>
+        <span class="n">dim</span> <span class="p">{</span>
+          <span class="n">dim_value</span><span class="p">:</span> <span class="mi">2</span>  <span class="c1"># axis 1</span>
+<span class="o">...</span>
+<span class="n">output</span> <span class="p">{</span>
+  <span class="n">name</span><span class="p">:</span> <span class="s2">"sum"</span>
+  <span class="o">...</span>
+      <span class="n">shape</span> <span class="p">{</span>
+        <span class="n">dim</span> <span class="p">{</span>
+          <span class="n">dim_value</span><span class="p">:</span> <span class="mi">2</span>  <span class="c1"># axis 0</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p>当：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">torch</span><span class="o">.</span><span class="n">onnx</span><span class="o">.</span><span class="n">export</span><span class="p">(</span>
+    <span class="n">SumModule</span><span class="p">(),</span>
+    <span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),),</span>
+    <span class="s2">"onnx.pb"</span><span class="p">,</span>
+    <span class="n">input_names</span><span class="o">=</span><span class="p">[</span><span class="s2">"x"</span><span class="p">],</span>
+    <span class="n">output_names</span><span class="o">=</span><span class="p">[</span><span class="s2">"sum"</span><span class="p">],</span>
+    <span class="n">dynamic_axes</span><span class="o">=</span><span class="p">{</span>
+        <span class="c1"># dict value: manually named axes</span>
+        <span class="s2">"x"</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s2">"my_custom_axis_name"</span><span class="p">},</span>
+        <span class="c1"># list value: automatic names</span>
+        <span class="s2">"sum"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>生成：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="nb">input</span> <span class="p">{</span>
+  <span class="n">name</span><span class="p">:</span> <span class="s2">"x"</span>
+  <span class="o">...</span>
+      <span class="n">shape</span> <span class="p">{</span>
+        <span class="n">dim</span> <span class="p">{</span>
+          <span class="n">dim_param</span><span class="p">:</span> <span class="s2">"my_custom_axis_name"</span>  <span class="c1"># axis 0</span>
+        <span class="p">}</span>
+        <span class="n">dim</span> <span class="p">{</span>
+          <span class="n">dim_value</span><span class="p">:</span> <span class="mi">2</span>  <span class="c1"># axis 1</span>
+<span class="o">...</span>
+<span class="n">output</span> <span class="p">{</span>
+  <span class="n">name</span><span class="p">:</span> <span class="s2">"sum"</span>
+  <span class="o">...</span>
+      <span class="n">shape</span> <span class="p">{</span>
+        <span class="n">dim</span> <span class="p">{</span>
+          <span class="n">dim_param</span><span class="p">:</span> <span class="s2">"sum_dynamic_axes_1"</span>  <span class="c1"># axis 0</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p></p></li>
+<li><p>keep_initializers_as_inputs (布尔值) –</font></font></font></p><p><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">如果为 True，则导出的图中所有初始化器（通常对应模型权重）也将作为输入添加到图中。如果为 False，则初始化器不会添加为输入，只添加用户输入作为输入。</p>
+<p>如果打算在运行时提供模型权重，请将其设置为 True。如果权重是静态的，请将其设置为 False 以允许后端/运行时进行更好的优化（例如，常量折叠）。</p>
+<p></p></li>
+<li><p>dynamo (bool) – 是否以 <code class="docutils literal "><span class="pre">torch.export</span></code> ExportedProgram 的形式导出模型，而不是 TorchScript。</p></li>
+<li><p>external_data (bool) – 是否将模型权重保存为外部数据文件。对于超过 ONNX 文件大小限制（2GB）的大型权重模型，此选项是必需的。当为 False 时，权重将保存在包含模型架构的 ONNX 文件中。</p></li>
+<li><p>dynamic_shapes (dict[str, Any] | tuple[Any, ...] | list[Any] | None) – 模型输入的动态形状的字典或元组。有关详细信息，请参阅 <code class="xref py py-func docutils literal "><span class="pre">torch.export.export()</span></code> 。此选项仅在 dynamo 为 True 时使用（并首选）。请注意，dynamic_shapes 是在 dynamo=True 时设计的，而 dynamic_axes 是在 dynamo=False 时使用的。</p></li>
+<li><p>custom_translation_table (dict[Callable, Callable | Sequence[Callable]] | None) – 模型中操作符的自定义分解的字典。字典应以 fx 节点中的可调用目标作为键（例如 <code class="docutils literal "><span class="pre">torch.ops.aten.stft.default</span></code> ），值应是一个使用 ONNX Script 构建该图的函数。此选项仅在 dynamo 为 True 时有效。</p></li>
+<li><p>报告（布尔值）- 是否为导出过程生成 Markdown 报告。此选项仅在 dynamo 为 True 时有效。</p></li>
+<li><p>优化（布尔值）- 是否优化导出的模型。此选项仅在 dynamo 为 True 时有效。默认为 True。</p></li>
+<li><p>验证（布尔值）- 是否使用 ONNX Runtime 验证导出的模型。此选项仅在 dynamo 为 True 时有效。</p></li>
+<li><p>性能分析（布尔值）- 是否对导出过程进行性能分析。此选项仅在 dynamo 为 True 时有效。</p></li>
+<li><p>是否将导出的程序输出到文件（布尔值）- 是否将 <code class="xref py py-class docutils literal "><span class="pre">torch.export.ExportedProgram</span></code> 输出到文件。这对于调试导出器很有用。此选项仅在 dynamo 为 True 时有效。</p></li>
+<li><p>艺术品目录（字符串 | os.PathLike）- 保存调试艺术品（如报告和序列化的导出程序）的目录。此选项仅在 dynamo 为 True 时有效。</p></li>
+<li><p>回退（布尔值）- 当 dynamo 导出器失败时是否回退到 TorchScript 导出器。此选项仅在 dynamo 为 True 时有效。当启用回退时，即使提供了 dynamic_shapes，也建议设置 dynamic_axes。</p></li>
+<li><p>训练（_C_onnx.TrainingMode）- 已弃用选项。导出之前，请设置模型的训练模式。</p></li>
+<li><p>operator_export_type (_C_onnx.OperatorExportTypes) – 已废弃选项。仅支持 ONNX。</p></li>
+<li><p>do_constant_folding (bool) – 已废弃选项。</p></li>
+<li><p><strong>custom_opsets</strong> (<em>Mapping</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>] </em><em>| </em><em>None</em>) – </p><p>已废弃。一个字典：</p>
+<ul>
+<li><p>KEY (字符串): opset 域名</p></li>
+<li><p>VALUE (整数): opset 版本</p></li>
+</ul>
+<p>如果自定义 opset 通过 <code class="docutils literal "><span class="pre">model</span></code> 引用但未在此字典中提及，则将 opset 版本设置为 1。仅通过此参数指示自定义 opset 域名和版本。</p>
+<p></p></li>
+<li><p>export_modules_as_functions (布尔值 | torch.nn.Module 类型集合) –</font></font></font></p><p><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">已弃用选项。</p>
+<p>标志，用于在 ONNX 中启用导出所有 <code class="docutils literal "><span class="pre">nn.Module</span></code> 前向调用为本地函数。或一个集合，指示要导出为 ONNX 本地函数的特定模块类型。此功能需要 <code class="docutils literal "><span class="pre">opset_version</span></code> &gt;= 15，否则导出将失败。这是因为 <code class="docutils literal "><span class="pre">opset_version</span></code> &lt; 15 表示 IR 版本&lt; 8，这意味着没有本地函数支持。模块变量将作为函数属性导出。存在两种类型的函数属性。</p>
+<p>1. 注解属性：通过 PEP 526 风格的类型注解的类变量将被导出为属性。注解属性在 ONNX 本地函数的子图中不被使用，因为它们不是由 PyTorch JIT 跟踪创建的，但消费者可以使用它们来确定是否用特定的融合内核替换函数。</p>
+<p>2. 推断属性：模块内部操作使用的变量。属性名称将带有前缀“inferred::”。这是为了区分从 Python 模块注解中检索到的预定义属性。推断属性在 ONNX 本地函数的子图中使用。</p>
+<ul>
+<li><p>默认导出（ <code class="docutils literal "><span class="pre">False</span></code> ）：将调用导出为细粒度节点。</p></li>
+<li><p>导出所有（ <code class="docutils literal "><span class="pre">True</span></code> ）：将调用导出为本地函数节点。</p></li>
+<li><dl class="simple">
+<dt>nn.Module 类型集合：导出（ <code class="docutils literal "><span class="pre">nn.Module</span></code> ）调用为本地函数节点，</font></font></font></dt><dd><p><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">仅当找到类型集合中的 <code class="docutils literal "><span class="pre">nn.Module</span></code> 类型时。</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p></p></li>
+<li><p>autograd_inlining (bool) – 已弃用。用于控制是否内联 autograd 函数的标志。有关更多详细信息，请参阅 https://github.com/pytorch/pytorch/pull/74765。</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p> <code class="xref py py-class docutils literal "><span class="pre">torch.onnx.ONNXProgram</span></code> 如果 dynamo 为 True，否则为 None。</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="onnx_dynamo.html#torch.onnx.ONNXProgram" title="torch.onnx.ONNXProgram">ONNXProgram</a> | None</p>
+</dd>
+</dl>
+<div class="versionchanged">
+<p>版本 2.6 中的变更：现在训练已弃用。导出前，请设置模型的训练模式。operator_export_type 已弃用。现在仅支持 ONNX。do_constant_folding 已弃用。它始终启用。export_modules_as_functions 已弃用。autograd_inlining 已弃用。</p>
+</div>
+<div class="versionchanged">
+<p>版本 2.7 变更：优化现在默认为 True。</p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.onnx.register_custom_op_symbolic">
+<span class="sig-prename descclassname"><span class="pre">torch.onnx.</span></span><span class="sig-name descname"><span class="pre">register_custom_op_symbolic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">symbolic_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symbolic_fn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opset_version</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/onnx/utils.html#register_custom_op_symbolic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/onnx/utils.py#L1795"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.onnx.register_custom_op_symbolic" title="Permalink to this definition">¶</a></dt>
+<dd><p>注册自定义算子的符号函数。</p>
+<p>当用户为自定义/贡献操作注册符号时，强烈建议通过 setType API 为该操作添加形状推断，否则导出的图在某些极端情况下可能存在形状推断错误。setType 的一个示例是 test_operators.py 中的 test_aten_embedding_2。</p>
+<p>请参阅模块文档中的“自定义运算符”示例用法。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>symbolic_name (str) – 自定义运算符的名称，格式为“::”。</p></li>
+<li><p>symbolic_fn (Callable) – 一个函数，它接受 ONNX 图和当前运算符的输入参数，并返回要添加到图中的新运算符节点。</p></li>
+<li><p>opset_version (int) – 注册的 ONNX opset 版本。</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.onnx.unregister_custom_op_symbolic">
+<span class="sig-prename descclassname"><span class="pre">torch.onnx.</span></span><span class="sig-name descname"><span class="pre">unregister_custom_op_symbolic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">symbolic_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opset_version</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/onnx/utils.html#unregister_custom_op_symbolic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/onnx/utils.py#L1825"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.onnx.unregister_custom_op_symbolic" title="Permalink to this definition">¶</a></dt>
+<dd><p>取消注册 <code class="docutils literal "><span class="pre">symbolic_name</span></code> .</p>
+<p>请参阅模块文档中的“自定义算子”部分以获取示例用法。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>symbolic_name (str) – 自定义算子的名称，格式为“::”。</p></li>
+<li><p>opset_version (int) – 要注销的 ONNX opset 版本。</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.onnx.select_model_mode_for_export">
+<span class="sig-prename descclassname"><span class="pre">torch.onnx.</span></span><span class="sig-name descname"><span class="pre">select_model_mode_for_export</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/onnx/utils.html#select_model_mode_for_export"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/onnx/utils.py#L59"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.onnx.select_model_mode_for_export" title="Permalink to this definition">¶</a></dt>
+<dd><p>一个上下文管理器，用于临时设置 <code class="docutils literal "><span class="pre">model</span></code> 的训练模式为 <code class="docutils literal "><span class="pre">mode</span></code> ，退出 with 块时将其重置。</p>
+<div class="deprecated">
+<p>自版本 2.7 以来已弃用：请在导出模型之前设置训练模式。</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>模型 – 与 <code class="docutils literal "><span class="pre">model</span></code> 参数到 <code class="xref py py-func docutils literal "><span class="pre">export()</span></code> 的类型和意义相同。</p></li>
+<li><p>模式（训练模式） – 与 <code class="docutils literal "><span class="pre">training</span></code> 参数到 <code class="xref py py-func docutils literal "><span class="pre">export()</span></code> 的类型和意义相同。</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.onnx.is_in_onnx_export">
+<span class="sig-prename descclassname"><span class="pre">torch.onnx.</span></span><span class="sig-name descname"><span class="pre">is_in_onnx_export</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/onnx/utils.html#is_in_onnx_export"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/onnx/utils.py#L49"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.onnx.is_in_onnx_export" title="Permalink to this definition">¶</a></dt>
+<dd><p>返回是否处于 ONNX 导出过程中。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">布尔型</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="classes">
+<h3>班级</h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p></p><p id="torch.onnx.JitScalarType"><a class="reference internal" href="generated/torch.onnx.JitScalarType.html#torch.onnx.JitScalarType" title="torch.onnx.JitScalarType"><code class="xref py py-obj docutils literal "><span class="pre">JitScalarType</span></code></a></p></td>
+<td><p>在 torch 中定义的标量类型。</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+
+
+             </article>
+             
+            </div>
+            <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        下一个 <img height="16" width="16" class="next-page" src="_static/images/chevron-right-orange.svg"> <img height="16" width="16" class="previous-page" src="_static/images/chevron-right-orange.svg"> 上一个
+      
+    </div>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>© 版权所有 PyTorch 贡献者。</p>
+  </div>
+    
+      <div>使用 Sphinx 构建，主题由 Read the Docs 提供。</div>
+     
+
+</footer>
+
+          </div>
+<script>
+
+var match = window.location.href.match(/\/_[a-zA-Z0-9_]*.html|_dynamo/gi);
+var url = window.location.href.lastIndexOf(match[match.length-1]);
+
+if (url)
+  {
+    var div = '<div class="admonition note"><p class="admonition-title">Note</p><p><i class="fa fa-exclamation-circle" aria-hidden="true">&nbsp</i> This page describes an internal API which is not intended to be used outside of the PyTorch codebase and can be modified or removed without notice.</p></div>'
+    document.getElementById("pytorch-article").insertAdjacentHTML('afterBegin', div)
+  }
+</script>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">基于 TorchScript 的 ONNX 导出器</a><ul>
+<li><a class="reference internal" href="#example-alexnet-from-pytorch-to-onnx">示例：将 PyTorch 的 AlexNet 转换为 ONNX</a></li>
+<li><a class="reference internal" href="#tracing-vs-scripting">追踪与脚本</a></li>
+<li><a class="reference internal" href="#avoiding-pitfalls">避免陷阱</a><ul>
+<li><a class="reference internal" href="#avoid-numpy-and-built-in-python-types">避免使用 NumPy 和内置 Python 类型</a></li>
+<li><a class="reference internal" href="#avoid-tensor-data">避免使用 Tensor.data</a></li>
+<li><a class="reference internal" href="#avoid-in-place-operations-when-using-tensor-shape-in-tracing-mode">使用追踪模式时，避免使用 tensor.shape 进行原地操作</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#limitations">限制</a><ul>
+<li><a class="reference internal" href="#types">类型</a></li>
+<li><a class="reference internal" href="#differences-in-operator-implementations">运算符实现中的差异</a></li>
+<li><a class="reference internal" href="#unsupported-tensor-indexing-patterns">不支持的张量索引模式</a><ul>
+<li><a class="reference internal" href="#reads-gets">读取/获取</a></li>
+<li><a class="reference internal" href="#writes-sets">写入/设置</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#adding-support-for-operators">添加对运算符的支持</a><ul>
+<li><a class="reference internal" href="#onnx-exporter-internals">ONNX 导出器内部机制</a></li>
+<li><a class="reference internal" href="#aten-operators">ATen 运算符</a><ul>
+<li><a class="reference internal" href="#list-of-supported-operators">支持的运算符列表</a></li>
+<li><a class="reference internal" href="#adding-support-for-an-aten-or-quantized-operator">添加对 aten 或量化运算符的支持</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#torch-autograd-functions">torch.autograd 函数</a><ul>
+<li><a class="reference internal" href="#static-symbolic-method">静态符号方法</a></li>
+<li><a class="reference internal" href="#inline-autograd-function">内联自动微分函数</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#custom-operators">自定义算子</a><ul>
+<li><a class="reference internal" href="#onnx-script-functions">ONNX 脚本函数</a></li>
+<li><a class="reference internal" href="#c-operators">C++运算符</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#discovering-all-unconvertible-aten-ops-at-once">一次性发现所有不可转换的 ATen 运算符</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#frequently-asked-questions">常见问题解答</a></li>
+<li><a class="reference internal" href="#module-torch.onnx">Python API</a><ul>
+<li><a class="reference internal" href="#functions">函数</a></li>
+<li><a class="reference internal" href="#classes">类</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+         <script src="_static/jquery.js"></script>
+         <script src="_static/underscore.js"></script>
+         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+         <script src="_static/doctools.js"></script>
+         <script src="_static/clipboard.min.js"></script>
+         <script src="_static/copybutton.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ 
+<script script="" type="text/javascript">
+  var collapsedSections = ['Developer Notes', 'Language Bindings', 'Libraries', 'Community'];
+</script>
+
+<img height="1" width="1" style="border-style:none;" alt="" src="https://www.googleadservices.com/pagead/conversion/795629140/?label=txkmCPmdtosBENSssfsC&amp;guid=ON&amp;script=0">
+
+
+  <!-- Begin Footer -->
+
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 text-center">
+          <h2>文档</h2>
+          <p>PyTorch 开发者文档全面访问</p>
+          <a class="with-right-arrow" href="https://pytorch.org/docs/stable/index.html">查看文档</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>教程</h2>
+          <p>获取初学者和高级开发者的深入教程</p>
+          <a class="with-right-arrow" href="https://pytorch.org/tutorials">查看教程</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>资源</h2>
+          <p>查找开发资源并获得您的疑问解答</p>
+          <a class="with-right-arrow" href="https://pytorch.org/resources">查看资源</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://pytorch.org/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/">PyTorch</a></li>
+            <li><a href="https://pytorch.org/get-started">开始使用</a></li>
+            <li><a href="https://pytorch.org/features">功能</a></li>
+            <li><a href="https://pytorch.org/ecosystem">生态系统</a></li>
+            <li><a href="https://pytorch.org/blog/">博客</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md">贡献</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/resources">资源</a></li>
+            <li><a href="https://pytorch.org/tutorials">教程</a></li>
+            <li><a href="https://pytorch.org/docs/stable/index.html">文档</a></li>
+            <li><a href="https://discuss.pytorch.org" target="_blank">讨论</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/issues" target="_blank">GitHub 问题和任务</a></li>
+            <li><a href="https://pytorch.org/assets/brand-guidelines/PyTorch-Brand-Guidelines.pdf" target="_blank">品牌指南</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">保持更新</li>
+            <li><a href="https://www.facebook.com/pytorch" target="_blank">Facebook</a></li>
+            <li><a href="https://twitter.com/pytorch" target="_blank">推特</a></li>
+            <li><a href="https://www.youtube.com/pytorch" target="_blank">YouTube</a></li>
+            <li><a href="https://www.linkedin.com/company/pytorch" target="_blank">领英</a></li>
+          </ul>  
+          </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">PyTorch 播客</li>
+            <li><a href="https://open.spotify.com/show/6UzHKeiy368jKfQMKKvJY5" target="_blank">Spotify</a></li>
+            <li><a href="https://podcasts.apple.com/us/podcast/pytorch-developer-podcast/id1566080008" target="_blank">苹果</a></li>
+            <li><a href="https://www.google.com/podcasts?feed=aHR0cHM6Ly9mZWVkcy5zaW1wbGVjYXN0LmNvbS9PQjVGa0lsOA%3D%3D" target="_blank">谷歌</a></li>
+            <li><a href="https://music.amazon.com/podcasts/7a4e6f0e-26c2-49e9-a478-41bd244197d0/PyTorch-Developer-Podcast?" target="_blank">亚马逊</a></li>
+          </ul>
+         </div>
+        </div>
+        
+        <div class="privacy-policy">
+          <ul>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/terms/" target="_blank">条款</a></li>
+            <li class="privacy-policy-links">|</li>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/privacy-policy/" target="_blank">隐私</a></li>
+          </ul>
+        </div>
+        <div class="copyright">
+        <p>© 版权所有 Linux 基金会。PyTorch 基金会是 Linux 基金会的一个项目。有关本网站的使用条款、商标政策以及其他适用于 PyTorch 基金会的政策，请参阅 www.linuxfoundation.org/policies/。PyTorch 基金会支持 PyTorch 开源项目，该项目已被确立为 LF Projects, LLC 的 PyTorch 项目系列。有关适用于 PyTorch 项目系列 LF Projects, LLC 的政策，请参阅 www.lfprojects.org/policies/。</p>
+      </div>
+     </div>
+
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">为分析流量并优化您的体验，我们在本网站上提供 cookies。通过点击或导航，您同意允许我们使用 cookies。作为本站点的当前维护者，Facebook 的 Cookies 政策适用。了解更多信息，包括可用的控制选项：Cookies 政策。</p>
+    <img class="close-button" src="_static/images/pytorch-x.svg" width="16" height="16">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+           <li class="resources-mobile-menu-title">
+             <a>学习</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/get-started">开始学习</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials">教程</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/basics/intro.html">学习基础知识</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/recipes/recipes_index.html">PyTorch 菜谱</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/introyt.html">PyTorch 入门 - YouTube 系列</a>
+             </li>
+           </ul>
+           <li class="resources-mobile-menu-title">
+             <a>生态系统</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/ecosystem">工具</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/#community-module">社区</a>
+             </li>
+             <li>
+               <a href="https://discuss.pytorch.org/">论坛</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/resources">开发者资源</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">贡献者奖项 - 2024</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>Edge</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/edge">关于 PyTorch Edge</a>
+             </li>
+             
+             <li>
+               <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch 文档</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>文档</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/docs/stable/index.html">PyTorch</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/pytorch-domains">PyTorch 领域</a>
+            </li>
+          </ul>
+
+          <li class="resources-mobile-menu-title">
+            <a>博客 &amp; 新闻</a>
+          </li>
+            
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/blog/">PyTorch 博客</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/community-blog">社区博客</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/videos">视频</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/community-stories">社区故事</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/events">活动</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">通讯</a>
+             </li>
+          </ul>
+          
+          <li class="resources-mobile-menu-title">
+            <a>关于</a>
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/foundation">PyTorch 基金会</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/governing-board">治理委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">云信用计划</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">技术顾问委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">员工</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">联系我们</a>
+            </li>
+          </ul>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body></html>

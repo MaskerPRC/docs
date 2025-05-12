@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Remote Reference Protocol — PyTorch main documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pytorch.org/docs/stable/rpc/rref.html">
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css">
+  <!-- <link rel="stylesheet" href="../_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css">
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css">
+  <link rel="stylesheet" href="../_static/copybutton.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="../_static/katex-math.css" type="text/css">
+  <link rel="stylesheet" href="../_static/sphinx-dropdown.css" type="text/css">
+  <link rel="stylesheet" href="../_static/panels-bootstrap.min.css" type="text/css">
+  <link rel="stylesheet" href="../_static/css/jit.css" type="text/css">
+  <link rel="stylesheet" href="../_static/css/custom.css" type="text/css">
+    <link rel="index" title="Index" href="../genindex.html">
+    <link rel="search" title="Search" href="../search.html">
+    <link rel="next" title="Distributed Autograd Design" href="distributed_autograd.html">
+    <link rel="prev" title="Distributed RPC Framework" href="../rpc.html">
+
+<!--
+  Search engines should not index the main version of documentation.
+  Stable documentation are built without release == 'main'.
+-->
+<meta name="robots" content="noindex">
+
+
+  <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T8XT4PS');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+  <!-- Preload the theme fonts -->
+
+<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<!-- Preload the katex fonts -->
+
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Math-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size1-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size2-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Caligraphic-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
+</head><body class="pytorch-body"><div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+
+          <li class="main-menu-item">
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">学习</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/get-started">
+                  <span class="dropdown-title">开始使用</span>
+                  <p>在本地运行 PyTorch 或快速开始使用支持的云平台之一</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials">
+                  <span class="dropdown-title">教程</span><p></p>
+                  <p>PyTorch 教程中的新内容</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/basics/intro.html">
+                  <span class="dropdown-title">学习基础知识</span><p></p>
+                  <p>熟悉 PyTorch 的概念和模块</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/recipes/recipes_index.html">
+                  <span class="dropdown-title">PyTorch 烹饪技巧</span><p></p>
+                  <p>精简型、可直接部署的 PyTorch 代码示例</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/introyt.html">
+                  <span class="dropdown-title">PyTorch 入门 - YouTube 系列</span><p></p>
+                  <p>通过我们引人入胜的 YouTube 教程系列掌握 PyTorch 基础知识</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">生态系统</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem">
+                  <span class="dropdown-title">工具</span><p></p>
+                  <p>了解 PyTorch 生态系统中的工具和框架</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
+                  <span class="dropdown-title">社区</span>
+                  <p>加入 PyTorch 开发者社区，贡献、学习并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
+                  <span class="dropdown-title">论坛</span>
+                  <p>讨论 PyTorch 代码、问题、安装、研究的地方</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/resources">
+                  <span class="dropdown-title">开发者资源</span>
+                  <p>查找资源并解答问题</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">2024 年度贡献者奖项</span><p></p>
+                  <p>本届 PyTorch 会议揭晓获奖者</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">
+                Edge
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/edge">
+                  <span class="dropdown-title">关于 PyTorch Edge</span><p></p>
+                  <p>为边缘设备构建创新和隐私感知的 AI 体验</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
+                  <span class="dropdown-title">ExecuTorch</span><p></p>
+                  <p>针对移动和边缘设备实现设备端推理能力的端到端解决方案</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch 文档</span><p></p>
+                </a>
+              </div>
+            </div>  
+          </li>
+
+          <li class="main-menu-item">
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">文档</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/docs/stable/index.html">
+                  <span class="dropdown-title">PyTorch</span><p></p>
+                  <p>探索文档以获取如何使用 PyTorch 的全面指南</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/pytorch-domains">
+                  <span class="dropdown-title">PyTorch 领域</span><p></p>
+                  <p>阅读 PyTorch 领域的文档以了解更多关于特定领域的库</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">博客与新闻</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/blog/">
+                  <span class="dropdown-title">PyTorch 博客</span><p></p>
+                  <p>跟上最新的技术新闻和动态</p>
+                </a>
+                 <a class="nav-dropdown-item" href="https://pytorch.org/community-blog">
+                  <span class="dropdown-title">社区博客</span><p></p>
+                  <p>PyTorch 生态系统故事</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/videos">
+                  <span class="dropdown-title">视频</span><p></p>
+                  <p>了解最新的 PyTorch 教程、新内容等</p>
+                </a><a class="nav-dropdown-item" href="https://pytorch.org/community-stories">
+                  <span class="dropdown-title">社区故事</span><p></p>
+                  <p>了解我们的社区如何使用 PyTorch 解决真实、日常的机器学习问题</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/events">
+                  <span class="dropdown-title">活动</span><p></p>
+                  <p>查找活动、网络研讨会和播客</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">通讯</span><p></p>
+                  <p>保持最新更新</p>
+                </a>
+            </div>
+          </div></li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">关于</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/foundation">
+                  <span class="dropdown-title">PyTorch 基金会</span><p></p>
+                  <p>了解更多关于 PyTorch 基金会的信息</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
+                  <span class="dropdown-title">管理委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">云信用计划</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">技术顾问委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">员工</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">联系我们</span><p></p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li class="main-menu-item">
+            <div class="no-dropdown">
+              <a href="https://pytorch.org/join" data-cta="join">成为会员</a>
+            </div>
+          </li>
+          <li>
+           <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="github-icon">
+             </a>
+           </div>
+          </li>
+          <!--- TODO: This block adds the search icon to the nav bar. We will enable it later. 
+          <li>
+            <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="search-icon">
+             </a>
+            </div>
+          </li>
+          --->
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+  </div>
+</div>
+
+
+
+   
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>目录</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+    <div class="version">
+      <a href="https://pytorch.org/docs/versions.html">主页 (2.7.0+cpu ) ▼</a>
+    </div>
+    <div id="searchBox">
+    <div class="searchbox" id="googleSearchBox">
+      <script async="" src="https://cse.google.com/cse.js?cx=e65585f8c3ea1440e"></script>
+      <div class="gcse-search"></div>
+    </div>
+    <div id="sphinxSearchBox" style="display: none;">
+      <div role="search">
+        <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+          <input type="text" name="q" placeholder="Search Docs">
+          <input type="hidden" name="check_keywords" value="yes">
+          <input type="hidden" name="area" value="default">
+        </form>
+      </div>
+    </div>
+  </div>
+  <form id="searchForm">
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="google" checked="">Google 搜索</label>
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="sphinx">经典搜索</label>
+  </form>
+
+  <script>
+     document.addEventListener('DOMContentLoaded', function() {
+      const searchForm = document.getElementById('searchForm');
+      const googleSearchBox = document.getElementById('googleSearchBox');
+      const sphinxSearchBox = document.getElementById('sphinxSearchBox');
+      // Function to toggle search box visibility
+      function toggleSearchBox(searchType) {
+        googleSearchBox.style.display = searchType === 'google' ? 'block' : 'none';
+        sphinxSearchBox.style.display = searchType === 'sphinx' ? 'block' : 'none';
+      }
+      // Determine the default search type
+      let defaultSearchType;
+      const currentUrl = window.location.href;
+      if (currentUrl.startsWith('https://pytorch.org/docs/stable')) {
+        // For the stable documentation, default to Google
+        defaultSearchType = localStorage.getItem('searchType') || 'google';
+      } else {
+        // For any other version, including docs-preview, default to Sphinx
+        defaultSearchType = 'sphinx';
+      }
+      // Set the default search type
+      document.querySelector(`input[name="searchType"][value="${defaultSearchType}"]`).checked = true;
+      toggleSearchBox(defaultSearchType);
+      // Event listener for changes in search type
+      searchForm.addEventListener('change', function(event) {
+        const selectedSearchType = event.target.value;
+        localStorage.setItem('searchType', selectedSearchType);
+        toggleSearchBox(selectedSearchType);
+      });
+      // Set placeholder text for Google search box
+      window.onload = function() {
+        var placeholderText = "Search Docs";
+        var googleSearchboxText = document.querySelector("#gsc-i-id1");
+        if (googleSearchboxText) {
+          googleSearchboxText.placeholder = placeholderText;
+          googleSearchboxText.style.fontFamily = 'FreightSans';
+          googleSearchboxText.style.fontSize = "1.2rem";
+          googleSearchboxText.style.color = '#262626';
+        }
+      };
+    });
+  </script>
+
+          </div>
+
+          
+
+<div>
+  <a style="color:#F05732" href="https://pytorch.org/docs/stable/rpc/rref.html">您正在查看不稳定开发者预览文档。请点击此处查看最新稳定版本的文档。</a>
+</div>
+
+
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">社区</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../community/build_ci_governance.html">PyTorch 治理 | 构建 + CI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community/contribution_guide.html">PyTorch 贡献指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community/design.html">PyTorch 设计哲学</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community/governance.html">PyTorch 治理 | 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community/persons_of_interest.html">PyTorch 治理 | 维护者</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发者笔记</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../notes/amp_examples.html">自动混合精度示例</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/autograd.html">Autograd 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/broadcasting.html">广播语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/cpu_threading_torchscript_inference.html">CPU 线程和 TorchScript 推理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/cuda.html">CUDA 语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/custom_operators.html">PyTorch 自定义操作着陆页面</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/ddp.html">分布式数据并行</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/extending.html">扩展 PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/extending.func.html">扩展 torch.func 与 autograd.Function</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/faq.html">常见问题</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/fsdp.html">FSDP 笔记</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/get_start_xpu.html">在英特尔 GPU 上入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/gradcheck.html">毕业审核力学</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/hip.html">HIP (ROCm) 语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/large_scale_deployments.html">大规模部署功能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/libtorch_stable_abi.html">LibTorch 稳定 ABI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/modules.html">模块</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/mps.html">MPS 后端</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/multiprocessing.html">多进程最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/numerical_accuracy.html">数值精度</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/randomness.html">可复现性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/serialization.html">序列化语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/windows.html">Windows 常见问题解答</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">语言绑定</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../cpp_index.html">C++</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/javadoc/">Javadoc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deploy.html">torch::deploy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../torch.html">torch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../nn.html">torch.nn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../nn.functional.html">torch.nn.functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tensors.html">torch.Tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tensor_attributes.html">Tensor 属性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tensor_view.html">张量视图</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../amp.html">torch.amp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../autograd.html">torch.autograd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library.html">torch.library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../accelerator.html">torch 加速器</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cpu.html">torch.cpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cuda.html">torch.cuda</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch_cuda_memory.html">理解 CUDA 内存使用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch_cuda_memory.html#generating-a-snapshot">生成快照</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch_cuda_memory.html#using-the-visualizer">使用可视化器</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch_cuda_memory.html#snapshot-api-reference">快照 API 参考</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mps.html">torch.mps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../xpu.html">torch.xpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mtia.html">torch.mtia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mtia.memory.html">torch.mtia.memory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../meta.html">元设备</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../backends.html">torch.backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../export.html">torch.export</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.html">torch.distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.tensor.html">torch.distributed.tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.algorithms.join.html">torch.distributed.algorithms.join</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.elastic.html">torch.distributed.elastic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fsdp.html">torch.distributed.fsdp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.fsdp.fully_shard.html">torch.distributed.fsdp.fully_shard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.tensor.parallel.html">torch.distributed.tensor.parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.optim.html">torch.distributed.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.pipelining.html">torch.distributed.pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.checkpoint.html">torch.distributed.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributions.html">torch.distributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch.compiler.html">torch.compiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fft.html">torch.fft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../func.html">torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../futures.html">torch.futures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fx.html">torch.fx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fx.experimental.html">torch.fx.experimental</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hub.html">torch.hub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../jit.html">torch.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../linalg.html">torch.linalg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../monitor.html">torch.monitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../signal.html">torch.signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../special.html">torch.special</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch.overrides.html">torch.overrides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../package.html">torch.package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../profiler.html">torch.profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../nn.init.html">torch.nn.init</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../nn.attention.html">torch.nn.attention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../onnx.html">torch.onnx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../optim.html">torch.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../complex_numbers.html">复数</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ddp_comm_hooks.html">DDP 通信钩子</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quantization.html">量化</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../rpc.html">分布式 RPC 框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../random.html">torch.random</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../masked.html">torch.masked</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../nested.html">torch.nested</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../size.html">torch.Size</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sparse.html">torch.sparse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../storage.html">torch 存储</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../testing.html">torch.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils.html">torch.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../benchmark_utils.html">torch.utils.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bottleneck.html">torch.utils.bottleneck</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../checkpoint.html">torch.utils.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cpp_extension.html">torch.utils.cpp_extension</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data.html">torch.utils.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deterministic.html">torch.utils.deterministic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../jit_utils.html">torch.utils.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dlpack.html">torch.utils.dlpack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mobile_optimizer.html">torch.utils.mobile_optimizer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../model_zoo.html">torch.utils.model_zoo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tensorboard.html">torch.utils.tensorboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../module_tracker.html">torch.utils.module_tracker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../type_info.html">类型信息</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../named_tensor.html">命名张量</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../name_inference.html">命名张量操作覆盖率</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../config_mod.html">torch.__config__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../future_mod.html">torch.__future__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../logging.html">torch._logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch_environment_variables.html">火炬环境变量</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">图书馆</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/audio/stable">torchaudio</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/data">TorchData</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/torchrec">火炬推荐</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/serve">TorchServe</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/text/stable">torchtext</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/vision/stable">torchvision</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/xla/">PyTorch 在 XLA 设备上</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/ao">torchao</a></li>
+</ul>
+
+            
+          
+
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        文档 &gt;</li>
+
+        
+          <li>分布式 RPC 框架 &gt;</li>
+        
+      <li>远程引用协议</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/rpc/rref.rst.txt" rel="nofollow"><img src="../_static/images/view-page-source-icon.svg" width="16" height="16"></a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">快捷键</div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+
+          <!-- Google Tag Manager (noscript) -->
+          <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T8XT4PS" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+          <!-- End Google Tag Manager (noscript) -->
+          
+          <div class="rst-content">
+          
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <section id="remote-reference-protocol">
+<span id="id1"></span><h1>远程引用协议 ¶</h1>
+<p>本笔记描述了远程引用协议的设计细节，并遍历了不同场景下的消息流程。在继续之前，请确保您熟悉分布式 RPC 框架。</p>
+<section id="background">
+<h2>背景 ¶</h2>
+<p>RRef 代表远程引用。它是指向位于本地或远程工作者的对象的引用，在底层透明地处理引用计数。从概念上讲，它可以被视为一个分布式共享指针。应用程序可以通过调用 <code class="xref py py-meth docutils literal "><span class="pre">remote()</span></code> 来创建 RRef。每个 RRef 都由 <code class="xref py py-meth docutils literal "><span class="pre">remote()</span></code> 调用的被调用者工作者（即所有者）拥有，并可被多个用户使用。所有者存储真实数据并跟踪全局引用计数。每个 RRef 都可以通过全局 <code class="docutils literal "><span class="pre">RRefId</span></code> 唯一标识，该标识在 <code class="xref py py-meth docutils literal "><span class="pre">remote()</span></code> 调用的调用者处创建时分配。</p>
+<p>在所有者工作者上，只有一个 <code class="docutils literal "><span class="pre">OwnerRRef</span></code> 实例，其中包含真实数据，而在用户工作者上，可以有必要的 <code class="docutils literal "><span class="pre">UserRRefs</span></code> 个， <code class="docutils literal "><span class="pre">UserRRef</span></code> 不持有数据。所有对所有者的使用都将通过全局唯一的 <code class="docutils literal "><span class="pre">OwnerRRef</span></code> 检索唯一的 <code class="docutils literal "><span class="pre">RRefId</span></code> 实例。当它作为 <code class="docutils literal "><span class="pre">UserRRef</span></code> 、 <code class="xref py py-meth docutils literal "><span class="pre">rpc_sync()</span></code> 或 <code class="xref py py-meth docutils literal "><span class="pre">rpc_async()</span></code> 调用中的参数或返回值时，将创建一个 <code class="xref py py-meth docutils literal "><span class="pre">remote()</span></code> ，所有者将根据更新引用计数进行通知。当没有全局 <code class="docutils literal "><span class="pre">OwnerRRef</span></code> 实例，且所有者上也没有对 <code class="docutils literal "><span class="pre">UserRRef</span></code> 的引用时，将删除 <code class="docutils literal "><span class="pre">OwnerRRef</span></code> 及其数据。</p>
+</section>
+<section id="assumptions">
+<h2>假设 §</h2>
+<p>RRef 协议设计基于以下假设。</p>
+<ul class="simple">
+<li><p>临时网络故障：RRef 设计通过重试消息来处理临时网络故障。它无法处理节点崩溃或永久网络分区。当这些事件发生时，应用程序应关闭所有工作进程，回滚到上一个检查点，并继续训练。</p></li>
+<li><p>非幂等 UDF：我们假设提供给 <code class="xref py py-meth docutils literal "><span class="pre">rpc_sync()</span></code> 、 <code class="xref py py-meth docutils literal "><span class="pre">rpc_async()</span></code> 或 <code class="xref py py-meth docutils literal "><span class="pre">remote()</span></code> 的用户函数（UDF）不是幂等的，因此不能重试。然而，内部 RRef 控制消息是幂等的，在消息失败时会被重试。</p></li>
+<li><p>消息顺序错误交付：我们不假设任何一对节点之间的消息交付顺序，因为发送方和接收方都在使用多个线程。无法保证哪个消息将被首先处理。</p></li>
+</ul>
+</section>
+<section id="rref-lifetime">
+<h2>RRef 生命周期 ¶</h2>
+<p>协议的目标是在适当的时候删除一个 <code class="docutils literal "><span class="pre">OwnerRRef</span></code> 。删除一个 <code class="docutils literal "><span class="pre">OwnerRRef</span></code> 的正确时机是在没有活跃的 <code class="docutils literal "><span class="pre">UserRRef</span></code> 实例，并且用户代码也没有持有 <code class="docutils literal "><span class="pre">OwnerRRef</span></code> 的引用时。棘手的部分是确定是否存在任何活跃的 <code class="docutils literal "><span class="pre">UserRRef</span></code> 实例。</p>
+<section id="design-reasoning">
+<h3>设计理由 ¶</h3>
+<p>用户可以在三种情况下获得一个 <code class="docutils literal "><span class="pre">UserRRef</span></code> ：</p>
+<ol class="arabic simple">
+<li><p>接收来自所有者的 <code class="docutils literal "><span class="pre">UserRRef</span></code> 。</p></li>
+<li><p>接收来自另一个用户的 <code class="docutils literal "><span class="pre">UserRRef</span></code> 。</p></li>
+<li><p>创建一个由另一个工人拥有的新 <code class="docutils literal "><span class="pre">UserRRef</span></code> 。</p></li>
+</ol>
+<p>情况 1 是最简单的，其中所有者将其 RRef 传递给用户，所有者调用 <code class="xref py py-meth docutils literal "><span class="pre">rpc_sync()</span></code> 、 <code class="xref py py-meth docutils literal "><span class="pre">rpc_async()</span></code> 或 <code class="xref py py-meth docutils literal "><span class="pre">remote()</span></code> 并使用其 RRef 作为参数。在这种情况下，将在用户处创建一个新的 <code class="docutils literal "><span class="pre">UserRRef</span></code> 。由于所有者是调用者，它可以轻松更新其本地引用计数在 <code class="docutils literal "><span class="pre">OwnerRRef</span></code> 上。</p>
+<p>唯一的要求是任何 <code class="docutils literal "><span class="pre">UserRRef</span></code> 在销毁时必须通知所有者。因此，我们需要第一个保证：</p>
+<p><strong>G1. 当任何 UserRRef 被删除时，所有者将被通知。</strong></p>
+<p>由于消息可能会延迟或顺序混乱，我们需要另一个保证以确保删除消息不会被过早处理。如果 A 向 B 发送涉及 RRef 的消息，我们将在 A（父 RRef）和 B（子 RRef）上调用 RRef。</p>
+<p><strong>G2. 父 RRef 将在子 RRef 被所有者确认之前不会被删除。</strong></p>
+<p>在案例 2 和 3 中，所有者可能只有部分或完全没有关于 RRef 分叉图的了解。例如，一个 RRef 可能是在用户上构建的，在所有者收到任何 RPC 调用之前，创建用户可能已经将 RRef 与其他用户共享，而这些用户可能进一步将 RRef 共享出去。一个不变量是任何 RRef 的分叉图始终是一棵树，因为分叉 RRef 总是在被调用者上创建一个新的 <code class="docutils literal "><span class="pre">UserRRef</span></code> 实例（除非被调用者是所有者），因此每个 RRef 都有一个父节点。</p>
+<p>所有者对树中任何 <code class="docutils literal "><span class="pre">UserRRef</span></code> 的看法有三个阶段：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="mi">1</span><span class="p">)</span> <span class="n">unknown</span> <span class="o">-&gt;</span> <span class="mi">2</span><span class="p">)</span> <span class="n">known</span> <span class="o">-&gt;</span> <span class="mi">3</span><span class="p">)</span> <span class="n">deleted</span><span class="o">.</span>
+</pre></div>
+</div>
+<p>所有者对整个树的观点不断变化。当所有者认为没有活跃的 <code class="docutils literal "><span class="pre">UserRRef</span></code> 实例时，它会删除其 <code class="docutils literal "><span class="pre">OwnerRRef</span></code> 实例，即当 <code class="docutils literal "><span class="pre">OwnerRRef</span></code> 被删除时，所有 <code class="docutils literal "><span class="pre">UserRRef</span></code> 实例可能确实被删除或未知。危险的情况是当一些分叉未知而其他分叉被删除时。</p>
+<p>G2 可以简单地保证在所有者知道其所有子 <code class="docutils literal "><span class="pre">UserRRef</span></code> 实例之前，不能删除任何父 <code class="docutils literal "><span class="pre">UserRRef</span></code> 。然而，可能发生的情况是，在所有者知道其父 <code class="docutils literal "><span class="pre">UserRRef</span></code> 之前，子 <code class="docutils literal "><span class="pre">UserRRef</span></code> 可能已经被删除。</p>
+<p>考虑以下示例，其中 <code class="docutils literal "><span class="pre">OwnerRRef</span></code> 分支到 A，然后 A 分支到 Y，Y 再分支到 Z：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">OwnerRRef</span> <span class="o">-&gt;</span> <span class="n">A</span> <span class="o">-&gt;</span> <span class="n">Y</span> <span class="o">-&gt;</span> <span class="n">Z</span>
+</pre></div>
+</div>
+<p>如果在 Y 的消息之前，包括删除消息，Z 的所有消息都由所有者处理，那么所有者将在知道 Y 存在之前了解到 Z 的删除。然而，这并不会引起任何问题。因为至少 Y 的一个祖先（A）是活着的，并且它会阻止所有者删除 <code class="docutils literal "><span class="pre">OwnerRRef</span></code> 。更具体地说，如果所有者不知道 Y，由于 G2，A 不能被删除，而所有者知道 A，因为它是 A 的父节点。</p>
+<p>如果 RRef 是在用户上创建的，事情会变得有些复杂：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">OwnerRRef</span>
+    <span class="o">^</span>
+    <span class="o">|</span>
+    <span class="n">A</span> <span class="o">-&gt;</span> <span class="n">Y</span> <span class="o">-&gt;</span> <span class="n">Z</span>
+</pre></div>
+</div>
+<p>如果 Z 在 <code class="docutils literal "><span class="pre">UserRRef</span></code> 上调用 <code class="xref py py-meth docutils literal "><span class="pre">to_here()</span></code> ，那么当 Z 被删除时，所有者至少知道 A，因为否则 <code class="xref py py-meth docutils literal "><span class="pre">to_here()</span></code> 就无法完成。如果 Z 没有调用 <code class="xref py py-meth docutils literal "><span class="pre">to_here()</span></code> ，所有者可能会在收到任何来自 A 和 Y 的消息之前收到 Z 的所有消息。在这种情况下，由于 <code class="docutils literal "><span class="pre">OwnerRRef</span></code> 的实际数据尚未创建，也没有什么可以删除的。这就像 Z 根本不存在一样。因此，仍然没问题。</p>
+</section>
+<section id="implementation">
+<h3>实现 ¶</h3>
+<p>G1 通过在 <code class="docutils literal "><span class="pre">UserRRef</span></code> 析构函数中发送删除消息来实现。为了提供 G2，每当父进程 <code class="docutils literal "><span class="pre">UserRRef</span></code> 被克隆时，都会将其放入上下文中，并按新的 <code class="docutils literal "><span class="pre">ForkId</span></code> 进行索引。父进程 <code class="docutils literal "><span class="pre">UserRRef</span></code> 只有在从子进程接收到确认消息（ACK）时才会从上下文中移除，而子进程只有在被所有者确认后才会发送 ACK。</p>
+</section>
+</section>
+<section id="protocol-scenarios">
+<h2>协议场景 ¶</h2>
+<p>现在我们来讨论上述设计如何在四个场景中转化为协议。</p>
+<section id="user-share-rref-with-owner-as-return-value">
+<h3>用户将 RRef 与所有者共享作为返回值 ¶</h3>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.distributed.rpc</span> <span class="k">as</span> <span class="nn">rpc</span>
+
+<span class="c1"># on worker A</span>
+<span class="n">rref</span> <span class="o">=</span> <span class="n">rpc</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="s1">'B'</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">add</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="mi">1</span><span class="p">))</span>
+<span class="c1"># say the rref has RRefId 100 and ForkId 1</span>
+<span class="n">rref</span><span class="o">.</span><span class="n">to_here</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>在这种情况下， <code class="docutils literal "><span class="pre">UserRRef</span></code> 是在用户工作者 A 上创建的，然后它与远程消息一起传递给所有者工作者 B，然后 B 创建 <code class="docutils literal "><span class="pre">OwnerRRef</span></code> 。方法 <code class="xref py py-meth docutils literal "><span class="pre">remote()</span></code> 立即返回，这意味着在所有者知道之前， <code class="docutils literal "><span class="pre">UserRRef</span></code> 可以被分叉/使用。</p>
+<p>在所有者这边，当接收到 <code class="xref py py-meth docutils literal "><span class="pre">remote()</span></code> 调用，它会创建 <code class="docutils literal "><span class="pre">OwnerRRef</span></code> ，并返回一个 ACK 来确认 <code class="docutils literal "><span class="pre">{100,</span> <span class="pre">1}</span></code> （ <code class="docutils literal "><span class="pre">RRefId</span></code> ， <code class="docutils literal "><span class="pre">ForkId</span></code> ）。只有在接收到这个 ACK 之后，A 才能删除它的 <code class="docutils literal "><span class="pre">UserRRef</span></code> 。这涉及到 G1 和 G2。G1 很明显。对于 G2， <code class="docutils literal "><span class="pre">OwnerRRef</span></code> 是 <code class="docutils literal "><span class="pre">UserRRef</span></code> 的子节点， <code class="docutils literal "><span class="pre">UserRRef</span></code> 不会删除，直到它从所有者那里收到 ACK。</p>
+<a class="reference internal image-reference" href="https://user-images.githubusercontent.com/16999635/69164772-98181300-0abe-11ea-93a7-9ad9f757cd94.png"><img alt="user_to_owner_ret.png" src="https://user-images.githubusercontent.com/16999635/69164772-98181300-0abe-11ea-93a7-9ad9f757cd94.png" style="width: 500px;"></a>
+<p>上面的图显示了消息流，其中实线箭头包含用户函数，虚线箭头是内置消息。请注意，A 发送到 B 的前两条消息（ <code class="xref py py-meth docutils literal "><span class="pre">remote()</span></code> 和 <code class="xref py py-meth docutils literal "><span class="pre">to_here()</span></code> ）可以以任何顺序到达 B，但最终的删除消息只有在以下情况下才会发送：</p>
+<ul class="simple">
+<li><p>B 确认 <code class="docutils literal "><span class="pre">UserRRef</span> <span class="pre">{100,</span> <span class="pre">1}</span></code> （G2），并且</p></li>
+<li><p>Python 垃圾回收器同意删除局部 <code class="docutils literal "><span class="pre">UserRRef</span></code> 实例。这发生在 RRef 不再在作用域内且符合垃圾回收条件时。</p></li>
+</ul>
+</section>
+<section id="user-share-rref-with-owner-as-argument">
+<h3>用户将 RRef 与所有者作为参数共享</h3>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.distributed.rpc</span> <span class="k">as</span> <span class="nn">rpc</span>
+
+<span class="c1"># on worker A and worker B</span>
+<span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">rref</span><span class="p">):</span>
+  <span class="k">pass</span>
+
+<span class="c1"># on worker A</span>
+<span class="n">rref</span> <span class="o">=</span> <span class="n">rpc</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="s1">'B'</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">add</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="mi">1</span><span class="p">))</span>
+<span class="c1"># say the rref has RRefId 100 and ForkId 1</span>
+<span class="n">rpc</span><span class="o">.</span><span class="n">rpc_async</span><span class="p">(</span><span class="s1">'B'</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">rref</span><span class="p">,</span> <span class="p">))</span>
+</pre></div>
+</div>
+<p>在这种情况下，在 A 上创建 <code class="docutils literal "><span class="pre">UserRRef</span></code> 之后，A 将其用作后续 RPC 调用 B 的参数。A 将保持 <code class="docutils literal "><span class="pre">UserRRef</span> <span class="pre">{100,</span> <span class="pre">1}</span></code> 存活，直到从 B 收到确认（G2，不是 RPC 调用的返回值）。这是必要的，因为 A 应该在收到所有之前的消息之后再发送删除消息，否则， <code class="docutils literal "><span class="pre">OwnerRRef</span></code> 可能在使用前被删除，因为我们不能保证消息的传输顺序。这是通过创建 RRef 的子 <code class="docutils literal "><span class="pre">ForkId</span></code> ，将它们保存在映射中，直到收到所有者的确认来实现的。下面的图示显示了消息流。</p>
+<a class="reference internal image-reference" href="https://user-images.githubusercontent.com/16999635/69164845-b67e0e80-0abe-11ea-93fa-d24674e75a2b.png"><img alt="user_to_owner_arg.png" src="https://user-images.githubusercontent.com/16999635/69164845-b67e0e80-0abe-11ea-93fa-d24674e75a2b.png" style="width: 500px;"></a>
+<p>注意， <code class="docutils literal "><span class="pre">UserRRef</span></code> 可能在 func 完成或开始之前在 B 上被删除。然而这没关系，因为当 B 发送子 <code class="docutils literal "><span class="pre">ForkId</span></code> 的 ACK 时，它已经获取了 <code class="docutils literal "><span class="pre">OwnerRRef</span></code> 实例，这将防止它过早地被删除。</p>
+</section>
+<section id="owner-share-rref-with-user">
+<h3>与用户共享所有者 RRef ¶</h3>
+<p>所有者到用户是最简单的情况，所有者可以在本地更新引用计数，无需任何额外的控制消息来通知他人。至于 G2，与父节点立即从所有者那里收到 ACK 相同，因为父节点就是所有者。</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.distributed.rpc</span> <span class="k">as</span> <span class="nn">RRef</span><span class="o">,</span> <span class="nn">rpc</span>
+
+<span class="c1"># on worker B and worker C</span>
+<span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">rref</span><span class="p">):</span>
+  <span class="k">pass</span>
+
+<span class="c1"># on worker B, creating a local RRef</span>
+<span class="n">rref</span> <span class="o">=</span> <span class="n">RRef</span><span class="p">(</span><span class="s2">"data"</span><span class="p">)</span>
+<span class="c1"># say the rref has RRefId 100</span>
+<span class="n">dist</span><span class="o">.</span><span class="n">rpc_async</span><span class="p">(</span><span class="s1">'C'</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">rref</span><span class="p">,</span> <span class="p">))</span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="https://user-images.githubusercontent.com/16999635/69164921-c990de80-0abe-11ea-9250-d32ad00cf4ae.png"><img alt="owner_to_user.png" src="https://user-images.githubusercontent.com/16999635/69164921-c990de80-0abe-11ea-9250-d32ad00cf4ae.png" style="width: 500px;"></a>
+<p>上图显示了消息流。请注意，当 <code class="docutils literal "><span class="pre">OwnerRRef</span></code> 在 rpc_async 调用后退出作用域时，它不会被删除，因为内部有一个映射来保持其活跃状态，如果存在已知的分支，则情况为 <code class="docutils literal "><span class="pre">UserRRef</span> <span class="pre">{100,</span> <span class="pre">1}</span></code> 。（G2）</p>
+</section>
+<section id="user-share-rref-with-user">
+<h3>用户与用户共享 RRef ¶</h3>
+<p>这是最复杂的情况，调用者用户（父用户 <code class="docutils literal "><span class="pre">UserRRef</span></code> ）、被调用者用户（子用户 <code class="docutils literal "><span class="pre">UserRRef</span></code> ）和所有者都需要参与。</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.distributed.rpc</span> <span class="k">as</span> <span class="nn">rpc</span>
+
+<span class="c1"># on worker A and worker C</span>
+<span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">rref</span><span class="p">):</span>
+  <span class="k">pass</span>
+
+<span class="c1"># on worker A</span>
+<span class="n">rref</span> <span class="o">=</span> <span class="n">rpc</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="s1">'B'</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">add</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="mi">1</span><span class="p">))</span>
+<span class="c1"># say the rref has RRefId 100 and ForkId 1</span>
+<span class="n">rpc</span><span class="o">.</span><span class="n">rpc_async</span><span class="p">(</span><span class="s1">'C'</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">rref</span><span class="p">,</span> <span class="p">))</span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="https://user-images.githubusercontent.com/16999635/69164971-d6adcd80-0abe-11ea-971d-6b7af131f0fd.png"><img alt="user_to_user.png" src="https://user-images.githubusercontent.com/16999635/69164971-d6adcd80-0abe-11ea-971d-6b7af131f0fd.png" style="width: 500px;"></a>
+<p>当 C 从 A 接收子用户 <code class="docutils literal "><span class="pre">UserRRef</span></code> 后，它会向所有者 B 发送一个分叉请求。稍后，当 B 确认 C 的 <code class="docutils literal "><span class="pre">UserRRef</span></code> 后，C 将并行执行两个动作：1）向 A 发送子用户确认，2）运行用户提供的函数。在此期间，父用户（A）将保持其 <code class="docutils literal "><span class="pre">UserRRef</span> <span class="pre">{100,</span> <span class="pre">1}</span></code> 活跃以实现 G2。</p>
+</section>
+</section>
+</section>
+
+
+             </article>
+             
+            </div>
+            <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        下一个 <img height="16" width="16" class="next-page" src="../_static/images/chevron-right-orange.svg"> <img height="16" width="16" class="previous-page" src="../_static/images/chevron-right-orange.svg"> 上一个
+      
+    </div>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>© 版权所有 PyTorch 贡献者。</p>
+  </div>
+    
+      <div>使用 Sphinx 构建，并使用 Read the Docs 提供的主题。</div>
+     
+
+</footer>
+
+          </div>
+<script>
+
+var match = window.location.href.match(/\/_[a-zA-Z0-9_]*.html|_dynamo/gi);
+var url = window.location.href.lastIndexOf(match[match.length-1]);
+
+if (url)
+  {
+    var div = '<div class="admonition note"><p class="admonition-title">Note</p><p><i class="fa fa-exclamation-circle" aria-hidden="true">&nbsp</i> This page describes an internal API which is not intended to be used outside of the PyTorch codebase and can be modified or removed without notice.</p></div>'
+    document.getElementById("pytorch-article").insertAdjacentHTML('afterBegin', div)
+  }
+</script>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">远程引用协议</a><ul>
+<li><a class="reference internal" href="#background">背景</a></li>
+<li><a class="reference internal" href="#assumptions">假设</a></li>
+<li><a class="reference internal" href="#rref-lifetime">RRef 生命周期</a><ul>
+<li><a class="reference internal" href="#design-reasoning">设计推理</a></li>
+<li><a class="reference internal" href="#implementation">实现</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#protocol-scenarios">协议场景</a><ul>
+<li><a class="reference internal" href="#user-share-rref-with-owner-as-return-value">用户将 RRef 与所有者共享作为返回值</a></li>
+<li><a class="reference internal" href="#user-share-rref-with-owner-as-argument">用户将 RRef 与所有者共享作为参数</a></li>
+<li><a class="reference internal" href="#owner-share-rref-with-user">所有者将 RRef 与用户共享</a></li>
+<li><a class="reference internal" href="#user-share-rref-with-user">用户与用户共享 RRef</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+         <script src="../_static/jquery.js"></script>
+         <script src="../_static/underscore.js"></script>
+         <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+         <script src="../_static/doctools.js"></script>
+         <script src="../_static/clipboard.min.js"></script>
+         <script src="../_static/copybutton.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="../_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="../_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ 
+<script script="" type="text/javascript">
+  var collapsedSections = ['Developer Notes', 'Language Bindings', 'Libraries', 'Community'];
+</script>
+
+<img height="1" width="1" style="border-style:none;" alt="" src="https://www.googleadservices.com/pagead/conversion/795629140/?label=txkmCPmdtosBENSssfsC&amp;guid=ON&amp;script=0">
+
+
+  <!-- Begin Footer -->
+
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 text-center">
+          <h2>文档</h2>
+          <p>PyTorch 的全面开发者文档</p>
+          <a class="with-right-arrow" href="https://pytorch.org/docs/stable/index.html">查看文档</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>教程</h2>
+          <p>深入了解初学者和高级开发者的教程</p>
+          <a class="with-right-arrow" href="https://pytorch.org/tutorials">查看教程</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>资源</h2>
+          <p>查找开发资源并获得您的疑问解答</p>
+          <a class="with-right-arrow" href="https://pytorch.org/resources">查看资源</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://pytorch.org/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/">PyTorch</a></li>
+            <li><a href="https://pytorch.org/get-started">开始使用</a></li>
+            <li><a href="https://pytorch.org/features">功能</a></li>
+            <li><a href="https://pytorch.org/ecosystem">生态系统</a></li>
+            <li><a href="https://pytorch.org/blog/">博客</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md">贡献</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/resources">资源</a></li>
+            <li><a href="https://pytorch.org/tutorials">教程</a></li>
+            <li><a href="https://pytorch.org/docs/stable/index.html">文档</a></li>
+            <li><a href="https://discuss.pytorch.org" target="_blank">讨论</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/issues" target="_blank">Github 问题</a></li>
+            <li><a href="https://pytorch.org/assets/brand-guidelines/PyTorch-Brand-Guidelines.pdf" target="_blank">品牌指南</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">保持更新</li>
+            <li><a href="https://www.facebook.com/pytorch" target="_blank">脸书</a></li>
+            <li><a href="https://twitter.com/pytorch" target="_blank">推特</a></li>
+            <li><a href="https://www.youtube.com/pytorch" target="_blank">YouTube</a></li>
+            <li><a href="https://www.linkedin.com/company/pytorch" target="_blank">领英</a></li>
+          </ul>  
+          </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">PyTorch 播客</li>
+            <li><a href="https://open.spotify.com/show/6UzHKeiy368jKfQMKKvJY5" target="_blank">Spotify</a></li>
+            <li><a href="https://podcasts.apple.com/us/podcast/pytorch-developer-podcast/id1566080008" target="_blank">苹果</a></li>
+            <li><a href="https://www.google.com/podcasts?feed=aHR0cHM6Ly9mZWVkcy5zaW1wbGVjYXN0LmNvbS9PQjVGa0lsOA%3D%3D" target="_blank">谷歌</a></li>
+            <li><a href="https://music.amazon.com/podcasts/7a4e6f0e-26c2-49e9-a478-41bd244197d0/PyTorch-Developer-Podcast?" target="_blank">亚马逊</a></li>
+          </ul>
+         </div>
+        </div>
+        
+        <div class="privacy-policy">
+          <ul>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/terms/" target="_blank">条款</a></li>
+            <li class="privacy-policy-links">|</li>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/privacy-policy/" target="_blank">隐私</a></li>
+          </ul>
+        </div>
+        <div class="copyright">
+        <p>© 版权所有 Linux 基金会。PyTorch 基金会是 Linux 基金会的一个项目。有关 PyTorch 基金会的网站使用条款、商标政策以及其他适用政策，请参阅 www.linuxfoundation.org/policies/。PyTorch 基金会支持 PyTorch 开源项目，该项目已被确立为 LF Projects, LLC 的 PyTorch 项目系列。有关适用于 PyTorch 项目系列 LF Projects, LLC 的政策，请参阅 www.lfprojects.org/policies/。</p>
+      </div>
+     </div>
+
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">为了分析流量并优化您的体验，我们在本网站上使用 cookies。通过点击或导航，您同意允许我们使用 cookies。作为本网站的当前维护者，适用 Facebook 的 Cookies 政策。了解更多信息，包括关于可用控制的信息：Cookies 政策。</p>
+    <img class="close-button" src="../_static/images/pytorch-x.svg" width="16" height="16">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+           <li class="resources-mobile-menu-title">
+             <a>学习</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/get-started">开始使用</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials">教程</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/basics/intro.html">学习基础知识</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/recipes/recipes_index.html">PyTorch 食谱</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/introyt.html">PyTorch 入门 - YouTube 系列</a>
+             </li>
+           </ul>
+           <li class="resources-mobile-menu-title">
+             <a>生态系统</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/ecosystem">工具</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/#community-module">社区</a>
+             </li>
+             <li>
+               <a href="https://discuss.pytorch.org/">论坛</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/resources">开发者资源</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">贡献者奖项 - 2024</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>Edge</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/edge">关于 PyTorch Edge</a>
+             </li>
+             
+             <li>
+               <a href="https://pytorch.org/executorch-overview">执行火炬</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch 文档</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>文档</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/docs/stable/index.html">PyTorch</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/pytorch-domains">PyTorch 领域</a>
+            </li>
+          </ul>
+
+          <li class="resources-mobile-menu-title">
+            <a>博客 &amp; 新闻</a>
+          </li>
+            
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/blog/">PyTorch 博客</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/community-blog">社区博客</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/videos">视频</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/community-stories">社区故事</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/events">活动</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">新闻简报</a>
+             </li>
+          </ul>
+          
+          <li class="resources-mobile-menu-title">
+            <a>关于</a>
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/foundation">PyTorch 基金会</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/governing-board">治理委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">云信用计划</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">技术咨询委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">员工</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">联系我们</a>
+            </li>
+          </ul>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="../_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body></html>

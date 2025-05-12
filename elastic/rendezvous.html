@@ -1,0 +1,1761 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Rendezvous — PyTorch main documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pytorch.org/docs/stable/elastic/rendezvous.html">
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css">
+  <!-- <link rel="stylesheet" href="../_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css">
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css">
+  <link rel="stylesheet" href="../_static/copybutton.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="../_static/katex-math.css" type="text/css">
+  <link rel="stylesheet" href="../_static/sphinx-dropdown.css" type="text/css">
+  <link rel="stylesheet" href="../_static/panels-bootstrap.min.css" type="text/css">
+  <link rel="stylesheet" href="../_static/css/jit.css" type="text/css">
+  <link rel="stylesheet" href="../_static/css/custom.css" type="text/css">
+    <link rel="index" title="Index" href="../genindex.html">
+    <link rel="search" title="Search" href="../search.html">
+    <link rel="next" title="Expiration Timers" href="timer.html">
+    <link rel="prev" title="Error Propagation" href="errors.html">
+
+<!--
+  Search engines should not index the main version of documentation.
+  Stable documentation are built without release == 'main'.
+-->
+<meta name="robots" content="noindex">
+
+
+  <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T8XT4PS');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+  <!-- Preload the theme fonts -->
+
+<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<!-- Preload the katex fonts -->
+
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Math-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size1-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size2-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Caligraphic-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
+</head><body class="pytorch-body"><div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+
+          <li class="main-menu-item">
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">学习</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/get-started">
+                  <span class="dropdown-title">开始使用</span>
+                  <p>在本地运行 PyTorch 或快速开始使用支持的云平台之一</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials">
+                  <span class="dropdown-title">教程</span><p></p>
+                  <p>PyTorch 教程中的新内容</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/basics/intro.html">
+                  <span class="dropdown-title">学习基础知识</span><p></p>
+                  <p>熟悉 PyTorch 的概念和模块</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/recipes/recipes_index.html">
+                  <span class="dropdown-title">PyTorch 食谱</span><p></p>
+                  <p>精简版、可直接部署的 PyTorch 代码示例</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/introyt.html">
+                  <span class="dropdown-title">PyTorch 入门 - YouTube 系列</span><p></p>
+                  <p>通过我们引人入胜的 YouTube 教程系列掌握 PyTorch 基础知识</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">生态系统</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem">
+                  <span class="dropdown-title">工具</span><p></p>
+                  <p>了解 PyTorch 生态系统中的工具和框架</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
+                  <span class="dropdown-title">社区</span>
+                  <p>加入 PyTorch 开发者社区，贡献、学习并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
+                  <span class="dropdown-title">论坛</span>
+                  <p>讨论 PyTorch 代码、问题、安装、研究的地方</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/resources">
+                  <span class="dropdown-title">开发者资源</span>
+                  <p>查找资源并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">贡献者奖项 - 2024</span><p></p>
+                  <p>本届 PyTorch 会议揭晓获奖者</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">
+                Edge
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/edge">
+                  <span class="dropdown-title">关于 PyTorch Edge</span><p></p>
+                  <p>为边缘设备构建创新和隐私感知的 AI 体验</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
+                  <span class="dropdown-title">ExecuTorch</span><p></p>
+                  <p>基于移动和边缘设备的端到端推理能力解决方案</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch 文档</span><p></p>
+                </a>
+              </div>
+            </div>  
+          </li>
+
+          <li class="main-menu-item">
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">文档</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/docs/stable/index.html">
+                  <span class="dropdown-title">PyTorch</span><p></p>
+                  <p>探索文档以获取全面指导，了解如何使用 PyTorch</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/pytorch-domains">
+                  <span class="dropdown-title">PyTorch 领域</span><p></p>
+                  <p>阅读 PyTorch 领域的文档，了解更多关于特定领域库的信息</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">博客与新闻</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/blog/">
+                  <span class="dropdown-title">PyTorch 博客</span><p></p>
+                  <p>捕捉最新的技术新闻和事件</p>
+                </a>
+                 <a class="nav-dropdown-item" href="https://pytorch.org/community-blog">
+                  <span class="dropdown-title">社区博客</span><p></p>
+                  <p>PyTorch 生态系统故事</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/videos">
+                  <span class="dropdown-title">视频</span><p></p>
+                  <p>了解最新的 PyTorch 教程、新内容等</p>
+                </a><a class="nav-dropdown-item" href="https://pytorch.org/community-stories">
+                  <span class="dropdown-title">社区故事</span><p></p>
+                  <p>学习如何我们的社区使用 PyTorch 解决真实、日常的机器学习问题</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/events">
+                  <span class="dropdown-title">活动</span><p></p>
+                  <p>查找活动、网络研讨会和播客</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">通讯</span><p></p>
+                  <p>跟踪最新更新</p>
+                </a>
+            </div>
+          </div></li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">关于</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/foundation">
+                  <span class="dropdown-title">PyTorch 基金会</span><p></p>
+                  <p>了解更多关于 PyTorch 基金会的信息</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
+                  <span class="dropdown-title">管理委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">云信用计划</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">技术顾问委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">员工</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">联系我们</span><p></p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li class="main-menu-item">
+            <div class="no-dropdown">
+              <a href="https://pytorch.org/join" data-cta="join">成为会员</a>
+            </div>
+          </li>
+          <li>
+           <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="github-icon">
+             </a>
+           </div>
+          </li>
+          <!--- TODO: This block adds the search icon to the nav bar. We will enable it later. 
+          <li>
+            <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="search-icon">
+             </a>
+            </div>
+          </li>
+          --->
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+  </div>
+</div>
+
+
+
+   
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>目录</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+    <div class="version">
+      <a href="https://pytorch.org/docs/versions.html">主程序 (2.7.0+cpu ) ▼</a>
+    </div>
+    <div id="searchBox">
+    <div class="searchbox" id="googleSearchBox">
+      <script async="" src="https://cse.google.com/cse.js?cx=e65585f8c3ea1440e"></script>
+      <div class="gcse-search"></div>
+    </div>
+    <div id="sphinxSearchBox" style="display: none;">
+      <div role="search">
+        <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+          <input type="text" name="q" placeholder="Search Docs">
+          <input type="hidden" name="check_keywords" value="yes">
+          <input type="hidden" name="area" value="default">
+        </form>
+      </div>
+    </div>
+  </div>
+  <form id="searchForm">
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="google" checked="">谷歌搜索</label>
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="sphinx">经典搜索</label>
+  </form>
+
+  <script>
+     document.addEventListener('DOMContentLoaded', function() {
+      const searchForm = document.getElementById('searchForm');
+      const googleSearchBox = document.getElementById('googleSearchBox');
+      const sphinxSearchBox = document.getElementById('sphinxSearchBox');
+      // Function to toggle search box visibility
+      function toggleSearchBox(searchType) {
+        googleSearchBox.style.display = searchType === 'google' ? 'block' : 'none';
+        sphinxSearchBox.style.display = searchType === 'sphinx' ? 'block' : 'none';
+      }
+      // Determine the default search type
+      let defaultSearchType;
+      const currentUrl = window.location.href;
+      if (currentUrl.startsWith('https://pytorch.org/docs/stable')) {
+        // For the stable documentation, default to Google
+        defaultSearchType = localStorage.getItem('searchType') || 'google';
+      } else {
+        // For any other version, including docs-preview, default to Sphinx
+        defaultSearchType = 'sphinx';
+      }
+      // Set the default search type
+      document.querySelector(`input[name="searchType"][value="${defaultSearchType}"]`).checked = true;
+      toggleSearchBox(defaultSearchType);
+      // Event listener for changes in search type
+      searchForm.addEventListener('change', function(event) {
+        const selectedSearchType = event.target.value;
+        localStorage.setItem('searchType', selectedSearchType);
+        toggleSearchBox(selectedSearchType);
+      });
+      // Set placeholder text for Google search box
+      window.onload = function() {
+        var placeholderText = "Search Docs";
+        var googleSearchboxText = document.querySelector("#gsc-i-id1");
+        if (googleSearchboxText) {
+          googleSearchboxText.placeholder = placeholderText;
+          googleSearchboxText.style.fontFamily = 'FreightSans';
+          googleSearchboxText.style.fontSize = "1.2rem";
+          googleSearchboxText.style.color = '#262626';
+        }
+      };
+    });
+  </script>
+
+          </div>
+
+          
+
+<div>
+  <a style="color:#F05732" href="https://pytorch.org/docs/stable/elastic/rendezvous.html">您正在查看不稳定开发者预览文档。请点击此处查看最新稳定版本的文档。</a>
+</div>
+
+
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">社区</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../community/build_ci_governance.html">PyTorch 治理 | 构建 + CI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community/contribution_guide.html">PyTorch 贡献指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community/design.html">PyTorch 设计哲学</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community/governance.html">PyTorch 治理 | 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community/persons_of_interest.html">PyTorch 治理 | 维护者</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发者笔记</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../notes/amp_examples.html">自动混合精度示例</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/autograd.html">Autograd 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/broadcasting.html">广播语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/cpu_threading_torchscript_inference.html">CPU 多线程和 TorchScript 推理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/cuda.html">CUDA 语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/custom_operators.html">PyTorch 自定义算子页面</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/ddp.html">分布式数据并行</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/extending.html">扩展 PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/extending.func.html">使用 autograd.Function 扩展 torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/faq.html">常见问题解答</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/fsdp.html">FSDP 笔记</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/get_start_xpu.html">在 Intel GPU 上入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/gradcheck.html">Gradcheck 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/hip.html">HIP (ROCm)语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/large_scale_deployments.html">大规模部署功能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/libtorch_stable_abi.html">LibTorch 稳定 ABI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/modules.html">模块</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/mps.html">MPS 后端</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/multiprocessing.html">多进程最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/numerical_accuracy.html">数值精度</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/randomness.html">可重现性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/serialization.html">序列化语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/windows.html">Windows 常见问题解答</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">语言绑定</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../cpp_index.html">C++</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/javadoc/">Javadoc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deploy.html">torch::deploy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../torch.html">torch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../nn.html">torch.nn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../nn.functional.html">torch.nn.functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tensors.html">torch.Tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tensor_attributes.html">张量属性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tensor_view.html">索引视图</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../amp.html">torch.自动混合精度</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../autograd.html">torch.autograd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library.html">torch.library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../accelerator.html">torch.accelerator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cpu.html">torch.cpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cuda.html">torch.cuda</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch_cuda_memory.html">理解 CUDA 内存使用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch_cuda_memory.html#generating-a-snapshot">生成快照</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch_cuda_memory.html#using-the-visualizer">使用可视化工具</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch_cuda_memory.html#snapshot-api-reference">摄像头 API 参考</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mps.html">torch.mps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../xpu.html">torch.xpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mtia.html">torch.mtia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mtia.memory.html">torch.mtia.memory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../meta.html">元设备</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../backends.html">torch.backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../export.html">torch.export</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.html">torch.distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.tensor.html">torch.distributed.tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.algorithms.join.html">torch.distributed.algorithms.join</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../distributed.elastic.html">torch.distributed.elastic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fsdp.html">torch.distributed.fsdp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.fsdp.fully_shard.html">torch.distributed.fsdp.fully_shard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.tensor.parallel.html">torch.distributed.tensor.parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.optim.html">torch.distributed.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.pipelining.html">torch.distributed.pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.checkpoint.html">torch.distributed.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributions.html">torch.distributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch.compiler.html">torch.compiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fft.html">torch.fft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../func.html">torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../futures.html">torch.futures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fx.html">torch.fx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fx.experimental.html">torch.fx.experimental</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hub.html">torch.hub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../jit.html">torch.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../linalg.html">torch.linalg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../monitor.html">torch.monitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../signal.html">torch.signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../special.html">torch.special</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch.overrides.html">torch.overrides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../package.html">torch.package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../profiler.html">torch.profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../nn.init.html">torch.nn.init</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../nn.attention.html">torch.nn.attention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../onnx.html">torch.onnx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../optim.html">torch.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../complex_numbers.html">复数</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ddp_comm_hooks.html">DDP 通信钩子</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quantization.html">量化</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rpc.html">分布式 RPC 框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../random.html">torch.random</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../masked.html">torch.masked</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../nested.html">torch.nested</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../size.html">torch.Size</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sparse.html">torch.sparse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../storage.html">torch.Storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../testing.html">torch.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils.html">torch.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../benchmark_utils.html">torch.utils.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bottleneck.html">torch.utils.bottleneck</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../checkpoint.html">torch.utils.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cpp_extension.html">torch.utils.cpp_extension</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data.html">torch.utils.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deterministic.html">torch.utils.deterministic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../jit_utils.html">torch.utils.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dlpack.html">torch.utils.dlpack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mobile_optimizer.html">torch.utils.mobile_optimizer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../model_zoo.html">torch.utils.model_zoo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tensorboard.html">torch.utils.tensorboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../module_tracker.html">torch.utils.module_tracker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../type_info.html">类型信息</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../named_tensor.html">命名张量</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../name_inference.html">命名张量操作覆盖率</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../config_mod.html">torch.__config__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../future_mod.html">torch.__future__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../logging.html">torch._logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch_environment_variables.html">火炬环境变量</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">库</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/audio/stable">torchaudio</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/data">TorchData</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/torchrec">火炬推荐</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/serve">TorchServe</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/text/stable">torchtext</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/vision/stable">torchvision</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/xla/">PyTorch 在 XLA 设备上</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/ao">torchao</a></li>
+</ul>
+
+            
+          
+
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        文档 &gt;</li>
+
+        
+          <li>火炬分布式弹性 &gt;</li>
+        
+      <li>约会</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/elastic/rendezvous.rst.txt" rel="nofollow"><img src="../_static/images/view-page-source-icon.svg" width="16" height="16"></a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">快捷键</div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+
+          <!-- Google Tag Manager (noscript) -->
+          <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T8XT4PS" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+          <!-- End Google Tag Manager (noscript) -->
+          
+          <div class="rst-content">
+          
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <section id="module-torch.distributed.elastic.rendezvous">
+<span id="rendezvous"></span><span id="rendezvous-api"></span><h1>约会 ¶</h1>
+<p>在 Torch 分布式弹性（Torch Distributed Elastic）的语境中，我们使用“约会”一词来指代一种特定的功能，该功能结合了分布式同步原语与对等发现。</p>
+<p>它被 Torch 分布式弹性用于收集训练作业的参与者（即节点），以确保所有节点都同意相同的参与者列表和每个人的角色，并就何时开始/恢复训练做出一致的集体决策。</p>
+<p>火炬分布式弹性会合提供了以下关键功能：</p>
+<p>障碍：</p>
+<p>执行会合的节点将全部阻塞，直到会合被认为完成——这发生在至少有 <code class="docutils literal "><span class="pre">min</span></code> 个节点加入会合障碍（对于同一作业）时。这也意味着障碍的大小不一定固定。</p>
+<p>达到 <code class="docutils literal "><span class="pre">min</span></code> 个节点数量后，还有一个额外的短暂等待时间——这是为了确保会合不会“太快”完成（这可能会排除大约同时尝试加入的额外节点）。</p>
+<p>如果在屏障处聚集了 <code class="docutils literal "><span class="pre">max</span></code> 个节点，则 rendezvous 将立即完成。</p>
+<p>同时还有一个整体超时时间，如果在任何时候没有达到 <code class="docutils literal "><span class="pre">min</span></code> 个节点，则 rendezvous 将失败 - 这是为了作为一个简单的故障安全机制，以帮助释放部分分配的工作资源，以防资源管理器出现问题，并且不应被视为可重试的。</p>
+<p>独占性：</p>
+<p>一个简单的分布式屏障是不够的，因为我们还需要确保在任何给定时间（对于给定的工作）只有一个节点组存在。换句话说，新节点（即晚些时候加入）不应能够为同一工作形成并行独立的工人组。</p>
+<p>火炬分布式弹性会合确保如果一组节点已经完成了会合（因此可能已经开始训练），那么尝试会合的“迟到”节点只会宣布自己处于等待状态，并且必须等待先前的（已完成的）现有会合被销毁后才能进行。</p>
+<p>一致性：</p>
+<p>当会合完成后，所有成员将就作业成员资格以及每个人在其中的角色达成一致。这个角色使用一个介于 0 和全局大小之间的整数表示，称为 rank。</p>
+<p>注意，rank 不是稳定的，也就是说，同一个节点在下一个（重新）会合中可能会被分配不同的 rank。</p>
+<p>容错性：</p>
+<p>Torch 分布式弹性 rendezvous 旨在在 rendezvous 过程中容忍节点故障。如果在加入 rendezvous 和完成 rendezvous 之间进程崩溃（或失去网络连接等），则会自动与剩余的健康节点重新 rendezvous。</p>
+<p>节点也可能在完成 rendezvous（或被其他节点观察到已完成）之后失败，这种场景将由 Torch 分布式弹性 <code class="docutils literal "><span class="pre">train_loop</span></code> 处理（它也会触发重新 rendezvous）。</p>
+<p>共享键值存储：</p>
+<p>当会合完成时，将创建并返回一个共享的键值存储。此存储实现了 <code class="docutils literal "><span class="pre">torch.distributed.Store</span></code> API（参见分布式通信文档）。</p>
+<p>此存储仅由完成会合的成员共享。它旨在由 Torch 分布式弹性使用，以交换初始化作业控制和数据平面所需的信息。</p>
+<p>等待中的工作者和会合关闭：</p>
+<p>Torch 分布式弹性会合处理器对象提供了额外的功能，这些功能在技术上不属于会合过程：</p>
+<ol class="arabic simple">
+<li><p>查询有多少工人迟到在关卡，谁可以参加下一次会合。</p></li>
+<li><p>将会合设置为关闭，以向所有节点发出信号，不要参加下一次会合。</p></li>
+</ol>
+<p><strong>DynamicRendezvousHandler</strong>:</p>
+<p>Torch 分布式弹性版附带一个 <code class="xref py py-class docutils literal "><span class="pre">DynamicRendezvousHandler</span></code> 类，该类实现了上述描述的会合机制。它是一个与后端无关的类型，在构造时需要指定一个特定的 <code class="xref py py-class docutils literal "><span class="pre">RendezvousBackend</span></code> 实例。</p>
+<p>PyTorch 分布式用户可以选择实现自己的后端类型，或者使用 PyTorch 附带的一些实现之一：</p>
+<ul>
+<li><p> <code class="xref py py-class docutils literal "><span class="pre">C10dRendezvousBackend</span></code> : 使用 C10d 存储（默认为 <code class="docutils literal "><span class="pre">TCPStore</span></code> ）作为 rendezvous 后端。使用 C10d 存储的主要优势是它不需要第三方依赖（如 etcd）来建立 rendezvous。</p></li>
+<li><p> <code class="xref py py-class docutils literal "><span class="pre">EtcdRendezvousBackend</span></code> : 取代了旧版 <code class="xref py py-class docutils literal "><span class="pre">EtcdRendezvousHandler</span></code> 类。将 <code class="xref py py-class docutils literal "><span class="pre">EtcdRendezvousBackend</span></code> 实例传递给 <code class="xref py py-class docutils literal "><span class="pre">DynamicRendezvousHandler</span></code> 在功能上等同于实例化 <code class="xref py py-class docutils literal "><span class="pre">EtcdRendezvousHandler</span></code> 。</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">store</span> <span class="o">=</span> <span class="n">TCPStore</span><span class="p">(</span><span class="s2">"localhost"</span><span class="p">)</span>
+
+<span class="n">backend</span> <span class="o">=</span> <span class="n">C10dRendezvousBackend</span><span class="p">(</span><span class="n">store</span><span class="p">,</span> <span class="s2">"my_run_id"</span><span class="p">)</span>
+
+<span class="n">rdzv_handler</span> <span class="o">=</span> <span class="n">DynamicRendezvousHandler</span><span class="o">.</span><span class="n">from_backend</span><span class="p">(</span>
+    <span class="n">run_id</span><span class="o">=</span><span class="s2">"my_run_id"</span><span class="p">,</span> <span class="n">store</span><span class="o">=</span><span class="n">store</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span> <span class="n">min_nodes</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">max_nodes</span><span class="o">=</span><span class="mi">4</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p>下面是一个描述 rendezvous 工作原理的状态图。</p>
+<img alt="../_images/etcd_rdzv_diagram.png" src="../_images/etcd_rdzv_diagram.png">
+<section id="registry">
+<h2>注册表</h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.RendezvousParameters">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.elastic.rendezvous.</span></span><span class="sig-name descname"><span class="pre">RendezvousParameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backend</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_addr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/distributed/elastic/rendezvous/api.html#RendezvousParameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/elastic/rendezvous/api.py#L240"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.elastic.rendezvous.RendezvousParameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>保持构建 <code class="xref py py-class docutils literal "><span class="pre">RendezvousHandler</span></code> 的参数。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>backend (str) – 使用以处理 rendezvous 的后端名称。</p></li>
+<li><p>约会端点（字符串）- 约会的端点，通常形式为 &lt;主机名&gt;[:&lt;端口&gt;]。</p></li>
+<li><p>run_id（字符串）- 约会的 ID。</p></li>
+<li><p>min_nodes（整数）- 允许加入约会的最小节点数。</p></li>
+<li><p>max_nodes（整数）- 允许加入约会的最大节点数。</p></li>
+<li><p>本地地址（可选[str]）- 本地节点的地址。</p></li>
+<li><p>**kwargs - 为指定后端提供的额外参数。</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.RendezvousParameters.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/distributed/elastic/rendezvous/api.html#RendezvousParameters.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/elastic/rendezvous/api.py#L291"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.elastic.rendezvous.RendezvousParameters.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>如果存在 <code class="docutils literal "><span class="pre">key</span></code> ，则返回其值，否则返回 <code class="docutils literal "><span class="pre">default</span></code> 。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.13)"><em>任何</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.RendezvousParameters.get_as_bool">
+<span class="sig-name descname"><span class="pre">get_as_bool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/distributed/elastic/rendezvous/api.html#RendezvousParameters.get_as_bool"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/elastic/rendezvous/api.py#L295"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.elastic.rendezvous.RendezvousParameters.get_as_bool" title="Permalink to this definition">¶</a></dt>
+<dd><p>返回 <code class="docutils literal "><span class="pre">key</span></code> 作为 <code class="docutils literal "><span class="pre">bool</span></code> 的值。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[bool]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.RendezvousParameters.get_as_int">
+<span class="sig-name descname"><span class="pre">get_as_int</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/distributed/elastic/rendezvous/api.html#RendezvousParameters.get_as_int"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/elastic/rendezvous/api.py#L314"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.elastic.rendezvous.RendezvousParameters.get_as_int" title="Permalink to this definition">¶</a></dt>
+<dd><p>返回 <code class="docutils literal "><span class="pre">key</span></code> 的值作为 <code class="docutils literal "><span class="pre">int</span></code> 。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>可选[int]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.RendezvousHandlerRegistry">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.elastic.rendezvous.</span></span><span class="sig-name descname"><span class="pre">RendezvousHandlerRegistry</span></span><a class="reference internal" href="../_modules/torch/distributed/elastic/rendezvous/api.html#RendezvousHandlerRegistry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/elastic/rendezvous/api.py#L331"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.elastic.rendezvous.RendezvousHandlerRegistry" title="Permalink to this definition">¶</a></dt>
+<dd><p>表示一个 <code class="xref py py-class docutils literal "><span class="pre">RendezvousHandler</span></code> 后端注册表。</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<span class="target" id="module-torch.distributed.elastic.rendezvous.registry"></span></section>
+<section id="handler">
+<h2>处理器</h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.RendezvousHandler">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.elastic.rendezvous.</span></span><span class="sig-name descname"><span class="pre">RendezvousHandler</span></span><a class="reference internal" href="../_modules/torch/distributed/elastic/rendezvous/api.html#RendezvousHandler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/elastic/rendezvous/api.py#L144"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.elastic.rendezvous.RendezvousHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>主 rendezvous 接口。</p>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>分布式 Torch 用户通常不需要实现自己的 <code class="docutils literal "><span class="pre">RendezvousHandler</span></code> 。基于 C10d Store 的实现已经提供，并推荐给大多数用户。</p>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.RendezvousHandler.get_backend">
+抽象 get_backend()[source][source] ¶</dt>
+<dd><p>返回 rendezvous 后端的名称。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.RendezvousHandler.get_run_id">
+获取运行 ID()[来源][来源]</dt>
+<dd><p>返回 rendezvous 的运行 ID。</p>
+<p>运行 ID 是一个用户定义的 ID，用于唯一标识分布式应用程序的一个实例。它通常映射到作业 ID，并用于允许节点加入正确的分布式应用程序。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.RendezvousHandler.is_closed">
+抽象 is_closed()[source][source] ¶</dt>
+<dd><p>检查会合是否已关闭。</p>
+<p>关闭的会合意味着在同一个作业中所有未来的重新会合尝试都将失败。</p>
+<p> <code class="docutils literal "><span class="pre">is_closed()</span></code> 和 <code class="xref py py-meth docutils literal "><span class="pre">set_closed()</span></code> 具有最终传播的语义，不应用于同步。意图是如果至少有一个节点决定作业已完成，它将关闭会合，其他节点也将很快观察到这一点并停止运行。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">布尔型</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.RendezvousHandler.next_rendezvous">
+下一个 rendezvous() 的抽象 [来源][来源] ¶</dt>
+<dd><p>进入 rendezvous 障碍的主入口。</p>
+<p>阻塞，直到 rendezvous 完成，当前进程被包含在形成的工人组中，或者发生超时，或者 rendezvous 被标记为关闭。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回值<span class="colon">:</span></dt>
+<dd class="field-odd"><p> <code class="xref py py-class docutils literal "><span class="pre">RendezvousInfo</span></code> 的实例。</p>
+</dd>
+<dt class="field-even">引发<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p>预约已关闭错误 - 预约已关闭。</p></li>
+<li><p>预约连接错误 - 连接到 rendezvous 后端失败。</p></li>
+<li><p>预约状态错误 - 预约状态已损坏。</p></li>
+<li><p>预约超时错误 - 预约未按时完成。</p></li>
+</ul>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#torch.distributed.elastic.rendezvous.RendezvousInfo" title="torch.distributed.elastic.rendezvous.api.RendezvousInfo"><em>集合信息</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.RendezvousHandler.num_nodes_waiting">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_nodes_waiting</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/distributed/elastic/rendezvous/api.html#RendezvousHandler.num_nodes_waiting"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/elastic/rendezvous/api.py#L207"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.elastic.rendezvous.RendezvousHandler.num_nodes_waiting" title="Permalink to this definition">¶</a></dt>
+<dd><p>返回到达集合屏障晚的节点数量，因此这些节点未被包含在当前工作组中。</p>
+<p>调用者应定期调用此方法以检查是否有新节点等待加入工作，如果有，则通过调用 <code class="xref py py-meth docutils literal "><span class="pre">next_rendezvous()</span></code> （重新集合）来接纳它们。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.RendezvousHandler.set_closed">
+抽象 set_closed()[source][source] ¶</dt>
+<dd><p>标记会合为已关闭。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.RendezvousHandler.shutdown">
+抽象 shutdown()[source][source] ¶</dt>
+<dd><p>关闭会合期间所有已打开的资源。</p>
+<p>示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">rdzv_handler</span> <span class="o">=</span> <span class="o">...</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">store</span><span class="p">,</span> <span class="n">rank</span><span class="p">,</span> <span class="n">world_size</span> <span class="o">=</span> <span class="n">rdzv_handler</span><span class="o">.</span><span class="n">next_rendezvous</span><span class="p">()</span>
+<span class="k">finally</span><span class="p">:</span>
+    <span class="n">rdzv_handler</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">布尔型</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.RendezvousHandler.use_agent_store">
+属性使用代理存储布尔值</dt>
+<dd><p>表示由 <code class="xref py py-meth docutils literal "><span class="pre">next_rendezvous()</span></code> 返回的存储引用可以被用户应用程序共享，并在应用程序生命周期内可用。</p>
+<p>集合处理器实现将作为 <code class="xref py py-class docutils literal "><span class="pre">RendezvousStoreInfo</span></code> 的实例共享存储详细信息。应用程序按照惯例使用 MASTER_ADDR/MASTER_PORT 环境变量来查找存储。</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="dataclasses">
+<h2>数据类</h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.RendezvousInfo">
+class torch.distributed.elastic.rendezvous.RendezvousInfo(存储, 排名, 世界大小, 引导存储信息)[source][source] ¶</dt>
+<dd><p>存储关于 rendezvous 的信息。</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.api.RendezvousStoreInfo">
+class torch.distributed.elastic.rendezvous.api.RendezvousStoreInfo(主地址, 主端口)[source][source] ¶</dt>
+<dd><p>可用于引导训练器分布式通信的存储地址和端口。</p>
+<dl class="field-list simple">
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.api.RendezvousStoreInfo.build">
+静态构建(rank, store)[源代码][源代码] ¶</dt>
+<dd><p>工厂方法，在 rank0 主机上查找未使用的端口，并获取所有 rank 的地址/端口信息。</p>
+<p>如果已知 master_addr/master_port（当共享现有的 tcp store 服务器时很有用）使用构造函数。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>rank（int）- 当前节点的 rank</p></li>
+<li><p>存储点（存储点）- 用于会合的存储点</p></li>
+<li><p>local_addr（可选[str]）- 当前节点的地址，如未提供，将根据主机名解析</p></li>
+<li><p>server_port（可选[int]）- TCPStore 服务器的端口号，当 TCPStore 共享时</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#torch.distributed.elastic.rendezvous.api.RendezvousStoreInfo" title="torch.distributed.elastic.rendezvous.api.RendezvousStoreInfo"><em>会合存储信息</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="exceptions">
+<h2>异常</h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.api.RendezvousError">
+class torch.distributed.elastic.rendezvous.api.RendezvousError[source][source]</dt>
+<dd><p>代表 rendezvous 错误的基类型。</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.api.RendezvousClosedError">
+class torch.distributed.elastic.rendezvous.api.RendezvousClosedError[source][source]</dt>
+<dd><p>当 rendezvous 关闭时引发。</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.api.RendezvousTimeoutError">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.elastic.rendezvous.api.</span></span><span class="sig-name descname"><span class="pre">RendezvousTimeoutError</span></span><a class="reference internal" href="../_modules/torch/distributed/elastic/rendezvous/api.html#RendezvousTimeoutError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/elastic/rendezvous/api.py#L42"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.elastic.rendezvous.api.RendezvousTimeoutError" title="Permalink to this definition">¶</a></dt>
+<dd><p>当 rendezvous 未按时完成时引发。</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.api.RendezvousConnectionError">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.elastic.rendezvous.api.</span></span><span class="sig-name descname"><span class="pre">RendezvousConnectionError</span></span><a class="reference internal" href="../_modules/torch/distributed/elastic/rendezvous/api.html#RendezvousConnectionError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/elastic/rendezvous/api.py#L46"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.elastic.rendezvous.api.RendezvousConnectionError" title="Permalink to this definition">¶</a></dt>
+<dd><p>连接到 rendezvous 后端失败时引发。</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.api.RendezvousStateError">
+类 torch.distributed.elastic.rendezvous.api.RendezvousStateError[source][source]</dt>
+<dd><p>当 rendezvous 状态损坏时引发。</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.api.RendezvousGracefulExitError">
+类 torch.distributed.elastic.rendezvous.api.RendezvousGracefulExitError[source][source]</dt>
+<dd><p>节点未包含在 rendezvous 中时触发，并优雅地退出。</p>
+<p>异常是一种退出堆栈的机制，但这并不意味着失败。</p>
+</dd></dl>
+
+</section>
+<section id="implementations">
+<h2>实现 §</h2>
+<section id="dynamic-rendezvous">
+<h3>动态 rendezvous §</h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.dynamic_rendezvous.create_handler">
+<span class="sig-prename descclassname"><span class="pre">torch.distributed.elastic.rendezvous.dynamic_rendezvous.</span></span><span class="sig-name descname"><span class="pre">create_handler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">store</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/distributed/elastic/rendezvous/dynamic_rendezvous.html#create_handler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/elastic/rendezvous/dynamic_rendezvous.py#L1388"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.elastic.rendezvous.dynamic_rendezvous.create_handler" title="Permalink to this definition">¶</a></dt>
+<dd><p>根据指定参数创建一个新的 <code class="xref py py-class docutils literal "><span class="pre">DynamicRendezvousHandler</span></code> 。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>store (Store) – 返回作为 rendezvous 的一部分的 C10d 存储。</p></li>
+<li><p>backend (RendezvousBackend) – 用于保持 rendezvous 状态的后端。</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#torch.distributed.elastic.rendezvous.dynamic_rendezvous.DynamicRendezvousHandler" title="torch.distributed.elastic.rendezvous.dynamic_rendezvous.DynamicRendezvousHandler"><em>动态 rendezvous 处理器</em></a></p>
+</dd>
+</dl>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>参数</p></th>
+<th class="head"><p>描述</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>join_timeout</p></td>
+<td><p>预期 rendezvous 完成的总时间，单位为秒。默认为 600 秒。</p></td>
+</tr>
+<tr class="row-odd"><td><p>最后调用超时</p></td>
+<td><p>达到最小节点数后，在完成会合前额外等待的时间（以秒为单位）。默认为 30 秒。</p></td>
+</tr>
+<tr class="row-even"><td><p>关闭超时</p></td>
+<td><p>在调用 <code class="xref py py-meth docutils literal "><span class="pre">RendezvousHandler.set_closed()</span></code> 或 <code class="xref py py-meth docutils literal "><span class="pre">RendezvousHandler.shutdown()</span></code> 之后，预期在多少秒内关闭会合（以秒为单位）。默认为 30 秒。</p></td>
+</tr>
+<tr class="row-odd"><td><p>心跳</p></td>
+<td><p>在秒内，期望完成心跳保活的超时时间</p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.dynamic_rendezvous.DynamicRendezvousHandler">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.elastic.rendezvous.dynamic_rendezvous.</span></span><span class="sig-name descname"><span class="pre">DynamicRendezvousHandler</span></span><a class="reference internal" href="../_modules/torch/distributed/elastic/rendezvous/dynamic_rendezvous.html#DynamicRendezvousHandler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/elastic/rendezvous/dynamic_rendezvous.py#L995"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.elastic.rendezvous.dynamic_rendezvous.DynamicRendezvousHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>表示一个在节点集合中设置 rendezvous 的处理器。</p>
+<dl class="field-list simple">
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.dynamic_rendezvous.DynamicRendezvousHandler.from_backend">
+from_backend(run_id, store, backend, min_nodes, max_nodes, local_addr=None, timeout=None, keep_alive_interval=5, keep_alive_max_attempt=3)[source][source] ¶</dt>
+<dd><p>创建一个新的 <code class="xref py py-class docutils literal "><span class="pre">DynamicRendezvousHandler</span></code> 。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>run_id (str) – 集合点的运行 ID。</p></li>
+<li><p>store (Store) – 返回作为 rendezvous 的一部分的 C10d 存储。</p></li>
+<li><p>backend (RendezvousBackend) – 用于保持 rendezvous 状态的后端。</p></li>
+<li><p>min_nodes (int) – 允许加入 rendezvous 的最小节点数。</p></li>
+<li><p>max_nodes (int) – 允许加入 rendezvous 的最大节点数。</p></li>
+<li><p>local_addr (Optional[str]) – 本地节点地址。</p></li>
+<li><p>timeout (Optional[RendezvousTimeout]) – rendezvous 的超时配置。</p></li>
+<li><p>keep_alive_interval (int) – 节点在 rendezvous 中发送心跳以保持活跃之前等待的时间（整数）。</p></li>
+<li><p>keep_alive_max_attempt (int) – 节点在被视为死亡之前，心跳尝试失败的最大次数（整数）。</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.dynamic_rendezvous.RendezvousBackend">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.elastic.rendezvous.dynamic_rendezvous.</span></span><span class="sig-name descname"><span class="pre">RendezvousBackend</span></span><a class="reference internal" href="../_modules/torch/distributed/elastic/rendezvous/dynamic_rendezvous.html#RendezvousBackend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/elastic/rendezvous/dynamic_rendezvous.py#L61"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.elastic.rendezvous.dynamic_rendezvous.RendezvousBackend" title="Permalink to this definition">¶</a></dt>
+<dd><p>表示一个持有 rendezvous 状态的后端。</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.dynamic_rendezvous.RendezvousBackend.get_state">
+抽象获取状态()[源][源] ¶</dt>
+<dd><p>获取 rendezvous 状态。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回值<span class="colon">:</span></dt>
+<dd class="field-odd"><p>编码的 rendezvous 状态及其围栏令牌的元组或 <code class="docutils literal "><span class="pre">None</span></code> ，如果后端未找到状态。</p>
+</dd>
+<dt class="field-even">引发<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p>RendezvousConnectionError – 与后端连接失败。</p></li>
+<li><p>遇见状态错误 - 遇见状态已损坏。</p></li>
+</ul>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>可选的[字节，任何类型]元组</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.dynamic_rendezvous.RendezvousBackend.name">
+抽象属性名称 str ¶</dt>
+<dd><p>获取后端名称。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.dynamic_rendezvous.RendezvousBackend.set_state">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/distributed/elastic/rendezvous/dynamic_rendezvous.html#RendezvousBackend.set_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/elastic/rendezvous/dynamic_rendezvous.py#L84"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.elastic.rendezvous.dynamic_rendezvous.RendezvousBackend.set_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>设置会合状态。</p>
+<p>新的会合状态设置条件如下：</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>如果指定的 <code class="docutils literal "><span class="pre">token</span></code> 与后端存储的隔离令牌匹配，则状态将被更新。新的状态及其隔离令牌将返回给调用者。</p></li>
+<li><p>如果指定的 <code class="docutils literal "><span class="pre">token</span></code> 与后端存储的围栏令牌不匹配，则状态不会更新；相反，将返回现有的状态及其围栏令牌给调用者。</p></li>
+<li><p>如果指定的 <code class="docutils literal "><span class="pre">token</span></code> 是 <code class="docutils literal "><span class="pre">None</span></code> ，则只有在后端没有现有状态的情况下才会设置新状态。将返回新状态或现有状态及其围栏令牌给调用者。</p></li>
+</ul>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>状态（字节）- 编码的会合状态。</p></li>
+<li><p>令牌（可选[任意]）- 由之前的 <code class="xref py py-meth docutils literal "><span class="pre">get_state()</span></code> 或 <code class="docutils literal "><span class="pre">set_state()</span></code> 调用检索的可选围栏令牌。</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><p>序列化的 rendezvous 状态、其 fencing 令牌以及一个布尔值，表示我们的设置尝试是否成功。</p>
+</dd>
+<dt class="field-odd">引发<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>RendezvousConnectionError – 与后端连接失败。</p></li>
+<li><p>RendezvousStateError – rendezvous 状态已损坏。</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>Optional[tuple[bytes, Any, bool]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.dynamic_rendezvous.RendezvousTimeout">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.elastic.rendezvous.dynamic_rendezvous.</span></span><span class="sig-name descname"><span class="pre">RendezvousTimeout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">join</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_call</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">close</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">heartbeat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/distributed/elastic/rendezvous/dynamic_rendezvous.html#RendezvousTimeout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/elastic/rendezvous/dynamic_rendezvous.py#L122"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.elastic.rendezvous.dynamic_rendezvous.RendezvousTimeout" title="Permalink to this definition">¶</a></dt>
+<dd><p>保持 rendezvous 的超时配置。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>join（可选[timedelta]）- 预期 rendezvous 完成的时限。</p></li>
+<li><p>last_call（可选[timedelta]）- 在 rendezvous 达到所需的最少参与者数量后，完成 rendezvous 之前额外的等待时间。</p></li>
+<li><p>close（可选[timedelta]）- 在调用 <code class="xref py py-meth docutils literal "><span class="pre">RendezvousHandler.set_closed()</span></code> 或 <code class="xref py py-meth docutils literal "><span class="pre">RendezvousHandler.shutdown()</span></code> 后，预计 rendezvous 将在多长时间内关闭。</p></li>
+<li><p>heartbeat（可选[timedelta]）- 预计保持连接的心跳将在多长时间内完成。</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.dynamic_rendezvous.RendezvousTimeout.close">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">close</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.timedelta" title="(in Python v3.13)"><span class="pre">timedelta</span></a></em><a class="headerlink" href="#torch.distributed.elastic.rendezvous.dynamic_rendezvous.RendezvousTimeout.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>获取关闭超时。</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.dynamic_rendezvous.RendezvousTimeout.heartbeat">
+属性：心跳时间差 ¶</dt>
+<dd><p>获取保持连接的心跳超时时间。</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.dynamic_rendezvous.RendezvousTimeout.join">
+属性：连接时间差 ¶</dt>
+<dd><p>获取连接超时时间。</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.dynamic_rendezvous.RendezvousTimeout.last_call">
+最后调用时间差属性 ¶</dt>
+<dd><p>获取最后调用超时。</p>
+</dd></dl>
+
+</dd></dl>
+
+<section id="c10d-backend">
+<h4>C10d 后端 ¶</h4>
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.c10d_rendezvous_backend.create_backend">
+<span class="sig-prename descclassname"><span class="pre">torch.distributed.elastic.rendezvous.c10d_rendezvous_backend.</span></span><span class="sig-name descname"><span class="pre">create_backend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/distributed/elastic/rendezvous/c10d_rendezvous_backend.html#create_backend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/elastic/rendezvous/c10d_rendezvous_backend.py#L214"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.elastic.rendezvous.c10d_rendezvous_backend.create_backend" title="Permalink to this definition">¶</a></dt>
+<dd><p>从指定参数创建一个新的 <code class="xref py py-class docutils literal "><span class="pre">C10dRendezvousBackend</span></code> 。</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>参数</p></th>
+<th class="head"><p>描述</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>store_type</p></td>
+<td><p>C10d 存储的类型。当前支持的类型是“tcp”和“file”，分别对应 <code class="xref py py-class docutils literal "><span class="pre">torch.distributed.TCPStore</span></code> 和 <code class="xref py py-class docutils literal "><span class="pre">torch.distributed.FileStore</span></code> ，默认为“tcp”。</p></td>
+</tr>
+<tr class="row-odd"><td><p>读取超时</p></td>
+<td><p>读取超时，以秒为单位，用于存储操作。默认为 60 秒。</p>
+<p>注意，此设置仅适用于 <code class="xref py py-class docutils literal "><span class="pre">torch.distributed.TCPStore</span></code> 。对于 <code class="xref py py-class docutils literal "><span class="pre">torch.distributed.FileStore</span></code> ，它不接受超时作为参数，因此不相关。</p>
+</td>
+</tr>
+<tr class="row-even"><td><p>is_host</p></td>
+<td><p>一个布尔值，表示此后端实例是否将托管 C10d 存储。如果未指定，将通过匹配此机器的计算机名或 IP 地址与指定的 rendezvous 端点来启发式地推断。默认为 <code class="docutils literal "><span class="pre">None</span></code> 。</p>
+<p>注意，此配置选项仅适用于 <code class="xref py py-class docutils literal "><span class="pre">torch.distributed.TCPStore</span></code> 。在正常情况下，您可以安全地跳过它；唯一需要的时候是如果其值无法正确确定（例如，rendezvous 端点的主机名为 CNAME 或与机器的 FQDN 不匹配）。</p>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[torch.distributed.elastic.rendezvous.c10d_rendezvous_backend.C10dRendezvousBackend, torch.distributed.distributed_c10d.Store]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.c10d_rendezvous_backend.C10dRendezvousBackend">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.elastic.rendezvous.c10d_rendezvous_backend.</span></span><span class="sig-name descname"><span class="pre">C10dRendezvousBackend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">store</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/distributed/elastic/rendezvous/c10d_rendezvous_backend.html#C10dRendezvousBackend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/elastic/rendezvous/c10d_rendezvous_backend.py#L35"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.elastic.rendezvous.c10d_rendezvous_backend.C10dRendezvousBackend" title="Permalink to this definition">¶</a></dt>
+<dd><p>代表基于 C10d 的会合后端。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>存储（Store）- 使用该 <code class="xref py py-class docutils literal "><span class="pre">torch.distributed.Store</span></code> 实例与 C10d 存储进行通信。</p></li>
+<li><p>run_id (str) – 集合点的运行 ID。</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.c10d_rendezvous_backend.C10dRendezvousBackend.get_state">
+<span class="sig-name descname"><span class="pre">get_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/distributed/elastic/rendezvous/c10d_rendezvous_backend.html#C10dRendezvousBackend.get_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/elastic/rendezvous/c10d_rendezvous_backend.py#L73"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.elastic.rendezvous.c10d_rendezvous_backend.C10dRendezvousBackend.get_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>请参阅基类。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>可选的元组[bytes, 任意类型]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.c10d_rendezvous_backend.C10dRendezvousBackend.name">
+属性名称 str ¶</dt>
+<dd><p>请参阅基类。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.c10d_rendezvous_backend.C10dRendezvousBackend.set_state">
+set_state(state, token=None)[来源][来源] ¶</dt>
+<dd><p>查看基类。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[tuple[bytes, Any, bool]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="etcd-backend">
+<h4>Etcd 后端 ¶</h4>
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.etcd_rendezvous_backend.create_backend">
+<span class="sig-prename descclassname"><span class="pre">torch.distributed.elastic.rendezvous.etcd_rendezvous_backend.</span></span><span class="sig-name descname"><span class="pre">create_backend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/distributed/elastic/rendezvous/etcd_rendezvous_backend.html#create_backend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/elastic/rendezvous/etcd_rendezvous_backend.py#L185"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.elastic.rendezvous.etcd_rendezvous_backend.create_backend" title="Permalink to this definition">¶</a></dt>
+<dd><p>从指定参数创建一个新的 <code class="xref py py-class docutils literal "><span class="pre">EtcdRendezvousBackend</span></code> </p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>参数</p></th>
+<th class="head"><p>描述</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>read_timeout</p></td>
+<td><p>etcd 操作的读取超时时间，以秒为单位。默认为 60 秒。</p></td>
+</tr>
+<tr class="row-odd"><td><p>协议</p></td>
+<td><p>用于与 etcd 通信的协议。有效值是“http”和“https”。默认为“http”。</p></td>
+</tr>
+<tr class="row-even"><td><p>ssl_cert</p></td>
+<td><p>使用 HTTPS 时，与 SSL 客户端证书一起使用的路径。默认为 <code class="docutils literal "><span class="pre">None</span></code> 。</p></td>
+</tr>
+<tr class="row-odd"><td><p>ssl 证书密钥</p></td>
+<td><p>使用 HTTPS 时，与 SSL 客户端证书一起使用的私钥路径。默认为 <code class="docutils literal "><span class="pre">None</span></code> 。</p></td>
+</tr>
+<tr class="row-even"><td><p>ca 证书</p></td>
+<td><p>根 SSL 授权证书的路径。默认为 <code class="docutils literal "><span class="pre">None</span></code> 。</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[torch.distributed.elastic.rendezvous.etcd_rendezvous_backend.EtcdRendezvousBackend, torch.distributed.distributed_c10d.Store]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.etcd_rendezvous_backend.EtcdRendezvousBackend">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.elastic.rendezvous.etcd_rendezvous_backend.</span></span><span class="sig-name descname"><span class="pre">EtcdRendezvousBackend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">client</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key_prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ttl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/distributed/elastic/rendezvous/etcd_rendezvous_backend.html#EtcdRendezvousBackend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/elastic/rendezvous/etcd_rendezvous_backend.py#L28"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.elastic.rendezvous.etcd_rendezvous_backend.EtcdRendezvousBackend" title="Permalink to this definition">¶</a></dt>
+<dd><p>表示一个基于 etcd 的 rendezvous 后端。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>client (Client) – 使用 <code class="docutils literal "><span class="pre">etcd.Client</span></code> 实例与 etcd 进行通信。</p></li>
+<li><p>run_id (str) – 集合点的运行 ID。</p></li>
+<li><p>key_prefix（可选[str]）- 在 etcd 中存储 rendezvous 状态的路径。</p></li>
+<li><p>ttl（可选[int]）- rendezvous 状态的 TTL。如果未指定，默认为两小时。</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.etcd_rendezvous_backend.EtcdRendezvousBackend.get_state">
+get_state()[source][source]</dt>
+<dd><p>参见基类。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>可选[字节，任何类型]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.etcd_rendezvous_backend.EtcdRendezvousBackend.name">
+属性名称 str ¶</dt>
+<dd><p>请参阅基类。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.etcd_rendezvous_backend.EtcdRendezvousBackend.set_state">
+set_state(state, token=None)[来源][来源] ¶</dt>
+<dd><p>查看基类。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>可选的[字节，任何，布尔值]元组</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+<section id="etcd-rendezvous-legacy">
+<h3>Etcd rendezvous（旧版）¶</h3>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p> <code class="docutils literal "><span class="pre">DynamicRendezvousHandler</span></code> 类取代了 <code class="docutils literal "><span class="pre">EtcdRendezvousHandler</span></code> 类，并推荐给大多数用户。 <code class="docutils literal "><span class="pre">EtcdRendezvousHandler</span></code> 处于维护模式，未来将被弃用。</p>
+</div>
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.etcd_rendezvous.EtcdRendezvousHandler">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.elastic.rendezvous.etcd_rendezvous.</span></span><span class="sig-name descname"><span class="pre">EtcdRendezvousHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rdzv_impl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_addr</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/distributed/elastic/rendezvous/etcd_rendezvous.html#EtcdRendezvousHandler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/elastic/rendezvous/etcd_rendezvous.py#L92"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.elastic.rendezvous.etcd_rendezvous.EtcdRendezvousHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>实现了一个由 <code class="xref py py-class docutils literal "><span class="pre">torch.distributed.elastic.rendezvous.etcd_rendezvous.EtcdRendezvous</span></code> 支持的 <code class="xref py py-class docutils literal "><span class="pre">torch.distributed.elastic.rendezvous.RendezvousHandler</span></code> 接口。 <code class="docutils literal "><span class="pre">EtcdRendezvousHandler</span></code> 使用 URL 来配置要使用的 rendezvous 类型，并将特定实现的配置传递给 rendezvous 模块。基本的 etcd rendezvous 配置 URL 看起来如下</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span>etcd://&lt;etcd_address&gt;:&lt;port&gt;/&lt;job_id&gt;?min_workers=&lt;min_workers&gt;&amp;max_workers=&lt;max_workers&gt;  # noqa: W605
+
+-- example --
+
+etcd://localhost:2379/1234?min_workers=1&amp;max_workers=3
+</pre></div>
+</div>
+<p>上面的 URL 解释如下：</p>
+<ol class="arabic simple">
+<li><p>使用已注册于 <code class="docutils literal "><span class="pre">etcd</span></code> 方案的 rendezvous 处理器</p></li>
+<li><p>要使用的端点是 <code class="docutils literal "><span class="pre">etcd</span></code> 和 <code class="docutils literal "><span class="pre">localhost:2379</span></code> </p></li>
+<li><p> <code class="docutils literal "><span class="pre">job_id</span> <span class="pre">==</span> <span class="pre">1234</span></code> 用作 etcd 的前缀（这允许用户在保证 <code class="docutils literal "><span class="pre">job_ids</span></code> 唯一的前提下，为多个作业共享一个公共的 etcd 服务器）。请注意，作业 ID 可以是任何字符串（例如，不需要是数字），只要它是唯一的即可。</p></li>
+<li><p> <code class="docutils literal "><span class="pre">min_workers=1</span></code> 和 <code class="docutils literal "><span class="pre">max_workers=3</span></code> 指定成员数量的范围 - 当集群大小大于或等于 <code class="docutils literal "><span class="pre">min_workers</span></code> 时，Torch 分布式弹性开始运行作业，并最多接受 <code class="docutils literal "><span class="pre">max_workers</span></code> 个成员加入集群。</p></li>
+</ol>
+<p>以下是可以向 etcd 集合点传递的所有参数的完整列表：</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>参数</p></th>
+<th class="head"><p>描述</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>min_workers</p></td>
+<td><p>集合点有效所需的最小工作者数量</p></td>
+</tr>
+<tr class="row-odd"><td><p>max_workers</p></td>
+<td><p>允许的最大工作进程数</p></td>
+</tr>
+<tr class="row-even"><td><p>超时时间</p></td>
+<td><p>期望 next_rendezvous 成功的总超时时间（默认 600 秒）</p></td>
+</tr>
+<tr class="row-odd"><td><p>最后一次调用超时时间</p></td>
+<td><p>达到最小工人数后额外的等待时间（“最后呼叫”）（默认为 30 秒）</p></td>
+</tr>
+<tr class="row-even"><td><p>etcd 前缀</p></td>
+<td><p>路径前缀（从 etcd 根开始），在此路径下将创建所有 etcd 节点（默认为 <code class="docutils literal "><span class="pre">/torchelastic/p2p</span></code> ）</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+</section>
+<section id="etcd-store">
+<h3>Etcd 存储区</h3>
+<p> <code class="docutils literal "><span class="pre">EtcdStore</span></code> 是当使用 etcd 作为 rendezvous 后端时， <code class="docutils literal "><span class="pre">next_rendezvous()</span></code> 返回的 C10d <code class="docutils literal "><span class="pre">Store</span></code> 实例类型。</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.etcd_store.EtcdStore">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.elastic.rendezvous.etcd_store.</span></span><span class="sig-name descname"><span class="pre">EtcdStore</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">etcd_client</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">etcd_store_prefix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/distributed/elastic/rendezvous/etcd_store.html#EtcdStore"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/elastic/rendezvous/etcd_store.py#L31"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.elastic.rendezvous.etcd_store.EtcdStore" title="Permalink to this definition">¶</a></dt>
+<dd><p>通过 piggybacking 在 rendezvous etcd 实例上实现 c10 Store 接口。</p>
+<p>这是 <code class="docutils literal "><span class="pre">EtcdRendezvous</span></code> 返回的存储对象。</p>
+<dl class="field-list simple">
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.etcd_store.EtcdStore.add">
+<span class="sig-name descname"><span class="pre">add</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/distributed/elastic/rendezvous/etcd_store.html#EtcdStore.add"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/elastic/rendezvous/etcd_store.py#L86"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.elastic.rendezvous.etcd_store.EtcdStore.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>原子性地通过一个整数值增加一个值。</p>
+<p>整数以 10 进制字符串形式表示。如果 key 不存在，则默认值为 <code class="docutils literal "><span class="pre">0</span></code> 。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回值<span class="colon">:</span></dt>
+<dd class="field-odd"><p>新的（增加后的）值</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.etcd_store.EtcdStore.check">
+检查键是否立即存在（无需等待）</dt>
+<dd><p>检查所有键是否立即存在（无需等待）</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">布尔型</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.etcd_store.EtcdStore.get">
+通过键获取值，可能需要进行阻塞等待</dt>
+<dd><p>通过键获取值，可能需要进行阻塞等待</p>
+<p>如果键不在立即存在，将进行最多 <code class="docutils literal "><span class="pre">timeout</span></code> 持续时间的阻塞等待，或者直到键被发布。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回值<span class="colon">:</span></dt>
+<dd class="field-odd"><p>值 <code class="docutils literal "><span class="pre">(bytes)</span></code> </p>
+</dd>
+<dt class="field-even">引发<span class="colon">:</span></dt>
+<dd class="field-even"><p>LookupError - 如果键在超时后仍未发布 –</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)">字节</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.etcd_store.EtcdStore.set">
+<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/distributed/elastic/rendezvous/etcd_store.html#EtcdStore.set"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/elastic/rendezvous/etcd_store.py#L56"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.elastic.rendezvous.etcd_store.EtcdStore.set" title="Permalink to this definition">¶</a></dt>
+<dd><p>将键值对写入 <code class="docutils literal "><span class="pre">EtcdStore</span></code> 。</p>
+<p>键和值可以是 Python <code class="docutils literal "><span class="pre">str</span></code> 或 <code class="docutils literal "><span class="pre">bytes</span></code> 。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.etcd_store.EtcdStore.wait">
+wait(keys, override_timeout=None)[源代码][源代码] ¶</dt>
+<dd><p>等待所有键发布，或直到超时。</p>
+<dl class="field-list simple">
+<dt class="field-odd">引发<span class="colon">:</span></dt>
+<dd class="field-odd"><p>LookupError - 如果发生超时 -</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="etcd-server">
+<h3>Etcd 服务器 ¶</h3>
+<p> <code class="docutils literal "><span class="pre">EtcdServer</span></code> 是一个便利类，它使您能够轻松地在子进程中启动和停止 etcd 服务器。这在测试或单节点（多工作员）部署中很有用，在这些部署中，手动设置侧边的 etcd 服务器很麻烦。</p>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>对于生产环境和多节点部署，请考虑正确部署高可用性 etcd 服务器，因为这是您分布式作业的单点故障。</p>
+</div>
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.elastic.rendezvous.etcd_server.EtcdServer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.elastic.rendezvous.etcd_server.</span></span><span class="sig-name descname"><span class="pre">EtcdServer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/distributed/elastic/rendezvous/etcd_server.html#EtcdServer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/elastic/rendezvous/etcd_server.py#L78"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.elastic.rendezvous.etcd_server.EtcdServer" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>在 etcd 服务器 v3.4.3 上进行了测试。</p>
+</div>
+<p>在随机空闲端口上启动和停止本地独立 etcd 服务器。对于单节点、多工作进程启动或测试，使用边车 etcd 服务器比单独设置 etcd 服务器更方便。</p>
+<p>此类注册了终止处理程序以在退出时关闭 etcd 子进程。此终止处理程序**不是**调用 <code class="docutils literal "><span class="pre">stop()</span></code> 方法的替代品。</p>
+<p>以下回退机制用于查找 etcd 二进制文件：</p>
+<ol class="arabic simple">
+<li><p>使用环境变量 TORCHELASTIC_ETCD_BINARY_PATH</p></li>
+<li><p>如果存在，则使用 <code class="docutils literal "><span class="pre">&lt;this</span> <span class="pre">file</span> <span class="pre">root&gt;/bin/etcd</span></code> </p></li>
+<li><p>使用 <code class="docutils literal "><span class="pre">PATH</span></code> 中的 <code class="docutils literal "><span class="pre">etcd</span></code> </p></li>
+</ol>
+<p>使用说明</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">server</span> <span class="o">=</span> <span class="n">EtcdServer</span><span class="p">(</span><span class="s2">"/usr/bin/etcd"</span><span class="p">,</span> <span class="mi">2379</span><span class="p">,</span> <span class="s2">"/tmp/default.etcd"</span><span class="p">)</span>
+<span class="n">server</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">server</span><span class="o">.</span><span class="n">get_client</span><span class="p">()</span>
+<span class="c1"># use client</span>
+<span class="n">server</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>etcd 服务器二进制路径 – etcd 服务器二进制文件路径（见上文以获取备用路径）</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+             </article>
+             
+            </div>
+            <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        下一个 <img height="16" width="16" class="next-page" src="../_static/images/chevron-right-orange.svg"> <img height="16" width="16" class="previous-page" src="../_static/images/chevron-right-orange.svg"> 上一个
+      
+    </div>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>© 版权所有 PyTorch 贡献者。</p>
+  </div>
+    
+      <div>使用 Sphinx 构建，主题由 Read the Docs 提供。</div>
+     
+
+</footer>
+
+          </div>
+<script>
+
+var match = window.location.href.match(/\/_[a-zA-Z0-9_]*.html|_dynamo/gi);
+var url = window.location.href.lastIndexOf(match[match.length-1]);
+
+if (url)
+  {
+    var div = '<div class="admonition note"><p class="admonition-title">Note</p><p><i class="fa fa-exclamation-circle" aria-hidden="true">&nbsp</i> This page describes an internal API which is not intended to be used outside of the PyTorch codebase and can be modified or removed without notice.</p></div>'
+    document.getElementById("pytorch-article").insertAdjacentHTML('afterBegin', div)
+  }
+</script>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">集合点</a><ul>
+<li><a class="reference internal" href="#registry">注册表</a></li>
+<li><a class="reference internal" href="#handler">处理器</a></li>
+<li><a class="reference internal" href="#dataclasses">数据类</a></li>
+<li><a class="reference internal" href="#exceptions">异常</a></li>
+<li><a class="reference internal" href="#implementations">实现</a><ul>
+<li><a class="reference internal" href="#dynamic-rendezvous">动态会合</a><ul>
+<li><a class="reference internal" href="#c10d-backend">C10d 后端</a></li>
+<li><a class="reference internal" href="#etcd-backend">Etcd 后端</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#etcd-rendezvous-legacy">Etcd rendezvous（旧版）</a></li>
+<li><a class="reference internal" href="#etcd-store">Etcd 存储</a></li>
+<li><a class="reference internal" href="#etcd-server">Etcd 服务器</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+         <script src="../_static/jquery.js"></script>
+         <script src="../_static/underscore.js"></script>
+         <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+         <script src="../_static/doctools.js"></script>
+         <script src="../_static/clipboard.min.js"></script>
+         <script src="../_static/copybutton.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="../_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="../_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ 
+<script script="" type="text/javascript">
+  var collapsedSections = ['Developer Notes', 'Language Bindings', 'Libraries', 'Community'];
+</script>
+
+<img height="1" width="1" style="border-style:none;" alt="" src="https://www.googleadservices.com/pagead/conversion/795629140/?label=txkmCPmdtosBENSssfsC&amp;guid=ON&amp;script=0">
+
+
+  <!-- Begin Footer -->
+
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 text-center">
+          <h2>文档</h2>
+          <p>查看 PyTorch 的全面开发者文档</p>
+          <a class="with-right-arrow" href="https://pytorch.org/docs/stable/index.html">查看文档</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>教程</h2>
+          <p>深入了解初学者和高级开发者的教程</p>
+          <a class="with-right-arrow" href="https://pytorch.org/tutorials">查看教程</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>资源</h2>
+          <p>查找开发资源并获得您的疑问解答</p>
+          <a class="with-right-arrow" href="https://pytorch.org/resources">查看资源</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://pytorch.org/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/">PyTorch</a></li>
+            <li><a href="https://pytorch.org/get-started">开始使用</a></li>
+            <li><a href="https://pytorch.org/features">功能</a></li>
+            <li><a href="https://pytorch.org/ecosystem">生态系统</a></li>
+            <li><a href="https://pytorch.org/blog/">博客</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md">贡献</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/resources">资源</a></li>
+            <li><a href="https://pytorch.org/tutorials">教程</a></li>
+            <li><a href="https://pytorch.org/docs/stable/index.html">文档</a></li>
+            <li><a href="https://discuss.pytorch.org" target="_blank">讨论</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/issues" target="_blank">GitHub 问题和任务</a></li>
+            <li><a href="https://pytorch.org/assets/brand-guidelines/PyTorch-Brand-Guidelines.pdf" target="_blank">品牌指南</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">保持更新</li>
+            <li><a href="https://www.facebook.com/pytorch" target="_blank">Facebook</a></li>
+            <li><a href="https://twitter.com/pytorch" target="_blank">推特</a></li>
+            <li><a href="https://www.youtube.com/pytorch" target="_blank">YouTube</a></li>
+            <li><a href="https://www.linkedin.com/company/pytorch" target="_blank">领英</a></li>
+          </ul>  
+          </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">PyTorch 播客</li>
+            <li><a href="https://open.spotify.com/show/6UzHKeiy368jKfQMKKvJY5" target="_blank">Spotify</a></li>
+            <li><a href="https://podcasts.apple.com/us/podcast/pytorch-developer-podcast/id1566080008" target="_blank">苹果</a></li>
+            <li><a href="https://www.google.com/podcasts?feed=aHR0cHM6Ly9mZWVkcy5zaW1wbGVjYXN0LmNvbS9PQjVGa0lsOA%3D%3D" target="_blank">谷歌</a></li>
+            <li><a href="https://music.amazon.com/podcasts/7a4e6f0e-26c2-49e9-a478-41bd244197d0/PyTorch-Developer-Podcast?" target="_blank">亚马逊</a></li>
+          </ul>
+         </div>
+        </div>
+        
+        <div class="privacy-policy">
+          <ul>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/terms/" target="_blank">条款</a></li>
+            <li class="privacy-policy-links">|</li>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/privacy-policy/" target="_blank">隐私</a></li>
+          </ul>
+        </div>
+        <div class="copyright">
+        <p>© 版权所有 Linux 基金会。PyTorch 基金会是 Linux 基金会的一个项目。有关本网站的使用条款、商标政策以及其他适用于 PyTorch 基金会的政策，请参阅 www.linuxfoundation.org/policies/。PyTorch 基金会支持 PyTorch 开源项目，该项目已被确立为 LF Projects, LLC 的 PyTorch 项目系列。有关适用于 PyTorch 项目系列 LF Projects, LLC 的政策，请参阅 www.lfprojects.org/policies/。</p>
+      </div>
+     </div>
+
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">为了分析流量并优化您的体验，我们在本网站上提供 cookie。通过点击或导航，您同意允许我们使用 cookie。作为本网站的当前维护者，Facebook 的 cookie 政策适用。了解更多信息，包括可用的控制选项：cookie 政策。</p>
+    <img class="close-button" src="../_static/images/pytorch-x.svg" width="16" height="16">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+           <li class="resources-mobile-menu-title">
+             <a>学习</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/get-started">开始使用</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials">教程</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/basics/intro.html">学习基础知识</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/recipes/recipes_index.html">PyTorch 菜谱</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/introyt.html">PyTorch 入门 - YouTube 系列</a>
+             </li>
+           </ul>
+           <li class="resources-mobile-menu-title">
+             <a>生态系统</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/ecosystem">工具</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/#community-module">社区</a>
+             </li>
+             <li>
+               <a href="https://discuss.pytorch.org/">论坛</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/resources">开发者资源</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">贡献者奖项 - 2024</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>Edge</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/edge">关于 PyTorch Edge</a>
+             </li>
+             
+             <li>
+               <a href="https://pytorch.org/executorch-overview">执行火炬</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch 文档</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>文档</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/docs/stable/index.html">PyTorch</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/pytorch-domains">PyTorch 领域</a>
+            </li>
+          </ul>
+
+          <li class="resources-mobile-menu-title">
+            <a>博客 &amp; 新闻</a>
+          </li>
+            
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/blog/">PyTorch 博客</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/community-blog">社区博客</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/videos">视频</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/community-stories">社区故事</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/events">活动</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">通讯</a>
+             </li>
+          </ul>
+          
+          <li class="resources-mobile-menu-title">
+            <a>关于</a>
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/foundation">PyTorch 基金会</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/governing-board">治理委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">云信用计划</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">技术顾问委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">员工</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">联系我们</a>
+            </li>
+          </ul>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="../_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body></html>

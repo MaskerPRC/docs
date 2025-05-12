@@ -1,0 +1,1833 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>FullyShardedDataParallel — PyTorch main documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pytorch.org/docs/stable/fsdp.html">
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css">
+  <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css">
+  <link rel="stylesheet" href="_static/copybutton.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="_static/katex-math.css" type="text/css">
+  <link rel="stylesheet" href="_static/sphinx-dropdown.css" type="text/css">
+  <link rel="stylesheet" href="_static/panels-bootstrap.min.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/jit.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css">
+    <link rel="index" title="Index" href="genindex.html">
+    <link rel="search" title="Search" href="search.html">
+    <link rel="next" title="torch.distributed.fsdp.fully_shard" href="distributed.fsdp.fully_shard.html">
+    <link rel="prev" title="TorchElastic Kubernetes" href="elastic/kubernetes.html">
+
+<!--
+  Search engines should not index the main version of documentation.
+  Stable documentation are built without release == 'main'.
+-->
+<meta name="robots" content="noindex">
+
+
+  <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T8XT4PS');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+  <!-- Preload the theme fonts -->
+
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<!-- Preload the katex fonts -->
+
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Math-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size1-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size2-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Caligraphic-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
+</head><body class="pytorch-body"><div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+
+          <li class="main-menu-item">
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">学习</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/get-started">
+                  <span class="dropdown-title">开始使用</span>
+                  <p>在本地运行 PyTorch 或快速开始使用支持的云平台之一</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials">
+                  <span class="dropdown-title">教程</span><p></p>
+                  <p>PyTorch 教程中的新内容</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/basics/intro.html">
+                  <span class="dropdown-title">学习基础知识</span><p></p>
+                  <p>熟悉 PyTorch 的概念和模块</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/recipes/recipes_index.html">
+                  <span class="dropdown-title">PyTorch 食谱</span><p></p>
+                  <p>精简版、可直接部署的 PyTorch 代码示例</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/introyt.html">
+                  <span class="dropdown-title">PyTorch 入门 - YouTube 系列</span><p></p>
+                  <p>通过我们引人入胜的 YouTube 教程系列掌握 PyTorch 基础知识</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">生态系统</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem">
+                  <span class="dropdown-title">工具</span><p></p>
+                  <p>了解 PyTorch 生态系统中的工具和框架</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
+                  <span class="dropdown-title">社区</span>
+                  <p>加入 PyTorch 开发者社区，贡献、学习并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
+                  <span class="dropdown-title">论坛</span>
+                  <p>讨论 PyTorch 代码、问题、安装、研究的地方</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/resources">
+                  <span class="dropdown-title">开发者资源</span>
+                  <p>查找资源并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">贡献者奖项 - 2024</span><p></p>
+                  <p>本届 PyTorch 会议揭晓获奖者</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">
+                Edge
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/edge">
+                  <span class="dropdown-title">关于 PyTorch Edge</span><p></p>
+                  <p>为边缘设备构建创新和隐私感知的 AI 体验</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
+                  <span class="dropdown-title">ExecuTorch</span><p></p>
+                  <p>基于移动和边缘设备的端到端推理能力解决方案</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch 文档</span><p></p>
+                </a>
+              </div>
+            </div>  
+          </li>
+
+          <li class="main-menu-item">
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">文档</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/docs/stable/index.html">
+                  <span class="dropdown-title">PyTorch</span><p></p>
+                  <p>探索文档以获取全面指导，了解如何使用 PyTorch</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/pytorch-domains">
+                  <span class="dropdown-title">PyTorch 领域</span><p></p>
+                  <p>阅读 PyTorch 领域的文档，了解更多关于特定领域库的信息</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">博客与新闻</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/blog/">
+                  <span class="dropdown-title">PyTorch 博客</span><p></p>
+                  <p>捕捉最新的技术新闻和事件</p>
+                </a>
+                 <a class="nav-dropdown-item" href="https://pytorch.org/community-blog">
+                  <span class="dropdown-title">社区博客</span><p></p>
+                  <p>PyTorch 生态系统故事</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/videos">
+                  <span class="dropdown-title">视频</span><p></p>
+                  <p>了解最新的 PyTorch 教程、新内容等</p>
+                </a><a class="nav-dropdown-item" href="https://pytorch.org/community-stories">
+                  <span class="dropdown-title">社区故事</span><p></p>
+                  <p>学习如何我们的社区使用 PyTorch 解决真实、日常的机器学习问题</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/events">
+                  <span class="dropdown-title">活动</span><p></p>
+                  <p>查找活动、网络研讨会和播客</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">通讯</span><p></p>
+                  <p>跟踪最新更新</p>
+                </a>
+            </div>
+          </div></li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">关于</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/foundation">
+                  <span class="dropdown-title">PyTorch 基金会</span><p></p>
+                  <p>了解更多关于 PyTorch 基金会的信息</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
+                  <span class="dropdown-title">管理委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">云信用计划</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">技术顾问委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">员工</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">联系我们</span><p></p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li class="main-menu-item">
+            <div class="no-dropdown">
+              <a href="https://pytorch.org/join" data-cta="join">成为会员</a>
+            </div>
+          </li>
+          <li>
+           <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="github-icon">
+             </a>
+           </div>
+          </li>
+          <!--- TODO: This block adds the search icon to the nav bar. We will enable it later. 
+          <li>
+            <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="search-icon">
+             </a>
+            </div>
+          </li>
+          --->
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+  </div>
+</div>
+
+
+
+   
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>目录</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+    <div class="version">
+      <a href="https://pytorch.org/docs/versions.html">主程序 (2.7.0+cpu ) ▼</a>
+    </div>
+    <div id="searchBox">
+    <div class="searchbox" id="googleSearchBox">
+      <script async="" src="https://cse.google.com/cse.js?cx=e65585f8c3ea1440e"></script>
+      <div class="gcse-search"></div>
+    </div>
+    <div id="sphinxSearchBox" style="display: none;">
+      <div role="search">
+        <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+          <input type="text" name="q" placeholder="Search Docs">
+          <input type="hidden" name="check_keywords" value="yes">
+          <input type="hidden" name="area" value="default">
+        </form>
+      </div>
+    </div>
+  </div>
+  <form id="searchForm">
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="google" checked="">谷歌搜索</label>
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="sphinx">经典搜索</label>
+  </form>
+
+  <script>
+     document.addEventListener('DOMContentLoaded', function() {
+      const searchForm = document.getElementById('searchForm');
+      const googleSearchBox = document.getElementById('googleSearchBox');
+      const sphinxSearchBox = document.getElementById('sphinxSearchBox');
+      // Function to toggle search box visibility
+      function toggleSearchBox(searchType) {
+        googleSearchBox.style.display = searchType === 'google' ? 'block' : 'none';
+        sphinxSearchBox.style.display = searchType === 'sphinx' ? 'block' : 'none';
+      }
+      // Determine the default search type
+      let defaultSearchType;
+      const currentUrl = window.location.href;
+      if (currentUrl.startsWith('https://pytorch.org/docs/stable')) {
+        // For the stable documentation, default to Google
+        defaultSearchType = localStorage.getItem('searchType') || 'google';
+      } else {
+        // For any other version, including docs-preview, default to Sphinx
+        defaultSearchType = 'sphinx';
+      }
+      // Set the default search type
+      document.querySelector(`input[name="searchType"][value="${defaultSearchType}"]`).checked = true;
+      toggleSearchBox(defaultSearchType);
+      // Event listener for changes in search type
+      searchForm.addEventListener('change', function(event) {
+        const selectedSearchType = event.target.value;
+        localStorage.setItem('searchType', selectedSearchType);
+        toggleSearchBox(selectedSearchType);
+      });
+      // Set placeholder text for Google search box
+      window.onload = function() {
+        var placeholderText = "Search Docs";
+        var googleSearchboxText = document.querySelector("#gsc-i-id1");
+        if (googleSearchboxText) {
+          googleSearchboxText.placeholder = placeholderText;
+          googleSearchboxText.style.fontFamily = 'FreightSans';
+          googleSearchboxText.style.fontSize = "1.2rem";
+          googleSearchboxText.style.color = '#262626';
+        }
+      };
+    });
+  </script>
+
+          </div>
+
+          
+
+<div>
+  <a style="color:#F05732" href="https://pytorch.org/docs/stable/fsdp.html">您正在查看不稳定开发者预览文档。请点击此处查看最新稳定版本的文档。</a>
+</div>
+
+
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">社区</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="community/build_ci_governance.html">PyTorch 治理 | 构建 + CI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/contribution_guide.html">PyTorch 贡献指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/design.html">PyTorch 设计哲学</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/governance.html">PyTorch 治理 | 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/persons_of_interest.html">PyTorch 治理 | 维护者</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发者笔记</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="notes/amp_examples.html">自动混合精度示例</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/autograd.html">Autograd 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/broadcasting.html">广播语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/cpu_threading_torchscript_inference.html">CPU 多线程和 TorchScript 推理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/cuda.html">CUDA 语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/custom_operators.html">PyTorch 自定义算子页面</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/ddp.html">分布式数据并行</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/extending.html">扩展 PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/extending.func.html">使用 autograd.Function 扩展 torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/faq.html">常见问题解答</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/fsdp.html">FSDP 笔记</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/get_start_xpu.html">在 Intel GPU 上入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/gradcheck.html">Gradcheck 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/hip.html">HIP (ROCm)语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/large_scale_deployments.html">大规模部署功能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/libtorch_stable_abi.html">LibTorch 稳定 ABI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/modules.html">模块</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/mps.html">MPS 后端</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/multiprocessing.html">多进程最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/numerical_accuracy.html">数值精度</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/randomness.html">可重现性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/serialization.html">序列化语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/windows.html">Windows 常见问题解答</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">语言绑定</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cpp_index.html">C++</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/javadoc/">Javadoc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deploy.html">torch::deploy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="torch.html">torch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.html">torch.nn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.functional.html">torch.nn.functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensors.html">torch.Tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensor_attributes.html">张量属性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensor_view.html">张量视图</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amp.html">torch.amp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autograd.html">torch.autograd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="library.html">torch.library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accelerator.html">torch.accelerator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpu.html">torch.cpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">torch.cuda</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html">理解 CUDA 内存使用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#generating-a-snapshot">生成快照</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#using-the-visualizer">使用可视化工具</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#snapshot-api-reference">快照 API 参考</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mps.html">torch.mps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="xpu.html">torch.xpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mtia.html">torch.mtia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mtia.memory.html">torch.mtia.memory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="meta.html">元设备</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backends.html">torch.backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="export.html">torch.export</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.html">torch.distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.tensor.html">torch.distributed.tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.algorithms.join.html">torch.distributed.algorithms.join</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.elastic.html">torch.distributed.elastic</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">torch.distributed.fsdp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.fsdp.fully_shard.html">torch.distributed.fsdp.fully_shard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.tensor.parallel.html">torch.distributed.tensor.parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.optim.html">torch.distributed.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.pipelining.html">torch.distributed.pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.checkpoint.html">torch.distributed.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributions.html">torch.distributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch.compiler.html">torch.compiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fft.html">torch.fft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="func.html">torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="futures.html">torch.futures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fx.html">torch.fx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fx.experimental.html">torch.fx.experimental</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hub.html">torch.hub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jit.html">torch.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="linalg.html">torch.linalg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitor.html">torch.monitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="signal.html">torch.signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="special.html">torch.special</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch.overrides.html">torch.overrides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="package.html">torch.package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="profiler.html">torch.profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.init.html">torch.nn.init</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.attention.html">torch.nn.attention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="onnx.html">torch.onnx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="optim.html">torch.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="complex_numbers.html">复数</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ddp_comm_hooks.html">DDP 通信钩子</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quantization.html">量化</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rpc.html">分布式 RPC 框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="random.html">torch.random</a></li>
+<li class="toctree-l1"><a class="reference internal" href="masked.html">torch.masked</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nested.html">torch.nested</a></li>
+<li class="toctree-l1"><a class="reference internal" href="size.html">torch.Size</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sparse.html">torch.sparse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="storage.html">torch.Storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">torch.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">torch.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmark_utils.html">torch.utils.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bottleneck.html">torch.utils.bottleneck</a></li>
+<li class="toctree-l1"><a class="reference internal" href="checkpoint.html">torch.utils.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp_extension.html">torch.utils.cpp_extension</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data.html">torch.utils.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deterministic.html">torch.utils.deterministic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jit_utils.html">torch.utils.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dlpack.html">torch.utils.dlpack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mobile_optimizer.html">torch.utils.mobile_optimizer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_zoo.html">torch.utils.model_zoo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensorboard.html">torch.utils.tensorboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_tracker.html">torch.utils.module_tracker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="type_info.html">类型信息</a></li>
+<li class="toctree-l1"><a class="reference internal" href="named_tensor.html">命名张量</a></li>
+<li class="toctree-l1"><a class="reference internal" href="name_inference.html">命名张量操作覆盖率</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config_mod.html">torch.__config__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="future_mod.html">torch.__future__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">torch._logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_environment_variables.html">火炬环境变量</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">库</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/audio/stable">torchaudio</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/data">TorchData</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/torchrec">火炬推荐</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/serve">TorchServe</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/text/stable">torchtext</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/vision/stable">torchvision</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/xla/">PyTorch 在 XLA 设备上</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/ao">torchao</a></li>
+</ul>
+
+            
+          
+
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        文档 &gt;</li>
+
+        
+      <li>全局分片数据并行</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+            
+            <a href="_sources/fsdp.rst.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg" width="16" height="16"></a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">快捷键</div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+
+          <!-- Google Tag Manager (noscript) -->
+          <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T8XT4PS" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+          <!-- End Google Tag Manager (noscript) -->
+          
+          <div class="rst-content">
+          
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <section id="module-torch.distributed.fsdp">
+<span id="fullyshardeddataparallel"></span><h1>全局分片数据并行 ¶</h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.fsdp.FullyShardedDataParallel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.fsdp.</span></span><span class="sig-name descname"><span class="pre">FullyShardedDataParallel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">process_group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sharding_strategy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpu_offload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_wrap_policy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backward_prefetch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">BackwardPrefetch.BACKWARD_PRE</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mixed_precision</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignored_modules</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_init_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sync_module_states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forward_prefetch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit_all_gathers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_orig_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignored_states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device_mesh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/fsdp/fully_sharded_data_parallel.html#FullyShardedDataParallel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/fsdp/fully_sharded_data_parallel.py#L117"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.fsdp.FullyShardedDataParallel" title="Permalink to this definition">¶</a></dt>
+<dd><p>用于在数据并行工作节点间分片模块参数的包装器。</p>
+<p>这是由徐等人以及 DeepSpeed 的 ZeRO Stage 3 所启发。FullyShardedDataParallel 通常简称为 FSDP。</p>
+<p>要了解 FSDP 的内部机制，请参阅 FSDP 笔记。</p>
+<p>示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torch.distributed.fsdp</span> <span class="kn">import</span> <span class="n">FullyShardedDataParallel</span> <span class="k">as</span> <span class="n">FSDP</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">set_device</span><span class="p">(</span><span class="n">device_id</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sharded_module</span> <span class="o">=</span> <span class="n">FSDP</span><span class="p">(</span><span class="n">my_module</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">optim</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">sharded_module</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.0001</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">sharded_module</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">([</span><span class="mi">1</span><span class="p">]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loss</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">optim</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>使用 FSDP 需要先包装您的模块，然后初始化您的优化器。这是必需的，因为 FSDP 会改变参数变量。</p>
+<p>在设置 FSDP 时，您需要考虑目标 CUDA 设备。如果设备有 ID（ <code class="docutils literal "><span class="pre">dev_id</span></code> ），您有三个选择：</p>
+<ul class="simple">
+<li><p>将模块放置在该设备上</p></li>
+<li><p>使用 <code class="docutils literal "><span class="pre">torch.cuda.set_device(dev_id)</span></code> 设置设备</p></li>
+<li><p>将 <code class="docutils literal "><span class="pre">dev_id</span></code> 传递给 <code class="docutils literal "><span class="pre">device_id</span></code> 构造函数参数。</p></li>
+</ul>
+<p>这确保了 FSDP 实例的计算设备是目标设备。对于选项 1 和 3，FSDP 的初始化始终在 GPU 上发生。对于选项 2，FSDP 的初始化发生在模块的当前设备上，这可能是 CPU。</p>
+<p>如果你使用 <code class="docutils literal "><span class="pre">sync_module_states=True</span></code> 标志，则需要确保模块在 GPU 上，或者使用 <code class="docutils literal "><span class="pre">device_id</span></code> 参数在 FSDP 构造函数中指定 FSDP 将移动模块到的 CUDA 设备。这是必要的，因为 <code class="docutils literal "><span class="pre">sync_module_states=True</span></code> 需要 GPU 通信。</p>
+<p>FSDP 还会负责将输入张量移动到前向方法的 GPU 计算设备，因此你不需要手动从 CPU 移动它们。</p>
+<p>对于 <code class="docutils literal "><span class="pre">use_orig_params=True</span></code> ， <code class="docutils literal "><span class="pre">ShardingStrategy.SHARD_GRAD_OP</span></code> 暴露的是未分片的参数，而不是前向后的分片参数，与 <code class="docutils literal "><span class="pre">ShardingStrategy.FULL_SHARD</span></code> 不同。如果你想检查梯度，可以使用 <code class="docutils literal "><span class="pre">summon_full_params</span></code> 方法与 <code class="docutils literal "><span class="pre">with_grads=True</span></code> 一起使用。</p>
+<p>使用 <code class="docutils literal "><span class="pre">limit_all_gathers=True</span></code> 时，你可能会在 FSDP 预前向中看到 CPU 线程没有发出任何内核的差距。这是故意的，显示了速率限制器的效果。以这种方式同步 CPU 线程可以防止为后续的所有-gather 操作过度分配内存，实际上不应延迟 GPU 内核执行。</p>
+<p>FSDP 在正向和反向计算过程中，出于自动微分相关原因，用 <code class="docutils literal "><span class="pre">torch.Tensor</span></code> 替换了管理模块的参数。如果你的模块正向依赖于保存的参数引用而不是每次迭代都重新获取引用，那么它将看不到 FSDP 新创建的视图，自动微分将无法正确工作。</p>
+<p>最后，当使用 <code class="docutils literal "><span class="pre">sharding_strategy=ShardingStrategy.HYBRID_SHARD</span></code> 且分片进程组为节点内且复制进程组为节点间时，设置 <code class="docutils literal "><span class="pre">NCCL_CROSS_NIC=1</span></code> 可以帮助提高某些集群配置下复制进程组的全量减少时间。</p>
+<p><strong>局限性</strong></p>
+<p>使用 FSDP 时需要注意以下限制：</p>
+<ul class="simple">
+<li><p>FSDP 目前不支持在 <code class="docutils literal "><span class="pre">no_sync()</span></code> 之外使用 CPU 卸载进行梯度累积。这是因为 FSDP 使用新减少的梯度而不是与任何现有梯度累积，这可能导致结果不正确。</p></li>
+<li><p>FSDP 不支持在 FSDP 实例中运行的子模块的前向传播。这是因为子模块的参数将被分片，但子模块本身不是 FSDP 实例，因此其前向传播不会正确地 all-gather 完整参数。</p></li>
+<li><p>由于 FSDP 注册反向钩子的方式，FSDP 不支持双反向。</p></li>
+<li><p>FSDP 在冻结参数时有一些限制。对于 <code class="docutils literal "><span class="pre">use_orig_params=False</span></code> ，每个 FSDP 实例必须管理所有冻结或所有非冻结的参数。对于 <code class="docutils literal "><span class="pre">use_orig_params=True</span></code> ，FSDP 支持混合冻结和非冻结参数，但建议避免这样做，以防止高于预期的梯度内存使用。</p></li>
+<li><p>截至 PyTorch 1.12 版本，FSDP 对共享参数的支持有限。如果您需要针对您的用例增强共享参数支持，请在此问题中发布。</p></li>
+<li><p>应避免在不使用 <code class="docutils literal "><span class="pre">summon_full_params</span></code> 上下文的情况下，在正向和反向之间修改参数，因为这些修改可能不会持久保存。</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>module (nn.Module) – 这是需要用 FSDP 包装的模块。</p></li>
+<li><p>process_group (可选[ProcessGroup, Tuple[ProcessGroup, ProcessGroup]]) – 这是模型分片所覆盖的进程组，因此用于 FSDP 的全局聚合和减少分散的集体通信。如果 <code class="docutils literal "><span class="pre">None</span></code> ，则 FSDP 使用默认的进程组。对于混合分片策略，如 <code class="docutils literal "><span class="pre">ShardingStrategy.HYBRID_SHARD</span></code> ，用户可以传入进程组的元组，分别表示分片和复制的组。如果 <code class="docutils literal "><span class="pre">None</span></code> ，则 FSDP 为用户构建进程组以进行节点内分片和节点间复制。（默认： <code class="docutils literal "><span class="pre">None</span></code> ）</p></li>
+<li><p>sharding_strategy (可选[ShardingStrategy]) – 这配置了分片策略，可能会在内存节省和通信开销之间进行权衡。请参阅 <code class="xref py py-class docutils literal "><span class="pre">ShardingStrategy</span></code> 以获取详细信息。（默认： <code class="docutils literal "><span class="pre">FULL_SHARD</span></code> ）</p></li>
+<li><p>cpu_offload（可选[CPUOffload]）- 这用于配置 CPU 卸载。如果设置为 <code class="docutils literal "><span class="pre">None</span></code> ，则不会发生 CPU 卸载。有关详细信息，请参阅 <code class="xref py py-class docutils literal "><span class="pre">CPUOffload</span></code> 。（默认： <code class="docutils literal "><span class="pre">None</span></code> ）</p></li>
+<li><p>auto_wrap_policy（可选[Union[Callable[[nn.Module, bool, int], bool], ModuleWrapPolicy, CustomPolicy]]）-</font></font></font></p><p><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">这指定了一个策略，将 FSDP 应用于 <code class="docutils literal "><span class="pre">module</span></code> 的子模块，这对于通信和计算重叠是必需的，从而影响性能。如果 <code class="docutils literal "><span class="pre">None</span></code> ，则 FSDP 仅应用于 <code class="docutils literal "><span class="pre">module</span></code> ，用户应手动将 FSDP 应用于父模块（自下而上进行）。为了方便，此策略直接接受 <code class="docutils literal "><span class="pre">ModuleWrapPolicy</span></code> ，允许用户指定要包装的模块类（例如，transformer 块）。否则，应是一个接受三个参数 <code class="docutils literal "><span class="pre">module:</span> <span class="pre">nn.Module</span></code> 、 <code class="docutils literal "><span class="pre">recurse:</span> <span class="pre">bool</span></code> 和 <code class="docutils literal "><span class="pre">nonwrapped_numel:</span> <span class="pre">int</span></code> 的调用函数，并返回一个 <code class="docutils literal "><span class="pre">bool</span></code> ，指定如果 <code class="docutils literal "><span class="pre">module</span></code> 传递的参数是否应该应用 FSDP，如果 <code class="docutils literal "><span class="pre">recurse=False</span></code> ，或者如果 <code class="docutils literal "><span class="pre">recurse=True</span></code> 应继续遍历模块的子树。用户可以为调用函数添加额外的参数。 <code class="docutils literal "><span class="pre">size_based_auto_wrap_policy</span></code> 在 <code class="docutils literal "><span class="pre">torch.distributed.fsdp.wrap.py</span></code> 中给出了一个示例调用函数，如果模块子树中的参数超过 100M numel，则应用 FSDP。我们建议在应用 FSDP 后打印模型，并根据需要进行调整。</p>
+<p>示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">custom_auto_wrap_policy</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">module</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">recurse</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">nonwrapped_numel</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="c1"># Additional custom arguments</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">min_num_params</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">1e8</span><span class="p">),</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">return</span> <span class="n">nonwrapped_numel</span> <span class="o">&gt;=</span> <span class="n">min_num_params</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Configure a custom `min_num_params`</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_auto_wrap_policy</span> <span class="o">=</span> <span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span><span class="n">custom_auto_wrap_policy</span><span class="p">,</span> <span class="n">min_num_params</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="mf">1e5</span><span class="p">))</span>
+</pre></div>
+</div>
+<p></p></li>
+<li><p>backward_prefetch (Optional[BackwardPrefetch]) – 此配置显式向后预取所有-gathers。如果为 <code class="docutils literal "><span class="pre">None</span></code> ，则 FSDP 不进行向后预取，并且在反向传播过程中没有通信和计算重叠。有关详细信息，请参阅 <code class="xref py py-class docutils literal "><span class="pre">BackwardPrefetch</span></code> 。（默认： <code class="docutils literal "><span class="pre">BACKWARD_PRE</span></code> ）</p></li>
+<li><p>mixed_precision (Optional[MixedPrecision]) – 此配置 FSDP 的原生混合精度。如果设置为 <code class="docutils literal "><span class="pre">None</span></code> ，则不使用混合精度。否则，可以设置参数、缓冲区和梯度减少的数据类型。有关详细信息，请参阅 <code class="xref py py-class docutils literal "><span class="pre">MixedPrecision</span></code> 。（默认： <code class="docutils literal "><span class="pre">None</span></code> ）</p></li>
+<li><p>ignored_modules (Optional[Iterable[torch.nn.Module]]) – 此实例忽略的模块及其子模块的参数和缓冲区。 <code class="docutils literal "><span class="pre">ignored_modules</span></code> 中的任何模块都不应该是 <code class="xref py py-class docutils literal "><span class="pre">FullyShardedDataParallel</span></code> 实例，并且如果它们嵌套在此实例下，则已构建的 <code class="xref py py-class docutils literal "><span class="pre">FullyShardedDataParallel</span></code> 子模块不会被忽略。此参数可用于在使用 <code class="docutils literal "><span class="pre">auto_wrap_policy</span></code> 时避免在模块粒度上分片特定参数，或者如果参数的分片不由 FSDP 管理。 （默认： <code class="docutils literal "><span class="pre">None</span></code> ）</p></li>
+<li><p><strong>param_init_fn</strong> (<em>Optional</em><em>[</em><em>Callable</em><em>[</em><em>[</em><a class="reference internal" href="generated/torch.nn.Module.html#torch.nn.Module" title="torch.nn.Module"><em>nn.Module</em></a><em>]</em><em>, </em><em>None</em><em>]</em><em>]</em>) – </p><p>指定如何将当前位于元设备上的模块初始化到实际设备上的 <code class="docutils literal "><span class="pre">Callable[torch.nn.Module]</span> <span class="pre">-&gt;</span> <span class="pre">None</span></code> 。从 v1.12 版本开始，FSDP 通过 <code class="docutils literal "><span class="pre">is_meta</span></code> 检测元设备上的具有参数或缓冲区的模块，如果指定了 <code class="docutils literal "><span class="pre">param_init_fn</span></code> ，则应用它，否则调用 <code class="docutils literal "><span class="pre">nn.Module.reset_parameters()</span></code> 。在两种情况下，实现应仅初始化模块的参数/缓冲区，而不是其子模块的参数/缓冲区。这是为了避免重新初始化。此外，FSDP 还支持通过 torchdistX 的（https://github.com/pytorch/torchdistX） <code class="docutils literal "><span class="pre">deferred_init()</span></code> API 进行延迟初始化，其中延迟初始化的模块通过调用 <code class="docutils literal "><span class="pre">param_init_fn</span></code> （如果指定）或 torchdistX 的默认 <code class="docutils literal "><span class="pre">materialize_module()</span></code> 进行初始化。如果指定了 <code class="docutils literal "><span class="pre">param_init_fn</span></code> ，则它应用于所有元设备模块，这意味着它可能取决于模块类型。FSDP 在参数展平和分片之前调用初始化函数。</p>
+<p>示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">module</span> <span class="o">=</span> <span class="n">MyModule</span><span class="p">(</span><span class="n">device</span><span class="o">=</span><span class="s2">"meta"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">my_init_fn</span><span class="p">(</span><span class="n">module</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="c1"># E.g. initialize depending on the module type</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="o">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fsdp_model</span> <span class="o">=</span> <span class="n">FSDP</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">param_init_fn</span><span class="o">=</span><span class="n">my_init_fn</span><span class="p">,</span> <span class="n">auto_wrap_policy</span><span class="o">=</span><span class="n">size_based_auto_wrap_policy</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">fsdp_model</span><span class="o">.</span><span class="n">parameters</span><span class="p">())</span><span class="o">.</span><span class="n">device</span><span class="p">)</span> <span class="c1"># current CUDA device</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># With torchdistX</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">module</span> <span class="o">=</span> <span class="n">deferred_init</span><span class="o">.</span><span class="n">deferred_init</span><span class="p">(</span><span class="n">MyModule</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s2">"cuda"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Will initialize via deferred_init.materialize_module().</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fsdp_model</span> <span class="o">=</span> <span class="n">FSDP</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">auto_wrap_policy</span><span class="o">=</span><span class="n">size_based_auto_wrap_policy</span><span class="p">)</span>
+</pre></div>
+</div>
+<p></p></li>
+<li><p>device_id（可选[Union[int, torch.device]]）- 一个 <code class="docutils literal "><span class="pre">int</span></code> 或 <code class="docutils literal "><span class="pre">torch.device</span></code> ，表示 FSDP 初始化发生的 CUDA 设备，包括如果需要的话模块初始化和参数分片。如果 <code class="docutils literal "><span class="pre">module</span></code> 在 CPU 上，则应指定此参数以提高初始化速度。如果已设置默认 CUDA 设备（例如通过 <code class="docutils literal "><span class="pre">torch.cuda.set_device</span></code> ），则用户可以将 <code class="docutils literal "><span class="pre">torch.cuda.current_device</span></code> 传递给此参数。（默认： <code class="docutils literal "><span class="pre">None</span></code> ）</p></li>
+<li><p>sync_module_states（布尔值）- 如果 <code class="docutils literal "><span class="pre">True</span></code> ，则每个 FSDP 模块将广播从 rank 0 的模块参数和缓冲区以确保它们在各个 rank 之间复制（向此构造函数添加通信开销）。这有助于以内存高效的方式通过 <code class="docutils literal "><span class="pre">load_state_dict</span></code> 加载 <code class="docutils literal "><span class="pre">state_dict</span></code> 检查点。请参阅 <code class="xref py py-class docutils literal "><span class="pre">FullStateDictConfig</span></code> 以获取此示例。（默认： <code class="docutils literal "><span class="pre">False</span></code> ）</p></li>
+<li><p>forward_prefetch（布尔值）- 如果 <code class="docutils literal "><span class="pre">True</span></code> ，则 FSDP 在当前前向计算之前显式预取下一个前向传递的所有-gather。这对于 CPU 密集型工作负载很有用，在这种情况下，提前发出下一个 all-gather 可能有助于重叠。这仅适用于静态图模型，因为预取遵循第一次迭代的执行顺序。（默认： <code class="docutils literal "><span class="pre">False</span></code> ）</p></li>
+<li><p>limit_all_gathers (bool) – 如果 <code class="docutils literal "><span class="pre">True</span></code> ，则 FSDP 明确同步 CPU 线程以确保 GPU 内存使用仅来自两个连续的 FSDP 实例（当前运行计算的实例和预取所有-gather 的下一个实例）。如果 <code class="docutils literal "><span class="pre">False</span></code> ，则 FSDP 允许 CPU 线程发出所有-gather 而无需任何额外同步。（默认： <code class="docutils literal "><span class="pre">True</span></code> ）我们通常将此功能称为“速率限制器”。此标志应仅设置为 <code class="docutils literal "><span class="pre">False</span></code> ，用于具有低内存压力的特定 CPU 密集型工作负载，在这种情况下，CPU 线程可以积极发出所有内核，无需担心 GPU 内存使用。</p></li>
+<li><p>使用原参数（bool）- 将此设置为 <code class="docutils literal "><span class="pre">True</span></code> 使 FSDP 使用 <code class="docutils literal "><span class="pre">module</span></code> 的原参数。FSDP 通过 <code class="xref py py-meth docutils literal "><span class="pre">nn.Module.named_parameters()</span></code> 而不是 FSDP 内部的 <code class="xref py py-class docutils literal "><span class="pre">FlatParameter</span></code> 将那些原参数暴露给用户。这意味着优化器步骤在原参数上运行，允许每个原参数的超参数。FSDP 保留原参数变量，并在非分片和分片形式之间操作它们的数据，其中它们始终是底层非分片或分片 <code class="xref py py-class docutils literal "><span class="pre">FlatParameter</span></code> 的视图。根据当前算法，分片形式始终是 1D，丢失了原始张量结构。一个原参数可能在其给定秩的所有、一些或没有数据。在没有数据的情况下，其数据将像一个大小为 0 的空张量。用户不应编写依赖于给定原参数在其分片形式中存在哪些数据的程序。 <code class="docutils literal "><span class="pre">True</span></code> 是使用 <code class="docutils literal "><span class="pre">torch.compile()</span></code> 所必需的。将此设置为 <code class="docutils literal "><span class="pre">False</span></code> 通过 <code class="xref py py-meth docutils literal "><span class="pre">nn.Module.named_parameters()</span></code> 将 FSDP 内部的 <code class="xref py py-class docutils literal "><span class="pre">FlatParameter</span></code> 暴露给用户。（默认： <code class="docutils literal "><span class="pre">False</span></code> ）</p></li>
+<li><p>ignored_states (Optional[Iterable[torch.nn.Parameter]], Optional[Iterable[torch.nn.Module]]) – 被忽略的参数或模块，这些参数将由该 FSDP 实例管理，意味着参数不会被分片，其梯度也不会在各个 rank 之间进行汇总。此参数与现有的 <code class="docutils literal "><span class="pre">ignored_modules</span></code> 参数统一，我们可能会很快弃用 <code class="docutils literal "><span class="pre">ignored_modules</span></code> 。为了向后兼容，我们保留了 <code class="docutils literal "><span class="pre">ignored_states</span></code> 和 ignored_modules，但 FSDP 只允许指定其中一个作为非 <code class="docutils literal "><span class="pre">None</span></code> 。</p></li>
+<li><p>device_mesh (Optional[DeviceMesh]) – DeviceMesh 可以用作 process_group 的替代方案。当传递 device_mesh 时，FSDP 将使用底层进程组进行 all-gather 和 reduce-scatter 集体通信。因此，这两个参数需要互斥。对于混合分片策略如 <code class="docutils literal "><span class="pre">ShardingStrategy.HYBRID_SHARD</span></code> ，用户可以传递一个 2D DeviceMesh 而不是进程组的元组。对于 2D FSDP + TP，用户需要传递 device_mesh 而不是 process_group。更多 DeviceMesh 信息，请访问：https://pytorch.org/tutorials/recipes/distributed_device_mesh.html</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.fsdp.FullyShardedDataParallel.apply">
+apply(fn)[source][source]</dt>
+<dd><p>Apply <code class="docutils literal "><span class="pre">fn</span></code> 递归地应用于每个子模块（如 <code class="docutils literal "><span class="pre">.children()</span></code> 返回的）以及自身。</p>
+<p>典型用途包括初始化模型的参数（参见 torch.nn.init）。</p>
+<p>与 <code class="docutils literal "><span class="pre">torch.nn.Module.apply</span></code> 相比，此版本在应用 <code class="docutils literal "><span class="pre">fn</span></code> 之前会额外收集所有参数。不应在另一个 <code class="docutils literal "><span class="pre">summon_full_params</span></code> 上下文中调用。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>fn ( <code class="xref py py-class docutils literal "><span class="pre">Module</span></code> -&gt; None) – 对每个子模块应用此函数</p>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>self</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p></p><p id="torch.nn.Module"><a class="reference internal" href="generated/torch.nn.Module.html#torch.nn.Module" title="torch.nn.Module">模块</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.fsdp.FullyShardedDataParallel.check_is_root">
+检查是否为根 FSDP 模块()[来源][来源] ¶</dt>
+<dd><p>检查此实例是否为根 FSDP 模块。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">布尔型</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.fsdp.FullyShardedDataParallel.clip_grad_norm_">
+clip_grad_norm_(max_norm, norm_type=2.0)[来源][来源] ¶</dt>
+<dd><p>剪切所有参数的梯度范数。</p>
+<p>规范是在将所有参数梯度视为单个向量的情况下计算的，并且梯度是在原地修改的。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>max_norm（浮点数或整数）- 梯度的最大范数</p></li>
+<li><p>norm_type（浮点数或整数）- 使用的 p-范数的类型。可以是 <code class="docutils literal "><span class="pre">'inf'</span></code> 表示无穷范数。</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>将参数的总范数（视为单个向量）。</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="tensors.html#torch.Tensor" title="torch.Tensor"><em>张量</em></a></p>
+</dd>
+</dl>
+<p>如果每个 FSDP 实例都使用 <code class="docutils literal "><span class="pre">NO_SHARD</span></code> ，即没有梯度在各个 rank 之间分片，那么您可以直接使用 <code class="xref py py-func docutils literal "><span class="pre">torch.nn.utils.clip_grad_norm_()</span></code> 。</p>
+<p>如果至少有一个 FSDP 实例使用分片策略（即除 <code class="docutils literal "><span class="pre">NO_SHARD</span></code> 之外的其他策略），那么您应该使用这种方法代替 <code class="xref py py-func docutils literal "><span class="pre">torch.nn.utils.clip_grad_norm_()</span></code> ，因为这种方法可以处理梯度在各个 rank 之间分片的情况。</p>
+<p>返回的总范数将具有所有参数/梯度中“最大”的数据类型，这是由 PyTorch 的类型提升语义定义的。例如，如果所有参数/梯度都使用低精度数据类型，那么返回范数的数据类型将是该低精度数据类型，但如果至少有一个参数/梯度使用 FP32，那么返回范数的数据类型将是 FP32。</p>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>由于它使用集体通信，因此需要在所有 rank 上调用此函数。</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.fsdp.FullyShardedDataParallel.flatten_sharded_optim_state_dict">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">flatten_sharded_optim_state_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sharded_optim_state_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optim</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/fsdp/fully_sharded_data_parallel.html#FullyShardedDataParallel.flatten_sharded_optim_state_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/fsdp/fully_sharded_data_parallel.py#L1555"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.fsdp.FullyShardedDataParallel.flatten_sharded_optim_state_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>展平分片优化器状态字典。</p>
+<p>该 API 与 <code class="xref py py-meth docutils literal "><span class="pre">shard_full_optim_state_dict()</span></code> 类似。唯一的区别是输入 <code class="docutils literal "><span class="pre">sharded_optim_state_dict</span></code> 应从 <code class="xref py py-meth docutils literal "><span class="pre">sharded_optim_state_dict()</span></code> 返回。因此，每个 rank 都会进行 all-gather 调用以收集 <code class="docutils literal "><span class="pre">ShardedTensor</span></code> 。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>sharded_optim_state_dict (Dict[str, Any]) – 对应未展平参数并持有分片优化器状态的优化器状态字典。</p></li>
+<li><p>模型（torch.nn.Module）- 参考第 0#条。</p></li>
+<li><p>optim (torch.optim.Optimizer) – 用于 <code class="docutils literal "><span class="pre">model</span></code> 参数的优化器。</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>参考第 0#条。</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.fsdp.FullyShardedDataParallel.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/fsdp/fully_sharded_data_parallel.html#FullyShardedDataParallel.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/fsdp/fully_sharded_data_parallel.py#L834"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.fsdp.FullyShardedDataParallel.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>运行包装模块的前向传播，并插入 FSDP 特定的前向和后向分片逻辑。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.13)"><em>任何</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.fsdp.FullyShardedDataParallel.fsdp_modules">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fsdp_modules</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/fsdp/fully_sharded_data_parallel.html#FullyShardedDataParallel.fsdp_modules"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/fsdp/fully_sharded_data_parallel.py#L552"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.fsdp.FullyShardedDataParallel.fsdp_modules" title="Permalink to this definition">¶</a></dt>
+<dd><p>返回所有嵌套的 FSDP 实例。</p>
+<p>这可能包括 <code class="docutils literal "><span class="pre">module</span></code> 自身，并且仅在 <code class="docutils literal "><span class="pre">root_only=True</span></code> 的情况下包括 FSDP 根模块。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>模块（torch.nn.Module）- 根模块，可能或可能不是 <code class="docutils literal "><span class="pre">FSDP</span></code> 模块。</p></li>
+<li><p>root_only（布尔值）- 是否仅返回 FSDP 根模块。（默认： <code class="docutils literal "><span class="pre">False</span></code> ）</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>嵌套在输入 <code class="docutils literal "><span class="pre">module</span></code> 中的 FSDP 模块。</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>FullyShardedDataParallel 列表</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.fsdp.FullyShardedDataParallel.full_optim_state_dict">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">full_optim_state_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optim_input</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rank0_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/fsdp/fully_sharded_data_parallel.html#FullyShardedDataParallel.full_optim_state_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/fsdp/fully_sharded_data_parallel.py#L1366"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.fsdp.FullyShardedDataParallel.full_optim_state_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>返回完整的优化器状态字典。</p>
+<p>在 rank 0 上合并完整的优化器状态并返回，遵循 <code class="xref py py-meth docutils literal "><span class="pre">torch.optim.Optimizer.state_dict()</span></code> 的约定，即具有 <code class="docutils literal "><span class="pre">"state"</span></code> 和 <code class="docutils literal "><span class="pre">"param_groups"</span></code> 键。将包含在 <code class="docutils literal "><span class="pre">FSDP</span></code> 模块中的展平参数映射回其未展平的参数。</p>
+<p>由于使用集体通信，需要在所有 rank 上调用此函数。但是，如果 <code class="docutils literal "><span class="pre">rank0_only=True</span></code> ，则状态字典仅在 rank 0 上填充，其他所有 rank 返回空的 <code class="xref py py-class docutils literal "><span class="pre">dict</span></code> 。</p>
+<p>与 <code class="docutils literal "><span class="pre">torch.optim.Optimizer.state_dict()</span></code> 不同，此方法使用完整的参数名称作为键，而不是参数 ID。</p>
+<p>如 <code class="xref py py-meth docutils literal "><span class="pre">torch.optim.Optimizer.state_dict()</span></code> 中所述，优化器状态字典中包含的张量没有被克隆，因此可能会有别名惊喜。为了最佳实践，请考虑立即保存返回的优化器状态字典，例如使用 <code class="docutils literal "><span class="pre">torch.save()</span></code> 。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>model (torch.nn.Module) – 根模块（可能或可能不是 <code class="xref py py-class docutils literal "><span class="pre">FullyShardedDataParallel</span></code> 实例），其参数被传递到优化器 <code class="docutils literal "><span class="pre">optim</span></code> 中。</p></li>
+<li><p>optim (torch.optim.Optimizer) – 用于 <code class="docutils literal "><span class="pre">model</span></code> 参数的优化器。</p></li>
+<li><p>optim_input (Optional[Union[List[Dict[str, Any]], Iterable[torch.nn.Parameter]]]) – 输入到优化器 <code class="docutils literal "><span class="pre">optim</span></code> ，表示参数组 <code class="xref py py-class docutils literal "><span class="pre">list</span></code> 或参数的迭代器；如果 <code class="docutils literal "><span class="pre">None</span></code> ，则此方法假定输入为 <code class="docutils literal "><span class="pre">model.parameters()</span></code> 。此参数已弃用，无需再传入。(默认： <code class="docutils literal "><span class="pre">None</span></code> )</p></li>
+<li><p>rank0_only (bool) – 如果 <code class="docutils literal "><span class="pre">True</span></code> ，则仅在 rank 0 上保存填充的 <code class="xref py py-class docutils literal "><span class="pre">dict</span></code> ；如果 <code class="docutils literal "><span class="pre">False</span></code> ，则在所有 rank 上保存。(默认： <code class="docutils literal "><span class="pre">True</span></code> )</p></li>
+<li><p>group (dist.ProcessGroup) – 模型的进程组或 <code class="docutils literal "><span class="pre">None</span></code> 如果使用默认进程组。(默认： <code class="docutils literal "><span class="pre">None</span></code> )</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>A <code class="xref py py-class docutils literal "><span class="pre">dict</span></code> 包含优化器状态，用于 <code class="docutils literal "><span class="pre">model</span></code> 的原始未展平参数，并包含“state”和“param_groups”键，遵循 <code class="xref py py-meth docutils literal "><span class="pre">torch.optim.Optimizer.state_dict()</span></code> 的约定。如果 <code class="docutils literal "><span class="pre">rank0_only=True</span></code> ，则非零 rank 返回空的 <code class="xref py py-class docutils literal "><span class="pre">dict</span></code> 。</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>字典[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.fsdp.FullyShardedDataParallel.get_state_dict_type">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_state_dict_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/fsdp/fully_sharded_data_parallel.html#FullyShardedDataParallel.get_state_dict_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/fsdp/fully_sharded_data_parallel.py#L753"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.fsdp.FullyShardedDataParallel.get_state_dict_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>获取根位于 <code class="docutils literal "><span class="pre">module</span></code> 的 FSDP 模块的状态字典类型及其对应配置。</p>
+<p>目标模块不必是 FSDP 模块。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回<span class="colon">:</span></dt>
+<dd class="field-odd"><p>包含当前设置的 state_dict_type 和 state_dict / optim_state_dict 配置的 <code class="docutils literal "><span class="pre">StateDictSettings</span></code> 。</p>
+</dd>
+<dt class="field-even">引发<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p>如果 StateDictSettings 对于不同的 –</p></li>
+<li><p>FSDP 子模块不同。 –</p></li>
+</ul>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#torch.distributed.fsdp.StateDictSettings" title="torch.distributed.fsdp.api.StateDictSettings"><em>StateDictSettings</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="torch.distributed.fsdp.FullyShardedDataParallel.module">
+属性模块 Module ¶</dt>
+<dd><p>返回包装的模块。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.fsdp.FullyShardedDataParallel.named_buffers">
+<span class="sig-name descname"><span class="pre">named_buffers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/fsdp/fully_sharded_data_parallel.html#FullyShardedDataParallel.named_buffers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/fsdp/fully_sharded_data_parallel.py#L973"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.fsdp.FullyShardedDataParallel.named_buffers" title="Permalink to this definition">¶</a></dt>
+<dd><p>返回模块缓冲区的迭代器，生成缓冲区的名称及其本身。</p>
+<p>拦截缓冲区名称，并在 <code class="xref py py-meth docutils literal "><span class="pre">summon_full_params()</span></code> 上下文管理器内部删除所有 FSDP 特定的扁平缓冲区前缀的实例。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>迭代器[tuple[str, torch.Tensor]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.fsdp.FullyShardedDataParallel.named_parameters">
+<span class="sig-name descname"><span class="pre">named_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/fsdp/fully_sharded_data_parallel.html#FullyShardedDataParallel.named_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/fsdp/fully_sharded_data_parallel.py#L991"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.fsdp.FullyShardedDataParallel.named_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>返回模块参数的迭代器，同时产生参数的名称和参数本身。</p>
+<p>在 <code class="xref py py-meth docutils literal "><span class="pre">summon_full_params()</span></code> 上下文中拦截参数名称，并移除所有 FSDP 特定展开参数前缀的实例。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>迭代器[tuple[str, torch.nn.parameter.Parameter]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.fsdp.FullyShardedDataParallel.no_sync">
+no_sync()[source][source]</dt>
+<dd><p>禁用 FSDP 实例间的梯度同步。</p>
+<p>在此上下文中，梯度将累积在模块变量中，之后将在退出上下文后的第一次前向-反向传递中进行同步。这仅应在根 FSDP 实例上使用，并将递归地应用于所有子 FSDP 实例。</p>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>这可能导致更高的内存使用，因为 FSDP 将累积完整的模型梯度（而不是梯度碎片）直到最终同步。</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>当与 CPU 卸载一起使用时，梯度在上下文管理器内部不会被卸载到 CPU。相反，它们将在最终同步后卸载。</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Generator" title="(in Python v3.13)"><em>生成器</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.fsdp.FullyShardedDataParallel.optim_state_dict">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">optim_state_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optim_state_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/fsdp/fully_sharded_data_parallel.html#FullyShardedDataParallel.optim_state_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/fsdp/fully_sharded_data_parallel.py#L1803"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.fsdp.FullyShardedDataParallel.optim_state_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>将分片模型的优化器对应的状态字典进行转换。</p>
+<p>给定的状态字典可以转换为三种类型之一：1）完整优化器状态字典，2）分片优化器状态字典，3）本地优化器状态字典。</p>
+<p>对于完整优化器状态字典，所有状态都是未展平且未分片的。可以通过 <code class="xref py py-meth docutils literal "><span class="pre">state_dict_type()</span></code> 指定 Rank0 和 CPU 仅，以避免内存溢出。</p>
+<p>对于分片优化器状态字典，所有状态都是未展平且分片的。可以通过 <code class="xref py py-meth docutils literal "><span class="pre">state_dict_type()</span></code> 指定 CPU 以进一步节省内存。</p>
+<p>对于本地状态字典，不会执行任何转换。但会将状态从 nn.Tensor 转换为 ShardedTensor 以表示其分片特性（目前尚不支持）。</p>
+<p>示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torch.distributed.fsdp</span> <span class="kn">import</span> <span class="n">FullyShardedDataParallel</span> <span class="k">as</span> <span class="n">FSDP</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torch.distributed.fsdp</span> <span class="kn">import</span> <span class="n">StateDictType</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torch.distributed.fsdp</span> <span class="kn">import</span> <span class="n">FullStateDictConfig</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torch.distributed.fsdp</span> <span class="kn">import</span> <span class="n">FullOptimStateDictConfig</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Save a checkpoint</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="p">,</span> <span class="n">optim</span> <span class="o">=</span> <span class="o">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">FSDP</span><span class="o">.</span><span class="n">set_state_dict_type</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">model</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">StateDictType</span><span class="o">.</span><span class="n">FULL_STATE_DICT</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">FullStateDictConfig</span><span class="p">(</span><span class="n">rank0_only</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">FullOptimStateDictConfig</span><span class="p">(</span><span class="n">rank0_only</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">state_dict</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">state_dict</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">optim_state_dict</span> <span class="o">=</span> <span class="n">FSDP</span><span class="o">.</span><span class="n">optim_state_dict</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">optim</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">save_a_checkpoint</span><span class="p">(</span><span class="n">state_dict</span><span class="p">,</span> <span class="n">optim_state_dict</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Load a checkpoint</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="p">,</span> <span class="n">optim</span> <span class="o">=</span> <span class="o">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">state_dict</span><span class="p">,</span> <span class="n">optim_state_dict</span> <span class="o">=</span> <span class="n">load_a_checkpoint</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">FSDP</span><span class="o">.</span><span class="n">set_state_dict_type</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">model</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">StateDictType</span><span class="o">.</span><span class="n">FULL_STATE_DICT</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">FullStateDictConfig</span><span class="p">(</span><span class="n">rank0_only</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">FullOptimStateDictConfig</span><span class="p">(</span><span class="n">rank0_only</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">state_dict</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">optim_state_dict</span> <span class="o">=</span> <span class="n">FSDP</span><span class="o">.</span><span class="n">optim_state_dict_to_load</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">model</span><span class="p">,</span> <span class="n">optim</span><span class="p">,</span> <span class="n">optim_state_dict</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">optim</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">optim_state_dict</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>model (torch.nn.Module) – 根模块（可能或可能不是 <code class="xref py py-class docutils literal "><span class="pre">FullyShardedDataParallel</span></code> 实例），其参数被传递到优化器 <code class="docutils literal "><span class="pre">optim</span></code> 中。</p></li>
+<li><p>optim (torch.optim.Optimizer) – 用于 <code class="docutils literal "><span class="pre">model</span></code> 参数的优化器。</p></li>
+<li><p>optim_state_dict (Dict[str, Any]) – 要转换的目标优化器状态字典。如果值为 None，则使用 optim.state_dict()。 (默认: <code class="docutils literal "><span class="pre">None</span></code> )</p></li>
+<li><p>group (dist.ProcessGroup) – 模型参数分片所跨越的进程组。如果使用默认进程组，则为 <code class="docutils literal "><span class="pre">None</span></code> 。 (默认: <code class="docutils literal "><span class="pre">None</span></code> )</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>包含 <code class="docutils literal "><span class="pre">model</span></code> 的优化器状态的 <code class="xref py py-class docutils literal "><span class="pre">dict</span></code> 。优化器状态的分片基于 <code class="docutils literal "><span class="pre">state_dict_type</span></code> 。</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>字典[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.fsdp.FullyShardedDataParallel.optim_state_dict_to_load">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">optim_state_dict_to_load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optim_state_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_named_optimizer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load_directly</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/fsdp/fully_sharded_data_parallel.html#FullyShardedDataParallel.optim_state_dict_to_load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/fsdp/fully_sharded_data_parallel.py#L1899"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.fsdp.FullyShardedDataParallel.optim_state_dict_to_load" title="Permalink to this definition">¶</a></dt>
+<dd><p>将优化器状态字典转换为可以加载到与 FSDP 模型关联的优化器中的形式。</p>
+<p>给定一个通过 <code class="xref py py-meth docutils literal "><span class="pre">optim_state_dict()</span></code> 转换的 <code class="docutils literal "><span class="pre">optim_state_dict</span></code> ，它被转换为可以加载到 <code class="docutils literal "><span class="pre">optim</span></code> 的扁平化优化器状态字典， <code class="docutils literal "><span class="pre">optim</span></code> 是 <code class="docutils literal "><span class="pre">model</span></code> 的优化器。 <code class="docutils literal "><span class="pre">model</span></code> 必须由 FullyShardedDataParallel 分片。</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torch.distributed.fsdp</span> <span class="kn">import</span> <span class="n">FullyShardedDataParallel</span> <span class="k">as</span> <span class="n">FSDP</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torch.distributed.fsdp</span> <span class="kn">import</span> <span class="n">StateDictType</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torch.distributed.fsdp</span> <span class="kn">import</span> <span class="n">FullStateDictConfig</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torch.distributed.fsdp</span> <span class="kn">import</span> <span class="n">FullOptimStateDictConfig</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Save a checkpoint</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="p">,</span> <span class="n">optim</span> <span class="o">=</span> <span class="o">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">FSDP</span><span class="o">.</span><span class="n">set_state_dict_type</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">model</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">StateDictType</span><span class="o">.</span><span class="n">FULL_STATE_DICT</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">FullStateDictConfig</span><span class="p">(</span><span class="n">rank0_only</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">FullOptimStateDictConfig</span><span class="p">(</span><span class="n">rank0_only</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">state_dict</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">state_dict</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">original_osd</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">state_dict</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">optim_state_dict</span> <span class="o">=</span> <span class="n">FSDP</span><span class="o">.</span><span class="n">optim_state_dict</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">model</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">optim</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">optim_state_dict</span><span class="o">=</span><span class="n">original_osd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">save_a_checkpoint</span><span class="p">(</span><span class="n">state_dict</span><span class="p">,</span> <span class="n">optim_state_dict</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Load a checkpoint</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="p">,</span> <span class="n">optim</span> <span class="o">=</span> <span class="o">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">state_dict</span><span class="p">,</span> <span class="n">optim_state_dict</span> <span class="o">=</span> <span class="n">load_a_checkpoint</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">FSDP</span><span class="o">.</span><span class="n">set_state_dict_type</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">model</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">StateDictType</span><span class="o">.</span><span class="n">FULL_STATE_DICT</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">FullStateDictConfig</span><span class="p">(</span><span class="n">rank0_only</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">FullOptimStateDictConfig</span><span class="p">(</span><span class="n">rank0_only</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">state_dict</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">optim_state_dict</span> <span class="o">=</span> <span class="n">FSDP</span><span class="o">.</span><span class="n">optim_state_dict_to_load</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">model</span><span class="p">,</span> <span class="n">optim</span><span class="p">,</span> <span class="n">optim_state_dict</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">optim</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">optim_state_dict</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>model (torch.nn.Module) – 根模块（可能或可能不是 <code class="xref py py-class docutils literal "><span class="pre">FullyShardedDataParallel</span></code> 实例），其参数被传递到优化器 <code class="docutils literal "><span class="pre">optim</span></code> 中。</p></li>
+<li><p>optim (torch.optim.Optimizer) – 用于 <code class="docutils literal "><span class="pre">model</span></code> 参数的优化器。</p></li>
+<li><p>optim_state_dict（Dict[str, Any]）- 要加载的优化器状态。</p></li>
+<li><p>is_named_optimizer（bool）- 此优化器是否为 NamedOptimizer 或 KeyedOptimizer。仅在 <code class="docutils literal "><span class="pre">optim</span></code> 是 TorchRec 的 KeyedOptimizer 或 torch.distributed 的 NamedOptimizer 时设置为 True。</p></li>
+<li><p>load_directly (bool) – 如果设置为 True，此 API 在返回结果之前还将调用 optim.load_state_dict(result)。否则，用户负责调用 <code class="docutils literal "><span class="pre">optim.load_state_dict()</span></code> （默认： <code class="docutils literal "><span class="pre">False</span></code> ）</p></li>
+<li><p>group (dist.ProcessGroup) – 模型参数分片所跨越的进程组。如果使用默认进程组，则为 <code class="docutils literal "><span class="pre">None</span></code> 。 (默认: <code class="docutils literal "><span class="pre">None</span></code> )</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.fsdp.FullyShardedDataParallel.register_comm_hook">
+<span class="sig-name descname"><span class="pre">register_comm_hook</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hook</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/fsdp/fully_sharded_data_parallel.html#FullyShardedDataParallel.register_comm_hook"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/fsdp/fully_sharded_data_parallel.py#L1989"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.fsdp.FullyShardedDataParallel.register_comm_hook" title="Permalink to this definition">¶</a></dt>
+<dd><p>注册通信钩子。</p>
+<p>这是一个为用户提供灵活钩子的增强功能，用户可以指定 FSDP 如何聚合多个工作进程之间的梯度。此钩子可用于实现 GossipGrad 和梯度压缩等算法，这些算法涉及不同的通信策略以进行参数同步训练，同时使用 <code class="xref py py-class docutils literal "><span class="pre">FullyShardedDataParallel</span></code> 。</p>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>FSDP 通信钩子应在运行初始前向传递之前注册，并且只注册一次。</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>state (对象) –</font></font></font></p><p><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">传递给钩子以在训练过程中维护任何状态信息。例如，包括梯度压缩中的错误反馈、GossipGrad 中下一个要通信的节点等。它由每个工作进程本地存储并由该工作进程上的所有梯度张量共享。</p>
+<p></p></li>
+<li><p>hook (Callable) – 具有以下签名之一的 Callable：1) <code class="docutils literal "><span class="pre">hook:</span> <span class="pre">Callable[torch.Tensor]</span> <span class="pre">-&gt;</span> <span class="pre">None</span></code> ：此函数接收一个 Python 张量，该张量表示与该 FSDP 单元包装的模型的所有变量（不包括被其他 FSDP 子单元包装的变量）相关的完整、平坦、未分片的梯度。然后执行所有必要的处理并返回 <code class="docutils literal "><span class="pre">None</span></code> ；2) <code class="docutils literal "><span class="pre">hook:</span> <span class="pre">Callable[torch.Tensor,</span> <span class="pre">torch.Tensor]</span> <span class="pre">-&gt;</span> <span class="pre">None</span></code> ：此函数接收两个 Python 张量，第一个张量表示与该 FSDP 单元包装的模型的所有变量（不包括被其他 FSDP 子单元包装的变量）相关的完整、平坦、未分片的梯度。后者表示一个预分配大小的张量，用于存储在缩减后的分片梯度的一部分。在两种情况下，Callable 都执行所有必要的处理并返回 <code class="docutils literal "><span class="pre">None</span></code> 。具有签名 1 的 Callable 预期处理 NO_SHARD 情况下的梯度通信。具有签名 2 的 Callable 预期处理分片情况下的梯度通信。</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.fsdp.FullyShardedDataParallel.rekey_optim_state_dict">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rekey_optim_state_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">optim_state_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optim_state_key_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optim_input</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/fsdp/fully_sharded_data_parallel.html#FullyShardedDataParallel.rekey_optim_state_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/fsdp/fully_sharded_data_parallel.py#L1678"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.fsdp.FullyShardedDataParallel.rekey_optim_state_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>重新键控优化器状态字典 <code class="docutils literal "><span class="pre">optim_state_dict</span></code> 以使用键类型 <code class="docutils literal "><span class="pre">optim_state_key_type</span></code> 。</p>
+<p>这可以用于实现具有 FSDP 实例和无 FSDP 实例的模型优化器状态字典之间的兼容性。</p>
+<p>将 FSDP 完整优化器状态字典（即来自 <code class="xref py py-meth docutils literal "><span class="pre">full_optim_state_dict()</span></code> ）重新键入以使用参数 ID 并可加载到非包装模型中：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">wrapped_model</span><span class="p">,</span> <span class="n">wrapped_optim</span> <span class="o">=</span> <span class="o">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">full_osd</span> <span class="o">=</span> <span class="n">FSDP</span><span class="o">.</span><span class="n">full_optim_state_dict</span><span class="p">(</span><span class="n">wrapped_model</span><span class="p">,</span> <span class="n">wrapped_optim</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nonwrapped_model</span><span class="p">,</span> <span class="n">nonwrapped_optim</span> <span class="o">=</span> <span class="o">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rekeyed_osd</span> <span class="o">=</span> <span class="n">FSDP</span><span class="o">.</span><span class="n">rekey_optim_state_dict</span><span class="p">(</span><span class="n">full_osd</span><span class="p">,</span> <span class="n">OptimStateKeyType</span><span class="o">.</span><span class="n">PARAM_ID</span><span class="p">,</span> <span class="n">nonwrapped_model</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nonwrapped_optim</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">rekeyed_osd</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>将非包装模型的普通优化器状态字典重新键入以可加载到包装模型中：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">nonwrapped_model</span><span class="p">,</span> <span class="n">nonwrapped_optim</span> <span class="o">=</span> <span class="o">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">osd</span> <span class="o">=</span> <span class="n">nonwrapped_optim</span><span class="o">.</span><span class="n">state_dict</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rekeyed_osd</span> <span class="o">=</span> <span class="n">FSDP</span><span class="o">.</span><span class="n">rekey_optim_state_dict</span><span class="p">(</span><span class="n">osd</span><span class="p">,</span> <span class="n">OptimStateKeyType</span><span class="o">.</span><span class="n">PARAM_NAME</span><span class="p">,</span> <span class="n">nonwrapped_model</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">wrapped_model</span><span class="p">,</span> <span class="n">wrapped_optim</span> <span class="o">=</span> <span class="o">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sharded_osd</span> <span class="o">=</span> <span class="n">FSDP</span><span class="o">.</span><span class="n">shard_full_optim_state_dict</span><span class="p">(</span><span class="n">rekeyed_osd</span><span class="p">,</span> <span class="n">wrapped_model</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">wrapped_optim</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">sharded_osd</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">返回<span class="colon">:</span></dt>
+<dd class="field-odd"><p>使用指定的参数键重新键入的优化器状态字典。</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>字典[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.fsdp.FullyShardedDataParallel.scatter_full_optim_state_dict">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">scatter_full_optim_state_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">full_optim_state_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optim_input</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/fsdp/fully_sharded_data_parallel.html#FullyShardedDataParallel.scatter_full_optim_state_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/fsdp/fully_sharded_data_parallel.py#L1594"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.fsdp.FullyShardedDataParallel.scatter_full_optim_state_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>将全优化器状态字典从 rank 0 分散到所有其他 rank。</p>
+<p>返回每个 rank 上的分片优化器状态字典。返回值与 <code class="xref py py-meth docutils literal "><span class="pre">shard_full_optim_state_dict()</span></code> 相同，在 rank 0 上，第一个参数应该是 <code class="xref py py-meth docutils literal "><span class="pre">full_optim_state_dict()</span></code> 的返回值。</p>
+<p>示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torch.distributed.fsdp</span> <span class="kn">import</span> <span class="n">FullyShardedDataParallel</span> <span class="k">as</span> <span class="n">FSDP</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="p">,</span> <span class="n">optim</span> <span class="o">=</span> <span class="o">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">full_osd</span> <span class="o">=</span> <span class="n">FSDP</span><span class="o">.</span><span class="n">full_optim_state_dict</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">optim</span><span class="p">)</span>  <span class="c1"># only non-empty on rank 0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Define new model with possibly different world size</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">new_model</span><span class="p">,</span> <span class="n">new_optim</span><span class="p">,</span> <span class="n">new_group</span> <span class="o">=</span> <span class="o">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sharded_osd</span> <span class="o">=</span> <span class="n">FSDP</span><span class="o">.</span><span class="n">scatter_full_optim_state_dict</span><span class="p">(</span><span class="n">full_osd</span><span class="p">,</span> <span class="n">new_model</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="n">new_group</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">new_optim</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">sharded_osd</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p> <code class="xref py py-meth docutils literal "><span class="pre">shard_full_optim_state_dict()</span></code> 和 <code class="xref py py-meth docutils literal "><span class="pre">scatter_full_optim_state_dict()</span></code> 都可以用来获取分片优化器状态字典进行加载。假设完整的优化器状态字典位于 CPU 内存中，前者要求每个 rank 都拥有完整的字典在 CPU 内存中，每个 rank 独立分片字典而不进行任何通信，而后者只要求 rank 0 拥有完整的字典在 CPU 内存中，rank 0 将每个分片移动到 GPU 内存（用于 NCCL），并适当地与 rank 进行通信。因此，前者有更高的 CPU 内存成本，而后者有更高的通信成本。</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>full_optim_state_dict（可选[Dict[str, Any]]）- 对应于未展平参数的优化器状态字典，如果位于 rank 0，则包含完整的非分片优化器状态；在非零 rank 上此参数被忽略。</p></li>
+<li><p>model (torch.nn.Module) – 根模块（可能或可能不是 <code class="xref py py-class docutils literal "><span class="pre">FullyShardedDataParallel</span></code> 实例），其参数对应于 <code class="docutils literal "><span class="pre">full_optim_state_dict</span></code> 中的优化器状态。</p></li>
+<li><p>optim_input (Optional[Union[List[Dict[str, Any]], Iterable[torch.nn.Parameter]]]) – 传递给优化器的输入，表示参数组 <code class="xref py py-class docutils literal "><span class="pre">list</span></code> 或参数的可迭代对象；如果是 <code class="docutils literal "><span class="pre">None</span></code> ，则此方法假定输入是 <code class="docutils literal "><span class="pre">model.parameters()</span></code> 。此参数已弃用，不再需要传递。默认值： <code class="docutils literal "><span class="pre">None</span></code> 。</p></li>
+<li><p>optim (Optional[torch.optim.Optimizer]) – 将加载此方法返回的状态字典的优化器。这是首选参数，而不是 <code class="docutils literal "><span class="pre">optim_input</span></code> 。默认值： <code class="docutils literal "><span class="pre">None</span></code> 。</p></li>
+<li><p>group (dist.ProcessGroup) – 模型的进程组或 <code class="docutils literal "><span class="pre">None</span></code> 如果使用默认进程组。(默认： <code class="docutils literal "><span class="pre">None</span></code> )</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>全局优化器状态字典现在已重新映射到展平的参数，而不是未展平的参数，并且仅包括此 rank 的优化器状态部分。</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>字典[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.fsdp.FullyShardedDataParallel.set_state_dict_type">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set_state_dict_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state_dict_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state_dict_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optim_state_dict_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/fsdp/fully_sharded_data_parallel.html#FullyShardedDataParallel.set_state_dict_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/fsdp/fully_sharded_data_parallel.py#L632"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.fsdp.FullyShardedDataParallel.set_state_dict_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>设置目标模块所有子 FSDP 模块的 <code class="docutils literal "><span class="pre">state_dict_type</span></code> 。</p>
+<p>还可以（可选）为模型和优化器的状态字典提供配置。目标模块不一定是 FSDP 模块。如果目标模块是 FSDP 模块，其 <code class="docutils literal "><span class="pre">state_dict_type</span></code> 也将被更改。</p>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>应仅调用此 API 进行顶级（根）模块。</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>此 API 允许用户在根 FSDP 模块被其他模块包装的情况下，透明地使用传统的 <code class="docutils literal "><span class="pre">state_dict</span></code> API 来获取模型检查点。例如，以下代码将确保在所有非 FSDP 实例上调用 <code class="docutils literal "><span class="pre">state_dict</span></code> ，而对于 FSDP 则调度到 sharded_state_dict 实现：</p>
+</div>
+<p>示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">DDP</span><span class="p">(</span><span class="n">FSDP</span><span class="p">(</span><span class="o">...</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">FSDP</span><span class="o">.</span><span class="n">set_state_dict_type</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">model</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">StateDictType</span><span class="o">.</span><span class="n">SHARDED_STATE_DICT</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">state_dict_config</span> <span class="o">=</span> <span class="n">ShardedStateDictConfig</span><span class="p">(</span><span class="n">offload_to_cpu</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">optim_state_dict_config</span> <span class="o">=</span> <span class="n">OptimStateDictConfig</span><span class="p">(</span><span class="n">offload_to_cpu</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">param_state_dict</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">state_dict</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">optim_state_dict</span> <span class="o">=</span> <span class="n">FSDP</span><span class="o">.</span><span class="n">optim_state_dict</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">optim</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>模块（torch.nn.Module）- 根模块。</p></li>
+<li><p>state_dict_type（StateDictType）- 要设置的期望 <code class="docutils literal "><span class="pre">state_dict_type</span></code> 。</p></li>
+<li><p>state_dict_config (Optional[StateDictConfig]) – 目标配置 <code class="docutils literal "><span class="pre">state_dict_type</span></code> （可选）。</p></li>
+<li><p>optim_state_dict_config (Optional[OptimStateDictConfig]) – 优化器状态字典的配置。</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>包含之前状态字典类型和模块配置的 StateDictSettings。</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#torch.distributed.fsdp.StateDictSettings" title="torch.distributed.fsdp.api.StateDictSettings"><em>StateDictSettings</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.fsdp.FullyShardedDataParallel.shard_full_optim_state_dict">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">shard_full_optim_state_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">full_optim_state_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optim_input</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/fsdp/fully_sharded_data_parallel.html#FullyShardedDataParallel.shard_full_optim_state_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/fsdp/fully_sharded_data_parallel.py#L1476"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.fsdp.FullyShardedDataParallel.shard_full_optim_state_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>将完整的优化器状态字典进行分片。</p>
+<p>将状态映射到 <code class="docutils literal "><span class="pre">full_optim_state_dict</span></code> ，从未展开的参数转换为展开的参数，并仅限制到本 rank 的优化器状态部分。第一个参数应该是 <code class="xref py py-meth docutils literal "><span class="pre">full_optim_state_dict()</span></code> 的返回值。</p>
+<p>示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torch.distributed.fsdp</span> <span class="kn">import</span> <span class="n">FullyShardedDataParallel</span> <span class="k">as</span> <span class="n">FSDP</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="p">,</span> <span class="n">optim</span> <span class="o">=</span> <span class="o">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">full_osd</span> <span class="o">=</span> <span class="n">FSDP</span><span class="o">.</span><span class="n">full_optim_state_dict</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">optim</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">full_osd</span><span class="p">,</span> <span class="n">PATH</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Define new model with possibly different world size</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">new_model</span><span class="p">,</span> <span class="n">new_optim</span> <span class="o">=</span> <span class="o">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">full_osd</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">PATH</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sharded_osd</span> <span class="o">=</span> <span class="n">FSDP</span><span class="o">.</span><span class="n">shard_full_optim_state_dict</span><span class="p">(</span><span class="n">full_osd</span><span class="p">,</span> <span class="n">new_model</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">new_optim</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">sharded_osd</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p> <code class="xref py py-meth docutils literal "><span class="pre">shard_full_optim_state_dict()</span></code> 和 <code class="xref py py-meth docutils literal "><span class="pre">scatter_full_optim_state_dict()</span></code> 都可以用来获取分片优化器状态字典进行加载。假设完整的优化器状态字典位于 CPU 内存中，前者要求每个 rank 都拥有完整的字典在 CPU 内存中，每个 rank 独立分片字典而不进行任何通信，而后者只要求 rank 0 拥有完整的字典在 CPU 内存中，rank 0 将每个分片移动到 GPU 内存（用于 NCCL），并适当地与 rank 进行通信。因此，前者有更高的 CPU 内存成本，而后者有更高的通信成本。</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>full_optim_state_dict (Dict[str, Any]) – 与未展平参数对应的优化器状态字典，包含完整的非分片优化器状态。</p></li>
+<li><p>model (torch.nn.Module) – 根模块（可能或可能不是 <code class="xref py py-class docutils literal "><span class="pre">FullyShardedDataParallel</span></code> 实例），其参数对应于 <code class="docutils literal "><span class="pre">full_optim_state_dict</span></code> 中的优化器状态。</p></li>
+<li><p>optim_input (Optional[Union[List[Dict[str, Any]], Iterable[torch.nn.Parameter]]]) – 传递给优化器的输入，表示参数组 <code class="xref py py-class docutils literal "><span class="pre">list</span></code> 或参数的可迭代对象；如果是 <code class="docutils literal "><span class="pre">None</span></code> ，则此方法假定输入是 <code class="docutils literal "><span class="pre">model.parameters()</span></code> 。此参数已弃用，不再需要传递。默认值： <code class="docutils literal "><span class="pre">None</span></code> 。</p></li>
+<li><p>optim (Optional[torch.optim.Optimizer]) – 将加载此方法返回的状态字典的优化器。这是首选参数，而不是 <code class="docutils literal "><span class="pre">optim_input</span></code> 。默认值： <code class="docutils literal "><span class="pre">None</span></code> 。</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>全局优化器状态字典现在已重新映射到展平的参数，而不是未展平的参数，并且仅包括此 rank 的优化器状态部分。</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>字典[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.fsdp.FullyShardedDataParallel.sharded_optim_state_dict">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sharded_optim_state_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/fsdp/fully_sharded_data_parallel.html#FullyShardedDataParallel.sharded_optim_state_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/fsdp/fully_sharded_data_parallel.py#L1442"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.fsdp.FullyShardedDataParallel.sharded_optim_state_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>返回优化器状态字典的碎片化形式。</p>
+<p>该 API 与 <code class="xref py py-meth docutils literal "><span class="pre">full_optim_state_dict()</span></code> 类似，但此 API 将所有非零维度的状态块压缩到 <code class="xref py py-class docutils literal "><span class="pre">ShardedTensor</span></code> 以节省内存。此 API 仅应在使用上下文管理器 <code class="docutils literal "><span class="pre">state_dict</span></code> 导出模型 <code class="docutils literal "><span class="pre">with</span> <span class="pre">state_dict_type(SHARDED_STATE_DICT):</span></code> 时使用。</p>
+<p>详细用法请参阅 <code class="xref py py-meth docutils literal "><span class="pre">full_optim_state_dict()</span></code> 。</p>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>返回的状态字典包含 <code class="docutils literal "><span class="pre">ShardedTensor</span></code> ，不能直接由常规的 <code class="docutils literal "><span class="pre">optim.load_state_dict</span></code> 使用。</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.fsdp.FullyShardedDataParallel.state_dict_type">
+static state_dict_type(module, state_dict_type, state_dict_config=None, optim_state_dict_config=None)[source][source]</dt>
+<dd><p>设置目标模块所有子 FSDP 模块的 <code class="docutils literal "><span class="pre">state_dict_type</span></code> 。</p>
+<p>此上下文管理器与 <code class="xref py py-meth docutils literal "><span class="pre">set_state_dict_type()</span></code> 具有相同的功能。请阅读 <code class="xref py py-meth docutils literal "><span class="pre">set_state_dict_type()</span></code> 的文档以获取详细信息。</p>
+<p>示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">DDP</span><span class="p">(</span><span class="n">FSDP</span><span class="p">(</span><span class="o">...</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">FSDP</span><span class="o">.</span><span class="n">state_dict_type</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">model</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">StateDictType</span><span class="o">.</span><span class="n">SHARDED_STATE_DICT</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">checkpoint</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">state_dict</span><span class="p">()</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>模块（torch.nn.Module）- 根模块。</p></li>
+<li><p>state_dict_type（StateDictType）- 要设置的期望 <code class="docutils literal "><span class="pre">state_dict_type</span></code> 。</p></li>
+<li><p>state_dict_config (Optional[StateDictConfig]) – 目标 <code class="docutils literal "><span class="pre">state_dict_type</span></code> 的模型 <code class="docutils literal "><span class="pre">state_dict</span></code> 配置（可选）。</p></li>
+<li><p>optim_state_dict_config (Optional[OptimStateDictConfig]) – 目标 <code class="docutils literal "><span class="pre">state_dict_type</span></code> 的优化器 <code class="docutils literal "><span class="pre">state_dict</span></code> 配置（可选）。</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Generator" title="(in Python v3.13)"><em>生成器</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.fsdp.FullyShardedDataParallel.summon_full_params">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">summon_full_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recurse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">writeback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rank0_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offload_to_cpu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_grads</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/fsdp/fully_sharded_data_parallel.html#FullyShardedDataParallel.summon_full_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/fsdp/fully_sharded_data_parallel.py#L861"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.fsdp.FullyShardedDataParallel.summon_full_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>使用此上下文管理器暴露 FSDP 实例的完整参数。</p>
+<p>在模型的前向/反向操作之后，这可能很有用，以便在额外处理或检查时获取参数。它可以接受非 FSDP 模块，并将根据 <code class="docutils literal "><span class="pre">recurse</span></code> 参数调用所有包含的 FSDP 模块及其子模块的完整参数。</p>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>这可以用于内部 FSDP。</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>这不能在正向或反向传递中使用。也不能从该上下文中启动正向和反向。</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>参数将在上下文管理器退出后恢复到其本地分片，存储行为与正向相同。</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>可以修改全部参数，但只有对应本地参数分片的那个部分会在上下文管理器退出后持久化（除非 <code class="docutils literal "><span class="pre">writeback=False</span></code> ，在这种情况下，更改将被丢弃）。在 FSDP 不分片参数的情况下，目前只有当 <code class="docutils literal "><span class="pre">world_size</span> <span class="pre">==</span> <span class="pre">1</span></code> 或 <code class="docutils literal "><span class="pre">NO_SHARD</span></code> 配置时，修改才会持久化，无论 <code class="docutils literal "><span class="pre">writeback</span></code> 如何。</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>此方法适用于不是 FSDP 本身的模块，但可能包含多个独立的 FSDP 单元。在这种情况下，给定的参数将应用于所有包含的 FSDP 单元。</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>注意， <code class="docutils literal "><span class="pre">rank0_only=True</span></code> 与 <code class="docutils literal "><span class="pre">writeback=True</span></code> 的组合目前不支持，会引发错误。这是因为模型参数的形状会在上下文中跨 rank 不同，写入它们可能导致退出上下文时 rank 之间的不一致性。</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>注意， <code class="docutils literal "><span class="pre">offload_to_cpu</span></code> 和 <code class="docutils literal "><span class="pre">rank0_only=False</span></code> 将导致完整参数被冗余复制到同一台机器上的 GPU 的 CPU 内存中，这可能会增加 CPU OOM 的风险。建议使用 <code class="docutils literal "><span class="pre">offload_to_cpu</span></code> 与 <code class="docutils literal "><span class="pre">rank0_only=True</span></code> 。</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>recurse (bool, Optional) – 递归调用嵌套 FSDP 实例的所有参数（默认：True）。</p></li>
+<li><p>writeback (bool, Optional) – 如果 <code class="docutils literal "><span class="pre">False</span></code> ，则在上下文管理器退出后，对参数的修改将被丢弃；禁用此功能可能略微更高效（默认：True）</p></li>
+<li><p>rank0_only (bool, Optional) – 如果 <code class="docutils literal "><span class="pre">True</span></code> ，则仅在全局排名 0 上实例化完整参数。这意味着在上下文中，只有排名 0 将拥有完整参数，而其他排名将拥有分片参数。请注意，设置 <code class="docutils literal "><span class="pre">rank0_only=True</span></code> 与 <code class="docutils literal "><span class="pre">writeback=True</span></code> 不受支持，因为在上下文中不同排名的模型参数形状将不同，写入它们可能导致退出上下文时排名之间的一致性问题。</p></li>
+<li><p>offload_to_cpu (bool, 可选) – 如果 <code class="docutils literal "><span class="pre">True</span></code> ，则将全部参数卸载到 CPU。请注意，当前仅在参数分片的情况下才会进行卸载（这只有在 world_size = 1 或 <code class="docutils literal "><span class="pre">NO_SHARD</span></code> 配置的情况下才不是这种情况）。建议使用 <code class="docutils literal "><span class="pre">offload_to_cpu</span></code> 与 <code class="docutils literal "><span class="pre">rank0_only=True</span></code> 以避免将模型参数的冗余副本卸载到同一 CPU 内存中。</p></li>
+<li><p>with_grads (bool, 可选) – 如果 <code class="docutils literal "><span class="pre">True</span></code> ，则梯度也会与参数一起进行非分片处理。当前仅在将 <code class="docutils literal "><span class="pre">use_orig_params=True</span></code> 传递给 FSDP 构造函数并将 <code class="docutils literal "><span class="pre">offload_to_cpu=False</span></code> 传递给此方法时支持。（默认值： <code class="docutils literal "><span class="pre">False</span></code> ）</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Generator" title="(in Python v3.13)"><em>生成器</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.fsdp.BackwardPrefetch">
+class torch.distributed.fsdp.BackwardPrefetch(value, names=&lt;未提供&gt;, *values, module=None, qualname=None, type=None, start=1, boundary=None)[source][source] ¶</dt>
+<dd><p>这配置了显式的向后预取，通过在向后传递中启用通信和计算重叠来提高吞吐量，但代价是略微增加内存使用。</p>
+<ul class="simple">
+<li><p> <code class="docutils literal "><span class="pre">BACKWARD_PRE</span></code> : 这将实现最大的重叠，但内存使用增加最多。在当前参数集的梯度计算之前预取下一组参数。这重叠了下一个全聚合和当前的梯度计算，在峰值时，它将当前参数集、下一组参数和当前梯度集保持在内存中。</p></li>
+<li><p> <code class="docutils literal "><span class="pre">BACKWARD_POST</span></code> : 这将实现较少的重叠，但内存使用较少。在当前参数集的梯度计算之后预取下一组参数。这重叠了当前的 reduce-scatter 和下一个梯度计算，并在分配下一组参数内存之前释放当前参数集，仅在峰值时保持下一组参数和当前梯度集在内存中。</p></li>
+<li><p>FSDP 的 <code class="docutils literal "><span class="pre">backward_prefetch</span></code> 参数接受 <code class="docutils literal "><span class="pre">None</span></code> ，这将完全禁用向后预取。这没有重叠，也不会增加内存使用。一般来说，我们不推荐这种设置，因为它可能会显著降低吞吐量。</p></li>
+</ul>
+<p>更多技术背景：对于使用 NCCL 后端的单个进程组，任何集体操作，即使来自不同的流，也会竞争相同的设备 NCCL 流，这意味着集体操作的发出顺序对于重叠很重要。两个向后预取值对应不同的发出顺序。</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.fsdp.ShardingStrategy">
+class torch.distributed.fsdp.ShardingStrategy(value, names=&lt;未提供&gt;, *values, module=None, qualname=None, type=None, start=1, boundary=None)[source][source] ¶</dt>
+<dd><p>这指定了 <code class="xref py py-class docutils literal "><span class="pre">FullyShardedDataParallel</span></code> 用于分布式训练的分区策略。</p>
+<ul class="simple">
+<li><p> <code class="docutils literal "><span class="pre">FULL_SHARD</span></code> : 参数、梯度和优化器状态被分片。对于参数，这种策略在正向传播前进行解分片（通过 all-gather），在正向传播后重新分片，在反向计算前进行解分片，在反向计算后重新分片。对于梯度，它在反向计算后进行同步和分片（通过 reduce-scatter）。分片优化器状态在每个 rank 上本地更新。</p></li>
+<li><p> <code class="docutils literal "><span class="pre">SHARD_GRAD_OP</span></code> : 在计算过程中，梯度和优化器状态被分片，并且参数在计算外部分片。对于参数，这种策略在正向传播前进行解分片，在正向传播后不重新分片，只在反向计算后重新分片。分片优化器状态在每个 rank 上本地更新。在 <code class="docutils literal "><span class="pre">no_sync()</span></code> 内，参数在反向计算后不重新分片。</p></li>
+<li><p> <code class="docutils literal "><span class="pre">NO_SHARD</span></code> : 参数、梯度和优化器状态没有被分片，而是像 PyTorch 的 <code class="xref py py-class docutils literal "><span class="pre">DistributedDataParallel</span></code> API 一样在 rank 间复制。对于梯度，这种策略在反向计算后进行同步（通过 all-reduce）。未分片的优化器状态在每个 rank 上本地更新。</p></li>
+<li><p>在节点内应用 <code class="docutils literal "><span class="pre">FULL_SHARD</span></code> ，并在节点间复制参数。这可以减少通信量，因为昂贵的全局聚合和全局分散操作仅在节点内进行，这对于中等规模的模型来说可能更高效。</p></li>
+<li><p>在节点内应用 <code class="docutils literal "><span class="pre">SHARD_GRAD_OP</span></code> ，并在节点间复制参数。这与 <code class="docutils literal "><span class="pre">HYBRID_SHARD</span></code> 类似，但可能提供更高的吞吐量，因为未分片的参数在正向传播后不会被释放，从而节省了预反向传播中的全局聚合操作。</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.fsdp.MixedPrecision">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.fsdp.</span></span><span class="sig-name descname"><span class="pre">MixedPrecision</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_dtype=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reduce_dtype=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffer_dtype=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_low_precision_grads=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cast_forward_inputs=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cast_root_forward_inputs=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_module_classes_to_ignore=(&lt;class</span> <span class="pre">'torch.nn.modules.batchnorm._BatchNorm'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/fsdp/api.html#MixedPrecision"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/fsdp/api.py#L112"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.fsdp.MixedPrecision" title="Permalink to this definition">¶</a></dt>
+<dd><p>这配置了 FSDP 原生混合精度训练。</p>
+<dl class="field-list simple">
+<dt class="field-odd">变量<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>param_dtype (Optional[torch.dtype]) – 这指定了在正向和反向传播过程中模型参数的 dtype，因此也指定了正向和反向计算的 dtype。在正向和反向传播之外，分片参数保持全精度（例如，对于优化器步骤），并且对于模型检查点，参数始终以全精度保存。（默认： <code class="docutils literal "><span class="pre">None</span></code> ）</p></li>
+<li><p>reduce_dtype (Optional[torch.dtype]) – 这指定了梯度归约（即 reduce-scatter 或 all-reduce）的 dtype。如果这是 <code class="docutils literal "><span class="pre">None</span></code> 但 <code class="docutils literal "><span class="pre">param_dtype</span></code> 不是 <code class="docutils literal "><span class="pre">None</span></code> ，则采用 <code class="docutils literal "><span class="pre">param_dtype</span></code> 的值，仍然以低精度运行梯度归约。这允许与 <code class="docutils literal "><span class="pre">param_dtype</span></code> 不同，例如，强制梯度归约以全精度运行。（默认： <code class="docutils literal "><span class="pre">None</span></code> ）</p></li>
+<li><p>buffer_dtype (Optional[torch.dtype]) – 这指定了缓冲区的 dtype。FSDP 不会分片缓冲区。相反，FSDP 在第一次正向传播中将它们转换为 <code class="docutils literal "><span class="pre">buffer_dtype</span></code> ，并在之后保持该 dtype。对于模型检查点，除了 <code class="docutils literal "><span class="pre">LOCAL_STATE_DICT</span></code> 之外，缓冲区以全精度保存。（默认： <code class="docutils literal "><span class="pre">None</span></code> ）</p></li>
+<li><p>keep_low_precision_grads (bool) – 如果 <code class="docutils literal "><span class="pre">False</span></code> ，则 FSDP 在优化器步骤之前将梯度上转换为全精度。如果 <code class="docutils literal "><span class="pre">True</span></code> ，则 FSDP 保持梯度在用于梯度减少的数据类型中，如果使用支持以低精度运行的定制优化器，则可以节省内存。（默认： <code class="docutils literal "><span class="pre">False</span></code> ）</p></li>
+<li><p>cast_forward_inputs (bool) – 如果 <code class="docutils literal "><span class="pre">True</span></code> ，则此 FSDP 模块将其前向参数和关键字段转换为 <code class="docutils literal "><span class="pre">param_dtype</span></code> 。这是为了确保参数和输入的数据类型匹配，以满足许多操作的要求。当仅对某些但不是所有 FSDP 模块应用混合精度时，可能需要设置为 <code class="docutils literal "><span class="pre">True</span></code> ，在这种情况下，混合精度 FSDP 子模块需要重新转换其输入。（默认： <code class="docutils literal "><span class="pre">False</span></code> ）</p></li>
+<li><p>cast_root_forward_inputs (bool) – 如果 <code class="docutils literal "><span class="pre">True</span></code> ，则根 FSDP 模块将其前向参数和关键字段转换为 <code class="docutils literal "><span class="pre">param_dtype</span></code> ，覆盖 <code class="docutils literal "><span class="pre">cast_forward_inputs</span></code> 的值。对于非根 FSDP 模块，此操作不执行任何操作。（默认： <code class="docutils literal "><span class="pre">True</span></code> ）</p></li>
+<li><p>`_module_classes_to_ignore (collections.abc.Sequence[type[torch.nn.modules.module.Module]]) – (Sequence[Type[nn.Module]]): 这指定了在混合精度模式下需要忽略的模块类。当使用 <code class="docutils literal "><span class="pre">auto_wrap_policy</span></code> 时，这些类的模块将单独应用 FSDP 并禁用混合精度（这意味着最终的 FSDP 构造将与指定的策略有所偏差）。如果未指定 <code class="docutils literal "><span class="pre">auto_wrap_policy</span></code> ，则此操作不会执行任何操作。此 API 为实验性，可能随时更改。（默认： <code class="docutils literal "><span class="pre">(_BatchNorm,)</span></code> ）`</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>此 API 为实验性，可能随时更改。</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>只有浮点张量会被转换为指定的数据类型。</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>在 <code class="docutils literal "><span class="pre">summon_full_params</span></code> 中，参数被强制转换为全精度，但缓冲区不是。</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>层归一化和批归一化即使在输入为低精度如 <code class="docutils literal "><span class="pre">float16</span></code> 或 <code class="docutils literal "><span class="pre">bfloat16</span></code> 时也会在 <code class="docutils literal "><span class="pre">float32</span></code> 中累积。仅对那些归一化模块禁用 FSDP 的混合精度意味着保持仿射参数在 <code class="docutils literal "><span class="pre">float32</span></code> 中。然而，这会导致那些归一化模块分别进行全聚合和全分散，可能效率低下，因此如果工作负载允许，用户应优先考虑仍然对这些模块应用混合精度。</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>默认情况下，如果用户传递一个包含任何 <code class="docutils literal "><span class="pre">_BatchNorm</span></code> 模块的模型并指定了 <code class="docutils literal "><span class="pre">auto_wrap_policy</span></code> ，则批归一化模块将分别应用 FSDP，并禁用混合精度。请参阅 <code class="docutils literal "><span class="pre">_module_classes_to_ignore</span></code> 参数。</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p> <code class="docutils literal "><span class="pre">MixedPrecision</span></code> 默认具有 <code class="docutils literal "><span class="pre">cast_root_forward_inputs=True</span></code> 和 <code class="docutils literal "><span class="pre">cast_forward_inputs=False</span></code> 。对于根 FSDP 实例，其 <code class="docutils literal "><span class="pre">cast_root_forward_inputs</span></code> 优先于其 <code class="docutils literal "><span class="pre">cast_forward_inputs</span></code> 。对于非根 FSDP 实例，它们的 <code class="docutils literal "><span class="pre">cast_root_forward_inputs</span></code> 值将被忽略。默认设置对于典型情况就足够了，在这种情况下，每个 FSDP 实例具有相同的 <code class="docutils literal "><span class="pre">MixedPrecision</span></code> 配置，并且只需要在模型前向传递的开始处将输入转换为 <code class="docutils literal "><span class="pre">param_dtype</span></code> 。</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>对于具有不同 <code class="docutils literal "><span class="pre">MixedPrecision</span></code> 配置的嵌套 FSDP 实例，我们建议在每个实例的前向传播之前设置单独的 <code class="docutils literal "><span class="pre">cast_forward_inputs</span></code> 值来配置是否进行 casting 输入。在这种情况下，由于 casting 操作在每个 FSDP 实例的前向传播之前发生，因此父 FSDP 实例应该在它的 FSDP 子模块之前运行其非 FSDP 子模块，以避免由于不同的 <code class="docutils literal "><span class="pre">MixedPrecision</span></code> 配置而改变激活数据类型。</p>
+<p>示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">FSDP</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">model</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">mixed_precision</span><span class="o">=</span><span class="n">MixedPrecision</span><span class="p">(</span><span class="n">param_dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float16</span><span class="p">,</span> <span class="n">cast_forward_inputs</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">FSDP</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">model</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">mixed_precision</span><span class="o">=</span><span class="n">MixedPrecision</span><span class="p">(</span><span class="n">param_dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">bfloat16</span><span class="p">,</span> <span class="n">cast_forward_inputs</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+</pre></div>
+</div>
+<p>上文展示了工作示例。另一方面，如果将 <code class="docutils literal "><span class="pre">model[1]</span></code> 替换为 <code class="docutils literal "><span class="pre">model[0]</span></code> ，即使用不同 <code class="docutils literal "><span class="pre">MixedPrecision</span></code> 的子模块首先运行其前向传播，那么 <code class="docutils literal "><span class="pre">model[1]</span></code> 将会错误地看到 <code class="docutils literal "><span class="pre">float16</span></code> 激活而不是 <code class="docutils literal "><span class="pre">bfloat16</span></code> 激活。</p>
+</div>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.fsdp.CPUOffload">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.fsdp.</span></span><span class="sig-name descname"><span class="pre">CPUOffload</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">offload_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/fsdp/api.html#CPUOffload"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/fsdp/api.py#L230"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.fsdp.CPUOffload" title="Permalink to this definition">¶</a></dt>
+<dd><p>此配置 CPU 卸载。</p>
+<dl class="field-list simple">
+<dt class="field-odd">变量<span class="colon">:</span></dt>
+<dd class="field-odd"><p>offload_params (bool) – 此选项指定是否在未参与计算时将参数卸载到 CPU。如果 <code class="docutils literal "><span class="pre">True</span></code> ，则还将梯度卸载到 CPU，这意味着优化器步骤在 CPU 上运行。</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.fsdp.StateDictConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.fsdp.</span></span><span class="sig-name descname"><span class="pre">StateDictConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">offload_to_cpu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/fsdp/api.html#StateDictConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/fsdp/api.py#L276"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.fsdp.StateDictConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p> <code class="docutils literal "><span class="pre">StateDictConfig</span></code> 是所有 <code class="docutils literal "><span class="pre">state_dict</span></code> 配置类的基类。用户应实例化子类（例如 <code class="docutils literal "><span class="pre">FullStateDictConfig</span></code> ）以配置 FSDP 支持的相应 <code class="docutils literal "><span class="pre">state_dict</span></code> 类型的设置。</p>
+<dl class="field-list simple">
+<dt class="field-odd">变量<span class="colon">:</span></dt>
+<dd class="field-odd"><p>offload_to_cpu (bool) – 如果 <code class="docutils literal "><span class="pre">True</span></code> ，则 FSDP 将状态字典值卸载到 CPU，如果 <code class="docutils literal "><span class="pre">False</span></code> ，则 FSDP 将其保留在 GPU 上。（默认： <code class="docutils literal "><span class="pre">False</span></code> ）</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.fsdp.FullStateDictConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.fsdp.</span></span><span class="sig-name descname"><span class="pre">FullStateDictConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">offload_to_cpu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rank0_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/fsdp/api.html#FullStateDictConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/fsdp/api.py#L293"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.fsdp.FullStateDictConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p> <code class="docutils literal "><span class="pre">FullStateDictConfig</span></code> 是一个配置类，旨在与 <code class="docutils literal "><span class="pre">StateDictType.FULL_STATE_DICT</span></code> 一起使用。我们建议在保存完整状态字典时启用 <code class="docutils literal "><span class="pre">offload_to_cpu=True</span></code> 和 <code class="docutils literal "><span class="pre">rank0_only=True</span></code> 以节省 GPU 内存和 CPU 内存。此配置类应通过 <code class="xref py py-func docutils literal "><span class="pre">state_dict_type()</span></code> 上下文管理器使用，如下所示：</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torch.distributed.fsdp</span> <span class="kn">import</span> <span class="n">FullyShardedDataParallel</span> <span class="k">as</span> <span class="n">FSDP</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fsdp</span> <span class="o">=</span> <span class="n">FSDP</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">auto_wrap_policy</span><span class="o">=...</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cfg</span> <span class="o">=</span> <span class="n">FullStateDictConfig</span><span class="p">(</span><span class="n">offload_to_cpu</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">rank0_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">FSDP</span><span class="o">.</span><span class="n">state_dict_type</span><span class="p">(</span><span class="n">fsdp</span><span class="p">,</span> <span class="n">StateDictType</span><span class="o">.</span><span class="n">FULL_STATE_DICT</span><span class="p">,</span> <span class="n">cfg</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">state</span> <span class="o">=</span> <span class="n">fsdp</span><span class="o">.</span><span class="n">state_dict</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># `state` will be empty on non rank 0 and contain CPU tensors on rank 0.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># To reload checkpoint for inference, finetuning, transfer learning, etc:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">model_fn</span><span class="p">()</span>  <span class="c1"># Initialize model in preparation for wrapping with FSDP</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">if</span> <span class="n">dist</span><span class="o">.</span><span class="n">get_rank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Load checkpoint only on rank 0 to avoid memory redundancy</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">state_dict</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">"my_checkpoint.pt"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">model</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">state_dict</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># All ranks initialize FSDP module as usual. `sync_module_states` argument</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># communicates loaded checkpoint states from rank 0 to rest of the world.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fsdp</span> <span class="o">=</span> <span class="n">FSDP</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">model</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">device_id</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">current_device</span><span class="p">(),</span>
+<span class="gp">... </span>    <span class="n">auto_wrap_policy</span><span class="o">=...</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">sync_module_states</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># After this point, all ranks have FSDP model with loaded checkpoint.</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">变量<span class="colon">:</span></dt>
+<dd class="field-odd"><p>rank0_only (bool) – 如果 <code class="docutils literal "><span class="pre">True</span></code> ，则只有 rank 0 保存完整的状态字典，非零 rank 保存空字典。如果 <code class="docutils literal "><span class="pre">False</span></code> ，则所有 rank 都保存完整的状态字典。（默认： <code class="docutils literal "><span class="pre">False</span></code> ）</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.fsdp.ShardedStateDictConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.fsdp.</span></span><span class="sig-name descname"><span class="pre">ShardedStateDictConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">offload_to_cpu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_use_dtensor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/fsdp/api.html#ShardedStateDictConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/fsdp/api.py#L340"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.fsdp.ShardedStateDictConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p> <code class="docutils literal "><span class="pre">ShardedStateDictConfig</span></code> 是一个配置类，用于与 <code class="docutils literal "><span class="pre">StateDictType.SHARDED_STATE_DICT</span></code> 一起使用。</p>
+<dl class="field-list simple">
+<dt class="field-odd">变量<span class="colon">:</span></dt>
+<dd class="field-odd"><p>_use_dtensor (bool) – 如果 <code class="docutils literal "><span class="pre">True</span></code> ，则 FSDP 将状态字典值保存为 <code class="docutils literal "><span class="pre">DTensor</span></code> ，如果 <code class="docutils literal "><span class="pre">False</span></code> ，则 FSDP 将它们保存为 <code class="docutils literal "><span class="pre">ShardedTensor</span></code> 。（默认： <code class="docutils literal "><span class="pre">False</span></code> ）</p>
+</dd>
+</dl>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p> <code class="docutils literal "><span class="pre">_use_dtensor</span></code> 是 <code class="xref py py-class docutils literal "><span class="pre">ShardedStateDictConfig</span></code> 的私有字段，由 FSDP 用于确定状态字典值的类型。用户不应手动修改 <code class="docutils literal "><span class="pre">_use_dtensor</span></code> 。</p>
+</div>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.fsdp.LocalStateDictConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.fsdp.</span></span><span class="sig-name descname"><span class="pre">LocalStateDictConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">offload_to_cpu</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/fsdp/api.html#LocalStateDictConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/fsdp/api.py#L335"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.fsdp.LocalStateDictConfig" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.fsdp.OptimStateDictConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.fsdp.</span></span><span class="sig-name descname"><span class="pre">OptimStateDictConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">offload_to_cpu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/fsdp/api.html#OptimStateDictConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/fsdp/api.py#L359"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.fsdp.OptimStateDictConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p> <code class="docutils literal "><span class="pre">OptimStateDictConfig</span></code> 是所有 <code class="docutils literal "><span class="pre">optim_state_dict</span></code> 配置类的基类。用户应实例化子类（例如 <code class="docutils literal "><span class="pre">FullOptimStateDictConfig</span></code> ）以配置 FSDP 支持的相应 <code class="docutils literal "><span class="pre">optim_state_dict</span></code> 类型的设置。</p>
+<dl class="field-list simple">
+<dt class="field-odd">变量<span class="colon">:</span></dt>
+<dd class="field-odd"><p>offload_to_cpu (bool) – 如果 <code class="docutils literal "><span class="pre">True</span></code> ，则 FSDP 将状态字典的张量值卸载到 CPU，如果 <code class="docutils literal "><span class="pre">False</span></code> ，则 FSDP 保持它们在原始设备上（除非启用参数 CPU 卸载，则原始设备是 GPU）。(默认: <code class="docutils literal "><span class="pre">True</span></code> )</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.fsdp.FullOptimStateDictConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.fsdp.</span></span><span class="sig-name descname"><span class="pre">FullOptimStateDictConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">offload_to_cpu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rank0_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/fsdp/api.html#FullOptimStateDictConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/fsdp/api.py#L377"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.fsdp.FullOptimStateDictConfig" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">变量<span class="colon">:</span></dt>
+<dd class="field-odd"><p>rank0_only (bool) – 如果 <code class="docutils literal "><span class="pre">True</span></code> ，则只有 rank 0 保存完整的状态字典，非零 rank 保存空字典。如果 <code class="docutils literal "><span class="pre">False</span></code> ，则所有 rank 都保存完整的状态字典。（默认： <code class="docutils literal "><span class="pre">False</span></code> ）</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.fsdp.ShardedOptimStateDictConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.fsdp.</span></span><span class="sig-name descname"><span class="pre">ShardedOptimStateDictConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">offload_to_cpu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_use_dtensor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/fsdp/api.html#ShardedOptimStateDictConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/fsdp/api.py#L394"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.fsdp.ShardedOptimStateDictConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p> <code class="docutils literal "><span class="pre">ShardedOptimStateDictConfig</span></code> 是一个配置类，用于与 <code class="docutils literal "><span class="pre">StateDictType.SHARDED_STATE_DICT</span></code> 一起使用。</p>
+<dl class="field-list simple">
+<dt class="field-odd">变量<span class="colon">:</span></dt>
+<dd class="field-odd"><p>_use_dtensor (bool) – 如果 <code class="docutils literal "><span class="pre">True</span></code> ，则 FSDP 将状态字典值保存为 <code class="docutils literal "><span class="pre">DTensor</span></code> ，如果 <code class="docutils literal "><span class="pre">False</span></code> ，则 FSDP 将它们保存为 <code class="docutils literal "><span class="pre">ShardedTensor</span></code> 。（默认： <code class="docutils literal "><span class="pre">False</span></code> ）</p>
+</dd>
+</dl>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p> <code class="docutils literal "><span class="pre">_use_dtensor</span></code> 是 <code class="xref py py-class docutils literal "><span class="pre">ShardedOptimStateDictConfig</span></code> 的私有字段，由 FSDP 用于确定状态字典值的类型。用户不应手动修改 <code class="docutils literal "><span class="pre">_use_dtensor</span></code> 。</p>
+</div>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.fsdp.LocalOptimStateDictConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.fsdp.</span></span><span class="sig-name descname"><span class="pre">LocalOptimStateDictConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">offload_to_cpu</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/fsdp/api.html#LocalOptimStateDictConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/fsdp/api.py#L389"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.fsdp.LocalOptimStateDictConfig" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.fsdp.StateDictSettings">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.fsdp.</span></span><span class="sig-name descname"><span class="pre">StateDictSettings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state_dict_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.distributed.fsdp.api.StateDictType</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state_dict_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#torch.distributed.fsdp.StateDictConfig" title="torch.distributed.fsdp.api.StateDictConfig"><span class="pre">torch.distributed.fsdp.api.StateDictConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">optim_state_dict_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#torch.distributed.fsdp.OptimStateDictConfig" title="torch.distributed.fsdp.api.OptimStateDictConfig"><span class="pre">torch.distributed.fsdp.api.OptimStateDictConfig</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/fsdp/api.html#StateDictSettings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/fsdp/api.py#L413"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.fsdp.StateDictSettings" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+</dl>
+</dd></dl>
+
+</section>
+
+
+             </article>
+             
+            </div>
+            <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        下一个 <img height="16" width="16" class="next-page" src="_static/images/chevron-right-orange.svg"> <img height="16" width="16" class="previous-page" src="_static/images/chevron-right-orange.svg"> 上一个
+      
+    </div>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>© 版权所有 PyTorch 贡献者。</p>
+  </div>
+    
+      <div>使用 Sphinx 构建，主题由 Read the Docs 提供。</div>
+     
+
+</footer>
+
+          </div>
+<script>
+
+var match = window.location.href.match(/\/_[a-zA-Z0-9_]*.html|_dynamo/gi);
+var url = window.location.href.lastIndexOf(match[match.length-1]);
+
+if (url)
+  {
+    var div = '<div class="admonition note"><p class="admonition-title">Note</p><p><i class="fa fa-exclamation-circle" aria-hidden="true">&nbsp</i> This page describes an internal API which is not intended to be used outside of the PyTorch codebase and can be modified or removed without notice.</p></div>'
+    document.getElementById("pytorch-article").insertAdjacentHTML('afterBegin', div)
+  }
+</script>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">全分片数据并行</a></li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+         <script src="_static/jquery.js"></script>
+         <script src="_static/underscore.js"></script>
+         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+         <script src="_static/doctools.js"></script>
+         <script src="_static/clipboard.min.js"></script>
+         <script src="_static/copybutton.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ 
+<script script="" type="text/javascript">
+  var collapsedSections = ['Developer Notes', 'Language Bindings', 'Libraries', 'Community'];
+</script>
+
+<img height="1" width="1" style="border-style:none;" alt="" src="https://www.googleadservices.com/pagead/conversion/795629140/?label=txkmCPmdtosBENSssfsC&amp;guid=ON&amp;script=0">
+
+
+  <!-- Begin Footer -->
+
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 text-center">
+          <h2>文档</h2>
+          <p>PyTorch 开发者文档全面访问</p>
+          <a class="with-right-arrow" href="https://pytorch.org/docs/stable/index.html">查看文档</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>教程</h2>
+          <p>获取初学者和高级开发者的深入教程</p>
+          <a class="with-right-arrow" href="https://pytorch.org/tutorials">查看教程</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>资源</h2>
+          <p>查找开发资源并获得您的疑问解答</p>
+          <a class="with-right-arrow" href="https://pytorch.org/resources">查看资源</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://pytorch.org/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/">PyTorch</a></li>
+            <li><a href="https://pytorch.org/get-started">开始使用</a></li>
+            <li><a href="https://pytorch.org/features">功能</a></li>
+            <li><a href="https://pytorch.org/ecosystem">生态系统</a></li>
+            <li><a href="https://pytorch.org/blog/">博客</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md">贡献</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/resources">资源</a></li>
+            <li><a href="https://pytorch.org/tutorials">教程</a></li>
+            <li><a href="https://pytorch.org/docs/stable/index.html">文档</a></li>
+            <li><a href="https://discuss.pytorch.org" target="_blank">讨论</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/issues" target="_blank">GitHub 问题和任务</a></li>
+            <li><a href="https://pytorch.org/assets/brand-guidelines/PyTorch-Brand-Guidelines.pdf" target="_blank">品牌指南</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">保持更新</li>
+            <li><a href="https://www.facebook.com/pytorch" target="_blank">Facebook</a></li>
+            <li><a href="https://twitter.com/pytorch" target="_blank">推特</a></li>
+            <li><a href="https://www.youtube.com/pytorch" target="_blank">YouTube</a></li>
+            <li><a href="https://www.linkedin.com/company/pytorch" target="_blank">领英</a></li>
+          </ul>  
+          </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">PyTorch 播客</li>
+            <li><a href="https://open.spotify.com/show/6UzHKeiy368jKfQMKKvJY5" target="_blank">Spotify</a></li>
+            <li><a href="https://podcasts.apple.com/us/podcast/pytorch-developer-podcast/id1566080008" target="_blank">苹果</a></li>
+            <li><a href="https://www.google.com/podcasts?feed=aHR0cHM6Ly9mZWVkcy5zaW1wbGVjYXN0LmNvbS9PQjVGa0lsOA%3D%3D" target="_blank">谷歌</a></li>
+            <li><a href="https://music.amazon.com/podcasts/7a4e6f0e-26c2-49e9-a478-41bd244197d0/PyTorch-Developer-Podcast?" target="_blank">亚马逊</a></li>
+          </ul>
+         </div>
+        </div>
+        
+        <div class="privacy-policy">
+          <ul>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/terms/" target="_blank">条款</a></li>
+            <li class="privacy-policy-links">|</li>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/privacy-policy/" target="_blank">隐私</a></li>
+          </ul>
+        </div>
+        <div class="copyright">
+        <p>© 版权所有 Linux 基金会。PyTorch 基金会是 Linux 基金会的一个项目。有关本网站的使用条款、商标政策以及其他适用于 PyTorch 基金会的政策，请参阅 www.linuxfoundation.org/policies/。PyTorch 基金会支持 PyTorch 开源项目，该项目已被确立为 LF Projects, LLC 的 PyTorch 项目系列。有关适用于 PyTorch 项目系列 LF Projects, LLC 的政策，请参阅 www.lfprojects.org/policies/。</p>
+      </div>
+     </div>
+
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">为分析流量并优化您的体验，我们在本网站上提供 cookies。通过点击或导航，您同意允许我们使用 cookies。作为本站点的当前维护者，Facebook 的 Cookies 政策适用。了解更多信息，包括可用的控制选项：Cookies 政策。</p>
+    <img class="close-button" src="_static/images/pytorch-x.svg" width="16" height="16">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+           <li class="resources-mobile-menu-title">
+             <a>学习</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/get-started">开始学习</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials">教程</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/basics/intro.html">学习基础知识</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/recipes/recipes_index.html">PyTorch 菜谱</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/introyt.html">PyTorch 入门 - YouTube 系列</a>
+             </li>
+           </ul>
+           <li class="resources-mobile-menu-title">
+             <a>生态系统</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/ecosystem">工具</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/#community-module">社区</a>
+             </li>
+             <li>
+               <a href="https://discuss.pytorch.org/">论坛</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/resources">开发者资源</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">贡献者奖项 - 2024</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>Edge</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/edge">关于 PyTorch Edge</a>
+             </li>
+             
+             <li>
+               <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch 文档</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>文档</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/docs/stable/index.html">PyTorch</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/pytorch-domains">PyTorch 领域</a>
+            </li>
+          </ul>
+
+          <li class="resources-mobile-menu-title">
+            <a>博客 &amp; 新闻</a>
+          </li>
+            
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/blog/">PyTorch 博客</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/community-blog">社区博客</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/videos">视频</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/community-stories">社区故事</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/events">活动</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">通讯</a>
+             </li>
+          </ul>
+          
+          <li class="resources-mobile-menu-title">
+            <a>关于</a>
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/foundation">PyTorch 基金会</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/governing-board">治理委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">云信用计划</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">技术顾问委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">员工</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">联系我们</a>
+            </li>
+          </ul>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body></html>

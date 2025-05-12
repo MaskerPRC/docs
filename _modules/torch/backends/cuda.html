@@ -1,0 +1,1468 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+  <meta charset="UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>torch.backends.cuda — PyTorch main documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pytorch.org/docs/stable/_modules/torch/backends/cuda.html">
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css">
+  <!-- <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css">
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css">
+  <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="../../../_static/katex-math.css" type="text/css">
+  <link rel="stylesheet" href="../../../_static/sphinx-dropdown.css" type="text/css">
+  <link rel="stylesheet" href="../../../_static/panels-bootstrap.min.css" type="text/css">
+  <link rel="stylesheet" href="../../../_static/css/jit.css" type="text/css">
+  <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css">
+    <link rel="index" title="Index" href="../../../genindex.html">
+    <link rel="search" title="Search" href="../../../search.html">
+
+<!--
+  Search engines should not index the main version of documentation.
+  Stable documentation are built without release == 'main'.
+-->
+<meta name="robots" content="noindex">
+
+
+  <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T8XT4PS');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+  <!-- Preload the theme fonts -->
+
+<link rel="preload" href="../../../_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<!-- Preload the katex fonts -->
+
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Math-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size1-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size2-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Caligraphic-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
+</head><body class="pytorch-body"><div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+
+          <li class="main-menu-item">
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">学习</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/get-started">
+                  <span class="dropdown-title">开始使用</span>
+                  <p>在本地运行 PyTorch 或快速开始使用支持的云平台之一</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials">
+                  <span class="dropdown-title">教程</span><p></p>
+                  <p>PyTorch 教程中的新内容</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/basics/intro.html">
+                  <span class="dropdown-title">学习基础知识</span><p></p>
+                  <p>熟悉 PyTorch 概念和模块</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/recipes/recipes_index.html">
+                  <span class="dropdown-title">PyTorch 烹饪技巧</span><p></p>
+                  <p>精简型、可直接部署的 PyTorch 代码示例</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/introyt.html">
+                  <span class="dropdown-title">PyTorch 入门 - YouTube 系列</span><p></p>
+                  <p>通过我们引人入胜的 YouTube 教程系列掌握 PyTorch 基础知识</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">生态系统</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem">
+                  <span class="dropdown-title">工具</span><p></p>
+                  <p>了解 PyTorch 生态系统中的工具和框架</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
+                  <span class="dropdown-title">社区</span>
+                  <p>加入 PyTorch 开发者社区，贡献、学习并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
+                  <span class="dropdown-title">论坛</span>
+                  <p>讨论 PyTorch 代码、问题、安装、研究的地方</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/resources">
+                  <span class="dropdown-title">开发者资源</span>
+                  <p>查找资源并解答问题</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">2024 年度贡献者奖项</span><p></p>
+                  <p>本届 PyTorch 会议揭晓获奖者</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">
+                Edge
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/edge">
+                  <span class="dropdown-title">关于 PyTorch Edge</span><p></p>
+                  <p>为边缘设备构建创新和隐私感知的 AI 体验</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
+                  <span class="dropdown-title">ExecuTorch</span><p></p>
+                  <p>针对移动和边缘设备实现设备端推理能力的端到端解决方案</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch 文档</span><p></p>
+                </a>
+              </div>
+            </div>  
+          </li>
+
+          <li class="main-menu-item">
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">文档</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/docs/stable/index.html">
+                  <span class="dropdown-title">PyTorch</span><p></p>
+                  <p>探索文档以获取如何使用 PyTorch 的全面指南</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/pytorch-domains">
+                  <span class="dropdown-title">PyTorch 领域</span><p></p>
+                  <p>阅读 PyTorch 领域的文档以了解更多关于特定领域的库</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">博客与新闻</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/blog/">
+                  <span class="dropdown-title">PyTorch 博客</span><p></p>
+                  <p>跟上最新的技术新闻和动态</p>
+                </a>
+                 <a class="nav-dropdown-item" href="https://pytorch.org/community-blog">
+                  <span class="dropdown-title">社区博客</span><p></p>
+                  <p>PyTorch 生态系统故事</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/videos">
+                  <span class="dropdown-title">视频</span><p></p>
+                  <p>了解最新的 PyTorch 教程、新内容等</p>
+                </a><a class="nav-dropdown-item" href="https://pytorch.org/community-stories">
+                  <span class="dropdown-title">社区故事</span><p></p>
+                  <p>了解我们的社区如何使用 PyTorch 解决真实、日常的机器学习问题</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/events">
+                  <span class="dropdown-title">活动</span><p></p>
+                  <p>查找活动、网络研讨会和播客</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">通讯</span><p></p>
+                  <p>保持最新更新</p>
+                </a>
+            </div>
+          </div></li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">关于</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/foundation">
+                  <span class="dropdown-title">PyTorch 基金会</span><p></p>
+                  <p>了解更多关于 PyTorch 基金会的信息</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
+                  <span class="dropdown-title">管理委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">云信用计划</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">技术顾问委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">员工</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">联系我们</span><p></p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li class="main-menu-item">
+            <div class="no-dropdown">
+              <a href="https://pytorch.org/join" data-cta="join">成为会员</a>
+            </div>
+          </li>
+          <li>
+           <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="github-icon">
+             </a>
+           </div>
+          </li>
+          <!--- TODO: This block adds the search icon to the nav bar. We will enable it later. 
+          <li>
+            <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="search-icon">
+             </a>
+            </div>
+          </li>
+          --->
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+  </div>
+</div>
+
+
+
+   
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>目录</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+    <div class="version">
+      <a href="https://pytorch.org/docs/versions.html">主页 (2.7.0+cpu ) ▼</a>
+    </div>
+    <div id="searchBox">
+    <div class="searchbox" id="googleSearchBox">
+      <script async="" src="https://cse.google.com/cse.js?cx=e65585f8c3ea1440e"></script>
+      <div class="gcse-search"></div>
+    </div>
+    <div id="sphinxSearchBox" style="display: none;">
+      <div role="search">
+        <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+          <input type="text" name="q" placeholder="Search Docs">
+          <input type="hidden" name="check_keywords" value="yes">
+          <input type="hidden" name="area" value="default">
+        </form>
+      </div>
+    </div>
+  </div>
+  <form id="searchForm">
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="google" checked="">Google 搜索</label>
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="sphinx">经典搜索</label>
+  </form>
+
+  <script>
+     document.addEventListener('DOMContentLoaded', function() {
+      const searchForm = document.getElementById('searchForm');
+      const googleSearchBox = document.getElementById('googleSearchBox');
+      const sphinxSearchBox = document.getElementById('sphinxSearchBox');
+      // Function to toggle search box visibility
+      function toggleSearchBox(searchType) {
+        googleSearchBox.style.display = searchType === 'google' ? 'block' : 'none';
+        sphinxSearchBox.style.display = searchType === 'sphinx' ? 'block' : 'none';
+      }
+      // Determine the default search type
+      let defaultSearchType;
+      const currentUrl = window.location.href;
+      if (currentUrl.startsWith('https://pytorch.org/docs/stable')) {
+        // For the stable documentation, default to Google
+        defaultSearchType = localStorage.getItem('searchType') || 'google';
+      } else {
+        // For any other version, including docs-preview, default to Sphinx
+        defaultSearchType = 'sphinx';
+      }
+      // Set the default search type
+      document.querySelector(`input[name="searchType"][value="${defaultSearchType}"]`).checked = true;
+      toggleSearchBox(defaultSearchType);
+      // Event listener for changes in search type
+      searchForm.addEventListener('change', function(event) {
+        const selectedSearchType = event.target.value;
+        localStorage.setItem('searchType', selectedSearchType);
+        toggleSearchBox(selectedSearchType);
+      });
+      // Set placeholder text for Google search box
+      window.onload = function() {
+        var placeholderText = "Search Docs";
+        var googleSearchboxText = document.querySelector("#gsc-i-id1");
+        if (googleSearchboxText) {
+          googleSearchboxText.placeholder = placeholderText;
+          googleSearchboxText.style.fontFamily = 'FreightSans';
+          googleSearchboxText.style.fontSize = "1.2rem";
+          googleSearchboxText.style.color = '#262626';
+        }
+      };
+    });
+  </script>
+
+          </div>
+
+          
+
+<div>
+  <a style="color:#F05732" href="https://pytorch.org/docs/stable/_modules/torch/backends/cuda.html">您正在查看不稳定开发者预览文档。请点击此处查看最新稳定版本的文档。</a>
+</div>
+
+
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">社区</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../community/build_ci_governance.html">PyTorch 治理 | 构建 + CI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../community/contribution_guide.html">PyTorch 贡献指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../community/design.html">PyTorch 设计哲学</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../community/governance.html">PyTorch 治理 | 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../community/persons_of_interest.html">PyTorch 治理 | 维护者</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发者笔记</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/amp_examples.html">自动混合精度示例</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/autograd.html">Autograd 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/broadcasting.html">广播语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/cpu_threading_torchscript_inference.html">CPU 线程和 TorchScript 推理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/cuda.html">CUDA 语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/custom_operators.html">PyTorch 自定义操作着陆页面</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/ddp.html">分布式数据并行</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/extending.html">扩展 PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/extending.func.html">扩展 torch.func 与 autograd.Function</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/faq.html">常见问题</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/fsdp.html">FSDP 笔记</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/get_start_xpu.html">在英特尔 GPU 上入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/gradcheck.html">毕业审核力学</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/hip.html">HIP (ROCm) 语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/large_scale_deployments.html">大规模部署功能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/libtorch_stable_abi.html">LibTorch 稳定 ABI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/modules.html">模块</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/mps.html">MPS 后端</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/multiprocessing.html">多进程最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/numerical_accuracy.html">数值精度</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/randomness.html">可复现性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/serialization.html">序列化语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/windows.html">Windows 常见问题解答</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">语言绑定</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../cpp_index.html">C++</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/javadoc/">Javadoc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../deploy.html">torch::deploy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../torch.html">torch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nn.html">torch.nn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nn.functional.html">torch.nn.functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tensors.html">torch.Tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tensor_attributes.html">Tensor 属性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tensor_view.html">张量视图</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../amp.html">torch.amp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autograd.html">torch.autograd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../library.html">torch.library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../accelerator.html">torch 加速器</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cpu.html">torch.cpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cuda.html">torch.cuda</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../torch_cuda_memory.html">理解 CUDA 内存使用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../torch_cuda_memory.html#generating-a-snapshot">生成快照</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../torch_cuda_memory.html#using-the-visualizer">使用可视化器</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../torch_cuda_memory.html#snapshot-api-reference">快照 API 参考</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../mps.html">torch.mps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../xpu.html">torch.xpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../mtia.html">torch.mtia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../mtia.memory.html">torch.mtia.memory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../meta.html">元设备</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../backends.html">torch.backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../export.html">torch.export</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../distributed.html">torch.distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../distributed.tensor.html">torch.distributed.tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../distributed.algorithms.join.html">torch.distributed.algorithms.join</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../distributed.elastic.html">torch.distributed.elastic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../fsdp.html">torch.distributed.fsdp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../distributed.fsdp.fully_shard.html">torch.distributed.fsdp.fully_shard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../distributed.tensor.parallel.html">torch.distributed.tensor.parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../distributed.optim.html">torch.distributed.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../distributed.pipelining.html">torch.distributed.pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../distributed.checkpoint.html">torch.distributed.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../distributions.html">torch.distributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../torch.compiler.html">torch.compiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../fft.html">torch.fft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../func.html">torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../futures.html">torch.futures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../fx.html">torch.fx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../fx.experimental.html">torch.fx.experimental</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../hub.html">torch.hub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../jit.html">torch.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../linalg.html">torch.linalg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../monitor.html">torch.monitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../signal.html">torch.signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../special.html">torch.special</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../torch.overrides.html">torch.overrides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../package.html">torch.package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../profiler.html">torch.profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nn.init.html">torch.nn.init</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nn.attention.html">torch.nn.attention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../onnx.html">torch.onnx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../optim.html">torch.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../complex_numbers.html">复数</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ddp_comm_hooks.html">DDP 通信钩子</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quantization.html">量化</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../rpc.html">分布式 RPC 框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../random.html">torch.random</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../masked.html">torch.masked</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nested.html">torch.nested</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../size.html">torch.Size</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sparse.html">torch.sparse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../storage.html">torch 存储</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../testing.html">torch.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils.html">torch.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../benchmark_utils.html">torch.utils.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bottleneck.html">torch.utils.bottleneck</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../checkpoint.html">torch.utils.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cpp_extension.html">torch.utils.cpp_extension</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../data.html">torch.utils.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../deterministic.html">torch.utils.deterministic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../jit_utils.html">torch.utils.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dlpack.html">torch.utils.dlpack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../mobile_optimizer.html">torch.utils.mobile_optimizer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../model_zoo.html">torch.utils.model_zoo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tensorboard.html">torch.utils.tensorboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_tracker.html">torch.utils.module_tracker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../type_info.html">类型信息</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../named_tensor.html">命名张量</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../name_inference.html">命名张量操作覆盖率</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../config_mod.html">torch.__config__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../future_mod.html">torch.__future__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../logging.html">torch._logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../torch_environment_variables.html">火炬环境变量</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">图书馆</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/audio/stable">torchaudio</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/data">TorchData</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/torchrec">火炬推荐</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/serve">TorchServe</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/text/stable">torchtext</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/vision/stable">torchvision</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/xla/">PyTorch 在 XLA 设备上</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/ao">torchao</a></li>
+</ul>
+
+            
+          
+
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        文档 &gt;</li>
+
+        
+          <li>模块代码 &gt;</li>
+        
+          <li><a href="../../torch.html">torch</a> &gt;</li>
+        
+      <li>torch.backends.cuda</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">快捷键</div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+
+          <!-- Google Tag Manager (noscript) -->
+          <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T8XT4PS" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+          <!-- End Google Tag Manager (noscript) -->
+          
+          <div class="rst-content">
+          
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <h1>torch.backends.cuda 的源代码</font></font></font></h1><div class="highlight"><pre><span></span><span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># mypy: 允许未类型化定义</span>
+<span class="kn">导入</span> <span class="nn">contextlib</span>
+<span class="kn">来自</font></font></font></span> <span class="nn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">打字</font></font></font></span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">联合</span>
+<span class="kn">来自</font></font></font></span> <span class="nn">typing_extensions</span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">已弃用</span>
+
+<span class="kn">导入</font></font></font></span> <span class="nn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</span>
+
+
+<span class="n">全部</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">is_built</span><span class="p">,</span>
+    <span class="s2">cuFFTPlanCacheAttrContextProp</span><span class="p">,</span>
+    <span class="s2">cuFFT 计划缓存</span><span class="p">,</span>
+    <span class="s2">cuFFT 计划缓存管理器</span><span class="p">,</span>
+    <span class="s2">cuBLAS 模块</span><span class="p">,</span>
+    <span class="s2">推荐的线性代数库</span><span class="p">,</span>
+    <span class="s2">"首选 BLAS 库"</span><span class="p">,</span>
+    <span class="s2">"首选 ROCM FA 库"</span><span class="p">,</span>
+    <span class="s2">"cuFFT 计划缓存"</span><span class="p">,</span>
+    <span class="s2">矩阵乘法</span><span class="p">,</span>
+    <span class="s2">"SDPA 参数"</span><span class="p">,</span>
+    <span class="s2">"启用 cuDNN SDP"</span><span class="p">,</span>
+    <span class="s2">"cuDNN SDP 已启用"</span><span class="p">,</span>
+    <span class="s2">"启用 Flash SDP"</span><span class="p">,</span>
+    <span class="s2">"Flash SDP 已启用"</span><span class="p">,</span>
+    <span class="s2">"启用内存高效 SDP"</span><span class="p">,</span>
+    <span class="s2">"内存高效 SDP 已启用"</span><span class="p">,</span>
+    <span class="s2">"数学 SDP 已启用"</span><span class="p">,</span>
+    <span class="s2">"启用数学 SDP"</span><span class="p">,</span>
+    <span class="s2">"允许 fp16_bf16_reduction_math_sdp"</span><span class="p">,</span>
+    <span class="s2">"fp16_bf16_reduction_math_sdp 允许"</span><span class="p">,</span>
+    <span class="s2">"是否支持 flash_attention"</span><span class="p">,</span>
+    <span class="s2">"能否使用 flash_attention"</span><span class="p">,</span>
+    <span class="s2">"可使用高效注意力"</span><span class="p">,</span>
+    <span class="s2">"可使用 cuDNN 注意力"</span><span class="p">,</span>
+    <span class="s2">"sdp 内核"</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<div class="viewcode-block" id="is_built"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]def is_built():
+r"""
+返回 PyTorch 是否带有 CUDA 支持。
+
+注意，这并不一定意味着 CUDA 可用；只是说，如果这个 PyTorch
+二进制文件在具有正常 CUDA 驱动器和设备的机器上运行，我们就能使用它。
+"""
+返回 torch._C._has_cuda</font></font></font></div>
+
+
+<span class="k">类</span> <span class="nc">cuFFTPlanCacheAttrContextProp</span><span class="p">:</span>
+    <span class="c1"># 类似常规 ContextProp，但使用 `.device_index` 属性从</span>
+    <span class="c1"># 调用对象作为获取器和设置器的第一个参数</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">获取器</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">设置器</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">获取器</span> <span class="o">=</span> <span class="n">getter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setter</span> <span class="o">=</span> <span class="n">setter</span>
+
+    <span class="k">def</span> <span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">对象</span><span class="p">,</span> <span class="n">objtype</span><span class="p">):</span>
+        <span class="k">返回</font></font></font></span> <span class="bp">self</span><span class="o">.</span><span class="n">getter</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">设备索引</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__set__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">对象</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="k">如果</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">setter</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">抛出</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">运行时错误</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">setter</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">设置器</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">设备索引</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+
+
+<span class="k">类</span> <span class="nc">cuFFTPlanCache</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">""</span>
+<span class="sd">代表特定 `device_index` 的特定计划缓存。</span>
+
+<span class="sd">属性 `size` 和 `max_size`，以及方法 `clear` 可以获取和/或</span>
+<span class="sd">修改 C++ cuFFT 计划缓存属性。</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">设备索引</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">设备索引</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">设备索引</span>
+
+    <span class="n">大小</span> <span class="o">=</span> <span class="n">cuFFTPlanCacheAttrContextProp</span><span class="p">(</span>
+        <span class="n">PyTorch</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">cufft_get_plan_cache_size</span><span class="p">,</span>
+        <span class="s2">".size 是一个只读属性，显示当前缓存中的计划数量。"</span>
+        <span class="s2">"要更改缓存容量，请设置 cufft_plan_cache.max_size。"</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">max_size</span> <span class="o">=</span> <span class="n">cuFFT 计划缓存属性上下文属性</span><span class="p">(</span>
+        <span class="n">PyTorch</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_cufft 获取计划缓存最大大小</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_cufft 设置计划缓存最大大小</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">清晰</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_cufft 清除计划缓存</font></font></font></span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">设备索引</span><span class="p">)</span>
+
+
+<span class="k">类</font></font></font></span> <span class="nc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">cuFFT 计划缓存管理器</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">""</span>
+<span class="sd">表示所有 cuFFT 计划缓存，当索引时返回指定设备的 cuFFTPlanCache。</span>
+
+<span class="sd">最后，此对象直接用作`cuFFTPlanCache`对象时（例如，</span>
+<span class="sd">设置`.max_size`属性），当前设备的 cuFFT 计划缓存是</span>
+<span class="sd">已使用。</span>
+<span class="sd">    """</span>
+
+    <span class="n">__已初始化</font></font></font></span> <span class="o">=</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">假</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">缓存</font></font></font></span> <span class="o">=</span> <span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入文本为空，请提供需要翻译的文本</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__已初始化</font></font></font></span> <span class="o">=</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">真实</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">设备</span><span class="p">):</span>
+        <span class="n">索引</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</font></font></font></span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_工具</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">获取设备索引</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">设备</span><span class="p">)</span>
+        <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">索引</font></font></font></span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">或者</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">索引</font></font></font></span> <span class="o"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">≥</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</font></font></font></span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">设备数量</span><span class="p">():</span>
+            <span class="k">抛出</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">运行时错误</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">cufft_plan_cache: 预期设备索引在 0 到</font></font></font></span><span class="si">{</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</font></font></font></span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">设备数量</font></font></font></span><span class="p">()</span><span class="si">}</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">，但实际上得到了"</span>
+                <span class="sa">f</span><span class="s2">"索引为的设备"</font></font></font></span><span class="si">{</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">索引</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span>
+        <span class="k">如果</font></font></font></span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">长度</font></font></font></span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">缓存</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">缓存</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">扩展</span><span class="p">(</span>
+                <span class="n">cuFFT 计划缓存</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">索引</font></font></font></span><span class="p">)</span> <span class="k">for</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">索引</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在</font></font></font></span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">范围</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</font></font></font></span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">设备数量</span><span class="p">())</span>
+            <span class="p">)</span>
+        <span class="k">返回</font></font></font></span> <span class="bp">self</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">缓存</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">索引</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">名称</span><span class="p">):</span>
+        <span class="k">返回</font></font></font></span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</font></font></font></span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">当前设备</font></font></font></span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">]</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">名称</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">如果</font></font></font></span> <span class="bp">self</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">已初始化</span><span class="p">:</span>
+            <span class="k">返回</font></font></font></span> <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</font></font></font></span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">当前设备</font></font></font></span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">]</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">否则</span><span class="p">:</span>
+            <span class="k">返回</font></font></font></span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">超级</font></font></font></span><span class="p">()</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+
+<span class="k">类</font></font></font></span> <span class="nc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">cuBLAS 模块</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">名称</span><span class="p">):</span>
+        <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</font></font></font></span> <span class="o">==</span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">允许 tf32</span><span class="p">:</span>
+            <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n">_get_cublas_allow_tf32</span><span class="p">()</span>
+        <span class="k">如果...否则</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</font></font></font></span> <span class="o">==</span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">"允许 fp16 降低精度缩减"</span><span class="p">:</span>
+            <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</font></font></font></span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_获取 cublas 允许 fp16 降低精度缩减</span><span class="p">()</span>
+        <span class="k">如果...否则</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</font></font></font></span> <span class="o">==</span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">"允许 bf16 降低精度缩减"</span><span class="p">:</span>
+            <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</font></font></font></span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_获取 cublas 允许 bf16 降低精度缩减</span><span class="p">()</span>
+        <span class="k">如果...否则</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</font></font></font></span> <span class="o">==</span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">"允许 fp16 累加"</span><span class="p">:</span>
+            <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</font></font></font></span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_获取 cublas 允许 fp16 累加</span><span class="p">()</span>
+        <span class="k">抛出</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">属性错误</font></font></font></span><span class="p">(</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">"未知属性 "</font></font></font></span> <span class="o">+</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">名称</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</font></font></font></span> <span class="o">==</span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">"允许 tf32"</span><span class="p">:</span>
+            <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</font></font></font></span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">允许 CUBLAS 使用 TF32</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">如果...否则</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</font></font></font></span> <span class="o">==</span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">允许使用 FP16 降低精度</span><span class="p">:</span>
+            <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</font></font></font></span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">允许 CUBLAS 使用 FP16 降低精度</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">如果...否则</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</font></font></font></span> <span class="o">==</span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">允许使用 BF16 降低精度</span><span class="p">:</span>
+            <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</font></font></font></span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">允许 CUBLAS 使用 bf16 精度降低</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">如果...否则</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</font></font></font></span> <span class="o">==</span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">允许使用 fp16 累加</span><span class="p">:</span>
+            <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</font></font></font></span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">允许 CUBLAS 使用 fp16 累加</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">抛出</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">属性错误</font></font></font></span><span class="p">(</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">"未知属性"</font></font></font></span> <span class="o">+</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</span><span class="p">)</span>
+
+
+<span class="n">线性代数后端</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">默认</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</font></font></font></span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n">_LinalgBackend</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">默认</span><span class="p">,</span>
+    <span class="s2">"cusolver"</span><span class="p">:</span> <span class="n">PyTorch</span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n">_LinalgBackend</span><span class="o">.</span><span class="n">Cusolver</span><span class="p">,</span>
+    <span class="s2">magma</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n">_LinalgBackend</span><span class="o">.</span><span class="n">Magma</span><span class="p">,</span>
+<span class="p">}</span>
+<span class="n">_LinalgBackends_str</span> <span class="o">=</span> <span class="s2">“，”</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">连接</font></font></font></span><span class="p">(</span><span class="n">_LinalgBackends</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">键</span><span class="p">())</span>
+
+
+<div class="viewcode-block" id="preferred_linalg_library"><a class="viewcode-back" href="../../../backends.html#torch.backends.cuda.preferred_linalg_library">[文档]</a><span class="k">def</span> <span class="nf">preferred_linalg_library</span><span class="p">(</span>
+    <span class="n">后端</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">联合</font></font></font></span><span class="p">[</span><span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</font></font></font></span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</font></font></font></span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n">_LinalgBackend</span><span class="p">]</span> <span class="o">=</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PyTorch</span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n">_LinalgBackend</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">""</span>
+<span class="sd">覆盖 PyTorch 在 CUDA 线性代数操作之间选择 cuSOLVER 和 MAGMA 时使用的启发式方法。</span>
+
+<span class="sd">..警告:: 此标志为实验性，可能随时更改。</span>
+
+<span class="sd">当 PyTorch 运行 CUDA 线性代数运算时，它通常会使用 cuSOLVER 或 MAGMA 库，</span>
+<span class="sd">如果两者都可用，它会通过启发式方法决定使用哪一个。</span>
+<span class="sd">此标志（一个 :class:`str`）允许覆盖这些启发式方法。</span>
+
+<span class="sd">* 如果设置了 `"cusolver"`，则尽可能使用 cuSOLVER。</span>
+<span class="sd">* 如果设置了 `"magma"`，则尽可能使用 MAGMA。</span>
+<span class="sd">* 如果设置为 `"default"`（默认值），则将使用启发式算法在 cuSOLVER 和 MAGMA 之间进行选择。</span>
+<span class="sd">cuSOLVER 和 MAGMA 如果都可用，将使用启发式算法进行选择。</span>
+<span class="sd">* 当没有输入时，此函数返回当前首选库。</span>
+<span class="sd">* 用户可以通过设置环境变量 TORCH_LINALG_PREFER_CUSOLVER=1 将首选库设置为 cuSOLVER</span>
+<span class="sd">全局。</span>
+<span class="sd">此标志仅设置首选库的初始值，首选库</span>
+<span class="sd">此函数调用可能稍后仍会被脚本中的此函数覆盖。</span>
+
+<span class="sd">注意：当首选库被推荐时，如果首选库没有实现所调用的操作，则可能仍然可以使用其他库。</span>
+<span class="sd">如果 PyTorch 的启发式库选择不正确，此标志可能获得更好的性能。</span>
+<span class="sd">如果 PyTorch 的启发式库选择不正确，此标志可能获得更好的性能。</span>
+<span class="sd">为您的应用程序输入。</span>
+
+<span class="sd">当前支持的线性代数运算符：</span>
+
+<span class="sd">    * :func:`torch.linalg.inv`</span>
+<span class="sd">    * :func:`torch.linalg.inv_ex`</span>
+<span class="sd">    * :func:`torch.linalg.cholesky`</span>
+<span class="sd">    * :func:`torch.linalg.cholesky_ex`</span>
+<span class="sd">    * :func:`torch.cholesky_solve`</span>
+<span class="sd">    * :func:`torch.cholesky_inverse`</span>
+<span class="sd">    * :func:`torch.linalg.lu_factor`</span>
+<span class="sd">    * :func:`torch.linalg.lu`</span>
+<span class="sd">    * :func:`torch.linalg.lu_solve`</span>
+<span class="sd">    * :func:`torch.linalg.qr`</span>
+<span class="sd">    * :func:`torch.linalg.eigh`</span>
+<span class="sd">    * :func:`torch.linalg.eighvals`</span>
+<span class="sd">    * :func:`torch.linalg.svd`</span>
+<span class="sd">    * :func:`torch.linalg.svdvals`</span>
+<span class="sd">    """</span>
+    <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">后端</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是</font></font></font></span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">:</span>
+        <span class="k">通过</span>
+    <span class="k">如果...否则</font></font></font></span> <span class="nb">isinstance</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">后端</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">后端</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">不</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">线性代数后端</span><span class="p">:</span>
+            <span class="k">抛出</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">运行时错误</span><span class="p">(</span>
+                <span class="s2">"未知输入值。"</font></font></font></span> <span class="sa">f</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">"请从以下选项中选择："</font></font></font></span><span class="si">{</span><span class="n">_LinalgBackends_str</span><span class="si">}</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">。</span>
+            <span class="p">)</span>
+        <span class="n">PyTorch</font></font></font></span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">设置线性代数首选后端</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">线性代数后端</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">后端</span><span class="p">])</span>
+    <span class="k">如果...否则</font></font></font></span> <span class="nb">isinstance</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">后端</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n">_LinalgBackend</span><span class="p">):</span>
+        <span class="n">PyTorch</font></font></font></span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">设置线性代数首选后端</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">后端</span><span class="p">)</span>
+    <span class="k">否则</span><span class="p">:</span>
+        <span class="k">抛出</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">运行时错误</font></font></font></span><span class="p">(</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">"未知输入值类型。"</span><span class="p">)</span>
+
+    <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</font></font></font></span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">获取线性代数首选后端</span><span class="p">()</span></div>
+
+
+<span class="n">Blas 后端</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">默认</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</font></font></font></span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n">_BlasBackend</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">默认</span><span class="p">,</span>
+    <span class="s2">cublas</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n">_BlasBackend</span><span class="o">.</span><span class="n">Cublas</span><span class="p">,</span>
+    <span class="s2">hipblas</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</font></font></font></span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n">_BlasBackend</span><span class="o">.</span><span class="n">Cublas</span><span class="p">,</span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">别名</span>
+    <span class="s2">"cublaslt"</span><span class="p">:</span> <span class="n">PyTorch</span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n">_BlasBackend</span><span class="o">.</span><span class="n">Cublaslt</span><span class="p">,</span>
+    <span class="s2">hipblaslt</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</font></font></font></span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n">_BlasBackend</span><span class="o">.</span><span class="n">Cublaslt</span><span class="p">,</span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">#别名</span>
+    <span class="s2">"ck"</span><span class="p">:</span> <span class="n">PyTorch</span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n">_BlasBackend</span><span class="o">.</span><span class="n">Ck</span><span class="p">,</span>
+<span class="p">}</span>
+<span class="n">_BlasBackends_str</span> <span class="o">=</span> <span class="s2">“，”</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">连接</font></font></font></span><span class="p">(</span><span class="n">_BlasBackends</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">键</span><span class="p">())</span>
+
+
+<div class="viewcode-block" id="preferred_blas_library"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]def preferred_blas_library(
+backend: Union[None, str, torch._C._BlasBackend] = None
+) -&gt; torch._C._BlasBackend:
+r"""
+覆盖 PyTorch 使用的 BLAS 库。选择 cuBLAS、cuBLASLt 和 CK [ROCm-only]。
+
+..警告：此标志为实验性，可能随时更改。
+
+当 PyTorch 运行 CUDA BLAS 操作时，默认使用 cuBLAS，即使 cuBLAS 和 cuBLASLt 都可用。
+对于为 ROCm 构建的 PyTorch，hipBLAS、hipBLASLt 和 CK 可能提供不同的性能。
+此标志（一个：class:`str`）允许覆盖要使用的 BLAS 库。
+
+* 如果设置了 `"cublas"`，则尽可能使用 cuBLAS。
+* 如果设置了 `"cublaslt"`，则尽可能使用 cuBLASLt。
+* 如果设置了 `"ck"`，则尽可能使用 CK。
+* 如果设置为 `"default"`（默认值），则将使用启发式方法在其它选项之间进行选择。
+当没有输入时，此函数返回当前首选库。
+用户可以使用环境变量 TORCH_BLAS_PREFER_CUBLASLT=1 来设置首选库为 cuBLASLt
+全球。
+此标志仅设置首选库的初始值和首选库
+可能稍后在该脚本中由该函数调用覆盖。
+
+注意：当首选库被优先考虑时，如果首选库没有实现所调用的操作（们），则还可以使用其他库。
+如果 PyTorch 的库选择不正确，此标志可能实现更好的性能。
+如果 PyTorch 的库选择不正确，此标志可能实现更好的性能。
+为您的应用程序输入
+
+"""
+如果后端为 None：
+通过
+elif isinstance(backend, str):
+if backend not in _BlasBackends:
+raise RuntimeError(
+"未知输入值。请从以下选项中选择: {_BlasBackends_str}。"
+            )
+torch._C._set_blas_preferred_backend(_BlasBackends[后端])
+elif isinstance(后端, torch._C._BlasBackend):
+torch._C._set_blas_preferred_backend(后端)
+else:
+抛出 RuntimeError("未知输入值类型。")
+
+返回 torch._C._get_blas_preferred_backend()</font></font></font></div>
+
+
+<span class="n">_ROCmFABackends</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">默认</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</font></font></font></span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n">_ROCmFABackend</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">默认</span><span class="p">,</span>
+    <span class="s2">翻译</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n">_ROCmFABackend</span><span class="o">.</span><span class="n">AOTriton</span><span class="p">,</span>
+    <span class="s2">ck</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">PyTorch</span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n">_ROCmFABackend</span><span class="o">.</span><span class="n">Ck</span><span class="p">,</span>
+<span class="p">}</span>
+<span class="n">ROCmFA 后端_str</font></font></font></span> <span class="o">=</span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">“，”</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">连接</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">ROCmFA 后端</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">键</span><span class="p">())</span>
+
+
+<span class="kn">来自</font></font></font></span> <span class="nn">torch._C</span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">SDPA 参数</font></font></font></span> <span class="k">as</span> <span class="n">SDPAParams</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">SDP 后端</font></font></font></span> <span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">SDP 后端</span>
+
+
+<div class="viewcode-block" id="preferred_rocm_fa_library"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]def preferred_rocm_fa_library(
+backend: 联合[None, str, torch._C._ROCmFABackend] = None
+) -&gt; torch._C._ROCmFABackend:
+r"""
+ROCm 专用
+覆盖 ROCm 环境中 Flash Attention 使用的 PyTorch 后端。选择 AOTriton 和 CK 之间。
+
+.. 警告:: 此标志为实验性，可能随时更改。
+
+当启用 Flash Attention 且需要时，PyTorch 默认使用 AOTriton 作为后端。
+此标志（一个 :class:`str`）允许用户覆盖此后端以使用 composable_kernel
+
+* 如果设置为 `"default"`，则默认后端将在可能的情况下使用。目前为 AOTriton。
+* 如果设置为 `"aotriton"`，则 AOTriton 将在可能的情况下使用。
+* 如果设置为 `"ck"`，则 CK 将在可能的情况下使用。
+* 当没有输入时，此函数返回当前首选的库。
+* 用户可以使用环境变量 TORCH_ROCM_FA_PREFER_CK=1 将首选库设置为 CK
+全局地。
+
+注意：当首选某个库时，其他库仍然可以使用，前提是首选库
+未实现所调用的操作。
+此标志可能在 PyTorch 库选择不正确时实现更好的性能
+为您的应用程序输入。
+```python
+# 假设输入文本为：
+input_text = '"""'
+
+# 翻译函数（此处仅为示例，实际翻译功能需要调用真实的翻译 API）
+def translate_to_simplified_chinese(text):
+    # 这里应该调用真实的翻译 API 进行翻译
+    # 由于示例中不使用真实的 API，以下为模拟翻译结果
+    return text
+
+# 输出翻译结果
+translated_text = translate_to_simplified_chinese(input_text)
+print(translated_text)
+```
+如果 backend 为 None：
+pass
+elif isinstance(backend, str):
+如果 backend 不在 _ROCmFABackends 中：
+raise RuntimeError(
+"未知输入值。请从以下选项中选择：{_ROCmFABackends_str}。"
+            )
+torch._C._set_rocm_fa_preferred_backend(_ROCmFABackends[backend])
+elif isinstance(backend, torch._C._ROCmFABackend):
+torch._C._set_rocm_fa_preferred_backend(backend)
+else:
+raise ValueError("未知输入值。请从以下选项中选择: {_ROCmFABackends_str}.")
+
+return torch._C._get_rocm_fa_preferred_backend()</font></font></font></div>
+
+
+<span class="c1">设置 __module__ 属性</span>
+<span class="n">SDPAParams</span><span class="o">.</span><span class="vm">__module__</span> <span class="o">=</span> <span class="s2">"torch.backends.cuda"</span>
+<span class="n">SDPA 参数</font></font></font></span><span class="o">.</span><span class="vm">__name__</span> <span class="o">=</span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">"SDPA 参数"</span>
+
+
+<div class="viewcode-block" id="flash_sdp_enabled"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]def 开启 SDPA 闪存():
+r"""
+..警告：此标志处于测试阶段，可能随时更改。
+
+返回是否启用了闪存缩放点积注意力。
+"""
+return torch._C._get_flash_sdp_enabled()</font></font></font></div>
+
+
+<div class="viewcode-block" id="enable_flash_sdp"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]def enable_flash_sdp(enabled: bool):
+r"""
+.. 警告:: 此标志处于测试阶段，可能随时更改。
+
+启用或禁用缩放点积注意力。
+"""
+torch._C._set_sdp_use_flash(启用)</font></font></font></div>
+
+
+<div class="viewcode-block" id="mem_efficient_sdp_enabled"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]def mem_efficient_sdp_enabled():
+r"""
+..警告：此标志处于测试阶段，可能随时更改。
+
+返回是否启用了内存高效的缩放点积注意力机制。
+"""
+return torch._C._get_mem_efficient_sdp_enabled()</font></font></font></div>
+
+
+<div class="viewcode-block" id="enable_mem_efficient_sdp"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]def enable_mem_efficient_sdp(enabled: bool):
+r"""
+.. 警告:: 此标志处于测试阶段，可能会发生变化。
+
+启用或禁用内存高效的缩放点积注意力。
+"""
+torch._C._set_sdp_use_mem_efficient(启用)</font></font></font></div>
+
+
+<div class="viewcode-block" id="math_sdp_enabled"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]def math_sdp_enabled():
+r"""
+..警告：此标志处于测试阶段，可能随时更改。
+
+返回是否启用了数学缩放点积注意力。
+"""
+return torch._C._get_math_sdp_enabled()</font></font></font></div>
+
+
+<div class="viewcode-block" id="enable_math_sdp"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]def enable_math_sdp(enabled: bool):
+r"""
+.. 警告:: 此标志处于测试阶段，可能会发生变化。
+
+启用或禁用数学缩放点积注意力。
+"""
+torch._C._set_sdp_use_math(启用)</font></font></font></div>
+
+
+<div class="viewcode-block" id="allow_fp16_bf16_reduction_math_sdp"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]def 允许_fp16_bf16_reduction_math_sdp(启用: bool):
+r"""
+..警告：此标志处于测试阶段，可能会发生变化。
+
+启用或禁用数学缩放点积注意力中的 fp16/bf16 缩减。
+"""
+torch._C._set_math_sdp_allow_fp16_bf16_reduction(enabled)</font></font></font></div>
+
+
+<div class="viewcode-block" id="fp16_bf16_reduction_math_sdp_allowed"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]def fp16_bf16_reduction_math_sdp_allowed():
+r"""
+.. 警告:: 此标志处于测试阶段，可能会发生变化。
+
+返回是否启用数学缩放点积注意力中的 fp16/bf16 缩减。
+"""
+返回 torch._C._get_math_sdp_allow_fp16_bf16_reduction()</font></font></font></div>
+
+
+<div class="viewcode-block" id="is_flash_attention_available"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]def is_flash_attention_available() -&gt; bool:
+检查 PyTorch 是否是用 FlashAttention 构建的，用于缩放点积注意力。
+
+返回值：
+如果 FlashAttention 已构建并可用，则为 True；否则为 False。
+
+注意：
+此函数依赖于 CUDA 支持的 PyTorch 构建。它将返回 False
+在非 CUDA 环境中。
+"""
+返回 torch._C._is_flash_attention_available()</font></font></font></div>
+
+
+<div class="viewcode-block" id="can_use_flash_attention"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]def can_use_flash_attention(params: SDPAParams, debug: bool = False) -&gt; bool:
+检查 FlashAttention 是否可以在 scaled_dot_product_attention 中使用。
+
+参数:
+params：SDPAParams 实例，包含查询张量
+key, value，一个可选的注意力掩码，dropout 率，以及
+表示注意力是否为因果的标志。
+debug：是否记录 FlashAttention 无法运行的原因的 debug 信息。
+默认为 False。
+
+返回：
+真实如果 FlashAttention 可以使用给定的参数；否则，为 False。
+
+注意：
+此函数依赖于 CUDA 支持的 PyTorch 构建。在非 CUDA 环境中，它将返回 False
+。
+"""
+返回 torch._C._can_use_flash_attention(params, debug) 是否可以使用 flash_attention。</font></font></font></div>
+
+
+<div class="viewcode-block" id="can_use_efficient_attention"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]def can_use_efficient_attention(params: SDPAParams, debug: bool = False) -&gt; bool:
+检查 efficient_attention 是否可以在 scaled_dot_product_attention 中使用。
+
+Args:
+参数：一个包含查询张量、键、值、可选的注意力掩码、dropout 率以及
+一个表示注意力是否因果的标志的 SDPAParams 实例。
+一个标志，表示注意力是否因果。
+debug：是否记录.warn 信息，说明为什么 efficient_attention 无法运行。
+默认为 False。
+
+返回：
+如果可以使用给定的参数使用 efficient_attention，则返回 True；否则返回 False。
+
+备注：
+此功能依赖于 CUDA 支持的 PyTorch 构建。在非 CUDA 环境中将返回 False
+在非 CUDA 环境中。
+"""
+return torch._C._can_use_mem_efficient_attention(params, debug)</font></font></font></div>
+
+
+<div class="viewcode-block" id="can_use_cudnn_attention"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]def can_use_cudnn_attention(params: SDPAParams, debug: bool = False) -&gt; bool:
+r"""检查是否可以在缩放点积注意力中使用 cudnn_attention。
+
+Args:
+params: 一个包含查询张量的 SDPAParams 实例，
+键、值、一个可选的注意力掩码、dropout 率以及
+一个表示注意力是否因果的标志。
+debug: 是否记录 cuDNN 注意力无法运行的信息。
+默认为 False。
+
+返回值：
+如果可以使用给定的参数使用 cuDNN，则为 True；否则为 False。
+
+注意：
+此功能依赖于 CUDA 支持的 PyTorch 构建。它将返回 False
+在非 CUDA 环境中。
+"""
+return torch._C._can_use_cudnn_attention(params, debug)</font></font></font></div>
+
+
+<div class="viewcode-block" id="cudnn_sdp_enabled"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]def cudnn_sdp_enabled():
+r"""
+.. 警告:: 此标志处于测试阶段，可能会发生变化。
+
+返回 cuDNN 缩放点积注意力是否启用。
+"""
+"""
+return torch._C._get_cudnn_sdp_enabled()</font></font></font></div>
+
+
+<div class="viewcode-block" id="enable_cudnn_sdp"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]def 启用_cudnn_sdp(enabled: bool):
+r"""
+..警告：此标志处于测试阶段，可能会发生变化。
+
+启用或禁用 cuDNN 缩放点积注意力。
+"""
+torch._C._set_sdp_use_cudnn(启用)</font></font></font></div>
+
+
+<div class="viewcode-block" id="sdp_kernel"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]@contextlib.contextmanager
+@deprecated(
+    (
+"``torch.backends.cuda.sdp_kernel()`` 已弃用。"
+"在未来，此上下文管理器将被移除。"
+"请参阅 `torch.nn.attention.sdpa_kernel()` 了解新的上下文管理器，"
+"带有更新后的签名。"
+    ),
+category=FutureWarning,
+)
+def sdp_kernel(
+enable_flash: bool = True,
+enable_math: 布尔 = True,
+enable_mem_efficient: 布尔 = True,
+enable_cudnn: 布尔 = True,
+):
+r"""
+..警告::此标志处于测试阶段，可能会发生变化。
+
+此上下文管理器可用于临时启用或禁用缩放点积注意力机制的三个后端中的任何一个。
+退出上下文管理器后，将恢复标志的先前状态。
+"""
+从 torch.nn.attention 导入 sdpa_kernel
+
+backend_list = []
+如果启用闪光:
+backend_list.append(SDPBackend.FLASH_ATTENTION)
+if enable_mem_efficient:
+backend_list.append(SDPBackend.EFFICIENT_ATTENTION)
+if enable_math:
+backend_list.append(SDPBackend.MATH)
+if enable_cudnn:
+backend_list.append(SDPBackend.CUDNN_ATTENTION)
+
+with sdpa_kernel(backend_list) as context:
+try:
+yield context
+finally:
+pass</font></font></font></div>
+
+
+<span class="n">cufft_plan_cache</span> <span class="o">=</span> <span class="n">cuFFTPlanCacheManager</span><span class="p">()</span>
+<span class="n">矩阵乘法</span> <span class="o">=</span> <span class="n">cuBLASModule</span><span class="p">()</span>
+</pre></div>
+
+             </article>
+             
+            </div>
+            <footer>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>© 版权所有 PyTorch 贡献者。</p>
+  </div>
+    
+      <div>使用 Sphinx 构建，并使用 Read the Docs 提供的主题。</div>
+     
+
+</footer>
+
+          </div>
+<script>
+
+var match = window.location.href.match(/\/_[a-zA-Z0-9_]*.html|_dynamo/gi);
+var url = window.location.href.lastIndexOf(match[match.length-1]);
+
+if (url)
+  {
+    var div = '<div class="admonition note"><p class="admonition-title">Note</p><p><i class="fa fa-exclamation-circle" aria-hidden="true">&nbsp</i> This page describes an internal API which is not intended to be used outside of the PyTorch codebase and can be modified or removed without notice.</p></div>'
+    document.getElementById("pytorch-article").insertAdjacentHTML('afterBegin', div)
+  }
+</script>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+         <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+         <script src="../../../_static/jquery.js"></script>
+         <script src="../../../_static/underscore.js"></script>
+         <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+         <script src="../../../_static/doctools.js"></script>
+         <script src="../../../_static/clipboard.min.js"></script>
+         <script src="../../../_static/copybutton.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="../../../_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ 
+<script script="" type="text/javascript">
+  var collapsedSections = ['Developer Notes', 'Language Bindings', 'Libraries', 'Community'];
+</script>
+
+<img height="1" width="1" style="border-style:none;" alt="" src="https://www.googleadservices.com/pagead/conversion/795629140/?label=txkmCPmdtosBENSssfsC&amp;guid=ON&amp;script=0">
+
+
+  <!-- Begin Footer -->
+
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 text-center">
+          <h2>文档</h2>
+          <p>查看 PyTorch 的全面开发者文档</p>
+          <a class="with-right-arrow" href="https://pytorch.org/docs/stable/index.html">查看文档</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>教程</h2>
+          <p>深入了解初学者和高级开发者的教程</p>
+          <a class="with-right-arrow" href="https://pytorch.org/tutorials">查看教程</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>资源</h2>
+          <p>查找开发资源，获取您的疑问解答</p>
+          <a class="with-right-arrow" href="https://pytorch.org/resources">查看资源</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://pytorch.org/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/">PyTorch</a></li>
+            <li><a href="https://pytorch.org/get-started">开始使用</a></li>
+            <li><a href="https://pytorch.org/features">功能</a></li>
+            <li><a href="https://pytorch.org/ecosystem">生态系统</a></li>
+            <li><a href="https://pytorch.org/blog/">博客</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md">贡献</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/resources">资源</a></li>
+            <li><a href="https://pytorch.org/tutorials">教程</a></li>
+            <li><a href="https://pytorch.org/docs/stable/index.html">文档</a></li>
+            <li><a href="https://discuss.pytorch.org" target="_blank">讨论</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/issues" target="_blank">Github 问题</a></li>
+            <li><a href="https://pytorch.org/assets/brand-guidelines/PyTorch-Brand-Guidelines.pdf" target="_blank">品牌指南</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">保持更新</li>
+            <li><a href="https://www.facebook.com/pytorch" target="_blank">Facebook</a></li>
+            <li><a href="https://twitter.com/pytorch" target="_blank">推特</a></li>
+            <li><a href="https://www.youtube.com/pytorch" target="_blank">YouTube</a></li>
+            <li><a href="https://www.linkedin.com/company/pytorch" target="_blank">领英</a></li>
+          </ul>  
+          </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">PyTorch 播客</li>
+            <li><a href="https://open.spotify.com/show/6UzHKeiy368jKfQMKKvJY5" target="_blank">Spotify</a></li>
+            <li><a href="https://podcasts.apple.com/us/podcast/pytorch-developer-podcast/id1566080008" target="_blank">苹果</a></li>
+            <li><a href="https://www.google.com/podcasts?feed=aHR0cHM6Ly9mZWVkcy5zaW1wbGVjYXN0LmNvbS9PQjVGa0lsOA%3D%3D" target="_blank">谷歌</a></li>
+            <li><a href="https://music.amazon.com/podcasts/7a4e6f0e-26c2-49e9-a478-41bd244197d0/PyTorch-Developer-Podcast?" target="_blank">亚马逊</a></li>
+          </ul>
+         </div>
+        </div>
+        
+        <div class="privacy-policy">
+          <ul>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/terms/" target="_blank">条款</a></li>
+            <li class="privacy-policy-links">|</li>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/privacy-policy/" target="_blank">隐私</a></li>
+          </ul>
+        </div>
+        <div class="copyright">
+        <p>© 版权所有 Linux 基金会。PyTorch 基金会是 Linux 基金会的一个项目。有关 PyTorch 基金会的网站使用条款、商标政策以及其他适用政策，请参阅 www.linuxfoundation.org/policies/。PyTorch 基金会支持 PyTorch 开源项目，该项目已被确立为 LF Projects, LLC 的 PyTorch 项目系列。有关适用于 PyTorch 项目系列 LF Projects, LLC 的政策，请参阅 www.lfprojects.org/policies/。</p>
+      </div>
+     </div>
+
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">为了分析流量并优化您的体验，我们在本网站上使用 cookies。通过点击或导航，您同意允许我们使用 cookies。作为本网站的当前维护者，适用 Facebook 的 Cookies 政策。了解更多信息，包括关于可用控制的信息：Cookies 政策。</p>
+    <img class="close-button" src="../../../_static/images/pytorch-x.svg" width="16" height="16">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+           <li class="resources-mobile-menu-title">
+             <a>学习</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/get-started">开始使用</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials">教程</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/basics/intro.html">学习基础知识</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/recipes/recipes_index.html">PyTorch 食谱</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/introyt.html">PyTorch 入门 - YouTube 系列</a>
+             </li>
+           </ul>
+           <li class="resources-mobile-menu-title">
+             <a>生态系统</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/ecosystem">工具</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/#community-module">社区</a>
+             </li>
+             <li>
+               <a href="https://discuss.pytorch.org/">论坛</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/resources">开发者资源</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">贡献者奖项 - 2024</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>Edge</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/edge">关于 PyTorch Edge</a>
+             </li>
+             
+             <li>
+               <a href="https://pytorch.org/executorch-overview">执行火炬</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch 文档</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>文档</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/docs/stable/index.html">PyTorch</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/pytorch-domains">PyTorch 领域</a>
+            </li>
+          </ul>
+
+          <li class="resources-mobile-menu-title">
+            <a>博客 &amp; 新闻</a>
+          </li>
+            
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/blog/">PyTorch 博客</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/community-blog">社区博客</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/videos">视频</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/community-stories">社区故事</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/events">活动</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">新闻简报</a>
+             </li>
+          </ul>
+          
+          <li class="resources-mobile-menu-title">
+            <a>关于</a>
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/foundation">PyTorch 基金会</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/governing-board">治理委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">云信用计划</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">技术咨询委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">员工</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">联系我们</a>
+            </li>
+          </ul>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="../../../_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body></html>

@@ -1,0 +1,1836 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+  <meta charset="UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>torch.onnx._internal._exporter_legacy — PyTorch main documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pytorch.org/docs/stable/_modules/torch/onnx/_internal/_exporter_legacy.html">
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css">
+  <!-- <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css">
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css">
+  <link rel="stylesheet" href="../../../../_static/copybutton.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="../../../../_static/katex-math.css" type="text/css">
+  <link rel="stylesheet" href="../../../../_static/sphinx-dropdown.css" type="text/css">
+  <link rel="stylesheet" href="../../../../_static/panels-bootstrap.min.css" type="text/css">
+  <link rel="stylesheet" href="../../../../_static/css/jit.css" type="text/css">
+  <link rel="stylesheet" href="../../../../_static/css/custom.css" type="text/css">
+    <link rel="index" title="Index" href="../../../../genindex.html">
+    <link rel="search" title="Search" href="../../../../search.html">
+
+<!--
+  Search engines should not index the main version of documentation.
+  Stable documentation are built without release == 'main'.
+-->
+<meta name="robots" content="noindex">
+
+
+  <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T8XT4PS');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  
+  <script src="../../../../_static/js/modernizr.min.js"></script>
+
+  <!-- Preload the theme fonts -->
+
+<link rel="preload" href="../../../../_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../../_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../../_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../../_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../../_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../../_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<!-- Preload the katex fonts -->
+
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Math-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size1-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size2-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Caligraphic-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
+</head><body class="pytorch-body"><div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+
+          <li class="main-menu-item">
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">学习</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/get-started">
+                  <span class="dropdown-title">开始使用</span>
+                  <p>在本地运行 PyTorch 或快速开始使用支持的云平台之一</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials">
+                  <span class="dropdown-title">教程</span><p></p>
+                  <p>PyTorch 教程中的新内容是什么</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/basics/intro.html">
+                  <span class="dropdown-title">学习基础知识</span><p></p>
+                  <p>熟悉 PyTorch 的概念和模块</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/recipes/recipes_index.html">
+                  <span class="dropdown-title">PyTorch 食谱</span><p></p>
+                  <p>小而全，即用即部署的 PyTorch 代码示例</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/introyt.html">
+                  <span class="dropdown-title">PyTorch 入门 - YouTube 系列教程</span><p></p>
+                  <p>通过我们引人入胜的 YouTube 教程系列掌握 PyTorch 基础知识</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">生态系统</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem">
+                  <span class="dropdown-title">工具</span><p></p>
+                  <p>了解 PyTorch 生态系统中的工具和框架</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
+                  <span class="dropdown-title">社区</span>
+                  <p>加入 PyTorch 开发者社区，贡献、学习并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
+                  <span class="dropdown-title">论坛</span>
+                  <p>讨论 PyTorch 代码、问题、安装、研究的地方</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/resources">
+                  <span class="dropdown-title">开发者资源</span>
+                  <p>查找资源并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">贡献者奖项 - 2024</span><p></p>
+                  <p>本年 PyTorch 会议揭晓获奖者</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">边缘</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/edge">
+                  <span class="dropdown-title">关于 PyTorch Edge</span><p></p>
+                  <p>为边缘设备构建创新且注重隐私的 AI 体验</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
+                  <span class="dropdown-title">ExecuTorch</span><p></p>
+                  <p>针对移动和边缘设备实现端到端推理能力的解决方案</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch 文档</span><p></p>
+                </a>
+              </div>
+            </div>  
+          </li>
+
+          <li class="main-menu-item">
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">文档</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/docs/stable/index.html">
+                  <span class="dropdown-title">PyTorch</span><p></p>
+                  <p>查阅文档以获取全面指导，了解如何使用 PyTorch</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/pytorch-domains">
+                  <span class="dropdown-title">PyTorch 领域</span><p></p>
+                  <p>阅读 PyTorch 领域文档，了解更多关于特定领域库的信息</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">博客与新闻</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/blog/">
+                  <span class="dropdown-title">PyTorch 博客</span><p></p>
+                  <p>跟上最新的技术新闻和动态</p>
+                </a>
+                 <a class="nav-dropdown-item" href="https://pytorch.org/community-blog">
+                  <span class="dropdown-title">社区博客</span><p></p>
+                  <p>PyTorch 生态系统中的故事</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/videos">
+                  <span class="dropdown-title">视频</span><p></p>
+                  <p>了解最新的 PyTorch 教程、新内容等</p>
+                </a><a class="nav-dropdown-item" href="https://pytorch.org/community-stories">
+                  <span class="dropdown-title">社区故事</span><p></p>
+                  <p>了解我们的社区如何使用 PyTorch 解决真实、日常的机器学习问题</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/events">
+                  <span class="dropdown-title">活动</span><p></p>
+                  <p>查找活动、网络研讨会和播客</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">通讯</span><p></p>
+                  <p>跟踪最新更新</p>
+                </a>
+            </div>
+          </div></li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">关于</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/foundation">
+                  <span class="dropdown-title">PyTorch 基金会</span><p></p>
+                  <p>了解更多关于 PyTorch 基金会的信息</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
+                  <span class="dropdown-title">管理委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">云信用计划</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">技术顾问委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">员工</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">联系我们</span><p></p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li class="main-menu-item">
+            <div class="no-dropdown">
+              <a href="https://pytorch.org/join" data-cta="join">成为会员</a>
+            </div>
+          </li>
+          <li>
+           <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="github-icon">
+             </a>
+           </div>
+          </li>
+          <!--- TODO: This block adds the search icon to the nav bar. We will enable it later. 
+          <li>
+            <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="search-icon">
+             </a>
+            </div>
+          </li>
+          --->
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+  </div>
+</div>
+
+
+
+   
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>目录</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+    <div class="version">
+      <a href="https://pytorch.org/docs/versions.html">主页 (2.7.0+cpu ) ▼</a>
+    </div>
+    <div id="searchBox">
+    <div class="searchbox" id="googleSearchBox">
+      <script async="" src="https://cse.google.com/cse.js?cx=e65585f8c3ea1440e"></script>
+      <div class="gcse-search"></div>
+    </div>
+    <div id="sphinxSearchBox" style="display: none;">
+      <div role="search">
+        <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+          <input type="text" name="q" placeholder="Search Docs">
+          <input type="hidden" name="check_keywords" value="yes">
+          <input type="hidden" name="area" value="default">
+        </form>
+      </div>
+    </div>
+  </div>
+  <form id="searchForm">
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="google" checked="">Google 搜索</label>
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="sphinx">经典搜索</label>
+  </form>
+
+  <script>
+     document.addEventListener('DOMContentLoaded', function() {
+      const searchForm = document.getElementById('searchForm');
+      const googleSearchBox = document.getElementById('googleSearchBox');
+      const sphinxSearchBox = document.getElementById('sphinxSearchBox');
+      // Function to toggle search box visibility
+      function toggleSearchBox(searchType) {
+        googleSearchBox.style.display = searchType === 'google' ? 'block' : 'none';
+        sphinxSearchBox.style.display = searchType === 'sphinx' ? 'block' : 'none';
+      }
+      // Determine the default search type
+      let defaultSearchType;
+      const currentUrl = window.location.href;
+      if (currentUrl.startsWith('https://pytorch.org/docs/stable')) {
+        // For the stable documentation, default to Google
+        defaultSearchType = localStorage.getItem('searchType') || 'google';
+      } else {
+        // For any other version, including docs-preview, default to Sphinx
+        defaultSearchType = 'sphinx';
+      }
+      // Set the default search type
+      document.querySelector(`input[name="searchType"][value="${defaultSearchType}"]`).checked = true;
+      toggleSearchBox(defaultSearchType);
+      // Event listener for changes in search type
+      searchForm.addEventListener('change', function(event) {
+        const selectedSearchType = event.target.value;
+        localStorage.setItem('searchType', selectedSearchType);
+        toggleSearchBox(selectedSearchType);
+      });
+      // Set placeholder text for Google search box
+      window.onload = function() {
+        var placeholderText = "Search Docs";
+        var googleSearchboxText = document.querySelector("#gsc-i-id1");
+        if (googleSearchboxText) {
+          googleSearchboxText.placeholder = placeholderText;
+          googleSearchboxText.style.fontFamily = 'FreightSans';
+          googleSearchboxText.style.fontSize = "1.2rem";
+          googleSearchboxText.style.color = '#262626';
+        }
+      };
+    });
+  </script>
+
+          </div>
+
+          
+
+<div>
+  <a style="color:#F05732" href="https://pytorch.org/docs/stable/_modules/torch/onnx/_internal/_exporter_legacy.html">您正在查看不稳定开发者预览文档。请点击此处查看最新稳定版本的文档。</a>
+</div>
+
+
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">社区</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../community/build_ci_governance.html">PyTorch 治理 | 构建 + CI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../community/contribution_guide.html">PyTorch 贡献指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../community/design.html">PyTorch 设计哲学</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../community/governance.html">PyTorch 治理 | 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../community/persons_of_interest.html">PyTorch 治理 | 维护者</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发者笔记</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/amp_examples.html">自动混合精度示例</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/autograd.html">Autograd 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/broadcasting.html">广播语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/cpu_threading_torchscript_inference.html">CPU 多线程和 TorchScript 推理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/cuda.html">CUDA 语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/custom_operators.html">PyTorch 自定义算子页面</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/ddp.html">分布式数据并行</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/extending.html">扩展 PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/extending.func.html">使用 autograd.Function 扩展 torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/faq.html">常见问题解答</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/fsdp.html">FSDP 笔记</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/get_start_xpu.html">在 Intel GPU 上入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/gradcheck.html">Gradcheck 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/hip.html">HIP (ROCm)语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/large_scale_deployments.html">大规模部署功能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/libtorch_stable_abi.html">LibTorch 稳定 ABI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/modules.html">模块</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/mps.html">MPS 后端</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/multiprocessing.html">多进程最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/numerical_accuracy.html">数值精度</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/randomness.html">可重复性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/serialization.html">序列化语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/windows.html">Windows 常见问题解答</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">语言绑定</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cpp_index.html">C++</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/javadoc/">Javadoc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../deploy.html">torch::deploy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torch.html">torch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../nn.html">torch.nn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../nn.functional.html">torch.nn.functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tensors.html">torch.Tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tensor_attributes.html">索引属性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tensor_view.html">张量视图</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../amp.html">torch.amp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../autograd.html">torch.autograd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../library.html">torch.library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../accelerator.html">torch.accelerator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cpu.html">torch.cpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cuda.html">torch.cuda</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torch_cuda_memory.html">理解 CUDA 内存使用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torch_cuda_memory.html#generating-a-snapshot">生成快照</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torch_cuda_memory.html#using-the-visualizer">使用可视化工具</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torch_cuda_memory.html#snapshot-api-reference">摄像头 API 参考</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../mps.html">torch.mps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../xpu.html">torch.xpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../mtia.html">torch.mtia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../mtia.memory.html">torch.mtia.memory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../meta.html">元设备</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../backends.html">torch.backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../export.html">torch.export</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../distributed.html">torch.distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../distributed.tensor.html">torch.distributed.tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../distributed.algorithms.join.html">torch.distributed.algorithms.join</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../distributed.elastic.html">torch.distributed.elastic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../fsdp.html">torch.distributed.fsdp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../distributed.fsdp.fully_shard.html">torch.distributed.fsdp.fully_shard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../distributed.tensor.parallel.html">torch.distributed.tensor.parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../distributed.optim.html">torch.distributed.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../distributed.pipelining.html">torch.distributed.pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../distributed.checkpoint.html">torch.distributed.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../distributions.html">torch.distributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torch.compiler.html">torch.compiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../fft.html">torch.fft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../func.html">torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../futures.html">torch.futures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../fx.html">torch.fx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../fx.experimental.html">torch.fx.experimental</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../hub.html">torch.hub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../jit.html">torch.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../linalg.html">torch.linalg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../monitor.html">torch.monitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../signal.html">torch.signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../special.html">torch.special</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torch.overrides.html">torch.overrides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../package.html">torch.package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../profiler.html">torch.profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../nn.init.html">torch.nn.init</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../nn.attention.html">torch.nn.attention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../onnx.html">torch.onnx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../optim.html">torch.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../complex_numbers.html">复数</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ddp_comm_hooks.html">DDP 通信钩子</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quantization.html">量化</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../rpc.html">分布式 RPC 框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../random.html">torch.random</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../masked.html">torch.masked</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../nested.html">torch.nested</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../size.html">torch.Size</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sparse.html">torch.sparse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../storage.html">torch.Storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../testing.html">torch.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../utils.html">torch.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../benchmark_utils.html">torch.utils.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../bottleneck.html">torch.utils.bottleneck</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../checkpoint.html">torch.utils.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cpp_extension.html">torch.utils.cpp_extension</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../data.html">torch.utils.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../deterministic.html">torch.utils.deterministic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../jit_utils.html">torch.utils.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../dlpack.html">torch.utils.dlpack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../mobile_optimizer.html">torch.utils.mobile_optimizer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../model_zoo.html">torch.utils.model_zoo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tensorboard.html">torch.utils.tensorboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../module_tracker.html">torch.utils.module_tracker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../type_info.html">类型信息</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../named_tensor.html">命名张量</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../name_inference.html">命名张量操作覆盖率</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../config_mod.html">torch.__config__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../future_mod.html">torch.__future__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../logging.html">torch._logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torch_environment_variables.html">Torch 环境变量</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">库</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/audio/stable">torchaudio</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/data">TorchData</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/torchrec">火炬推荐</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/serve">TorchServe</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/text/stable">torchtext</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/vision/stable">torchvision</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/xla/">PyTorch on XLA Devices</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/ao">torchao</a></li>
+</ul>
+
+            
+          
+
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        文档 &gt;</li>
+
+        
+          <li>模块代码 &gt;</li>
+        
+          <li><a href="../../../torch.html">torch</a> &gt;</li>
+        
+          <li><a href="../../onnx.html">torch.onnx</a> &gt;</li>
+        
+      <li>torch.onnx._internal._exporter_legacy</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">快捷键</div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+
+          <!-- Google Tag Manager (noscript) -->
+          <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T8XT4PS" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+          <!-- End Google Tag Manager (noscript) -->
+          
+          <div class="rst-content">
+          
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <h1>torch.onnx._internal._exporter_legacy 的源代码</font></font></font></h1><div class="highlight"><pre><span></span><span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># mypy: 允许未类型化定义</span>
+<span class="kn">来自</font></font></font></span> <span class="nn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">未来</font></font></font></span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">注释</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"诊断选项"</span><span class="p">,</span>
+    <span class="s2">"导出选项"</span><span class="p">,</span>
+    <span class="s2">ONNX 运行时选项</span><span class="p">,</span>
+    <span class="s2">无效导出选项错误</span><span class="p">,</span>
+    <span class="s2">ONNX 注册表</span><span class="p">,</span>
+    <span class="s2">不满足依赖错误</span><span class="p">,</span>
+    <span class="s2">dynamo 导出</span><span class="p">,</span>
+    <span class="s2">启用模拟模式</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<span class="kn">导入</span> <span class="nn">abc</span>
+<span class="kn">导入</span> <span class="nn">contextlib</span>
+<span class="kn">导入</span> <span class="nn">dataclasses</span>
+<span class="kn">导入</font></font></font></span> <span class="nn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">记录日志</span>
+<span class="kn">导入</font></font></font></span> <span class="nn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">警告</span>
+<span class="kn">来自</font></font></font></span> <span class="nn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">集合</font></font></font></span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</span> <span class="n">defaultdict</span>
+<span class="kn">来自</font></font></font></span> <span class="nn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">打字</font></font></font></span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">任意</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">可调用</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类型检查</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类型变量</span>
+<span class="kn">来自</font></font></font></span> <span class="nn">typing_extensions</span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">已弃用</span>
+
+<span class="kn">导入</font></font></font></span> <span class="nn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</span>
+<span class="kn">导入</span> <span class="nn">torch._ops</span>
+<span class="kn">导入</font></font></font></span> <span class="nn">torch.utils._pytree</span> <span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">作为</span> <span class="nn">pytree</span>
+<span class="kn">来自</font></font></font></span> <span class="nn">torch.onnx</span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">错误</span>
+<span class="kn">来自</font></font></font></span> <span class="nn">torch.onnx._internal</span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">离线适配器</span>
+<span class="kn">来自</font></font></font></span> <span class="nn">torch.onnx._internal._lazy_import</span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n">onnxscript_apis</span><span class="p">,</span> <span class="n">onnxscript_ir</span> <span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">作为</span> <span class="n">ir</span>
+<span class="kn">来自</font></font></font></span> <span class="nn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">torch.onnx._内部诊断</font></font></font></span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">基础设施</span>
+<span class="kn">来自</font></font></font></span> <span class="nn">torch.onnx._internal.exporter</span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n">_constants</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_onnx 程序</span>
+<span class="kn">来自</font></font></font></span> <span class="nn">torch.onnx._internal.fx</span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</span> <span class="p">(</span>
+    <span class="n">分解表</span><span class="p">,</span>
+    <span class="n">patcher</span> <span class="k">作为</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">修补器</span><span class="p">,</span>
+    <span class="n">注册</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="c1"># 我们只能在类型检查的上下文中从这个模块导入 onnx，以确保</span>
+<span class="c1"># 'import torch.onnx' 继续工作，即使没有安装 'onnx'。我们完全</span>
+<span class="c1">在 dynamo_export（通过_assert_dependencies 方式）内部导入 onnx</span>
+<span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类型检查</span><span class="p">:</span>
+    <span class="kn">导入</font></font></font></span> <span class="nn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入/输出</span>
+    <span class="kn">来自</font></font></font></span> <span class="nn">collections.abc</span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">映射</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">序列</span>
+
+    <span class="kn">导入</span> <span class="nn">onnxruntime</span>
+    <span class="kn">导入</span> <span class="nn">onnxscript</span>
+
+    <span class="kn">来自</font></font></font></span> <span class="nn">torch._subclasses</span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</span> <span class="n">fake_tensor</span>
+    <span class="kn">来自</font></font></font></span> <span class="nn">torch.onnx._internal.fx</span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">诊断</span>
+
+<span class="n">_PYTORCH_GITHUB_ISSUES_URL</span> <span class="o">=</span> <span class="s2">"https://github.com/pytorch/pytorch/issues"</span>
+<span class="sd">"PyTorch GitHub 问题页面网址。"</span>
+
+<span class="n">_DEFAULT_FAILED_EXPORT_SARIF_LOG_PATH</span> <span class="o">=</span> <span class="s2">"report_dynamo_export.sarif"</span>
+<span class="sd">"如果导出失败，则写入 SARIF 日志的默认路径。"</span>
+
+
+<span class="n">日志</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">记录日志</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">获取日志记录器</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="n">诊断选项</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">基础设施</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">诊断选项</span>
+
+
+<span class="nd">@dataclasses</span><span class="o">.</span><span class="n">数据类</span>
+<span class="k">类</font></font></font></span> <span class="nc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">ONNX 伪造上下文</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">一个用于存储使用 FakeTensor 导出模型上下文的 dataclass。</span>
+
+<span class="sd">此数据类存储用于转换的 FakeTensorMode 实例</span>
+<span class="sd">将真实张量和模型参数转换为假张量。此 :attr:`ONNXFakeContext.fake_mode` 是</span>
+<span class="sd">在追踪一个 :class:`torch.nn.Module` 到 FX :class:`GraphModule` 时内部重用。</span>
+<span class="sd">"源代码"</span>
+
+    <span class="n">模拟模式</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">伪造张量</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模拟 Tensor 模式</span>
+<span class="w">    </span><span class="sd">用于跟踪模型使用伪造张量和参数的模拟张量模式。</span>
+
+    <span class="n">state_dict_paths</span><span class="p">:</span> <span class="nb">元组</font></font></font></span><span class="p">[</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">字符串</font></font></font></span> <span class="o">|</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入/输出</font></font></font></span><span class="o">.</span><span class="n">BytesIO</span> <span class="o">|</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">字典</font></font></font></span><span class="p">[</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">字符串</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">任意</font></font></font></span><span class="p">]]</span> <span class="o">|</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</font></font></font></span> <span class="o">=</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span>
+<span class="w">    </span><span class="sd">包含模型 :meth:`state_dict` 的文件路径列表。</span>
+
+
+<span class="nd">@deprecated</span><span class="p">(</span>
+    <span class="s2">torch.onnx.dynamo_export 自 2.7.0 版本以来已弃用。请使用 torch.onnx.export(..., dynamo=True) 代替。</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="k">类</font></font></font></span> <span class="nc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">Onnx 注册表</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">ONNX 函数注册表。</span>
+
+<span class="sd">已弃用</span>
+<span class="sd">请使用 ``torch.onnx.export(..., dynamo=True)`` 代替。</span>
+
+<span class="sd">该注册表维护了合格名称到固定 opset 版本下符号函数的映射。</span>
+<span class="sd">它支持注册自定义 onnx-script 函数，并为调度器提供调用适当函数的功能。</span>
+<span class="sd">调度器用于调度调用到相应的函数。</span>
+
+<span class="sd">"源代码"</span>
+
+    <span class="k">def</span> <span class="fm">初始化</font></font></font></span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">初始化注册表</span>
+
+        <span class="c1"># 注意：_registry 是将 OpName 映射到 ONNXFunctions 列表的注册表。直接修改此变量是不重要的</span>
+        <span class="c1"># 应当通过公共方法：register_custom_op、get_ops 和 is_registered_op 来访问它。</span>
+        <span class="c1"># 公共方法包括：注册自定义操作、获取操作列表和检查操作是否已注册。</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_注册表</font></font></font></span><span class="p">:</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">字典</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">注册</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">操作名称</font></font></font></span><span class="p">,</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">列表</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">注册</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">ONNX 函数</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">defaultdict</span><span class="p">(</span><span class="nb">列表</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_opset 版本</span> <span class="o">=</span> <span class="n">_constants</span><span class="o">.</span><span class="n">TORCHLIB_OPSET</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">警告</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">torch.onnx.dynamo_export 仅实现 opset 版本</font></font></font></span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_opset_version</span><span class="si">}</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">目前。如果您需要使用一个“</span>
+            <span class="s2">不同 opset 版本，请使用 register_custom_op 进行注册。</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">从 torchlib 初始化注册表</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">opset 版本</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">导出器应针对的 ONNX 操作集版本。</span>
+
+        <span class="k">返回</span> <span class="bp">self</span><span class="o">.</span><span class="n">_opset_version</span>
+
+    <span class="k">def</span> <span class="nf">从 torchlib 初始化注册表</font></font></font></span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">向注册表填充来自 torchlib 的 ATen 函数。</span>
+
+<span class="sd">参数：</span>
+<span class="sd">torchlib_registry：用于填充注册表的 torchlib 注册表。</span>
+<span class="sd">"源代码"</span>
+        <span class="k">为</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">元数据</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在</span> <span class="n">onnxscript_apis</span><span class="o">.</span><span class="n">get_torchlib_ops</span><span class="p">():</span>
+            <span class="n">内部名称实例</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">注册</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">操作名称</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">来自限定名称</span><span class="p">(</span>
+                <span class="n">元数据</span><span class="o">.</span><span class="n">qualified_name</span>
+            <span class="p">)</span>
+            <span class="n">符号函数</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">注册</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">ONNX 函数</span><span class="p">(</span>
+                <span class="n">onnx 函数</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">元数据</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">函数</span><span class="p">,</span>  <span class="c1"># type: ignore[arg-type]</span>
+                <span class="n">全名操作</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">实例内部名称</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">合法名称</span><span class="p">(),</span>
+                <span class="n">自定义</font></font></font></span><span class="o">=</span><span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">错误</span><span class="p">,</span>
+                <span class="n">是复杂的</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">元数据</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是复杂的</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">注册</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">实例内部名称</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">符号函数</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">注册</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">内部限定名</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">注册</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">操作名称</span><span class="p">,</span>
+        <span class="n">符号函数</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">注册</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">ONNX 函数</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">无</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""将 ONNX 函数注册到算子中。</span>
+
+<span class="sd">参数：</span>
+<span class="sd">internal_qualified_name: 要注册的算子的限定名称：OpName。</span>
+<span class="sd">symbolic_function: 要注册的 ONNX 函数。</span>
+<span class="sd">"源代码"</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_注册表</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">内部限定名称</font></font></font></span><span class="p">]</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">追加</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">符号函数</span><span class="p">)</span>
+
+<div class="viewcode-block" id="OnnxRegistry.register_op"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]    def 注册操作(
+self,
+函数: onnxscript.OnnxFunction | onnxscript.TracedOnnxFunction,
+命名空间: str,
+操作名称: str,
+覆载: str | None = None,
+is_complex: 布尔 = False,
+) -&gt; None:
+"""注册自定义操作：torch.ops....
+
+Args:
+函数：用于注册的 onnx-sctip 函数。
+命名空间：要注册的操作员的命名空间。
+op_name：要注册的操作员名称。
+重载：注册运算符的重载。如果它是默认重载，
+放任它为空。
+is_complex：判断该函数是否处理复数值输入的函数。
+
+抛出：
+ValueError：如果名称不是 'namespace::op' 的形式。
+"""
+internal_name_instance = registration.OpName.from_name_parts(
+namespace=namespace, op_name=op_name, overload=overload
+        )
+symbolic_function = registration.ONNXFunction(
+onnx_function=function,
+op_full_name=internal_name_instance.qualified_name(),
+is_custom=True,
+is_complex=是复杂的,
+        )
+self._register(内部名称实例, 符号函数)</font></font></font></div>
+
+<div class="viewcode-block" id="OnnxRegistry.get_op_functions"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档] def 获取操作函数(
+self, 命名空间: str, 操作名称: str, 载荷: str | None = None
+) -&gt; list[registration.ONNXFunction] | None:
+"""返回给定操作：torch.ops... 的 ONNXFunction 列表。
+
+列表按注册时间排序。自定义操作应该为
+列表的后半部分。
+
+参数：
+命名空间：获取操作符的命名空间。
+op_name：获取的操作符的名称。
+运算符获取的重载。如果使用默认重载，
+则将其留空。
+返回值：
+与给定名称对应的 ONNX 函数列表，或如果没有找到则返回 None。
+该名称不在注册表中。
+"""
+internal_name_instance = registration.OpName.from_name_parts(
+namespace=namespace, op_name=op_name, overload=overload
+        )
+return self._registry.get(internal_name_instance)</font></font></font></div>
+
+<div class="viewcode-block" id="OnnxRegistry.is_registered_op"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档] def is_registered_op(
+self, 命名空间: str, 操作名称: str, 超载: str | None = None
+-&gt; bool:
+返回是否已注册给定操作：torch.ops....
+
+Args:
+namespace: 要检查的操作的命名空间。
+操作符名称：要检查的操作符名称。
+要检查的操作符的重载。如果是默认重载，请留空。
+留空为 None。
+
+返回值：
+真的如果给定的操作已注册，否则为假。
+"""
+functions = self.get_op_functions(
+namespace=namespace, op_name=op_name, overload=overload
+        )
+返回函数不为空</font></font></font></div>
+
+    <span class="k">def</span> <span class="nf">_所有已注册的操作</font></font></font></span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">集合</font></font></font></span><span class="p">[</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">字符串</font></font></font></span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">]：</span>
+<span class="w">        </span><span class="sd">返回所有已注册函数名的集合。</span>
+        <span class="k">返回</span> <span class="p">{</span>
+            <span class="n">op_name_class</span><span class="o">.</span><span class="n">合法名称</font></font></font></span><span class="p">()</span> <span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">为</font></font></font></span> <span class="n">op_name_class</span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在</font></font></font></span> <span class="bp">self</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_注册表</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">键</span><span class="p">()</span>
+        <span class="p">}</span>
+
+
+<span class="nd">@deprecated</span><span class="p">(</span>
+    <span class="s2">"torch.onnx.dynamo_export 自 2.7.0 起已弃用。请使用 torch.onnx.export(..., dynamo=True)代替。"</span><span class="p">,</span>
+    <span class="n">分类</font></font></font></span><span class="o">=</span><span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="k">类</font></font></font></span> <span class="nc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导出选项</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">TorchDynamo ONNX 导出器的选项，用于影响导出过程。</span>
+
+<span class="sd">已弃用</span>
+<span class="sd">请使用 ``torch.onnx.export(..., dynamo=True)`` 代替。</span>
+
+<span class="sd">属性：</span>
+<span class="sd">dynamic_shapes: 输入/输出张量的形状信息提示。</span>
+<span class="sd">当为 ``None`` 时，导出器将确定最兼容的设置。</span>
+<span class="sd">当为 ``True`` 时，所有输入形状都被视为动态。</span>
+<span class="sd">当为 ``False`` 时，所有输入形状都被视为静态。</span>
+<span class="sd">诊断选项：导出器的诊断选项。</span>
+<span class="sd">伪造上下文：用于符号跟踪的伪造上下文。</span>
+<span class="sd">onnx_registry：用于将 ATen 运算符注册到 ONNX 函数的 ONNX 注册表。</span>
+<span class="sd">"源代码"</span>
+
+    <span class="n">动态形状</font></font></font></span><span class="p">:</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">布尔类型</font></font></font></span> <span class="o">|</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</font></font></font></span> <span class="o">=</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span>
+<span class="w">    </span><span class="sd">输入/输出张量的形状信息提示。</span>
+
+<span class="sd">- ``None``：导出器确定最兼容的设置。</span>
+<span class="sd">- ``True``：所有输入形状都被视为动态。</span>
+<span class="sd">- ``False``：所有输入形状都被视为静态。</span>
+<span class="sd">"源代码"</span>
+
+    <span class="n">诊断选项</span><span class="p">:</span> <span class="n">DiagnosticOptions</span>
+<span class="w">    </span><span class="sd">导出器的诊断选项。</span>
+
+    <span class="n">模拟上下文</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">ONNX 假上下文</font></font></font></span> <span class="o">|</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</font></font></font></span> <span class="o">=</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span>
+<span class="w">    </span><span class="sd">用于符号跟踪的假上下文。</span>
+
+    <span class="n">onnx 注册表</font></font></font></span><span class="p">:</span> <span class="n">OnnxRegistry</span> <span class="o">|</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</font></font></font></span> <span class="o">=</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span>
+<span class="w">    </span><span class="sd">"用于将 ATen 运算符注册到 ONNX 函数的 ONNX 注册表。"</span>
+
+    <span class="k">def</span> <span class="fm">初始化</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">动态形状</font></font></font></span><span class="p">:</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">布尔类型</font></font></font></span> <span class="o">|</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</font></font></font></span> <span class="o">=</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">,</span>
+        <span class="n">伪造的上下文</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">ONNX 伪造上下文</font></font></font></span> <span class="o">|</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</font></font></font></span> <span class="o">=</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">,</span>
+        <span class="n">onnx 注册表</font></font></font></span><span class="p">:</span> <span class="n">OnnxRegistry</span> <span class="o">|</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</font></font></font></span> <span class="o">=</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">,</span>
+        <span class="n">诊断选项</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">诊断选项</font></font></font></span> <span class="o">|</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</font></font></font></span> <span class="o">=</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dynamic_shapes</span> <span class="o">=</span> <span class="n">dynamic_shapes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">模拟上下文</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模拟上下文</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ONNX 注册表</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">ONNX 注册表</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">诊断选项</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">诊断选项</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">或</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">诊断选项</span><span class="p">()</span>
+
+
+<span class="nd">@deprecated</span><span class="p">(</span>
+    <span class="s2">"自 2.7.0 版本起，torch.onnx.dynamo_export 已被弃用。请使用 torch.onnx.export(..., dynamo=True)代替。"</span><span class="p">,</span>
+    <span class="n">分类</font></font></font></span><span class="o">=</span><span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="k">类</font></font></font></span> <span class="nc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">已解决的导出选项</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导出选项</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""整合具有默认值的 :class:`ExportOptions`。</span>
+<span class="sd">所有未指定的`:class:`ExportOptions`选项都分配了默认值。</span>
+<span class="sd">这是一个内部类，其 API 可能会在任何时候未经通知而更改。</span>
+<span class="sd"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">```python
+# 假设输入文本为：
+input_text = '"""'
+
+# 翻译函数（此处仅为示例，实际翻译功能需要调用真实的翻译 API）
+def translate_to_simplified_chinese(text):
+    # 这里应该调用真实的翻译 API 进行翻译
+    # 由于示例中不使用真实的 API，以下为模拟翻译结果
+    return text
+
+# 输出翻译结果
+translated_text = translate_to_simplified_chinese(input_text)
+print(translated_text)
+```</font></font></font></span>
+
+    <span class="c1">公共属性必须在下方重新定义，无需从“ExportOptions”中包含“Optional[]”</span>
+    <span class="n">动态形状</font></font></font></span><span class="p">:</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">布尔类型</span>
+    <span class="n">诊断选项</span><span class="p">:</span> <span class="n">DiagnosticOptions</span>
+    <span class="n">模拟上下文</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">ONNX 模拟上下文</span>
+    <span class="n">onnx 注册表</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">Onnx 注册表</span>
+
+    <span class="c1"># 仅私有属性</span>
+    <span class="n">分解表</font></font></font></span><span class="p">:</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">字典</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">操作符</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">操作重载</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">可调用</span><span class="p">]</span>
+<span class="w">    </span><span class="sd">“一个将算子映射到其分解函数的字典。”</span>
+
+    <span class="n">onnxfunction_dispatcher</span><span class="p">:</span> <span class="p">(</span>
+        <span class="n">火炬</font></font></font></span><span class="o">.</span><span class="n">onnx</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">内部</span><span class="o">.</span><span class="n">fx</span><span class="o">.</span><span class="n">onnxfunction_dispatcher</span><span class="o">.</span><span class="n">OnnxFunctionDispatcher</span>
+    <span class="p">)</span>
+<span class="w">    </span><span class="sd">用于将 ATen 运算符调度到 ONNX 函数的 ONNX 调度器。</span>
+
+    <span class="n">fx_tracer</span><span class="p">:</span> <span class="n">FXGraphExtractor</span>
+<span class="w">    </span><span class="sd">用于从模型中提取 FX 图的 FXGraphExtractor 实例。</span>
+
+    <span class="n">diagnostic_context</span><span class="p">:</span> <span class="n">诊断</span><span class="o">.</span><span class="n">DiagnosticContext</span>
+<span class="w">    </span><span class="sd">导出诊断上下文。负责记录诊断信息。</span>
+<span class="sd">记录诊断信息，并生成 SARIF 日志。</span>
+
+    <span class="k">def</span> <span class="fm">初始化</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">选项</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导出选项</font></font></font></span> <span class="o">|</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">已解决导出选项</span><span class="p">,</span>
+        <span class="n">模型</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span> <span class="o">|</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">可调用</font></font></font></span> <span class="o">|</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</font></font></font></span> <span class="o">=</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</font></font></font></span><span class="p">,</span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">忽略名称定义</span>
+    <span class="p">):</span>
+        <span class="kn">来自</font></font></font></span> <span class="nn">torch.onnx._internal.fx</span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="p">(</span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">防止循环依赖</span>
+            <span class="n">诊断</span><span class="p">,</span>
+            <span class="n">dynamo_graph_extractor</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">如果</font></font></font></span> <span class="nb">isinstance</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">选项</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">已解决的导出选项</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dynamic_shapes</span> <span class="o">=</span> <span class="n">选项</span><span class="o">.</span><span class="n">dynamic_shapes</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">诊断选项</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">选项</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">诊断选项</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">模拟上下文</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">选项</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模拟上下文</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fx_tracer</span> <span class="o">=</span> <span class="n">选项</span><span class="o">.</span><span class="n">fx_tracer</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ONNX 注册表</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">选项</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">onnx 注册表</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">onnx 函数分发器</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">选项</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">onnx 函数分发器</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">分解表</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">选项</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">分解表</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">诊断上下文</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">选项</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">诊断上下文</span>
+        <span class="k">否则</span><span class="p">:</span>
+            <span class="n">T</span> <span class="o">=</span> <span class="n">类型变量</font></font></font></span><span class="p">(</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">T</span><span class="p">)</span>
+
+            <span class="k">def</span> <span class="nf">解决</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">值</font></font></font></span><span class="p">:</span> <span class="n">T</span> <span class="o">|</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">备用</font></font></font></span><span class="p">:</span> <span class="n">T</span> <span class="o">|</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">可调用</font></font></font></span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">[]</span> <span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+                <span class="k">如果</font></font></font></span> <span class="n">value</span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是</font></font></font></span> <span class="ow">not</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">:</span>
+                    <span class="k">返回</span> <span class="n">value</span>
+                <span class="k">如果</font></font></font></span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">可调用</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">备用</span><span class="p">):</span>
+                    <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">备用</span><span class="p">()</span>
+                <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">回退</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">dynamic_shapes</span> <span class="o">=</span> <span class="n">解决</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">选项</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">动态形状</font></font></font></span><span class="p">,</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">错误</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">诊断选项</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">解决</span><span class="p">(</span>
+                <span class="n">选项</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">诊断选项</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">诊断选项</span><span class="p">()</span>
+            <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">fx_tracer</span> <span class="o">=</span> <span class="n">Dynamo 图提取器</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">动力导出</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">模拟上下文</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">解决</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">选项</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模拟上下文</font></font></font></span><span class="p">,</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">诊断上下文</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">诊断</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">诊断上下文</span><span class="p">(</span>
+                <span class="s2">torch.onnx.dynamo_export</span><span class="p">,</span>
+                <span class="n">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">__版本__</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">诊断选项</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">onnx_registry</span> <span class="o">=</span> <span class="n">解决</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">选项</font></font></font></span><span class="o">.</span><span class="n">onnx_registry</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">Onnx 注册表</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">分解表</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">分解表</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">创建 ONNX 友好分解表</font></font></font></span><span class="p">(</span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># 类型：忽略[赋值]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ONNX 注册表</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+            <span class="kn">来自</font></font></font></span> <span class="nn">torch.onnx._internal.fx</span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</span> <span class="n">onnxfunction_dispatcher</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">onnxfunction_dispatcher</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">onnxfunction_dispatcher</span><span class="o">.</span><span class="n">OnnxFunctionDispatcher</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">onnx_registry</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">诊断上下文</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+            <span class="k">为</font></font></font></span> <span class="n">key</span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在</font></font></font></span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">目录</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">选项</span><span class="p">):</span>
+                <span class="k">如果</font></font></font></span> <span class="ow">not</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">键</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">以...开头</font></font></font></span><span class="p">(</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">“_”</font></font></font></span><span class="p">):</span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># 跳过私有属性</span>
+                    <span class="k">断言</font></font></font></span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">有属性</font></font></font></span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">键</font></font></font></span><span class="p">),</span> <span class="sa">f</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">"未解决的选项 '"</font></font></font></span><span class="si">{</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">键</font></font></font></span><span class="si">}</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">'"'</span>
+
+
+<span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
+<span class="k">def</span> <span class="nf">启用模拟模式</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">启用模拟模式，持续整个上下文过程。</span>
+
+<span class="sd">内部它实例化一个 :class:`torch._subclasses.fake_tensor.FakeTensorMode` 上下文管理器</span>
+<span class="sd">该管理器将用户输入和模型参数转换为 :class:`torch._subclasses.fake_tensor.FakeTensor`</span>
+
+<span class="sd">一个 :class:`torch._subclasses.fake_tensor.FakeTensor`</span>
+<span class="sd">是一个具有运行 PyTorch 代码能力的 :class:`torch.Tensor`，无需通过在 ``meta`` 设备上分配张量来实际进行计算。</span>
+<span class="sd">因为没有在设备上实际分配数据，这个 API 允许在不实际执行所需的内存占用情况下初始化和导出大型模型。</span>
+<span class="sd">由于没有在设备上实际分配数据，这个 API 允许在不实际执行所需的内存占用情况下初始化和导出大型模型。</span>
+<span class="sd">由于没有在设备上实际分配数据，这个 API 允许在不实际执行所需的内存占用情况下初始化和导出大型模型。</span>
+
+<span class="sd">非常推荐在导出模型时，如果模型太大无法放入内存，请使用模拟模式初始化模型。</span>
+<span class="sd">该函数不支持 torch.onnx.export(..., dynamo=True, optimize=True)。</span>
+
+<span class="sd">.. 注意::</span>
+<span class="sd">请在模型导出后，在函数外部调用 ONNXProgram.optimize()。</span>
+<span class="sd">请在模型导出后，在函数外部调用 ONNXProgram.optimize()进行优化。</span>
+
+<span class="sd">示例::</span>
+
+<span class="sd">        # xdoctest: +REQUIRES(env:TORCH_DOCTEST_ONNX)</span>
+<span class="sd">&gt;&gt;&gt; 导入 torch</span>
+<span class="sd">&gt;&gt;&gt; 类 MyModel(torch.nn.Module):  # 带有参数的模型</span>
+<span class="sd">... def __init__(self) -&gt; None:</span>
+<span class="sd">        ...         super().__init__()</span>
+<span class="sd">        ...         self.weight = torch.nn.Parameter(torch.tensor(42.0))</span>
+<span class="sd">        ...     def forward(self, x):</span>
+<span class="sd">        ...         return self.weight + x</span>
+<span class="sd">        &gt;&gt;&gt; with torch.onnx.enable_fake_mode():</span>
+<span class="sd">... 当以模拟模式初始化时，模型的参数是模拟张量</span>
+<span class="sd">... 这些张量不占用内存，因此我们可以初始化大型模型</span>
+<span class="sd">... my_nn_module = MyModel()</span>
+<span class="sd">... arg1 = torch.randn(2, 2, 2)</span>
+<span class="sd">        &gt;&gt;&gt; onnx_program = torch.onnx.export(my_nn_module, (arg1,), dynamo=True, optimize=False)</span>
+<span class="sd">&gt;&gt;&gt; # 保存模型时不包含初始化器（仅架构）</span>
+<span class="sd">&gt;&gt;&gt; onnx_program.save()</span>
+<span class="sd">...     \"my_model_without_initializers.onnx\",</span>
+<span class="sd">        ...     include_initializers=False,</span>
+<span class="sd">        ...     keep_initializers_as_inputs=True,</span>
+<span class="sd">        ... )</span>
+<span class="sd">&gt;&gt;&gt; # 保存模型后应用具体权重，包含初始化器</span>
+<span class="sd">        &gt;&gt;&gt; onnx_program.apply_weights({"weight": torch.tensor(42.0)})</span>
+<span class="sd">        &gt;&gt;&gt; onnx_program.save("my_model_with_initializers.onnx")</span>
+
+<span class="sd">.. 警告::</span>
+<span class="sd">该 API 是实验性的，并且**不**向下兼容。</span>
+
+<span class="sd">"源代码"</span>
+    <span class="kn">来自</font></font></font></span> <span class="nn">torch._subclasses</span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</span> <span class="n">fake_tensor</span>
+    <span class="kn">来自</font></font></font></span> <span class="nn">torch.fx.experimental.symbolic_shapes</span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">形状环境</span>
+
+    <span class="c1"># 这将覆盖由 `torch._dynamo.export`[1] 创建的内部 `FakeTensorMode` 实例。</span>
+    <span class="c1"># 最好保持它们（构造函数参数）同步，以保持相同的默认行为</span>
+    <span class="c1"># [1] `torch/_dynamo/output_graph.py::InstructionTranslator::OutputGraph.__init__`</span>
+    <span class="c1">仅当在 `FakeTensorMode` 中未调用 `torch.onnx.dynamo_export` 时，才允许混合假/实张量</span>
+    <span class="c1">这是因为模型可以在 `forward(self, *args, **kwargs)` 运行期间创建新的参数</span>
+    <span class="n">模拟模式</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">伪造张量</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">假 Tensor 模式</span><span class="p">(</span>
+        <span class="n">allow_non_fake_inputs</span><span class="o">=</span><span class="ow">not</span> <span class="n">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_守卫</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">检测伪造模式</span><span class="p">(),</span>
+        <span class="n">形状环境</span><span class="o">=</span><span class="n">ShapeEnv</span><span class="p">(</span>
+            <span class="n">允许标量输出</font></font></font></span><span class="o">=</span><span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">错误</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">允许动态输出形状操作</font></font></font></span><span class="o">=</span><span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">假</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="c1">当用户在假模式下调用 `fake_model.load_state_dict(...)` 时需要这个补丁器</span>
+    <span class="n">补丁器上下文</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">修补器</span><span class="o">.</span><span class="n">ONNXTorchPatcher</span><span class="p">()</span>
+    <span class="n">模拟上下文</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">ONNX 模拟上下文</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模拟模式</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模拟模式</span><span class="p">)</span>
+    <span class="k">与</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模拟模式</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">修补器上下文</span><span class="p">:</span>
+        <span class="k">产生</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模拟上下文</span>
+    <span class="n">模拟上下文</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">状态字典路径</font></font></font></span> <span class="o">=</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">元组</span><span class="p">(</span>
+        <span class="n">修补器上下文</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">路径列表</span><span class="p">,</span>
+    <span class="p">)</span>  <span class="c1"># 类型：忽略[赋值]</span>
+
+
+<span class="nd">@deprecated</span><span class="p">(</span>
+    <span class="s2">"torch.onnx.dynamo_export 自 2.7.0 版本开始已弃用。请使用 torch.onnx.export(..., dynamo=True)代替。"</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="k">类</font></font></font></span> <span class="nc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">ONNX 运行时选项</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""通过 ONNX Runtime 影响 ONNX 模型执行选项。"""</span>
+
+<span class="sd">已弃用</span>
+<span class="sd">请使用 ``torch.onnx.export(..., dynamo=True)`` 代替。</span>
+
+<span class="sd">属性：</span>
+<span class="sd">""session_options: ONNX Runtime 会话选项。""</span>
+<span class="sd">""execution_providers: 模型执行期间使用的 ONNX Runtime 执行提供者。""</span>
+<span class="sd">ONNX Runtime 执行提供者选项。</span>
+<span class="sd">"源代码"</span>
+
+    <span class="n">会话选项</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">序列</font></font></font></span><span class="p">[</span><span class="n">onnxruntime</span><span class="o">.</span><span class="n">SessionOptions</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span>
+<span class="w">    </span><span class="sd">ONNX Runtime 会话选项。</span>
+
+    <span class="n">执行提供者</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">序列</font></font></font></span><span class="p">[</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">字符串</font></font></font></span> <span class="o">|</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">元组</font></font></font></span><span class="p">[</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">字符串</font></font></font></span><span class="p">,</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">字典</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">任意</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">任意</font></font></font></span><span class="p">]]]</span> <span class="o">|</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</font></font></font></span> <span class="o">=</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span>
+<span class="w">    </span><span class="sd">"ONNX Runtime 在模型执行期间使用的执行提供程序。"</span>
+
+    <span class="n">执行提供程序选项</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">序列</font></font></font></span><span class="p">[</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">字典</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">任意</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">任意</font></font></font></span><span class="p">]]</span> <span class="o">|</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="w">    </span><span class="sd">"ONNX Runtime 执行提供程序选项。"</span>
+
+    <span class="k">def</span> <span class="fm">初始化</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">会话选项</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">序列</font></font></font></span><span class="p">[</span><span class="n">onnxruntime</span><span class="o">.</span><span class="n">SessionOptions</span><span class="p">]</span> <span class="o">|</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</font></font></font></span> <span class="o">=</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">,</span>
+        <span class="n">执行提供者</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">序列</font></font></font></span><span class="p">[</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">字符串</font></font></font></span> <span class="o">|</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">元组</font></font></font></span><span class="p">[</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">字符串</font></font></font></span><span class="p">,</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">字典</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">任意</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">任意</font></font></font></span><span class="p">]]]</span> <span class="o">|</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</font></font></font></span> <span class="o">=</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">,</span>
+        <span class="n">执行提供者选项</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">序列</font></font></font></span><span class="p">[</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">字典</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">任意</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">任意</font></font></font></span><span class="p">]]</span> <span class="o">|</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</font></font></font></span> <span class="o">=</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">会话选项</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">会话选项</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">执行提供者</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">执行提供者</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">执行提供者选项</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">执行提供者选项</span>
+
+
+<span class="k">类</font></font></font></span> <span class="nc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">FX 图提取器</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""FX 图提取器引擎的抽象接口。</span>
+<span class="sd">该类将 FX 提取逻辑从其他导出逻辑中隔离出来。</span>
+<span class="sd">这使得可以复用不同 FX 图的单一 ONNX 导出器。</span>
+
+    <span class="k">def</span> <span class="fm">初始化</font></font></font></span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">:</span>
+        <span class="nb">超级</font></font></font></span><span class="p">()</span><span class="o">.</span><span class="fm"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">初始化</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">输入适配器</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入/输出适配器</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入适配器</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">io 适配器</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入适配器</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">输出适配器</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">离线适配器</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输出适配器</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">离线适配器</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输出适配器</span><span class="p">()</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">抽象方法</span>
+    <span class="k">def</span> <span class="nf">生成 FX</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">选项</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">已解决的导出选项</span><span class="p">,</span>
+        <span class="n">模型</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span> <span class="o">|</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">可调用</span><span class="p">,</span>
+        <span class="n">model_args</span><span class="p">:</span> <span class="n">序列</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">任意</font></font></font></span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">]</span>
+        <span class="n">模型参数</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">映射</font></font></font></span><span class="p">[</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">字符串</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">任意</font></font></font></span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">火炬</font></font></font></span><span class="o">.</span><span class="n">fx</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">图模块</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">分析用户 ``模型`` 并生成 FX 图。</span>
+<span class="sd">参数：</span>
+<span class="sd">选项：导出选项。</span>
+<span class="sd">模型：用户模型。</span>
+<span class="sd">模型参数：模型的定位输入参数。</span>
+<span class="sd">模型关键字输入参数</span>
+<span class="sd">返回：</span>
+<span class="sd">生成的 FX 图。</span>
+<span class="sd">"源代码"</span>
+        <span class="o">...</span>
+
+    <span class="c1"># TODO: 设计遍历 API</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">抽象方法</span>
+    <span class="k">def</span> <span class="nf">预导出步骤</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">选项</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">已解决导出选项</span><span class="p">,</span>
+        <span class="n">原始模型</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span> <span class="o">|</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">可调用</span><span class="p">,</span>
+        <span class="n">效果模块</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n">fx</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">图模块</span><span class="p">,</span>
+        <span class="n">fx_module_args</span><span class="p">:</span> <span class="n">序列</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">任意</font></font></font></span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">]</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">在 FX 图上应用预导出过程。</span>
+
+<span class="sd">预导出过程是 FX 到 FX 图转换，使图</span>
+<span class="sd">更适合 FX 到 ONNX 的转换。</span>
+<span class="sd">例如，它可以用于展平模型输入/输出，添加显式</span>
+<span class="sd">将到图的映射，替换/分解算子，函数化图等。</span>
+<span class="sd">"源代码"</span>
+        <span class="o">...</span>
+
+
+<span class="k">类</font></font></font></span> <span class="nc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">出口商</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">初始化</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">选项</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">已解决导出选项</span><span class="p">,</span>
+        <span class="n">模型</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span> <span class="o">|</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">可调用</span><span class="p">,</span>
+        <span class="n">model_args</span><span class="p">:</span> <span class="n">序列</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">任意</font></font></font></span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">]</span>
+        <span class="n">模型参数</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">映射</font></font></font></span><span class="p">[</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">字符串</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">任意</font></font></font></span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">]</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">选项</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">选项</span>
+        <span class="k">断言</font></font></font></span> <span class="bp">self</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">选项</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是</font></font></font></span> <span class="ow">not</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">模型</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模型</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">模型参数</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模型参数</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">模型参数</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模型参数</span>
+
+        <span class="c1"># TODO: https://github.com/pytorch/pytorch/issues/107714</span>
+        <span class="c1"># NOTE: FXSymbolicTracer 在这个断言中会失败，因为它没有使用 `enable_fake_mode`</span>
+        <span class="kn">来自</font></font></font></span> <span class="nn">torch.onnx._internal.fx</span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</span> <span class="n">fx_symbolic_graph_extractor</span>
+
+        <span class="k">如果</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">选项</span><span class="o">.</span><span class="n">fx_tracer</span><span class="p">,</span> <span class="n">fx_symbolic_graph_extractor</span><span class="o">.</span><span class="n">FXSymbolicTracer</span>
+        <span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_assert_fake_tensor_mode</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">导出</font></font></font></span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_onnx_program</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">ONNX 程序</span><span class="p">:</span>
+        <span class="kn">来自</font></font></font></span> <span class="nn">torch.export._trace</span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="p">(</span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">防止循环依赖</span>
+            <span class="n">默认导出 Dynamo 配置</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1">将`import onnxscript`从`import torch`路径中延迟导入</span>
+        <span class="c1">https://github.com/pytorch/pytorch/issues/103764</span>
+        <span class="kn">来自</font></font></font></span> <span class="nn">torch.onnx._internal.fx</span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">分解跳过</span>
+
+        <span class="k">与</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">选项</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">诊断上下文</span><span class="p">,</span>
+            <span class="n">分解跳过</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">启用分解跳过</font></font></font></span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">选项</span><span class="p">),</span>
+            <span class="n">火炬</font></font></font></span><span class="o">.</span><span class="n">_dynamo</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">配置</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">补丁</span><span class="p">(</span>
+                <span class="n">dataclasses</span><span class="o">.</span><span class="n">asdict</span><span class="p">(</span><span class="n">默认导出 Dynamo 配置</span><span class="p">)</span>
+            <span class="p">),</span>
+        <span class="p">):</span>
+            <span class="n">图模块</font></font></font></span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">选项</font></font></font></span><span class="o">.</span><span class="n">fx_tracer</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">生成 FX</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">选项</font></font></font></span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模型</font></font></font></span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_args</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模型参数</span>
+            <span class="p">)</span>
+            <span class="c1"># TODO: 将`import onnxscript`从`import torch`路径中延迟导入</span>
+            <span class="c1"># https://github.com/pytorch/pytorch/issues/103764</span>
+            <span class="kn">来自</font></font></font></span> <span class="nn">torch.onnx._internal.fx</span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</span> <span class="n">fx_onnx_interpreter</span>
+
+            <span class="n">fx_interpreter</span> <span class="o">=</span> <span class="n">fx_onnx_interpreter</span><span class="o">.</span><span class="n">FxOnnxInterpreter</span><span class="p">(</span>
+                <span class="n">诊断上下文</font></font></font></span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">选项</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">诊断上下文</span>
+            <span class="p">)</span>
+            <span class="n">onnxscript_graph</span> <span class="o">=</span> <span class="n">fx_interpreter</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                <span class="n">fx_graph_module</span><span class="o">=</span><span class="n">图模块</span><span class="p">,</span>
+                <span class="n">onnxfunction_dispatcher</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">选项</span><span class="o">.</span><span class="n">onnxfunction_dispatcher</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="c1"># 注意：在 fake_mode 导出时，过滤掉具有虚假张量的初始化器。</span>
+            <span class="c1"># 否则，ONNX 导出器将失败：RuntimeError: basic_string::_M_construct null</span>
+            <span class="c1"># 无效。</span>
+            <span class="c1"># 具体数据将在 `ONNXProgram.save` 后期初始化时填充。</span>
+            <span class="k">如果</font></font></font></span> <span class="bp">self</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">选项</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模拟上下文</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是</font></font></font></span> <span class="ow">not</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">:</span>
+                <span class="n">初始化器包含真实张量</font></font></font></span><span class="p">:</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">字典</font></font></font></span><span class="p">[</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">字符串</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="k">为</span> <span class="p">(</span>
+                    <span class="n">初始化器名称</span><span class="p">,</span>
+                    <span class="n">初始化器</span><span class="p">,</span>
+                <span class="p">)</span> <span class="ow">在</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">onnxscript 图</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">初始化器</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">项目</span><span class="p">():</span>
+                    <span class="k">如果</font></font></font></span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">初始化器</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">子类</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">假 Tensor</span><span class="p">):</span>
+                        <span class="n">使用真实张量的初始化器</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">初始化器名称</font></font></font></span><span class="p">]</span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">初始化器</span>
+                <span class="n">onnxscript 图</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">初始化器</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">带真实张量的初始化器</span>
+
+            <span class="c1"># 导出 TorchScript 图到 ONNX ModelProto。</span>
+            <span class="n">ONNX 模型</span> <span class="o">=</span> <span class="n">onnxscript_graph</span><span class="o">.</span><span class="n">to_model_proto</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">选项</font></font></font></span><span class="o">.</span><span class="n">onnx_registry</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">opset 版本</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">ir_model</span> <span class="o">=</span> <span class="n">ir</span><span class="o">.</span><span class="n">serde</span><span class="o">.</span><span class="n">deserialize_model</span><span class="p">(</span><span class="n">onnx_model</span><span class="p">)</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">ir_model</span> <span class="o">=</span> <span class="n">onnxscript_apis</span><span class="o">.</span><span class="n">优化</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">ir 模型</span><span class="p">)</span>
+            <span class="k">除了</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">异常</font></font></font></span> <span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">作为</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">警告</span><span class="p">(</span>
+                    <span class="s2">"ONNXScript 优化器失败。跳过优化。"</span>
+                    <span class="s2">"</span><span class="se"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">\n\n
+\n\n</font></font></font></span><span class="s2">请在 https://github.com/microsoft/onnxscript/issues 报告一个错误</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="se"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">\n\n
+\n\n</font></font></font></span><span class="s2">详情：</font></font></font></span><span class="se"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入文本翻译为简体中文为：\n</span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span>
+                <span class="p">)</span>
+
+            <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">onnx 程序</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">ONNX 程序</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">索引模型</font></font></font></span><span class="p">,</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_assert_fake_tensor_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">断言模型及其输入不包含伪造张量。</span>
+
+        <span class="c1">模型使用虚假输入/权重且未启用虚假模式</span>
+        <span class="n">是否有任何虚假张量</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">py 树</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">树中任何</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">子类</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">假 Tensor</span><span class="p">),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_args</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">模型参数</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">是否有任何虚假参数或缓冲区</font></font></font></span> <span class="o">=</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">假</span>
+        <span class="k">如果</font></font></font></span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模型</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</span><span class="p">):</span>
+            <span class="n">包含任何伪造的参数或缓冲区</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">py 树</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">树任何</span><span class="p">(</span>
+                <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">子类</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">假 Tensor</span><span class="p">),</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">模型</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</font></font></font></span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模型</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">缓冲区</span><span class="p">()),</span>
+            <span class="p">)</span>
+        <span class="k">如果</span> <span class="p">(</span>
+            <span class="n">包含任何伪造的张量</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">或</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">包含任何伪造的参数或缓冲区</span>
+        <span class="p">)</span> <span class="ow">和</font></font></font></span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">选项</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模拟上下文</span><span class="p">:</span>
+            <span class="k">提升</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">运行时错误</span><span class="p">(</span>
+                <span class="s2">"无法在不启用模拟模式的情况下导出具有模拟输入/权重的模型。"</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="c1"># 案例二：具有非模拟输入/权重的模型且已启用模拟模式</span>
+        <span class="n">是否包含任何非模拟张量</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">py 树</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">树_任意</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</span><span class="p">)</span>
+            <span class="ow">和</font></font></font></span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">子类</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">假 Tensor</span><span class="p">),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_args</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">模型参数</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">有任何非假参数或缓冲区</font></font></font></span> <span class="o">=</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">假</span>
+        <span class="k">如果</font></font></font></span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模型</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</span><span class="p">):</span>
+            <span class="n">有任何非假参数或缓冲区</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">py 树</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">树_任意</span><span class="p">(</span>
+                <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</span><span class="p">)</span>
+                <span class="ow">和</font></font></font></span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">子类</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">假 Tensor</span><span class="p">),</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">模型</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</font></font></font></span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模型</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">缓冲区</span><span class="p">()),</span>
+            <span class="p">)</span>
+        <span class="k">如果</span> <span class="p">(</span>
+            <span class="n">包含任何非伪造张量</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">或</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">包含任何非伪造参数或缓冲区</span>
+        <span class="p">)</span> <span class="ow">和</font></font></font></span> <span class="bp">self</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">选项</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">伪造上下文</span><span class="p">:</span>
+            <span class="k">提升</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">运行时错误</span><span class="p">(</span>
+                <span class="s2">"无法导出具有非伪造输入/权重并启用伪造模式的模型。"</span><span class="p">,</span>
+            <span class="p">)</span>
+
+
+<span class="k">类</font></font></font></span> <span class="nc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">不满足依赖错误</font></font></font></span><span class="p">(</span><span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">运行时错误</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">当 ONNX 导出器依赖无法满足时引发。</span>
+
+    <span class="k">def</span> <span class="fm">初始化</font></font></font></span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">包名</font></font></font></span><span class="p">:</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">字符串</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">消息</font></font></font></span><span class="p">:</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">字符串</span><span class="p">):</span>
+        <span class="nb">超级</font></font></font></span><span class="p">()</span><span class="o">.</span><span class="fm"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">初始化</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">消息</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">包名</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">包名</span>
+
+
+<span class="k">类</font></font></font></span> <span class="nc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无效导出选项错误</font></font></font></span><span class="p">(</span><span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">运行时错误</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">当用户为`:class:`ExportOptions`指定了无效值时引发。</span>
+
+
+<span class="k">def</span> <span class="nf">断言依赖</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导出选项</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">已解决导出选项</span><span class="p">):</span>
+    <span class="n">算子版本</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导出选项</font></font></font></span><span class="o">.</span><span class="n">onnx_registry</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">算子版本</span>
+
+    <span class="k">def</span> <span class="nf">缺少包</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">包名</font></font></font></span><span class="p">:</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">字符串</font></font></font></span><span class="p">,</span> <span class="n">exc_info</span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">记录日志</span><span class="o">.</span><span class="n">_ExcInfoType</span><span class="p">):</span>
+        <span class="n">消息</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"请安装以下软件包"</font></font></font></span><span class="si">{</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">包名</font></font></font></span><span class="si">}</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "> </span>
+            <span class="sa">f</span><span class="s2">"(例如 `python -m pip install"</font></font></font></span><span class="si">{</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">包名</font></font></font></span><span class="si">}</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "> 。)</span>
+        <span class="p">)</span>
+        <span class="n">日志</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">致命</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">消息</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="n">exc_info</span><span class="p">)</span>
+        <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">不满足的依赖错误</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">包名</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">消息</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">缺少 opset</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">包名</font></font></font></span><span class="p">:</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">字符串</span><span class="p">):</span>
+        <span class="n">消息</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"已安装的 `</font></font></font></span><span class="si">{</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">包名</font></font></font></span><span class="si">}</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">不支持指定的 ONNX 操作集版本 "</span>
+            <span class="sa">f</span><span class="s2">"版本"</font></font></font></span><span class="si">{</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">opset 版本</font></font></font></span><span class="si">}</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">安装一个更新的 `</font></font></font></span><span class="si">{</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">包名</font></font></font></span><span class="si">}</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">` 包或 "</span>
+            <span class="sa">f</span><span class="s2">指定一个较旧的 opset 版本。</span>
+        <span class="p">)</span>
+        <span class="n">日志</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">致命</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">消息</span><span class="p">)</span>
+        <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">不满足的依赖错误</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">包名</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">消息</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">导入</span> <span class="nn">onnx</span>
+    <span class="k">除了</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入错误</font></font></font></span> <span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">作为</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">提升</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">缺少包</font></font></font></span><span class="p">(</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">onnx</font></font></font></span><span class="p">,</span> <span class="n">e</span><span class="p">)</span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">来自</span> <span class="nn">e</span>
+
+    <span class="k">如果</font></font></font></span> <span class="n">onnx</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">定义</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">ONNX 操作集版本</font></font></font></span><span class="p">()</span> <span class="o">&lt;</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">opset 版本</span><span class="p">:</span>
+        <span class="k">提升</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">缺少 opset</font></font></font></span><span class="p">(</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">onnx</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1">PyTorch 在 CI 中运行 lintrunner 时未安装 onnxscript</span>
+        <span class="kn">导入</span> <span class="nn">onnxscript</span>  <span class="c1"># type: ignore[import]</span>
+    <span class="k">除了</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入错误</font></font></font></span> <span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">作为</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">提升</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">缺少包</font></font></font></span><span class="p">(</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">onnxscript</font></font></font></span><span class="p">,</span> <span class="n">e</span><span class="p">)</span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">来自</span> <span class="nn">e</span>
+
+    <span class="k">如果</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span>
+        <span class="n">onnxscript</span><span class="o">.</span><span class="n">onnx_opset</span><span class="o">.</span><span class="n">all_opsets</span><span class="p">[</font></font></font></span><span class="s2">""</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">opset 版本</font></font></font></span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">)]，</span>
+        <span class="n">onnx 脚本</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">值</span><span class="o">.</span><span class="n">Opset</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="k">提升</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">缺少 Opset</font></font></font></span><span class="p">(</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">"onnx 脚本"</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">dynamo_export</span><span class="p">(</span>
+    <span class="n">模型</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span> <span class="o">|</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">可调用</span><span class="p">,</span>
+    <span class="o">/</span><span class="p">,</span>
+    <span class="o">*</span><span class="n">model_args</span><span class="p">,</span>
+    <span class="n">导出选项</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导出选项</font></font></font></span> <span class="o">|</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</font></font></font></span> <span class="o">=</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">模型参数</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_onnx 程序</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">ONNX 程序</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">将 torch.nn.Module 导出为 ONNX 图。</span>
+
+<span class="sd">已弃用</span>
+<span class="sd">请使用 ``torch.onnx.export(..., dynamo=True)`` 代替。</span>
+
+<span class="sd">参数：</span>
+<span class="sd">导出至 ONNX 的 PyTorch 模型。</span>
+<span class="sd">model 参数：传递给`model`的位置参数。</span>
+<span class="sd">model_kwargs：传递给`model`的关键字参数。</span>
+<span class="sd">导出选项：影响导出到 ONNX 的选项。</span>
+
+<span class="sd">返回：</span>
+<span class="sd">导出 ONNX 模型的内存表示。</span>
+
+<span class="sd">**示例 1 - 最简单的导出**</span>
+<span class="sd">    ::</span>
+
+<span class="sd">        class MyModel(torch.nn.Module):</span>
+<span class="sd">            def __init__(self) -&gt; None:</span>
+<span class="sd">                super().__init__()</span>
+<span class="sd">                self.linear = torch.nn.Linear(2, 2)</span>
+
+<span class="sd">            def forward(self, x, bias=None):</span>
+<span class="sd">                out = self.linear(x)</span>
+<span class="sd">                out = out + bias</span>
+<span class="sd">                return out</span>
+
+
+<span class="sd">        model = MyModel()</span>
+<span class="sd">        kwargs = {"bias": 3.0}</span>
+<span class="sd">        args = (torch.randn(2, 2, 2),)</span>
+<span class="sd">        onnx_program = torch.onnx.dynamo_export(model, *args, **kwargs).save(</span>
+<span class="sd">            "my_simple_model.onnx"</span>
+<span class="sd">        )</span>
+
+<span class="sd">示例 2 - 使用动态形状导出</span>
+<span class="sd">    ::</span>
+
+<span class="sd">上一个模型可以导出为动态形状</span>
+<span class="sd">        export_options = torch.onnx.ExportOptions(dynamic_shapes=True)</span>
+<span class="sd">        onnx_program = torch.onnx.dynamo_export(</span>
+<span class="sd">            model, *args, **kwargs, export_options=export_options</span>
+<span class="sd">        )</span>
+<span class="sd">        onnx_program.save("my_dynamic_model.onnx")</span>
+
+
+<span class="sd">通过打印输入动态维度，我们可以看到输入形状不再是 (2,2,2)</span>
+<span class="sd">    ::</span>
+
+<span class="sd">        &gt;&gt;&gt; print(onnx_program.model_proto.graph.input[0])</span>
+<span class="sd">        name: "arg0"</span>
+<span class="sd">类型 {</span>
+<span class="sd">张量类型 {</span>
+<span class="sd">元素类型：1</span>
+<span class="sd">            shape {</span>
+<span class="sd">              dim {</span>
+<span class="sd">维度参数："arg0_dim_0"</span>
+<span class="sd">              }</span>
+<span class="sd">              dim {</span>
+<span class="sd">                dim_param: "arg0_dim_1"</span>
+<span class="sd">              }</span>
+<span class="sd">              dim {</span>
+<span class="sd">                dim_param: "arg0_dim_2"</span>
+<span class="sd">              }</span>
+<span class="sd">            }</span>
+<span class="sd">          }</span>
+<span class="sd">        }</span>
+<span class="sd">"源代码"</span>
+
+    <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导出选项</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是</font></font></font></span> <span class="ow">not</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">:</span>
+        <span class="n">resolved_export_options</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">导出选项</span>
+            <span class="k">如果</font></font></font></span> <span class="nb">isinstance</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导出选项</span><span class="p">,</span> <span class="n">ResolvedExportOptions</span><span class="p">)</span>
+            <span class="k">否则</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">已解决导出选项</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导出选项</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模型</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模型</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">否则</span><span class="p">:</span>
+        <span class="n">已解决导出选项</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">已解决导出选项</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导出选项</font></font></font></span><span class="p">(),</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模型</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模型</span><span class="p">)</span>
+
+    <span class="n">_断言依赖</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">已解决导出选项</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">来自</font></font></font></span> <span class="nn">torch._dynamo</span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">配置</font></font></font></span> <span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">作为</span> <span class="n">_dynamo_config</span>
+
+        <span class="k">与</font></font></font></span> <span class="n">_dynamo_config</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">补丁</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">不发出运行时断言</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导出器</span><span class="p">(</span>
+                <span class="n">选项</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">已解析的导出选项</span><span class="p">,</span>
+                <span class="n">模型</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模型</span><span class="p">,</span>
+                <span class="n">model_args</span><span class="o">=</span><span class="n">model_args</span><span class="p">,</span>
+                <span class="n">模型参数</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模型参数</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">导出</span><span class="p">()</span>
+    <span class="k">除了</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">异常</font></font></font></span> <span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">作为</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">sarif 报告路径</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">默认失败导出 SARIF 日志路径</span>
+        <span class="n">解析的导出选项</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">诊断上下文</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导出</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">sarif 报告路径</span><span class="p">)</span>
+        <span class="n">消息</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"导出模型到 ONNX 失败。正在生成 SARIF 报告。"</font></font></font></span><span class="si">{</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">sarif 报告路径</font></font></font></span><span class="si">}</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">。</span>
+            <span class="s2">SARIF 是静态分析工具输出格式的标准。</span>
+            <span class="s2">"SARIF 日志可以在 VS Code SARIF 查看器扩展中加载，"</span>
+            <span class="s2">"或者 SARIF 网页查看器（https://microsoft.github.io/sarif-web-component/）。"</span>
+            <span class="sa">f</span><span class="s2">"请在 PyTorch 的 GitHub 上报告一个错误："</span><span class="si">{</span><span class="n">_PYTORCH_GITHUB_ISSUES_URL</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">)</span>
+        <span class="k">提升</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">错误</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">ONNX 导出器错误</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">消息</font></font></font></span><span class="p">)</span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">来自</span> <span class="nn">e</span>
+
+
+<span class="k">def</span> <span class="nf">常见导出前处理</span><span class="p">(</span>
+    <span class="n">选项</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">已解决的导出选项</span><span class="p">,</span>
+    <span class="n">原始模型</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span> <span class="o">|</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">可调用</span><span class="p">,</span>
+    <span class="n">效果模块</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n">fx</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">图模块</span><span class="p">,</span>
+    <span class="n">fx 模块参数</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">序列</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">任意</font></font></font></span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">]</span>
+<span class="p">):</span>
+    <span class="c1"># TODO: 在此处导入以防止循环依赖</span>
+    <span class="kn">来自</font></font></font></span> <span class="nn">torch.onnx._internal.fx</span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">分析</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">通过</span>
+
+    <span class="n">诊断上下文</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">选项</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">诊断上下文</span>
+
+    <span class="c1">将分解表应用于输入图。</span>
+    <span class="n">模块</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">通行证</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">分解</span><span class="p">(</span>
+        <span class="n">诊断上下文</span><span class="p">,</span>
+        <span class="n">fx 模块</span><span class="p">,</span>
+        <span class="n">选项</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">分解表</span><span class="p">,</span>
+        <span class="n">启用动态坐标轴</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">选项</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">动态形状</span><span class="p">,</span>
+        <span class="n">允许伪造常量</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">选项</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">伪造上下文</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是</font></font></font></span> <span class="ow">not</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">,</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="o">*</span><span class="n">fx_module_args</span><span class="p">)</span>
+
+    <span class="c1"># ONNX 不支持视图和修改。</span>
+    <span class="c1"># 函数化以获取无修改的语义等价图。</span>
+    <span class="n">模块</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">通行证</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">函数化</span><span class="p">(</span>
+        <span class="n">诊断上下文</span><span class="p">,</span>
+        <span class="n">模块</span><span class="p">,</span>
+        <span class="n">启用动态坐标轴</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">选项</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">动态形状</span><span class="p">,</span>
+        <span class="n">允许伪造常量</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">选项</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">伪造上下文</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是</font></font></font></span> <span class="ow">not</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">,</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="o">*</span><span class="n">fx_module_args</span><span class="p">)</span>
+
+    <span class="c1"># 输入变异在 `Functionalize` 阶段之后被检测和提炼。</span>
+    <span class="c1"># 由于 ONNX 推理不需要它们，因此可以移除。</span>
+    <span class="n">模块</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">通行证</font></font></font></span><span class="o">.</span><span class="n">RemoveInputMutation</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">诊断上下文</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="o">*</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">fx 模块参数</span><span class="p">)</span>
+
+    <span class="c1"># ONNX 不支持（隐式）类型提升的概念。</span>
+    <span class="c1"># 在需要的地方显式插入类型转换。</span>
+    <span class="n">模块</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">通行证</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">插入类型促销</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">诊断上下文</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+    <span class="n">分析</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">不支持的 Fx 节点分析</span><span class="p">(</span>
+        <span class="n">诊断上下文</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">选项</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">ONNX 函数调度器</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">分析</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">基础设施</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">等级</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">错误</span><span class="p">)</span>
+
+    <span class="k">如果</font></font></font></span> <span class="nb">isinstance</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">原始模型</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</span><span class="p">):</span>
+        <span class="n">模块</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">通行证</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">恢复参数和缓冲区名称</span><span class="p">(</span>
+            <span class="n">诊断上下文</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">原始模型</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+    <span class="c1"># 此操作应在导出前作为最后一个预导出步骤调用。</span>
+    <span class="c1"># 查看[注意：模块化步骤排序]</span>
+    <span class="n">模块</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">通行证</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块化</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">诊断上下文</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+    <span class="c1"># ONNX 不支持 None 输入。在图构建过程中，所有 None 输入</span>
+    <span class="c1"># 都被移除。这里我们将此步骤注册到输入适配器中。</span>
+    <span class="n">选项</font></font></font></span><span class="o">.</span><span class="n">fx_tracer</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入适配器</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">添加步骤</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入/输出适配器</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">删除 None 输入步骤</span><span class="p">())</span>
+
+    <span class="c1"># NOTE: 临时解决方案针对 https://github.com/pytorch/pytorch/issues/99534</span>
+    <span class="c1"># Dynamo 不支持非张量输入。</span>
+    <span class="n">选项</font></font></font></span><span class="o">.</span><span class="n">fx_tracer</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入适配器</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">添加步骤</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">离线适配器</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">删除非张量输入步骤</span><span class="p">())</span>
+
+    <span class="c1"># ONNX 不支持复杂数据输入。在构建图的过程中，所有复杂数据输入</span>
+    <span class="c1"># 都会被转换为实数表示的输入。这里我们注册这个步骤以</span>
+    <span class="c1">输入/输出适配器</span>
+    <span class="n">选项</font></font></font></span><span class="o">.</span><span class="n">fx_tracer</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入适配器</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">添加步骤</span><span class="p">(</span>
+        <span class="n">输入输出适配器</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">将复杂类型转换为实表示法输入步骤</span><span class="p">()</span>
+    <span class="p">)</span>
+
+    <span class="c1"># ONNX 无法表示集合类型（例如，字典，元组的元组等），我们将集合展平并将每个元素注册为输出。</span>
+    <span class="c1"># 张量等），我们将集合展平并将每个元素注册为输出。</span>
+    <span class="n">选项</font></font></font></span><span class="o">.</span><span class="n">fx_tracer</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输出适配器</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">添加步骤</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入输出适配器</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">扁平化输出步骤</span><span class="p">())</span>
+
+    <span class="c1">在 `FlattenOutputStep` 之后进行输出后处理步骤。</span>
+    <span class="n">选项</font></font></font></span><span class="o">.</span><span class="n">fx_tracer</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输出适配器</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">添加步骤</span><span class="p">(</span>
+        <span class="n">输入/输出适配器</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">将复杂数据转换为实数表示输出步骤</span><span class="p">()</span>
+    <span class="p">)</span>
+
+    <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</span>
+</pre></div>
+
+             </article>
+             
+            </div>
+            <footer>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>© 版权所有 PyTorch 贡献者。</p>
+  </div>
+    
+      <div>使用 Sphinx 构建，并使用 Read the Docs 提供的主题。</div>
+     
+
+</footer>
+
+          </div>
+<script>
+
+var match = window.location.href.match(/\/_[a-zA-Z0-9_]*.html|_dynamo/gi);
+var url = window.location.href.lastIndexOf(match[match.length-1]);
+
+if (url)
+  {
+    var div = '<div class="admonition note"><p class="admonition-title">Note</p><p><i class="fa fa-exclamation-circle" aria-hidden="true">&nbsp</i> This page describes an internal API which is not intended to be used outside of the PyTorch codebase and can be modified or removed without notice.</p></div>'
+    document.getElementById("pytorch-article").insertAdjacentHTML('afterBegin', div)
+  }
+</script>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+         <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+         <script src="../../../../_static/jquery.js"></script>
+         <script src="../../../../_static/underscore.js"></script>
+         <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+         <script src="../../../../_static/doctools.js"></script>
+         <script src="../../../../_static/clipboard.min.js"></script>
+         <script src="../../../../_static/copybutton.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="../../../../_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="../../../../_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ 
+<script script="" type="text/javascript">
+  var collapsedSections = ['Developer Notes', 'Language Bindings', 'Libraries', 'Community'];
+</script>
+
+<img height="1" width="1" style="border-style:none;" alt="" src="https://www.googleadservices.com/pagead/conversion/795629140/?label=txkmCPmdtosBENSssfsC&amp;guid=ON&amp;script=0">
+
+
+  <!-- Begin Footer -->
+
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 text-center">
+          <h2>文档</h2>
+          <p>查看 PyTorch 的全面开发者文档</p>
+          <a class="with-right-arrow" href="https://pytorch.org/docs/stable/index.html">查看文档</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>教程</h2>
+          <p>深入了解初学者和高级开发者的教程</p>
+          <a class="with-right-arrow" href="https://pytorch.org/tutorials">查看教程</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>资源</h2>
+          <p>查找开发资源，获取您的疑问解答</p>
+          <a class="with-right-arrow" href="https://pytorch.org/resources">查看资源</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://pytorch.org/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/">PyTorch</a></li>
+            <li><a href="https://pytorch.org/get-started">开始使用</a></li>
+            <li><a href="https://pytorch.org/features">功能</a></li>
+            <li><a href="https://pytorch.org/ecosystem">生态系统</a></li>
+            <li><a href="https://pytorch.org/blog/">博客</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md">贡献</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/resources">资源</a></li>
+            <li><a href="https://pytorch.org/tutorials">教程</a></li>
+            <li><a href="https://pytorch.org/docs/stable/index.html">文档</a></li>
+            <li><a href="https://discuss.pytorch.org" target="_blank">讨论</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/issues" target="_blank">Github 问题</a></li>
+            <li><a href="https://pytorch.org/assets/brand-guidelines/PyTorch-Brand-Guidelines.pdf" target="_blank">品牌指南</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">保持更新</li>
+            <li><a href="https://www.facebook.com/pytorch" target="_blank">Facebook</a></li>
+            <li><a href="https://twitter.com/pytorch" target="_blank">推特</a></li>
+            <li><a href="https://www.youtube.com/pytorch" target="_blank">YouTube</a></li>
+            <li><a href="https://www.linkedin.com/company/pytorch" target="_blank">领英</a></li>
+          </ul>  
+          </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">PyTorch 播客</li>
+            <li><a href="https://open.spotify.com/show/6UzHKeiy368jKfQMKKvJY5" target="_blank">Spotify</a></li>
+            <li><a href="https://podcasts.apple.com/us/podcast/pytorch-developer-podcast/id1566080008" target="_blank">苹果</a></li>
+            <li><a href="https://www.google.com/podcasts?feed=aHR0cHM6Ly9mZWVkcy5zaW1wbGVjYXN0LmNvbS9PQjVGa0lsOA%3D%3D" target="_blank">谷歌</a></li>
+            <li><a href="https://music.amazon.com/podcasts/7a4e6f0e-26c2-49e9-a478-41bd244197d0/PyTorch-Developer-Podcast?" target="_blank">亚马逊</a></li>
+          </ul>
+         </div>
+        </div>
+        
+        <div class="privacy-policy">
+          <ul>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/terms/" target="_blank">条款</a></li>
+            <li class="privacy-policy-links">|</li>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/privacy-policy/" target="_blank">隐私</a></li>
+          </ul>
+        </div>
+        <div class="copyright">
+        <p>© 版权所有 Linux 基金会。PyTorch 基金会是 Linux 基金会的一个项目。有关 PyTorch 基金会的网站使用条款、商标政策以及其他适用政策，请参阅 www.linuxfoundation.org/policies/。PyTorch 基金会支持 PyTorch 开源项目，该项目已被确立为 LF Projects, LLC 的 PyTorch 项目系列。有关适用于 PyTorch 项目系列 LF Projects, LLC 的政策，请参阅 www.lfprojects.org/policies/。</p>
+      </div>
+     </div>
+
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">为了分析流量并优化您的体验，我们在本网站上使用 cookies。通过点击或导航，您同意允许我们使用 cookies。作为本网站的当前维护者，适用 Facebook 的 Cookies 政策。了解更多信息，包括关于可用控制的信息：Cookies 政策。</p>
+    <img class="close-button" src="../../../../_static/images/pytorch-x.svg" width="16" height="16">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+           <li class="resources-mobile-menu-title">
+             <a>学习</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/get-started">开始使用</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials">教程</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/basics/intro.html">学习基础知识</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/recipes/recipes_index.html">PyTorch 食谱</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/introyt.html">PyTorch 入门 - YouTube 系列</a>
+             </li>
+           </ul>
+           <li class="resources-mobile-menu-title">
+             <a>生态系统</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/ecosystem">工具</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/#community-module">社区</a>
+             </li>
+             <li>
+               <a href="https://discuss.pytorch.org/">论坛</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/resources">开发者资源</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">贡献者奖项 - 2024</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>边缘</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/edge">关于 PyTorch Edge</a>
+             </li>
+             
+             <li>
+               <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch 文档</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>文档</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/docs/stable/index.html">PyTorch</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/pytorch-domains">PyTorch 领域</a>
+            </li>
+          </ul>
+
+          <li class="resources-mobile-menu-title">
+            <a>博客 &amp; 新闻</a>
+          </li>
+            
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/blog/">PyTorch 博客</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/community-blog">社区博客</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/videos">视频</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/community-stories">社区故事</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/events">活动</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">通讯</a>
+             </li>
+          </ul>
+          
+          <li class="resources-mobile-menu-title">
+            <a>关于</a>
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/foundation">PyTorch 基金会</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/governing-board">管理委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">云信用计划</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">技术咨询委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">员工</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">联系我们</a>
+            </li>
+          </ul>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="../../../../_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body></html>

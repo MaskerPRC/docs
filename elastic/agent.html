@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Elastic Agent — PyTorch main documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pytorch.org/docs/stable/elastic/agent.html">
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css">
+  <!-- <link rel="stylesheet" href="../_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css">
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css">
+  <link rel="stylesheet" href="../_static/copybutton.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="../_static/katex-math.css" type="text/css">
+  <link rel="stylesheet" href="../_static/sphinx-dropdown.css" type="text/css">
+  <link rel="stylesheet" href="../_static/panels-bootstrap.min.css" type="text/css">
+  <link rel="stylesheet" href="../_static/css/jit.css" type="text/css">
+  <link rel="stylesheet" href="../_static/css/custom.css" type="text/css">
+    <link rel="index" title="Index" href="../genindex.html">
+    <link rel="search" title="Search" href="../search.html">
+    <link rel="next" title="Multiprocessing" href="multiprocessing.html">
+    <link rel="prev" title="torchrun (Elastic Launch)" href="run.html">
+
+<!--
+  Search engines should not index the main version of documentation.
+  Stable documentation are built without release == 'main'.
+-->
+<meta name="robots" content="noindex">
+
+
+  <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T8XT4PS');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+  <!-- Preload the theme fonts -->
+
+<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<!-- Preload the katex fonts -->
+
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Math-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size1-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size2-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Caligraphic-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
+</head><body class="pytorch-body"><div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+
+          <li class="main-menu-item">
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">学习</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/get-started">
+                  <span class="dropdown-title">开始使用</span>
+                  <p>在本地运行 PyTorch 或快速开始使用支持的云平台之一</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials">
+                  <span class="dropdown-title">教程</span><p></p>
+                  <p>PyTorch 教程中的新内容</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/basics/intro.html">
+                  <span class="dropdown-title">学习基础知识</span><p></p>
+                  <p>熟悉 PyTorch 的概念和模块</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/recipes/recipes_index.html">
+                  <span class="dropdown-title">PyTorch 食谱</span><p></p>
+                  <p>精简版、可直接部署的 PyTorch 代码示例</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/introyt.html">
+                  <span class="dropdown-title">PyTorch 入门 - YouTube 系列</span><p></p>
+                  <p>通过我们引人入胜的 YouTube 教程系列掌握 PyTorch 基础知识</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">生态系统</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem">
+                  <span class="dropdown-title">工具</span><p></p>
+                  <p>了解 PyTorch 生态系统中的工具和框架</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
+                  <span class="dropdown-title">社区</span>
+                  <p>加入 PyTorch 开发者社区，贡献、学习并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
+                  <span class="dropdown-title">论坛</span>
+                  <p>讨论 PyTorch 代码、问题、安装、研究的地方</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/resources">
+                  <span class="dropdown-title">开发者资源</span>
+                  <p>查找资源并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">贡献者奖项 - 2024</span><p></p>
+                  <p>本届 PyTorch 会议揭晓获奖者</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">
+                Edge
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/edge">
+                  <span class="dropdown-title">关于 PyTorch Edge</span><p></p>
+                  <p>为边缘设备构建创新和隐私感知的 AI 体验</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
+                  <span class="dropdown-title">ExecuTorch</span><p></p>
+                  <p>基于移动和边缘设备的端到端推理能力解决方案</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch 文档</span><p></p>
+                </a>
+              </div>
+            </div>  
+          </li>
+
+          <li class="main-menu-item">
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">文档</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/docs/stable/index.html">
+                  <span class="dropdown-title">PyTorch</span><p></p>
+                  <p>探索文档以获取全面指导，了解如何使用 PyTorch</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/pytorch-domains">
+                  <span class="dropdown-title">PyTorch 领域</span><p></p>
+                  <p>阅读 PyTorch 领域的文档，了解更多关于特定领域库的信息</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">博客与新闻</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/blog/">
+                  <span class="dropdown-title">PyTorch 博客</span><p></p>
+                  <p>捕捉最新的技术新闻和事件</p>
+                </a>
+                 <a class="nav-dropdown-item" href="https://pytorch.org/community-blog">
+                  <span class="dropdown-title">社区博客</span><p></p>
+                  <p>PyTorch 生态系统故事</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/videos">
+                  <span class="dropdown-title">视频</span><p></p>
+                  <p>了解最新的 PyTorch 教程、新内容等</p>
+                </a><a class="nav-dropdown-item" href="https://pytorch.org/community-stories">
+                  <span class="dropdown-title">社区故事</span><p></p>
+                  <p>学习如何我们的社区使用 PyTorch 解决真实、日常的机器学习问题</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/events">
+                  <span class="dropdown-title">活动</span><p></p>
+                  <p>查找活动、网络研讨会和播客</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">通讯</span><p></p>
+                  <p>跟踪最新更新</p>
+                </a>
+            </div>
+          </div></li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">关于</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/foundation">
+                  <span class="dropdown-title">PyTorch 基金会</span><p></p>
+                  <p>了解更多关于 PyTorch 基金会的信息</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
+                  <span class="dropdown-title">管理委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">云信用计划</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">技术顾问委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">员工</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">联系我们</span><p></p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li class="main-menu-item">
+            <div class="no-dropdown">
+              <a href="https://pytorch.org/join" data-cta="join">成为会员</a>
+            </div>
+          </li>
+          <li>
+           <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="github-icon">
+             </a>
+           </div>
+          </li>
+          <!--- TODO: This block adds the search icon to the nav bar. We will enable it later. 
+          <li>
+            <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="search-icon">
+             </a>
+            </div>
+          </li>
+          --->
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+  </div>
+</div>
+
+
+
+   
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>目录</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+    <div class="version">
+      <a href="https://pytorch.org/docs/versions.html">主程序 (2.7.0+cpu ) ▼</a>
+    </div>
+    <div id="searchBox">
+    <div class="searchbox" id="googleSearchBox">
+      <script async="" src="https://cse.google.com/cse.js?cx=e65585f8c3ea1440e"></script>
+      <div class="gcse-search"></div>
+    </div>
+    <div id="sphinxSearchBox" style="display: none;">
+      <div role="search">
+        <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+          <input type="text" name="q" placeholder="Search Docs">
+          <input type="hidden" name="check_keywords" value="yes">
+          <input type="hidden" name="area" value="default">
+        </form>
+      </div>
+    </div>
+  </div>
+  <form id="searchForm">
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="google" checked="">谷歌搜索</label>
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="sphinx">经典搜索</label>
+  </form>
+
+  <script>
+     document.addEventListener('DOMContentLoaded', function() {
+      const searchForm = document.getElementById('searchForm');
+      const googleSearchBox = document.getElementById('googleSearchBox');
+      const sphinxSearchBox = document.getElementById('sphinxSearchBox');
+      // Function to toggle search box visibility
+      function toggleSearchBox(searchType) {
+        googleSearchBox.style.display = searchType === 'google' ? 'block' : 'none';
+        sphinxSearchBox.style.display = searchType === 'sphinx' ? 'block' : 'none';
+      }
+      // Determine the default search type
+      let defaultSearchType;
+      const currentUrl = window.location.href;
+      if (currentUrl.startsWith('https://pytorch.org/docs/stable')) {
+        // For the stable documentation, default to Google
+        defaultSearchType = localStorage.getItem('searchType') || 'google';
+      } else {
+        // For any other version, including docs-preview, default to Sphinx
+        defaultSearchType = 'sphinx';
+      }
+      // Set the default search type
+      document.querySelector(`input[name="searchType"][value="${defaultSearchType}"]`).checked = true;
+      toggleSearchBox(defaultSearchType);
+      // Event listener for changes in search type
+      searchForm.addEventListener('change', function(event) {
+        const selectedSearchType = event.target.value;
+        localStorage.setItem('searchType', selectedSearchType);
+        toggleSearchBox(selectedSearchType);
+      });
+      // Set placeholder text for Google search box
+      window.onload = function() {
+        var placeholderText = "Search Docs";
+        var googleSearchboxText = document.querySelector("#gsc-i-id1");
+        if (googleSearchboxText) {
+          googleSearchboxText.placeholder = placeholderText;
+          googleSearchboxText.style.fontFamily = 'FreightSans';
+          googleSearchboxText.style.fontSize = "1.2rem";
+          googleSearchboxText.style.color = '#262626';
+        }
+      };
+    });
+  </script>
+
+          </div>
+
+          
+
+<div>
+  <a style="color:#F05732" href="https://pytorch.org/docs/stable/elastic/agent.html">您正在查看不稳定开发者预览文档。请点击此处查看最新稳定版本的文档。</a>
+</div>
+
+
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">社区</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../community/build_ci_governance.html">PyTorch 治理 | 构建 + CI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community/contribution_guide.html">PyTorch 贡献指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community/design.html">PyTorch 设计哲学</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community/governance.html">PyTorch 治理 | 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community/persons_of_interest.html">PyTorch 治理 | 维护者</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发者笔记</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../notes/amp_examples.html">自动混合精度示例</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/autograd.html">Autograd 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/broadcasting.html">广播语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/cpu_threading_torchscript_inference.html">CPU 多线程和 TorchScript 推理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/cuda.html">CUDA 语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/custom_operators.html">PyTorch 自定义算子页面</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/ddp.html">分布式数据并行</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/extending.html">扩展 PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/extending.func.html">使用 autograd.Function 扩展 torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/faq.html">常见问题解答</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/fsdp.html">FSDP 笔记</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/get_start_xpu.html">在 Intel GPU 上入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/gradcheck.html">Gradcheck 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/hip.html">HIP (ROCm)语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/large_scale_deployments.html">大规模部署功能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/libtorch_stable_abi.html">LibTorch 稳定 ABI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/modules.html">模块</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/mps.html">MPS 后端</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/multiprocessing.html">多进程最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/numerical_accuracy.html">数值精度</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/randomness.html">可重现性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/serialization.html">序列化语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/windows.html">Windows 常见问题解答</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">语言绑定</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../cpp_index.html">C++</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/javadoc/">Javadoc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deploy.html">torch::deploy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../torch.html">torch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../nn.html">torch.nn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../nn.functional.html">torch.nn.functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tensors.html">torch.Tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tensor_attributes.html">张量属性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tensor_view.html">索引视图</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../amp.html">torch.自动混合精度</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../autograd.html">torch.autograd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library.html">torch.library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../accelerator.html">torch.accelerator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cpu.html">torch.cpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cuda.html">torch.cuda</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch_cuda_memory.html">理解 CUDA 内存使用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch_cuda_memory.html#generating-a-snapshot">生成快照</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch_cuda_memory.html#using-the-visualizer">使用可视化工具</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch_cuda_memory.html#snapshot-api-reference">摄像头 API 参考</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mps.html">torch.mps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../xpu.html">torch.xpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mtia.html">torch.mtia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mtia.memory.html">torch.mtia.memory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../meta.html">元设备</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../backends.html">torch.backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../export.html">torch.export</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.html">torch.distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.tensor.html">torch.distributed.tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.algorithms.join.html">torch.distributed.algorithms.join</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../distributed.elastic.html">torch.distributed.elastic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fsdp.html">torch.distributed.fsdp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.fsdp.fully_shard.html">torch.distributed.fsdp.fully_shard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.tensor.parallel.html">torch.distributed.tensor.parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.optim.html">torch.distributed.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.pipelining.html">torch.distributed.pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.checkpoint.html">torch.distributed.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributions.html">torch.distributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch.compiler.html">torch.compiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fft.html">torch.fft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../func.html">torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../futures.html">torch.futures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fx.html">torch.fx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fx.experimental.html">torch.fx.experimental</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hub.html">torch.hub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../jit.html">torch.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../linalg.html">torch.linalg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../monitor.html">torch.monitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../signal.html">torch.signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../special.html">torch.special</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch.overrides.html">torch.overrides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../package.html">torch.package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../profiler.html">torch.profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../nn.init.html">torch.nn.init</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../nn.attention.html">torch.nn.attention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../onnx.html">torch.onnx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../optim.html">torch.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../complex_numbers.html">复数</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ddp_comm_hooks.html">DDP 通信钩子</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quantization.html">量化</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rpc.html">分布式 RPC 框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../random.html">torch.random</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../masked.html">torch.masked</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../nested.html">torch.nested</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../size.html">torch.Size</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sparse.html">torch.sparse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../storage.html">torch.Storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../testing.html">torch.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils.html">torch.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../benchmark_utils.html">torch.utils.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bottleneck.html">torch.utils.bottleneck</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../checkpoint.html">torch.utils.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cpp_extension.html">torch.utils.cpp_extension</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data.html">torch.utils.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deterministic.html">torch.utils.deterministic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../jit_utils.html">torch.utils.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dlpack.html">torch.utils.dlpack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mobile_optimizer.html">torch.utils.mobile_optimizer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../model_zoo.html">torch.utils.model_zoo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tensorboard.html">torch.utils.tensorboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../module_tracker.html">torch.utils.module_tracker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../type_info.html">类型信息</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../named_tensor.html">命名张量</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../name_inference.html">命名张量操作覆盖率</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../config_mod.html">torch.__config__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../future_mod.html">torch.__future__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../logging.html">torch._logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch_environment_variables.html">火炬环境变量</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">库</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/audio/stable">torchaudio</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/data">TorchData</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/torchrec">火炬推荐</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/serve">TorchServe</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/text/stable">torchtext</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/vision/stable">torchvision</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/xla/">PyTorch 在 XLA 设备上</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/ao">torchao</a></li>
+</ul>
+
+            
+          
+
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        文档 &gt;</li>
+
+        
+          <li>火炬分布式弹性 &gt;</li>
+        
+      <li>Elastic Agent</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/elastic/agent.rst.txt" rel="nofollow"><img src="../_static/images/view-page-source-icon.svg" width="16" height="16"></a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">快捷键</div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+
+          <!-- Google Tag Manager (noscript) -->
+          <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T8XT4PS" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+          <!-- End Google Tag Manager (noscript) -->
+          
+          <div class="rst-content">
+          
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <section id="module-torch.distributed.elastic.agent">
+<span id="elastic-agent"></span><h1>Elastic Agent ¬</h1>
+<section id="module-torch.distributed.elastic.agent.server">
+<span id="server"></span><h2>服务器 ¬</h2>
+<p>灵活的代理是 torchelastic 的控制平面。</p>
+<p>它是一个启动和管理底层工作进程的过程。代理负责：</p>
+<ol class="arabic simple">
+<li><p>与分布式 torch 协同工作：工作进程启动时携带所有必要信息，以便成功且简单地调用 <code class="docutils literal "><span class="pre">torch.distributed.init_process_group()</span></code> 。</p></li>
+<li><p>错误容错：监控工作进程，并在检测到工作进程故障或不健康时，关闭所有工作进程并重新启动所有人。</p></li>
+<li><p>弹性：对成员变更做出反应，并使用新成员重启工作进程。</p></li>
+</ol>
+<p>最简单的代理在每个节点上部署并处理本地进程。更高级的代理可以远程启动和管理工作进程。代理可以是完全去中心化的，根据其管理的工人做出决策。或者可以协调，与其他代理（管理相同工作的工人）通信以做出集体决策。</p>
+<p>下面是一个管理本地工作进程组的代理的示意图。</p>
+<img alt="../_images/agent_diagram.jpg" src="../_images/agent_diagram.jpg" width="242.6125030517578" height="20.80000114440918">
+</section>
+<section id="concepts">
+<h2>概念 ¶</h2>
+<p>本节描述了与理解 torchelastic 中 <code class="docutils literal "><span class="pre">agent</span></code> 角色相关的类和概念。</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.elastic.agent.server.ElasticAgent">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.elastic.agent.server.</span></span><span class="sig-name descname"><span class="pre">ElasticAgent</span></span><a class="reference internal" href="../_modules/torch/distributed/elastic/agent/server/api.html#ElasticAgent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/elastic/agent/server/api.py#L371"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.elastic.agent.server.ElasticAgent" title="Permalink to this definition">¶</a></dt>
+<dd><p>负责管理一个或多个工作进程的代理进程。</p>
+<p>假设工作进程是常规的分布式 PyTorch 脚本。当代理进程创建工作进程时，代理进程为工作进程提供必要的信息，以便工作进程正确初始化 torch 进程组。</p>
+<p>代理的部署拓扑和代理与工作者的比例取决于代理的具体实现和用户的作业放置偏好。例如，要在 GPU 上运行一个具有 8 个训练师（每个 GPU 一个）的分布式训练作业，可以：</p>
+<ol class="arabic simple">
+<li><p>使用 8 个单 GPU 实例，每个实例放置一个代理，每个代理管理 1 个工作者。</p></li>
+<li><p>使用 4 个双 GPU 实例，每个实例放置一个代理，每个代理管理 2 个工作者。</p></li>
+<li><p>使用 2 个四 GPU 实例，每个实例放置一个代理，每个代理管理 4 个工作者。</p></li>
+<li><p>使用 1 个 x8 GPU 实例，每个实例放置一个代理，每个代理管理 8 个工作者。</p></li>
+</ol>
+<p>使用说明</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">group_result</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+ <span class="k">if</span> <span class="n">group_result</span><span class="o">.</span><span class="n">is_failed</span><span class="p">():</span>
+   <span class="c1"># workers failed</span>
+   <span class="n">failure</span> <span class="o">=</span> <span class="n">group_result</span><span class="o">.</span><span class="n">failures</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+   <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">"worker 0 failed with exit code : </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">failure</span><span class="o">.</span><span class="n">exit_code</span><span class="p">)</span>
+ <span class="k">else</span><span class="p">:</span>
+   <span class="k">return</span> <span class="n">group_result</span><span class="o">.</span><span class="n">return_values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># return rank 0's results</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.elastic.agent.server.ElasticAgent.get_worker_group">
+获取工作者组（role='default'）[源代码][源代码] ¶</dt>
+<dd><p>返回给定 <code class="docutils literal "><span class="pre">role</span></code> 的 <code class="docutils literal "><span class="pre">WorkerGroup</span></code> 。</p>
+<p>注意，工作者组是一个可变对象，因此在多线程/进程环境中，其状态可能会改变。鼓励实现者（但不是必需）返回一个防御性的只读副本。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#torch.distributed.elastic.agent.server.WorkerGroup" title="torch.distributed.elastic.agent.server.api.WorkerGroup"><em>工作组</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.elastic.agent.server.ElasticAgent.run">
+抽象运行（role='default'）[来源][来源] ¶</dt>
+<dd><p>运行代理。</p>
+<p>支持在失败时重试工作组，最多重试 <code class="docutils literal "><span class="pre">max_restarts</span></code> 次。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回值<span class="colon">:</span></dt>
+<dd class="field-odd"><p>执行结果，包含每个工作者的全局排名映射的返回值或失败详情。</p>
+</dd>
+<dt class="field-even">引发<span class="colon">:</span></dt>
+<dd class="field-even"><p>异常 - 与工作者进程无关的其他失败。</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#torch.distributed.elastic.agent.server.api.RunResult" title="torch.distributed.elastic.agent.server.api.RunResult"><em>运行结果</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.elastic.agent.server.WorkerSpec">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.elastic.agent.server.</span></span><span class="sig-name descname"><span class="pre">WorkerSpec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">role</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_world_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rdzv_handler</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entrypoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_restarts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monitor_interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">master_port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">master_addr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_addr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/distributed/elastic/agent/server/api.html#WorkerSpec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/elastic/agent/server/api.py#L47"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.elastic.agent.server.WorkerSpec" title="Permalink to this definition">¶</a></dt>
+<dd><p>某种特定类型工人的蓝图信息。</p>
+<p>对于一个给定的角色，必须只存在一个工人规范。工人规范应跨所有节点（机器）保持一致，即每个节点运行相同数量的工人。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>角色 str - 用户定义的具有此规范的工人的角色</p></li>
+<li><p>local_world_size (int) - 运行的本地工人数</p></li>
+<li><p>fn (Optional[Callable]) – (已弃用，请使用 entrypoint 代替)</p></li>
+<li><p>entrypoint (Optional[Union[Callable, str]]) – 工作函数或命令</p></li>
+<li><p>args (tuple) – 传递给 <code class="docutils literal "><span class="pre">entrypoint</span></code> 的参数</p></li>
+<li><p>rdzv_handler (RendezvousHandler) – 处理该组工作者的 rendezvous</p></li>
+<li><p>max_restarts (int) – 工作进程的最大重试次数</p></li>
+<li><p>monitor_interval (float) – 每 <code class="docutils literal "><span class="pre">n</span></code> 秒监控工作进程的状态</p></li>
+<li><p>master_port (Optional[int]) – 如果未指定，则在 rank 0 上运行 c10d store 的固定端口，否则将选择一个随机的空闲端口</p></li>
+<li><p>master_addr (Optional[str]) – 如果未指定，则在 rank 0 上运行 c10d store 的固定 master_addr，否则将选择 agent rank 0 的主机名</p></li>
+<li><p>重定向 – 将标准流重定向到文件，通过传递映射选择性地重定向特定本地排名</p></li>
+<li><p>tee – 将指定的标准流（组）输出到控制台和文件，通过传递映射选择性地 tee 特定本地排名，优先于 <code class="docutils literal "><span class="pre">redirects</span></code> 设置。</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.elastic.agent.server.WorkerSpec.get_entrypoint_name">
+<span class="sig-name descname"><span class="pre">get_entrypoint_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/distributed/elastic/agent/server/api.html#WorkerSpec.get_entrypoint_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/elastic/agent/server/api.py#L103"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.elastic.agent.server.WorkerSpec.get_entrypoint_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>获取入口点名称。</p>
+<p>如果入口是一个函数（例如 <code class="docutils literal "><span class="pre">Callable</span></code> ），则返回其 <code class="docutils literal "><span class="pre">__qualname__</span></code> ；否则，如果入口是一个二进制文件（例如 <code class="docutils literal "><span class="pre">str</span></code> ），则返回二进制文件名。</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.elastic.agent.server.WorkerState">
+class torch.distributed.elastic.agent.server.WorkerState(value, names=&lt;未提供&gt;, *values, module=None, qualname=None, type=None, start=1, boundary=None)[source][source] ¶</dt>
+<dd><p>表示 <code class="docutils literal "><span class="pre">WorkerGroup</span></code> 的状态。</p>
+<p>工作组中的工作者状态会作为一个单元进行更改。如果工作组中的单个工作者失败，则整个集合被视为失败：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span>UNKNOWN - agent lost track of worker group state, unrecoverable
+INIT - worker group object created not yet started
+HEALTHY - workers running and healthy
+UNHEALTHY - workers running and unhealthy
+STOPPED - workers stopped (interrupted) by the agent
+SUCCEEDED - workers finished running (exit 0)
+FAILED - workers failed to successfully finish (exit !0)
+</pre></div>
+</div>
+<p>工作组从初始的 <code class="docutils literal "><span class="pre">INIT</span></code> 状态开始，然后进展到 <code class="docutils literal "><span class="pre">HEALTHY</span></code> 或 <code class="docutils literal "><span class="pre">UNHEALTHY</span></code> 状态，最终达到终端的 <code class="docutils literal "><span class="pre">SUCCEEDED</span></code> 或 <code class="docutils literal "><span class="pre">FAILED</span></code> 状态。</p>
+<p>工作组可以被中断并暂时置于 <code class="docutils literal "><span class="pre">STOPPED</span></code> 状态，由代理进行。处于 <code class="docutils literal "><span class="pre">STOPPED</span></code> 状态的工人将由代理安排在不久的将来重启。以下是将工人置于 <code class="docutils literal "><span class="pre">STOPPED</span></code> 状态的几个例子：</p>
+<ol class="arabic simple">
+<li><p>观察到工作组故障|不健康</p></li>
+<li><p>检测到成员变更</p></li>
+</ol>
+<p>当工作组成员上的操作（开始、停止、rdzv、重试等）失败并导致操作仅部分应用于工作组成员时，状态将为 <code class="docutils literal "><span class="pre">UNKNOWN</span></code> 。通常这种情况发生在代理状态变化事件中的未捕获/未处理的异常期间。代理不期望从 <code class="docutils literal "><span class="pre">UNKNOWN</span></code> 状态恢复工作组成员，最好是自行终止，并允许作业管理器重试节点。</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.elastic.agent.server.WorkerState.is_running">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_running</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/distributed/elastic/agent/server/api.html#WorkerState.is_running"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/elastic/agent/server/api.py#L233"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.elastic.agent.server.WorkerState.is_running" title="Permalink to this definition">¶</a></dt>
+<dd><p>返回工作组成员的状态。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回值<span class="colon">:</span></dt>
+<dd class="field-odd"><p>如果工作组成员的状态表示工作组成员仍在运行（例如，进程存在但不一定健康），则为 True。</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">布尔型</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.elastic.agent.server.Worker">
+class torch.distributed.elastic.agent.server.Worker(本地 rank, 全局 rank=- 1, 角色 rank=- 1, 世界大小=- 1, 角色世界大小=- 1)[source][source] ¶</dt>
+<dd><p>工作实例。</p>
+<p>与表示工作规格的 <code class="docutils literal "><span class="pre">WorkerSpec</span></code> 进行对比。一个 <code class="docutils literal "><span class="pre">Worker</span></code> 由一个 <code class="docutils literal "><span class="pre">WorkerSpec</span></code> 创建。一个 <code class="docutils literal "><span class="pre">Worker</span></code> 对一个 <code class="docutils literal "><span class="pre">WorkerSpec</span></code> 的关系，就像对象对类的关系。</p>
+<p>工作实例的 <code class="docutils literal "><span class="pre">id</span></code> 由 <code class="docutils literal "><span class="pre">ElasticAgent</span></code> 的特定实现进行解释。对于本地代理，它可能是工作实例的 <code class="docutils literal "><span class="pre">pid</span> <span class="pre">(int)</span></code> ，对于远程代理，它可能被编码为 <code class="docutils literal "><span class="pre">host:port</span> <span class="pre">(string)</span></code> 。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>id（任何）- 唯一标识一个工作者（由代理解释）</p></li>
+<li><p>local_rank（整数）- 工作者的本地域排名</p></li>
+<li><p>global_rank（整数）- 工作者的全局排名</p></li>
+<li><p>role_rank（整数）- 在具有相同角色的所有工作者中的排名</p></li>
+<li><p>world_size (int) – 全局工作进程数量</p></li>
+<li><p>role_world_size (int) – 具有相同角色的工作进程数量</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.elastic.agent.server.WorkerGroup">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.elastic.agent.server.</span></span><span class="sig-name descname"><span class="pre">WorkerGroup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/distributed/elastic/agent/server/api.html#WorkerGroup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/elastic/agent/server/api.py#L244"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.elastic.agent.server.WorkerGroup" title="Permalink to this definition">¶</a></dt>
+<dd><p>一组 <code class="docutils literal "><span class="pre">Worker</span></code> 实例的集合。</p>
+<p>该类定义了针对给定 <code class="docutils literal "><span class="pre">WorkerSpec</span></code> 的 <code class="docutils literal "><span class="pre">Worker</span></code> 实例集，由 <code class="docutils literal "><span class="pre">ElasticAgent</span></code> 管理。工作组是否包含跨实例的工作者取决于代理的实现。</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+</section>
+<section id="implementations">
+<h2>实现说明</h2>
+<p>以下是 torchelastic 提供的代理实现。</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.elastic.agent.server.local_elastic_agent.LocalElasticAgent">
+class torch.distributed.elastic.agent.server.local_elastic_agent.LocalElasticAgent(spec, logs_specs, start_method='spawn', exit_barrier_timeout=300, log_line_prefix_template=None)[source][source]</dt>
+<dd><p> <code class="xref py py-class docutils literal "><span class="pre">torchelastic.agent.server.ElasticAgent</span></code> 的实现，用于处理主机本地工作者。</p>
+<p>此代理在每个主机上部署，并配置为启动 <code class="docutils literal "><span class="pre">n</span></code> 工作者。当使用 GPU 时， <code class="docutils literal "><span class="pre">n</span></code> 映射到主机上可用的 GPU 数量。</p>
+<p>本地代理不会与其他主机上部署的其他本地代理通信，即使工作者可能进行跨主机通信。工作者 ID 被解释为本地进程。代理作为一个整体启动和停止所有工作者进程。</p>
+<p>工作者函数和传递给工作者函数的参数必须与 Python 多进程兼容。要传递多进程数据结构给工作者，你可以在与指定的 <code class="docutils literal "><span class="pre">start_method</span></code> 相同的多进程上下文中创建数据结构，并将其作为函数参数传递。</p>
+<p>“ <code class="docutils literal "><span class="pre">exit_barrier_timeout</span></code> 指定了等待其他代理完成的时间（以秒为单位）。这作为一个安全网，用于处理工作者在不同时间完成的情况，以防止代理将提前完成的工作者视为缩放事件。强烈建议用户代码确保以同步方式终止工作者，而不是依赖于 exit_barrier_timeout。”</p>
+<p>“如果 <code class="docutils literal "><span class="pre">`LocalElasticAgent`</span></code> 进程中定义了一个值为 1 的环境变量 <code class="docutils literal "><span class="pre">TORCHELASTIC_ENABLE_FILE_TIMER</span></code> ，则可以在 <code class="docutils literal "><span class="pre">`LocalElasticAgent`</span></code> 中启用基于命名管道的看门狗。可选地，还可以设置另一个环境变量 <code class="docutils literal "><span class="pre">`TORCHELASTIC_TIMER_FILE`</span></code> ，以唯一的文件名命名命名管道。如果未设置环境变量 <code class="docutils literal "><span class="pre">`TORCHELASTIC_TIMER_FILE`</span></code> ， <code class="docutils literal "><span class="pre">`LocalElasticAgent`</span></code> 将内部创建一个唯一的文件名并将其设置为环境变量 <code class="docutils literal "><span class="pre">`TORCHELASTIC_TIMER_FILE`</span></code> ，并将此环境变量传播到工作者进程，以便它们可以连接到 <code class="docutils literal "><span class="pre">`LocalElasticAgent`</span></code> 使用的同一命名管道。”</p>
+<p>日志被写入指定的日志目录。默认情况下，每条日志行都会以 <code class="docutils literal "><span class="pre">[${role_name}${local_rank}]:</span></code> （例如 <code class="docutils literal "><span class="pre">[trainer0]:</span> <span class="pre">foobar</span></code> ）为前缀。可以通过传递模板字符串作为 <code class="docutils literal "><span class="pre">log_line_prefix_template</span></code> 参数来自定义日志前缀。以下宏（标识符）在运行时会被替换： <code class="docutils literal "><span class="pre">${role_name},</span> <span class="pre">${local_rank},</span> <span class="pre">${rank}</span></code> 。例如，要使用全局排名而不是本地排名来前缀每条日志行，请设置 <code class="docutils literal "><span class="pre">log_line_prefix_template</span> <span class="pre">=</span> <span class="pre">"[${rank}]:</span></code> 。</p>
+<p>示例启动函数</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">trainer</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="s2">"do train"</span>
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">start_method</span><span class="o">=</span><span class="s2">"spawn"</span>
+    <span class="n">shared_queue</span><span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">get_context</span><span class="p">(</span><span class="n">start_method</span><span class="p">)</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+    <span class="n">spec</span> <span class="o">=</span> <span class="n">WorkerSpec</span><span class="p">(</span>
+                <span class="n">role</span><span class="o">=</span><span class="s2">"trainer"</span><span class="p">,</span>
+                <span class="n">local_world_size</span><span class="o">=</span><span class="n">nproc_per_process</span><span class="p">,</span>
+                <span class="n">entrypoint</span><span class="o">=</span><span class="n">trainer</span><span class="p">,</span>
+                <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="s2">"foobar"</span><span class="p">,),</span>
+                <span class="o">...&lt;</span><span class="n">OTHER_PARAMS</span><span class="o">...&gt;</span><span class="p">)</span>
+    <span class="n">agent</span> <span class="o">=</span> <span class="n">LocalElasticAgent</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">start_method</span><span class="p">)</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">results</span><span class="o">.</span><span class="n">is_failed</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"trainer failed"</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"rank 0 return value: </span><span class="si">{</span><span class="n">results</span><span class="o">.</span><span class="n">return_values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="c1"># prints -&gt; rank 0 return value: do train</span>
+</pre></div>
+</div>
+<p>示例启动二进制文件</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">spec</span> <span class="o">=</span> <span class="n">WorkerSpec</span><span class="p">(</span>
+                <span class="n">role</span><span class="o">=</span><span class="s2">"trainer"</span><span class="p">,</span>
+                <span class="n">local_world_size</span><span class="o">=</span><span class="n">nproc_per_process</span><span class="p">,</span>
+                <span class="n">entrypoint</span><span class="o">=</span><span class="s2">"/usr/local/bin/trainer"</span><span class="p">,</span>
+                <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="s2">"--trainer-args"</span><span class="p">,</span> <span class="s2">"foobar"</span><span class="p">),</span>
+                <span class="o">...&lt;</span><span class="n">OTHER_PARAMS</span><span class="o">...&gt;</span><span class="p">)</span>
+    <span class="n">agent</span> <span class="o">=</span> <span class="n">LocalElasticAgent</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">results</span><span class="o">.</span><span class="n">is_failed</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"binary launches do not have return values"</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+</section>
+<section id="extending-the-agent">
+<h2>扩展代理</h2>
+<p>要扩展代理，您可以直接实现 <code class="docutils literal "><span class="pre">`ElasticAgent</span></code> ，但我们建议您扩展 <code class="docutils literal "><span class="pre">SimpleElasticAgent</span></code> ，它提供了大部分的框架，并留给你一些具体的抽象方法来实现。</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.elastic.agent.server.SimpleElasticAgent">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.elastic.agent.server.</span></span><span class="sig-name descname"><span class="pre">SimpleElasticAgent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exit_barrier_timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/distributed/elastic/agent/server/api.html#SimpleElasticAgent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/elastic/agent/server/api.py#L433"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.elastic.agent.server.SimpleElasticAgent" title="Permalink to this definition">¶</a></dt>
+<dd><p>一个管理特定类型工作角色的 <code class="docutils literal "><span class="pre">ElasticAgent</span></code> 。</p>
+<p>一个管理单个 <code class="docutils literal "><span class="pre">WorkerSpec</span></code> （如特定类型的工作角色）的工人（ <code class="docutils literal "><span class="pre">WorkerGroup</span></code> ）的 <code class="docutils literal "><span class="pre">ElasticAgent</span></code> 。</p>
+<dl class="field-list simple">
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.elastic.agent.server.SimpleElasticAgent._assign_worker_ranks">
+<span class="sig-name descname"><span class="pre">_assign_worker_ranks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">store</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_rank</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_world_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/distributed/elastic/agent/server/api.html#SimpleElasticAgent._assign_worker_ranks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/elastic/agent/server/api.py#L554"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.elastic.agent.server.SimpleElasticAgent._assign_worker_ranks" title="Permalink to this definition">¶</a></dt>
+<dd><p>确定工作进程的正确排名。</p>
+<p>快速路径：当所有工作进程具有相同的角色和世界大小时。我们计算全局排名为 group_rank * group_world_size + local_rank。角色世界大小与全局世界大小相同。在这种情况下不使用 TCP 存储。仅在用户设置环境变量 TORCH_ELASTIC_WORKER_IDENTICAL 为 1 时启用。</p>
+<p>时间复杂度：每个工作进程 O(1)，总体 O(1)</p>
+<p>慢路径：当工作者具有不同的角色和世界大小时。我们使用以下算法：</p>
+<ol class="arabic simple">
+<li><p>每个代理将其配置（group_rank、group_world_size、num_workers）写入公共存储。</p></li>
+<li><p>排名 0 的代理从存储中读取所有 role_info，并确定每个代理的工作者排名。</p></li>
+<li><p>确定全局排名：工作者的全局排名是通过其前面所有工作者的 local_world_size 的累积和来计算的。为了提高效率，每个工作者被分配一个基本全局排名，使得其工作者位于[base_global_rank, base_global_rank + local_world_size)的范围内。</p></li>
+<li><p>确定角色排名：角色排名使用第 3 点中的算法确定，但排名是相对于角色名称计算的。</p></li>
+<li><p>排名 0 的代理将分配的排名写入存储。</p></li>
+<li><p>每个代理从存储中读取分配的排名。</p></li>
+</ol>
+<p>时间复杂度：每个工作代理 O(1)，rank0 O(n)，总体 O(n)</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[torch.distributed.elastic.agent.server.api.Worker]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.elastic.agent.server.SimpleElasticAgent._exit_barrier">
+<span class="sig-name descname"><span class="pre">_exit_barrier</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/distributed/elastic/agent/server/api.html#SimpleElasticAgent._exit_barrier"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/elastic/agent/server/api.py#L923"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.elastic.agent.server.SimpleElasticAgent._exit_barrier" title="Permalink to this definition">¶</a></dt>
+<dd><p>定义一个屏障，使代理进程保持活动状态，直到所有工作进程完成。</p>
+<p>等待 <code class="docutils literal "><span class="pre">exit_barrier_timeout</span></code> 秒，直到所有代理完成执行其本地工作进程（无论成功与否）。这作为防止用户脚本在不同时间终止的安全防护。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.elastic.agent.server.SimpleElasticAgent._initialize_workers">
+初始化工作者(worker_group)[source][source] ¶</dt>
+<dd><p>为 worker_group 启动一组新的工作者。</p>
+<p>实质上，这是一个会合后跟随的 <code class="docutils literal "><span class="pre">start_workers</span></code> 。调用者应在调用此方法之前首先调用 <code class="docutils literal "><span class="pre">_stop_workers()</span></code> 来停止运行工作者。</p>
+<p>乐观地设置刚刚启动的工作者组的状态为 <code class="docutils literal "><span class="pre">HEALTHY</span></code> ，并将实际状态监控委托给 <code class="docutils literal "><span class="pre">_monitor_workers()</span></code> 方法。</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.elastic.agent.server.SimpleElasticAgent._monitor_workers">
+抽象 _monitor_workers(worker_group)[source][source] ¶</dt>
+<dd><p>检查 <code class="docutils literal "><span class="pre">worker_group</span></code> 的工作者。</p>
+<p>此函数还返回工作者组的新状态。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#torch.distributed.elastic.agent.server.api.RunResult" title="torch.distributed.elastic.agent.server.api.RunResult"><em>运行结果</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.elastic.agent.server.SimpleElasticAgent._rendezvous">
+<span class="sig-name descname"><span class="pre">_rendezvous</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">worker_group</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/distributed/elastic/agent/server/api.html#SimpleElasticAgent._rendezvous"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/elastic/agent/server/api.py#L490"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.elastic.agent.server.SimpleElasticAgent._rendezvous" title="Permalink to this definition">¶</a></dt>
+<dd><p>为指定的 worker 运行 rendezvous。</p>
+<p>为 worker 分配新的全局排名和世界大小。更新 worker 组的 rendezvous 存储。</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.elastic.agent.server.SimpleElasticAgent._restart_workers">
+<span class="sig-name descname"><span class="pre">_restart_workers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">worker_group</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/distributed/elastic/agent/server/api.html#SimpleElasticAgent._restart_workers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/elastic/agent/server/api.py#L695"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.elastic.agent.server.SimpleElasticAgent._restart_workers" title="Permalink to this definition">¶</a></dt>
+<dd><p>重启（停止、会合、启动）组内所有本地工作进程。</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.elastic.agent.server.SimpleElasticAgent._shutdown">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_shutdown</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">death_sig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Signals.SIGTERM</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_restart</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/distributed/elastic/agent/server/api.html#SimpleElasticAgent._shutdown"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/elastic/agent/server/api.py#L479"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.elastic.agent.server.SimpleElasticAgent._shutdown" title="Permalink to this definition">¶</a></dt>
+<dd><p>清理代理工作期间分配的任何资源。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>death_sig (Signals) – 发送给子进程的信号，默认为 SIGTERM</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.elastic.agent.server.SimpleElasticAgent._start_workers">
+抽象 _start_workers(worker_group)[source][source] ¶</dt>
+<dd><p>启动 <code class="docutils literal "><span class="pre">worker_group.spec.local_world_size</span></code> 工作进程数。</p>
+<p>这是根据工作进程组的工作进程规范。返回从 <code class="docutils literal "><span class="pre">local_rank</span></code> 到工作进程 <code class="docutils literal "><span class="pre">id</span></code> 的映射。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[int, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.elastic.agent.server.SimpleElasticAgent._stop_workers">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_stop_workers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">worker_group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_restart</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/distributed/elastic/agent/server/api.html#SimpleElasticAgent._stop_workers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/elastic/agent/server/api.py#L459"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.elastic.agent.server.SimpleElasticAgent._stop_workers" title="Permalink to this definition">¶</a></dt>
+<dd><p>停止给定工作组中的所有工作者。</p>
+<p>实现者必须处理由 <code class="docutils literal "><span class="pre">WorkerState</span></code> 定义的所有状态的工作者。也就是说，它必须优雅地处理停止不存在的工作者、不健康（卡住）的工作者等情况。</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.elastic.agent.server.api.RunResult">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.elastic.agent.server.api.</span></span><span class="sig-name descname"><span class="pre">RunResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_values=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">failures=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/distributed/elastic/agent/server/api.html#RunResult"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/elastic/agent/server/api.py#L333"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.elastic.agent.server.api.RunResult" title="Permalink to this definition">¶</a></dt>
+<dd><p>返回工作执行的结果。</p>
+<p>运行结果遵循“全有或全无”策略，只有当此代理管理的所有本地工作都成功完成时，运行才成功。</p>
+<p>如果结果是成功的（例如 <code class="docutils literal "><span class="pre">is_failed()</span> <span class="pre">=</span> <span class="pre">False</span></code> ），则 <code class="docutils literal "><span class="pre">return_values</span></code> 字段包含由该代理管理的工件的输出（返回值），按它们的全局排名映射。也就是说， <code class="docutils literal "><span class="pre">result.return_values[0]</span></code> 是全局排名 0 的返回值。</p>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p> <code class="docutils literal "><span class="pre">return_values</span></code> 仅在工件入口点为函数时才有意义。指定为二进制入口点的工件没有规范化的返回值， <code class="docutils literal "><span class="pre">return_values</span></code> 字段没有意义，可能为空。</p>
+</div>
+<p>如果 <code class="docutils literal "><span class="pre">is_failed()</span></code> 返回 <code class="docutils literal "><span class="pre">True</span></code> ，则 <code class="docutils literal "><span class="pre">failures</span></code> 字段包含失败信息，再次，通过失败工作者的全局排名进行映射。</p>
+<p> <code class="docutils literal "><span class="pre">return_values</span></code> 和 <code class="docutils literal "><span class="pre">failures</span></code> 中的键是互斥的，也就是说，工作者的最终状态只能是以下之一：成功、失败。根据代理的重启策略由代理有意终止的工作者，在 <code class="docutils literal "><span class="pre">return_values</span></code> 或 <code class="docutils literal "><span class="pre">failures</span></code> 中均不表示。</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+</section>
+<section id="watchdog-in-the-agent">
+<h2>代理中的看门狗</h2>
+<p>如果在 <code class="docutils literal "><span class="pre">`LocalElasticAgent`</span></code> 进程中定义了一个值为 1 的环境变量 <code class="docutils literal "><span class="pre">TORCHELASTIC_ENABLE_FILE_TIMER</span></code> ，则可以在 <code class="docutils literal "><span class="pre">`LocalElasticAgent`</span></code> 中启用基于命名管道的看门狗。可选地，还可以设置另一个环境变量 <code class="docutils literal "><span class="pre">`TORCHELASTIC_TIMER_FILE`</span></code> ，用于设置唯一的文件名。如果未设置环境变量 <code class="docutils literal "><span class="pre">`TORCHELASTIC_TIMER_FILE`</span></code> ， <code class="docutils literal "><span class="pre">`LocalElasticAgent`</span></code> 将内部创建一个唯一的文件名并将其设置为环境变量 <code class="docutils literal "><span class="pre">`TORCHELASTIC_TIMER_FILE`</span></code> ，并将此环境变量传播到工作进程，以便它们可以连接到 <code class="docutils literal "><span class="pre">`LocalElasticAgent`</span></code> 使用的同一命名管道。</p>
+</section>
+<section id="health-check-server">
+<h2>健康检查服务器</h2>
+<p>如果在 <code class="docutils literal "><span class="pre">`LocalElasticAgent`</span></code> 进程中已定义环境变量 <code class="docutils literal "><span class="pre">TORCHELASTIC_HEALTH_CHECK_PORT</span></code> ，则可以在 <code class="docutils literal "><span class="pre">`LocalElasticAgent`</span></code> 中启用健康检查监控服务器。添加健康检查服务器的接口，可以通过在指定的端口号上启动 tcp/http 服务器进行扩展。此外，健康检查服务器将具有回调以检查看门狗是否存活。</p>
+<span class="target" id="module-torch.distributed.elastic.agent.server.health_check_server"></span><dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.elastic.agent.server.health_check_server.HealthCheckServer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.elastic.agent.server.health_check_server.</span></span><span class="sig-name descname"><span class="pre">HealthCheckServer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alive_callback</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/distributed/elastic/agent/server/health_check_server.html#HealthCheckServer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/elastic/agent/server/health_check_server.py#L19"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.elastic.agent.server.health_check_server.HealthCheckServer" title="Permalink to this definition">¶</a></dt>
+<dd><p>健康检查监控服务器的接口，可以通过在指定的端口号上启动 tcp/http 服务器进行扩展。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>alive_callback (Callable[[], int]) – Callable[[], int]，回调到代理的最后进度时间</p></li>
+<li><p>port (int) – int，启动 tcp/http 服务器的端口号</p></li>
+<li><p>timeout (int) – int，决定代理是否存活/死亡的超时秒数</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.elastic.agent.server.health_check_server.HealthCheckServer.start">
+<span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/distributed/elastic/agent/server/health_check_server.html#HealthCheckServer.start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/elastic/agent/server/health_check_server.py#L44"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.elastic.agent.server.health_check_server.HealthCheckServer.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pytorch 不支持的功能，无法启动任何健康检查服务器</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.elastic.agent.server.health_check_server.HealthCheckServer.stop">
+<span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/distributed/elastic/agent/server/health_check_server.html#HealthCheckServer.stop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/elastic/agent/server/health_check_server.py#L50"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.elastic.agent.server.health_check_server.HealthCheckServer.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>停止健康检查服务器的函数</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.distributed.elastic.agent.server.health_check_server.create_healthcheck_server">
+<span class="sig-prename descclassname"><span class="pre">torch.distributed.elastic.agent.server.health_check_server.</span></span><span class="sig-name descname"><span class="pre">create_healthcheck_server</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alive_callback</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/distributed/elastic/agent/server/health_check_server.html#create_healthcheck_server"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/elastic/agent/server/health_check_server.py#L57"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.elastic.agent.server.health_check_server.create_healthcheck_server" title="Permalink to this definition">¶</a></dt>
+<dd><p>创建健康检查服务器对象</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#torch.distributed.elastic.agent.server.health_check_server.HealthCheckServer" title="torch.distributed.elastic.agent.server.health_check_server.HealthCheckServer"><em>健康检查服务器</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+             </article>
+             
+            </div>
+            <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        下一个 <img height="16" width="16" class="next-page" src="../_static/images/chevron-right-orange.svg"> <img height="16" width="16" class="previous-page" src="../_static/images/chevron-right-orange.svg"> 上一个
+      
+    </div>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>© 版权所有 PyTorch 贡献者。</p>
+  </div>
+    
+      <div>使用 Sphinx 构建，主题由 Read the Docs 提供。</div>
+     
+
+</footer>
+
+          </div>
+<script>
+
+var match = window.location.href.match(/\/_[a-zA-Z0-9_]*.html|_dynamo/gi);
+var url = window.location.href.lastIndexOf(match[match.length-1]);
+
+if (url)
+  {
+    var div = '<div class="admonition note"><p class="admonition-title">Note</p><p><i class="fa fa-exclamation-circle" aria-hidden="true">&nbsp</i> This page describes an internal API which is not intended to be used outside of the PyTorch codebase and can be modified or removed without notice.</p></div>'
+    document.getElementById("pytorch-article").insertAdjacentHTML('afterBegin', div)
+  }
+</script>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">弹性代理</a><ul>
+<li><a class="reference internal" href="#module-torch.distributed.elastic.agent.server">服务器</a></li>
+<li><a class="reference internal" href="#concepts">概念</a></li>
+<li><a class="reference internal" href="#implementations">实现</a></li>
+<li><a class="reference internal" href="#extending-the-agent">扩展智能体</a></li>
+<li><a class="reference internal" href="#watchdog-in-the-agent">智能体中的看门狗</a></li>
+<li><a class="reference internal" href="#health-check-server">健康检查服务器</a></li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+         <script src="../_static/jquery.js"></script>
+         <script src="../_static/underscore.js"></script>
+         <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+         <script src="../_static/doctools.js"></script>
+         <script src="../_static/clipboard.min.js"></script>
+         <script src="../_static/copybutton.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="../_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="../_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ 
+<script script="" type="text/javascript">
+  var collapsedSections = ['Developer Notes', 'Language Bindings', 'Libraries', 'Community'];
+</script>
+
+<img height="1" width="1" style="border-style:none;" alt="" src="https://www.googleadservices.com/pagead/conversion/795629140/?label=txkmCPmdtosBENSssfsC&amp;guid=ON&amp;script=0">
+
+
+  <!-- Begin Footer -->
+
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 text-center">
+          <h2>文档</h2>
+          <p>查看 PyTorch 的全面开发者文档</p>
+          <a class="with-right-arrow" href="https://pytorch.org/docs/stable/index.html">查看文档</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>教程</h2>
+          <p>深入了解初学者和高级开发者的教程</p>
+          <a class="with-right-arrow" href="https://pytorch.org/tutorials">查看教程</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>资源</h2>
+          <p>查找开发资源并获得您的疑问解答</p>
+          <a class="with-right-arrow" href="https://pytorch.org/resources">查看资源</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://pytorch.org/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/">PyTorch</a></li>
+            <li><a href="https://pytorch.org/get-started">开始使用</a></li>
+            <li><a href="https://pytorch.org/features">功能</a></li>
+            <li><a href="https://pytorch.org/ecosystem">生态系统</a></li>
+            <li><a href="https://pytorch.org/blog/">博客</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md">贡献</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/resources">资源</a></li>
+            <li><a href="https://pytorch.org/tutorials">教程</a></li>
+            <li><a href="https://pytorch.org/docs/stable/index.html">文档</a></li>
+            <li><a href="https://discuss.pytorch.org" target="_blank">讨论</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/issues" target="_blank">GitHub 问题和任务</a></li>
+            <li><a href="https://pytorch.org/assets/brand-guidelines/PyTorch-Brand-Guidelines.pdf" target="_blank">品牌指南</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">保持更新</li>
+            <li><a href="https://www.facebook.com/pytorch" target="_blank">Facebook</a></li>
+            <li><a href="https://twitter.com/pytorch" target="_blank">推特</a></li>
+            <li><a href="https://www.youtube.com/pytorch" target="_blank">YouTube</a></li>
+            <li><a href="https://www.linkedin.com/company/pytorch" target="_blank">领英</a></li>
+          </ul>  
+          </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">PyTorch 播客</li>
+            <li><a href="https://open.spotify.com/show/6UzHKeiy368jKfQMKKvJY5" target="_blank">Spotify</a></li>
+            <li><a href="https://podcasts.apple.com/us/podcast/pytorch-developer-podcast/id1566080008" target="_blank">苹果</a></li>
+            <li><a href="https://www.google.com/podcasts?feed=aHR0cHM6Ly9mZWVkcy5zaW1wbGVjYXN0LmNvbS9PQjVGa0lsOA%3D%3D" target="_blank">谷歌</a></li>
+            <li><a href="https://music.amazon.com/podcasts/7a4e6f0e-26c2-49e9-a478-41bd244197d0/PyTorch-Developer-Podcast?" target="_blank">亚马逊</a></li>
+          </ul>
+         </div>
+        </div>
+        
+        <div class="privacy-policy">
+          <ul>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/terms/" target="_blank">条款</a></li>
+            <li class="privacy-policy-links">|</li>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/privacy-policy/" target="_blank">隐私</a></li>
+          </ul>
+        </div>
+        <div class="copyright">
+        <p>© 版权所有 Linux 基金会。PyTorch 基金会是 Linux 基金会的一个项目。有关本网站的使用条款、商标政策以及其他适用于 PyTorch 基金会的政策，请参阅 www.linuxfoundation.org/policies/。PyTorch 基金会支持 PyTorch 开源项目，该项目已被确立为 LF Projects, LLC 的 PyTorch 项目系列。有关适用于 PyTorch 项目系列 LF Projects, LLC 的政策，请参阅 www.lfprojects.org/policies/。</p>
+      </div>
+     </div>
+
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">为了分析流量并优化您的体验，我们在本网站上提供 cookie。通过点击或导航，您同意允许我们使用 cookie。作为本网站的当前维护者，Facebook 的 cookie 政策适用。了解更多信息，包括可用的控制选项：cookie 政策。</p>
+    <img class="close-button" src="../_static/images/pytorch-x.svg" width="16" height="16">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+           <li class="resources-mobile-menu-title">
+             <a>学习</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/get-started">开始使用</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials">教程</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/basics/intro.html">学习基础知识</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/recipes/recipes_index.html">PyTorch 菜谱</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/introyt.html">PyTorch 入门 - YouTube 系列</a>
+             </li>
+           </ul>
+           <li class="resources-mobile-menu-title">
+             <a>生态系统</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/ecosystem">工具</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/#community-module">社区</a>
+             </li>
+             <li>
+               <a href="https://discuss.pytorch.org/">论坛</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/resources">开发者资源</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">贡献者奖项 - 2024</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>Edge</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/edge">关于 PyTorch Edge</a>
+             </li>
+             
+             <li>
+               <a href="https://pytorch.org/executorch-overview">执行火炬</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch 文档</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>文档</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/docs/stable/index.html">PyTorch</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/pytorch-domains">PyTorch 领域</a>
+            </li>
+          </ul>
+
+          <li class="resources-mobile-menu-title">
+            <a>博客 &amp; 新闻</a>
+          </li>
+            
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/blog/">PyTorch 博客</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/community-blog">社区博客</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/videos">视频</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/community-stories">社区故事</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/events">活动</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">通讯</a>
+             </li>
+          </ul>
+          
+          <li class="resources-mobile-menu-title">
+            <a>关于</a>
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/foundation">PyTorch 基金会</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/governing-board">治理委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">云信用计划</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">技术顾问委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">员工</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">联系我们</a>
+            </li>
+          </ul>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="../_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body></html>

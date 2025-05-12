@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>torch.utils.cpp_extension — PyTorch main documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pytorch.org/docs/stable/cpp_extension.html">
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css">
+  <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css">
+  <link rel="stylesheet" href="_static/copybutton.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="_static/katex-math.css" type="text/css">
+  <link rel="stylesheet" href="_static/sphinx-dropdown.css" type="text/css">
+  <link rel="stylesheet" href="_static/panels-bootstrap.min.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/jit.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css">
+    <link rel="index" title="Index" href="genindex.html">
+    <link rel="search" title="Search" href="search.html">
+    <link rel="next" title="torch.utils.data" href="data.html">
+    <link rel="prev" title="torch.utils.checkpoint" href="checkpoint.html">
+
+<!--
+  Search engines should not index the main version of documentation.
+  Stable documentation are built without release == 'main'.
+-->
+<meta name="robots" content="noindex">
+
+
+  <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T8XT4PS');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+  <!-- Preload the theme fonts -->
+
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<!-- Preload the katex fonts -->
+
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Math-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size1-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size2-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Caligraphic-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
+</head><body class="pytorch-body"><div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+
+          <li class="main-menu-item">
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">学习</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/get-started">
+                  <span class="dropdown-title">开始学习</span>
+                  <p>在本地运行 PyTorch 或快速开始使用支持的云平台之一</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials">
+                  <span class="dropdown-title">教程</span><p></p>
+                  <p>PyTorch 教程中的新内容</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/basics/intro.html">
+                  <span class="dropdown-title">学习基础知识</span><p></p>
+                  <p>熟悉 PyTorch 的概念和模块</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/recipes/recipes_index.html">
+                  <span class="dropdown-title">PyTorch 食谱</span><p></p>
+                  <p>精简版、可直接部署的 PyTorch 代码示例</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/introyt.html">
+                  <span class="dropdown-title">PyTorch 入门 - YouTube 系列</span><p></p>
+                  <p>通过我们引人入胜的 YouTube 教程系列掌握 PyTorch 基础知识</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">生态系统</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem">
+                  <span class="dropdown-title">工具</span><p></p>
+                  <p>了解 PyTorch 生态系统中的工具和框架</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
+                  <span class="dropdown-title">社区</span>
+                  <p>加入 PyTorch 开发者社区，贡献、学习并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
+                  <span class="dropdown-title">论坛</span>
+                  <p>讨论 PyTorch 代码、问题、安装、研究的地方</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/resources">
+                  <span class="dropdown-title">开发者资源</span>
+                  <p>查找资源并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">贡献者奖项 - 2024</span><p></p>
+                  <p>本届 PyTorch 会议揭晓获奖者</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">
+                Edge
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/edge">
+                  <span class="dropdown-title">关于 PyTorch Edge</span><p></p>
+                  <p>为边缘设备构建创新和隐私感知的 AI 体验</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
+                  <span class="dropdown-title">ExecuTorch</span><p></p>
+                  <p>基于移动和边缘设备的端到端推理能力解决方案</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch 文档</span><p></p>
+                </a>
+              </div>
+            </div>  
+          </li>
+
+          <li class="main-menu-item">
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">文档</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/docs/stable/index.html">
+                  <span class="dropdown-title">PyTorch</span><p></p>
+                  <p>探索文档以获取全面指导，了解如何使用 PyTorch</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/pytorch-domains">
+                  <span class="dropdown-title">PyTorch 领域</span><p></p>
+                  <p>阅读 PyTorch 领域的文档，了解更多关于特定领域库的信息</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">博客与新闻</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/blog/">
+                  <span class="dropdown-title">PyTorch 博客</span><p></p>
+                  <p>捕捉最新的技术新闻和事件</p>
+                </a>
+                 <a class="nav-dropdown-item" href="https://pytorch.org/community-blog">
+                  <span class="dropdown-title">社区博客</span><p></p>
+                  <p>PyTorch 生态系统故事</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/videos">
+                  <span class="dropdown-title">视频</span><p></p>
+                  <p>了解最新的 PyTorch 教程、新内容等</p>
+                </a><a class="nav-dropdown-item" href="https://pytorch.org/community-stories">
+                  <span class="dropdown-title">社区故事</span><p></p>
+                  <p>学习如何我们的社区使用 PyTorch 解决真实、日常的机器学习问题</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/events">
+                  <span class="dropdown-title">活动</span><p></p>
+                  <p>查找活动、网络研讨会和播客</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">通讯</span><p></p>
+                  <p>跟踪最新更新</p>
+                </a>
+            </div>
+          </div></li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">关于</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/foundation">
+                  <span class="dropdown-title">PyTorch 基金会</span><p></p>
+                  <p>了解更多关于 PyTorch 基金会的信息</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
+                  <span class="dropdown-title">管理委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">云信用计划</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">技术顾问委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">员工</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">联系我们</span><p></p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li class="main-menu-item">
+            <div class="no-dropdown">
+              <a href="https://pytorch.org/join" data-cta="join">成为会员</a>
+            </div>
+          </li>
+          <li>
+           <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="github-icon">
+             </a>
+           </div>
+          </li>
+          <!--- TODO: This block adds the search icon to the nav bar. We will enable it later. 
+          <li>
+            <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="search-icon">
+             </a>
+            </div>
+          </li>
+          --->
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+  </div>
+</div>
+
+
+
+   
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>目录</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+    <div class="version">
+      <a href="https://pytorch.org/docs/versions.html">主程序 (2.7.0+cpu ) ▼</a>
+    </div>
+    <div id="searchBox">
+    <div class="searchbox" id="googleSearchBox">
+      <script async="" src="https://cse.google.com/cse.js?cx=e65585f8c3ea1440e"></script>
+      <div class="gcse-search"></div>
+    </div>
+    <div id="sphinxSearchBox" style="display: none;">
+      <div role="search">
+        <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+          <input type="text" name="q" placeholder="Search Docs">
+          <input type="hidden" name="check_keywords" value="yes">
+          <input type="hidden" name="area" value="default">
+        </form>
+      </div>
+    </div>
+  </div>
+  <form id="searchForm">
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="google" checked="">谷歌搜索</label>
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="sphinx">经典搜索</label>
+  </form>
+
+  <script>
+     document.addEventListener('DOMContentLoaded', function() {
+      const searchForm = document.getElementById('searchForm');
+      const googleSearchBox = document.getElementById('googleSearchBox');
+      const sphinxSearchBox = document.getElementById('sphinxSearchBox');
+      // Function to toggle search box visibility
+      function toggleSearchBox(searchType) {
+        googleSearchBox.style.display = searchType === 'google' ? 'block' : 'none';
+        sphinxSearchBox.style.display = searchType === 'sphinx' ? 'block' : 'none';
+      }
+      // Determine the default search type
+      let defaultSearchType;
+      const currentUrl = window.location.href;
+      if (currentUrl.startsWith('https://pytorch.org/docs/stable')) {
+        // For the stable documentation, default to Google
+        defaultSearchType = localStorage.getItem('searchType') || 'google';
+      } else {
+        // For any other version, including docs-preview, default to Sphinx
+        defaultSearchType = 'sphinx';
+      }
+      // Set the default search type
+      document.querySelector(`input[name="searchType"][value="${defaultSearchType}"]`).checked = true;
+      toggleSearchBox(defaultSearchType);
+      // Event listener for changes in search type
+      searchForm.addEventListener('change', function(event) {
+        const selectedSearchType = event.target.value;
+        localStorage.setItem('searchType', selectedSearchType);
+        toggleSearchBox(selectedSearchType);
+      });
+      // Set placeholder text for Google search box
+      window.onload = function() {
+        var placeholderText = "Search Docs";
+        var googleSearchboxText = document.querySelector("#gsc-i-id1");
+        if (googleSearchboxText) {
+          googleSearchboxText.placeholder = placeholderText;
+          googleSearchboxText.style.fontFamily = 'FreightSans';
+          googleSearchboxText.style.fontSize = "1.2rem";
+          googleSearchboxText.style.color = '#262626';
+        }
+      };
+    });
+  </script>
+
+          </div>
+
+          
+
+<div>
+  <a style="color:#F05732" href="https://pytorch.org/docs/stable/cpp_extension.html">您正在查看不稳定开发者预览文档。请点击此处查看最新稳定版本的文档。</a>
+</div>
+
+
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">社区</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="community/build_ci_governance.html">PyTorch 治理 | 构建 + CI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/contribution_guide.html">PyTorch 贡献指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/design.html">PyTorch 设计哲学</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/governance.html">PyTorch 治理 | 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/persons_of_interest.html">PyTorch 治理 | 维护者</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发者笔记</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="notes/amp_examples.html">自动混合精度示例</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/autograd.html">Autograd 力学</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/broadcasting.html">广播语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/cpu_threading_torchscript_inference.html">CPU 线程和 TorchScript 推理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/cuda.html">CUDA 语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/custom_operators.html">PyTorch 自定义算子页面</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/ddp.html">分布式数据并行</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/extending.html">扩展 PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/extending.func.html">扩展 torch.func 与 autograd.Function</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/faq.html">常见问题解答</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/fsdp.html">FSDP 笔记</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/get_start_xpu.html">在 Intel GPU 上入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/gradcheck.html">毕业审核机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/hip.html">HIP (ROCm) 语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/large_scale_deployments.html">大规模部署的功能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/libtorch_stable_abi.html">LibTorch 稳定 ABI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/modules.html">模块</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/mps.html">MPS 后端</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/multiprocessing.html">多进程最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/numerical_accuracy.html">数值精度</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/randomness.html">可重现性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/serialization.html">序列化语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/windows.html">Windows 常见问题解答</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">语言绑定</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cpp_index.html">C++</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/javadoc/">Javadoc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deploy.html">torch::deploy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="torch.html">torch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.html">torch.nn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.functional.html">torch.nn.functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensors.html">torch.Tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensor_attributes.html">张量属性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensor_view.html">张量视图</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amp.html">torch.amp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autograd.html">torch.autograd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="library.html">torch.library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accelerator.html">torch.accelerator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpu.html">torch.cpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">torch.cuda</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html">理解 CUDA 内存使用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#generating-a-snapshot">生成快照</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#using-the-visualizer">使用可视化工具</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#snapshot-api-reference">快照 API 参考</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mps.html">torch.mps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="xpu.html">torch.xpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mtia.html">torch.mtia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mtia.memory.html">torch.mtia.memory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="meta.html">元设备</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backends.html">torch.backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="export.html">torch.export</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.html">torch.distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.tensor.html">torch.distributed.tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.algorithms.join.html">torch.distributed.algorithms.join</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.elastic.html">torch.distributed.elastic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fsdp.html">torch.distributed.fsdp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.fsdp.fully_shard.html">torch.distributed.fsdp.fully_shard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.tensor.parallel.html">torch.distributed.tensor.parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.optim.html">torch.distributed.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.pipelining.html">torch.distributed.pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.checkpoint.html">torch.distributed.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributions.html">torch.distributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch.compiler.html">torch.compiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fft.html">torch.fft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="func.html">torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="futures.html">torch.futures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fx.html">torch.fx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fx.experimental.html">torch.fx.experimental</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hub.html">torch.hub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jit.html">torch.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="linalg.html">torch.linalg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitor.html">torch.monitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="signal.html">torch.signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="special.html">torch.special</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch.overrides.html">torch.overrides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="package.html">torch.package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="profiler.html">torch.profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.init.html">torch.nn.init</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.attention.html">torch.nn.attention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="onnx.html">torch.onnx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="optim.html">torch.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="complex_numbers.html">复数</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ddp_comm_hooks.html">DDP 通信钩子</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quantization.html">量化</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rpc.html">分布式 RPC 框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="random.html">torch.random</a></li>
+<li class="toctree-l1"><a class="reference internal" href="masked.html">torch.masked</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nested.html">torch.nested</a></li>
+<li class="toctree-l1"><a class="reference internal" href="size.html">torch.Size</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sparse.html">torch.sparse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="storage.html">torch.Storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">torch.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">torch.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmark_utils.html">torch.utils.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bottleneck.html">torch.utils.bottleneck</a></li>
+<li class="toctree-l1"><a class="reference internal" href="checkpoint.html">torch.utils.checkpoint</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">torch.utils.cpp_extension</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data.html">torch.utils.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deterministic.html">torch.utils.deterministic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jit_utils.html">torch.utils.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dlpack.html">torch.utils.dlpack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mobile_optimizer.html">torch.utils.mobile_optimizer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_zoo.html">torch.utils.model_zoo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensorboard.html">torch.utils.tensorboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_tracker.html">torch.utils.module_tracker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="type_info.html">类型信息</a></li>
+<li class="toctree-l1"><a class="reference internal" href="named_tensor.html">命名张量</a></li>
+<li class="toctree-l1"><a class="reference internal" href="name_inference.html">命名张量操作覆盖率</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config_mod.html">torch.__config__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="future_mod.html">torch.__future__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">torch._logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_environment_variables.html">火炬环境变量</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">库</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/audio/stable">torchaudio</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/data">TorchData</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/torchrec">火炬推荐</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/serve">TorchServe</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/text/stable">torchtext</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/vision/stable">torchvision</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/xla/">PyTorch 在 XLA 设备上</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/ao">torchao</a></li>
+</ul>
+
+            
+          
+
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        文档 &gt;</li>
+
+        
+      <li>torch.utils.cpp_extension</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+            
+            <a href="_sources/cpp_extension.rst.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg" width="16" height="16"></a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">快捷键</div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+
+          <!-- Google Tag Manager (noscript) -->
+          <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T8XT4PS" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+          <!-- End Google Tag Manager (noscript) -->
+          
+          <div class="rst-content">
+          
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <section id="torch-utils-cpp-extension">
+<h1>torch.utils.cpp_extension ¬</h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.utils.cpp_extension.CppExtension">
+torch.utils.cpp_extension.CppExtension(name, sources, *args, **kwargs)[source][source] ¬</dt>
+<dd><p>为 C++ 创建一个 <code class="xref py py-class docutils literal "><span class="pre">setuptools.Extension</span></code> 。</p>
+<p>创建一个具有最基本（但通常足够）参数的 <code class="xref py py-class docutils literal "><span class="pre">setuptools.Extension</span></code> 的便捷方法，用于构建 C++ 扩展。</p>
+<p>所有参数都会转发到 <code class="xref py py-class docutils literal "><span class="pre">setuptools.Extension</span></code> 构造函数。完整的参数列表可以在 https://setuptools.pypa.io/en/latest/userguide/ext_modules.html#extension-api-reference 找到。</p>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>PyTorch 的 Python API（由 libtorch_python 提供）不能使用 <code class="docutils literal "><span class="pre">py_limited_api=True</span></code> 标志构建。当传递此标志时，用户有责任在其库中不使用来自 libtorch_python 的 API（特别是 pytorch/python 绑定），而只使用来自 libtorch 的 API（aten 对象、运算符和调度器）。例如，为了从 Python 中访问自定义运算符，库应通过调度器注册这些运算符。</p>
+<p>与 CPython setuptools 不同，当在 <code class="docutils literal "><span class="pre">setup</span></code> 中将 py_limited_api 选项指定为“bdist_wheel”命令的选项时，setuptools 不会将 -DPy_LIMITED_API 定义为编译标志，而 PyTorch 会这样做！我们将指定 -DPy_LIMITED_API=min_supported_cpython 以最佳地确保一致性、安全性和合理性，从而鼓励最佳实践。要针对不同的版本，请将 min_supported_cpython 设置为所选 CPython 版本的十六进制代码。</p>
+</div>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">setuptools</span> <span class="kn">import</span> <span class="n">setup</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torch.utils.cpp_extension</span> <span class="kn">import</span> <span class="n">BuildExtension</span><span class="p">,</span> <span class="n">CppExtension</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">setup</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">name</span><span class="o">=</span><span class="s1">'extension'</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">ext_modules</span><span class="o">=</span><span class="p">[</span>
+<span class="gp">... </span>        <span class="n">CppExtension</span><span class="p">(</span>
+<span class="gp">... </span>            <span class="n">name</span><span class="o">=</span><span class="s1">'extension'</span><span class="p">,</span>
+<span class="gp">... </span>            <span class="n">sources</span><span class="o">=</span><span class="p">[</span><span class="s1">'extension.cpp'</span><span class="p">],</span>
+<span class="gp">... </span>            <span class="n">extra_compile_args</span><span class="o">=</span><span class="p">[</span><span class="s1">'-g'</span><span class="p">],</span>
+<span class="gp">... </span>            <span class="n">extra_link_args</span><span class="o">=</span><span class="p">[</span><span class="s1">'-Wl,--no-as-needed'</span><span class="p">,</span> <span class="s1">'-lm'</span><span class="p">])</span>
+<span class="gp">... </span>    <span class="p">],</span>
+<span class="gp">... </span>    <span class="n">cmdclass</span><span class="o">=</span><span class="p">{</span>
+<span class="gp">... </span>        <span class="s1">'build_ext'</span><span class="p">:</span> <span class="n">BuildExtension</span>
+<span class="gp">... </span>    <span class="p">})</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.utils.cpp_extension.CUDAExtension">
+<span class="sig-prename descclassname"><span class="pre">torch.utils.cpp_extension.</span></span><span class="sig-name descname"><span class="pre">CUDAExtension</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sources</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/utils/cpp_extension.html#CUDAExtension"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/utils/cpp_extension.py#L1159"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.utils.cpp_extension.CUDAExtension" title="Permalink to this definition">¶</a></dt>
+<dd><p>为 CUDA/C++创建一个 <code class="xref py py-class docutils literal "><span class="pre">setuptools.Extension</span></code> 。</p>
+<p>一个便捷方法，用于创建具有最小（但通常足够）参数的 <code class="xref py py-class docutils literal "><span class="pre">setuptools.Extension</span></code> ，以构建 CUDA/C++扩展。这包括 CUDA 包含路径、库路径和运行时库。</p>
+<p>所有参数都会转发到 <code class="xref py py-class docutils literal "><span class="pre">setuptools.Extension</span></code> 构造函数。完整的参数列表可以在 https://setuptools.pypa.io/en/latest/userguide/ext_modules.html#extension-api-reference 找到。</p>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>PyTorch 的 Python API（由 libtorch_python 提供）不能使用 <code class="docutils literal "><span class="pre">py_limited_api=True</span></code> 标志构建。当传递此标志时，用户有责任在其库中不使用来自 libtorch_python 的 API（特别是 pytorch/python 绑定），而只使用来自 libtorch 的 API（aten 对象、运算符和调度器）。例如，为了从 Python 中访问自定义运算符，库应通过调度器注册这些运算符。</p>
+<p>与 CPython setuptools 不同，当在 <code class="docutils literal "><span class="pre">setup</span></code> 中将 py_limited_api 选项指定为“bdist_wheel”命令的选项时，setuptools 不会将 -DPy_LIMITED_API 定义为编译标志，而 PyTorch 会这样做！我们将指定 -DPy_LIMITED_API=min_supported_cpython 以最佳地确保一致性、安全性和合理性，从而鼓励最佳实践。要针对不同的版本，请将 min_supported_cpython 设置为所选 CPython 版本的十六进制代码。</p>
+</div>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">setuptools</span> <span class="kn">import</span> <span class="n">setup</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torch.utils.cpp_extension</span> <span class="kn">import</span> <span class="n">BuildExtension</span><span class="p">,</span> <span class="n">CUDAExtension</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">setup</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">name</span><span class="o">=</span><span class="s1">'cuda_extension'</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">ext_modules</span><span class="o">=</span><span class="p">[</span>
+<span class="gp">... </span>        <span class="n">CUDAExtension</span><span class="p">(</span>
+<span class="gp">... </span>                <span class="n">name</span><span class="o">=</span><span class="s1">'cuda_extension'</span><span class="p">,</span>
+<span class="gp">... </span>                <span class="n">sources</span><span class="o">=</span><span class="p">[</span><span class="s1">'extension.cpp'</span><span class="p">,</span> <span class="s1">'extension_kernel.cu'</span><span class="p">],</span>
+<span class="gp">... </span>                <span class="n">extra_compile_args</span><span class="o">=</span><span class="p">{</span><span class="s1">'cxx'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'-g'</span><span class="p">],</span>
+<span class="gp">... </span>                                    <span class="s1">'nvcc'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'-O2'</span><span class="p">]},</span>
+<span class="gp">... </span>                <span class="n">extra_link_args</span><span class="o">=</span><span class="p">[</span><span class="s1">'-Wl,--no-as-needed'</span><span class="p">,</span> <span class="s1">'-lcuda'</span><span class="p">])</span>
+<span class="gp">... </span>    <span class="p">],</span>
+<span class="gp">... </span>    <span class="n">cmdclass</span><span class="o">=</span><span class="p">{</span>
+<span class="gp">... </span>        <span class="s1">'build_ext'</span><span class="p">:</span> <span class="n">BuildExtension</span>
+<span class="gp">... </span>    <span class="p">})</span>
+</pre></div>
+</div>
+<p>计算能力：</p>
+<p>默认情况下，扩展程序将被编译以在扩展程序构建过程中可见的所有卡架构上运行，包括 PTX。如果将来安装了新的卡，则可能需要重新编译扩展程序。如果可见的卡的计算能力（CC）比 nvcc 可以构建完全编译的二进制文件的新版本还要新，PyTorch 将使 nvcc 回退到使用 nvcc 支持的最新 PTX 版本构建内核（有关 PTX 的详细信息，请参阅下文）。</p>
+<p>您可以使用 TORCH_CUDA_ARCH_LIST 覆盖默认行为，以显式指定扩展程序要支持的 CC。</p>
+<p><code class="docutils literal "><span class="pre">TORCH_CUDA_ARCH_LIST="6.1</span> <span class="pre">8.6"</span> <span class="pre">python</span> <span class="pre">build_my_extension.py</span></code>
+<code class="docutils literal "><span class="pre">TORCH_CUDA_ARCH_LIST="5.2</span> <span class="pre">6.0</span> <span class="pre">6.1</span> <span class="pre">7.0</span> <span class="pre">7.5</span> <span class="pre">8.0</span> <span class="pre">8.6+PTX"</span> <span class="pre">python</span> <span class="pre">build_my_extension.py</span></code></p>
+<p>+PTX 选项会导致扩展内核二进制文件包含指定 CC 的 PTX 指令。PTX 是一种中间表示形式，允许内核在运行时编译以支持任何 CC &gt;= 指定的 CC（例如，8.6+PTX 生成的 PTX 可以在运行时编译支持任何 CC &gt;= 8.6 的 GPU）。这提高了您二进制的向前兼容性。然而，依赖较旧的 PTX 通过运行时编译支持较新的 CC 可能会在一定程度上降低这些新 CC 的性能。如果您知道要针对的 GPU 的确切 CC，您始终最好单独指定它们。例如，如果您想您的扩展在 8.0 和 8.6 上运行，“8.0+PTX”在功能上会起作用，因为它包含了可以运行时编译支持 8.6 的 PTX，但“8.0 8.6”会更好。</p>
+<p>注意，虽然可以包含所有支持的架构，但包含的架构越多，构建过程会越慢，因为它将为每个架构构建一个单独的内核映像。</p>
+<p>注意，CUDA-11.5 的 nvcc 在 Windows 上解析 torch/extension.h 时会遇到内部编译错误。为了解决这个问题，将 Python 绑定逻辑移到纯 C++文件中。</p>
+<dl class="simple">
+<dt>示例用法：</dt><dd><p>#include &lt;ATen/ATen.h&gt;
+at::Tensor SigmoidAlphaBlendForwardCuda(….)</p>
+</dd>
+<dt>取代：</dt><dd><p>#include &lt;torch/extension.h&gt;
+torch::Tensor SigmoidAlphaBlendForwardCuda(…)</p>
+</dd>
+</dl>
+<p>当前开放的 nvcc 错误问题：https://github.com/pytorch/pytorch/issues/69460 完整的解决方案代码示例：https://github.com/facebookresearch/pytorch3d/commit/cb170ac024a949f1f9614ffe6af1c38d972f7d48</p>
+<p>可移动设备代码链接：</p>
+<p>如果您想在编译单元（对象文件）之间引用设备符号（跨对象文件），则需要使用可移动设备代码（-rdc=true 或 -dc）。此规则的例外是“动态并行性”（嵌套内核启动），现在使用得越来越少。可移动设备代码的优化程度较低，因此仅需要在需要它的对象文件中使用。在设备代码编译步骤和 dlink 步骤中使用-dlto（设备链接时间优化）有助于减少-rdc 可能导致的性能下降。请注意，它需要在两个步骤中使用才有用。</p>
+<p>如果您有 rdc 对象，您需要在 CPU 符号链接步骤之前进行额外的-dlink（设备链接）步骤。还有一种情况是使用-dlink 而不使用-rdc：当扩展库链接到一个包含 rdc 编译对象的静态库时，例如[NVSHMEM 库](https://developer.nvidia.com/nvshmem)。</p>
+<p>注意：构建具有 RDC 链接的 CUDA 扩展需要 Ninja。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">CUDAExtension</span><span class="p">(</span>
+<span class="gp">... </span>       <span class="n">name</span><span class="o">=</span><span class="s1">'cuda_extension'</span><span class="p">,</span>
+<span class="gp">... </span>       <span class="n">sources</span><span class="o">=</span><span class="p">[</span><span class="s1">'extension.cpp'</span><span class="p">,</span> <span class="s1">'extension_kernel.cu'</span><span class="p">],</span>
+<span class="gp">... </span>       <span class="n">dlink</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="gp">... </span>       <span class="n">dlink_libraries</span><span class="o">=</span><span class="p">[</span><span class="s2">"dlink_lib"</span><span class="p">],</span>
+<span class="gp">... </span>       <span class="n">extra_compile_args</span><span class="o">=</span><span class="p">{</span><span class="s1">'cxx'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'-g'</span><span class="p">],</span>
+<span class="gp">... </span>                           <span class="s1">'nvcc'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'-O2'</span><span class="p">,</span> <span class="s1">'-rdc=true'</span><span class="p">]})</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.utils.cpp_extension.SyclExtension">
+<span class="sig-prename descclassname"><span class="pre">torch.utils.cpp_extension.</span></span><span class="sig-name descname"><span class="pre">SyclExtension</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sources</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/utils/cpp_extension.html#SyclExtension"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/utils/cpp_extension.py#L1350"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.utils.cpp_extension.SyclExtension" title="Permalink to this definition">¶</a></dt>
+<dd><p>创建一个用于 SYCL/C++的 <code class="xref py py-class docutils literal "><span class="pre">setuptools.Extension</span></code> 。</p>
+<p>一个便捷方法，用于创建一个具有最基本（但通常足够）参数的 <code class="xref py py-class docutils literal "><span class="pre">setuptools.Extension</span></code> ，以构建 SYCL/C++扩展。</p>
+<p>所有参数都传递给 <code class="xref py py-class docutils literal "><span class="pre">setuptools.Extension</span></code> 构造函数。</p>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>PyTorch 的 Python API（由 libtorch_python 提供）不能使用 <code class="docutils literal "><span class="pre">py_limited_api=True</span></code> 标志构建。当传递此标志时，用户有责任在其库中不使用来自 libtorch_python 的 API（特别是 pytorch/python 绑定），而只使用来自 libtorch 的 API（aten 对象、运算符和调度器）。例如，为了从 Python 中访问自定义运算符，库应通过调度器注册这些运算符。</p>
+<p>与 CPython setuptools 不同，当在 <code class="docutils literal "><span class="pre">setup</span></code> 中将 py_limited_api 选项指定为“bdist_wheel”命令的选项时，setuptools 不会将 -DPy_LIMITED_API 定义为编译标志，而 PyTorch 会这样做！我们将指定 -DPy_LIMITED_API=min_supported_cpython 以最佳地确保一致性、安全性和合理性，从而鼓励最佳实践。要针对不同的版本，请将 min_supported_cpython 设置为所选 CPython 版本的十六进制代码。</p>
+</div>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torch.utils.cpp_extension</span> <span class="kn">import</span> <span class="n">BuildExtension</span><span class="p">,</span> <span class="n">SyclExtension</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">setup</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">name</span><span class="o">=</span><span class="s1">'xpu_extension'</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">ext_modules</span><span class="o">=</span><span class="p">[</span>
+<span class="gp">... </span>    <span class="n">SyclExtension</span><span class="p">(</span>
+<span class="gp">... </span>                <span class="n">name</span><span class="o">=</span><span class="s1">'xpu_extension'</span><span class="p">,</span>
+<span class="gp">... </span>                <span class="n">sources</span><span class="o">=</span><span class="p">[</span><span class="s1">'extension.cpp'</span><span class="p">,</span> <span class="s1">'extension_kernel.cpp'</span><span class="p">],</span>
+<span class="gp">... </span>                <span class="n">extra_compile_args</span><span class="o">=</span><span class="p">{</span><span class="s1">'cxx'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'-g'</span><span class="p">,</span> <span class="s1">'-std=c++20'</span><span class="p">,</span> <span class="s1">'-fPIC'</span><span class="p">]})</span>
+<span class="gp">... </span>    <span class="p">],</span>
+<span class="gp">... </span>    <span class="n">cmdclass</span><span class="o">=</span><span class="p">{</span>
+<span class="gp">... </span>        <span class="s1">'build_ext'</span><span class="p">:</span> <span class="n">BuildExtension</span>
+<span class="gp">... </span>    <span class="p">})</span>
+</pre></div>
+</div>
+<p>默认情况下，扩展程序将被编译以在扩展程序构建过程中可见的所有卡架构上运行。如果将来安装了新的卡，则可能需要重新编译扩展程序。您可以使用 TORCH_XPU_ARCH_LIST 来覆盖默认行为，以显式指定您希望扩展程序支持的设备架构：</p>
+<p><code class="docutils literal "><span class="pre">TORCH_XPU_ARCH_LIST="pvc,xe-lpg"</span> <span class="pre">python</span> <span class="pre">build_my_extension.py</span></code></p>
+<p>注意，虽然可以包含所有支持的架构，但包含的架构越多，构建过程会越慢，因为它将为每个架构构建一个单独的内核映像。</p>
+<p>注意：构建 SyclExtension 需要 Ninja。</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.utils.cpp_extension.BuildExtension">
+torch.utils.cpp_extension.BuildExtension(*args, **kwargs)[source][source]</dt>
+<dd><p>自定义 <code class="xref py py-mod docutils literal "><span class="pre">setuptools</span></code> 构建扩展。</p>
+<p>此 <code class="xref py py-class docutils literal "><span class="pre">setuptools.build_ext</span></code> 子类负责传递所需的最低编译器标志（例如 <code class="docutils literal "><span class="pre">-std=c++17</span></code> ）以及混合 C++/CUDA/SYCL 编译（以及一般对 CUDA/SYCL 文件的支持）。</p>
+<p>使用 <code class="xref py py-class docutils literal "><span class="pre">BuildExtension</span></code> 时，允许为 <code class="docutils literal "><span class="pre">extra_compile_args</span></code> 提供一个字典（而不是通常的列表），该字典将语言/编译器（唯一预期的值是 <code class="docutils literal "><span class="pre">cxx</span></code> ， <code class="docutils literal "><span class="pre">nvcc</span></code> 或 <code class="docutils literal "><span class="pre">sycl</span></code> ）映射到要提供给编译器的附加编译器标志列表。这使得在混合编译期间向 C++、CUDA 和 SYCL 编译器提供不同的标志成为可能。</p>
+<p> <code class="docutils literal "><span class="pre">use_ninja</span></code> （布尔值）：如果 <code class="docutils literal "><span class="pre">use_ninja</span></code> 是 <code class="docutils literal "><span class="pre">True</span></code> （默认），则尝试使用 Ninja 后端进行构建。与标准 <code class="docutils literal "><span class="pre">setuptools.build_ext</span></code> 相比，Ninja 大大加快了编译速度。如果 Ninja 不可用，则回退到标准的 distutils 后端。</p>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>默认情况下，Ninja 后端使用#CPUS + 2 个工作线程来构建扩展。这可能会在某些系统上消耗过多的资源。可以通过将 MAX_JOBS 环境变量设置为非负数来控制工作线程的数量。</p>
+</div>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.utils.cpp_extension.load">
+<span class="sig-prename descclassname"><span class="pre">torch.utils.cpp_extension.</span></span><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sources</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_cflags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_cuda_cflags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_sycl_cflags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_ldflags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_include_paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">build_directory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_cuda</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_sycl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_python_module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_standalone</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_intermediates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/utils/cpp_extension.html#load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/utils/cpp_extension.py#L1514"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.utils.cpp_extension.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>即时加载 PyTorch C++扩展。</p>
+<p>要加载扩展，会生成一个 Ninja 构建文件，用于将给定的源代码编译成动态库。然后，将此库加载到当前 Python 进程中作为模块，并由该函数返回，以便使用。</p>
+<p>默认情况下，构建文件输出的目录以及编译生成的库文件所在的目录为 <code class="docutils literal "><span class="pre">&lt;tmp&gt;/torch_extensions/&lt;name&gt;</span></code> ，其中 <code class="docutils literal "><span class="pre">&lt;tmp&gt;</span></code> 是当前平台上的临时文件夹， <code class="docutils literal "><span class="pre">&lt;name&gt;</span></code> 是扩展名的名称。此位置可以通过两种方式覆盖。首先，如果设置了 <code class="docutils literal "><span class="pre">TORCH_EXTENSIONS_DIR</span></code> 环境变量，它将替换 <code class="docutils literal "><span class="pre">&lt;tmp&gt;/torch_extensions</span></code> ，并且所有扩展都将编译到该目录的子目录中。其次，如果提供了此函数的 <code class="docutils literal "><span class="pre">build_directory</span></code> 参数，它将覆盖整个路径，即库将直接编译到该文件夹中。</p>
+<p>编译源文件时，默认使用系统编译器（ <code class="docutils literal "><span class="pre">c++</span></code> ），可以通过设置 <code class="docutils literal "><span class="pre">CXX</span></code> 环境变量来覆盖。要向编译过程传递额外的参数，可以提供 <code class="docutils literal "><span class="pre">extra_cflags</span></code> 或 <code class="docutils literal "><span class="pre">extra_ldflags</span></code> 。例如，要使用优化编译您的扩展，请传递 <code class="docutils literal "><span class="pre">extra_cflags=['-O3']</span></code> 。您还可以使用 <code class="docutils literal "><span class="pre">extra_cflags</span></code> 来传递更多的包含目录。</p>
+<p>提供了混合编译的 CUDA 支持。只需将 CUDA 源文件（ <code class="docutils literal "><span class="pre">.cu</span></code> 或 <code class="docutils literal "><span class="pre">.cuh</span></code> ）与其他源文件一起传递。这些文件将被检测并使用 nvcc 编译，而不是 C++编译器。这包括将 CUDA lib64 目录作为库目录传递，并链接 <code class="docutils literal "><span class="pre">cudart</span></code> 。您可以通过 <code class="docutils literal "><span class="pre">extra_cuda_cflags</span></code> 向 nvcc 传递额外的标志，就像向 <code class="docutils literal "><span class="pre">extra_cflags</span></code> 传递 C++标志一样。使用了各种启发式方法来查找 CUDA 安装目录，通常效果良好。如果不行，设置 <code class="docutils literal "><span class="pre">CUDA_HOME</span></code> 环境变量是最安全的选项。</p>
+<p>提供了混合编译的 SYCL 支持。只需将 SYCL 源文件（ <code class="docutils literal "><span class="pre">.sycl</span></code> ）与其他源文件一起传递。这些文件将被检测并使用 SYCL 编译器（如 Intel DPC++编译器）编译，而不是 C++编译器。您可以通过 <code class="docutils literal "><span class="pre">extra_sycl_cflags</span></code> 向 SYCL 编译器传递额外的标志，就像向 <code class="docutils literal "><span class="pre">extra_cflags</span></code> 传递 C++标志一样。期望通过系统 PATH 环境变量找到 SYCL 编译器。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>名称 – 要构建的扩展的名称。这必须与 pybind11 模块的名称相同！</p></li>
+<li><p>源文件（Union[str, list[str]]） – 相对或绝对路径的 C++源文件列表。</p></li>
+<li><p>extra_cflags – 向构建过程传递的编译器标志的可选列表。</p></li>
+<li><p>extra_cuda_cflags – 构建 CUDA 源代码时传递给 nvcc 的编译器标志的可选列表。</p></li>
+<li><p>extra_sycl_cflags – 构建 SYCL 源代码时传递给 SYCL 编译器的编译器标志的可选列表。</p></li>
+<li><p>extra_ldflags – 向构建过程传递的链接器标志的可选列表。</p></li>
+<li><p>额外包含路径 – 可选的传递给构建的包含目录列表。</p></li>
+<li><p>构建目录 – 可选的用作构建工作区的路径。</p></li>
+<li><p>详细模式 – 如果 <code class="docutils literal "><span class="pre">True</span></code> ，则开启加载步骤的详细日志记录。</p></li>
+<li><p>with_cuda（可选[bool]）– 决定是否将 CUDA 头文件和库添加到构建中。如果设置为 <code class="docutils literal "><span class="pre">None</span></code> （默认），此值将根据 <code class="docutils literal "><span class="pre">.cu</span></code> 或 <code class="docutils literal "><span class="pre">.cuh</span></code> 在 <code class="docutils literal "><span class="pre">sources</span></code> 中的存在自动确定。将其设置为 True 以强制包含 CUDA 头文件和库。</p></li>
+<li><p>with_sycl (可选[布尔值]) – 决定是否将 SYCL 头文件和库添加到构建中。如果设置为 <code class="docutils literal "><span class="pre">None</span></code> （默认），此值将根据 <code class="docutils literal "><span class="pre">.sycl</span></code> 在 <code class="docutils literal "><span class="pre">sources</span></code> 中的存在自动确定。将其设置为 True 以强制包含 SYCL 头文件和库。</p></li>
+<li><p>is_python_module – 如果 <code class="docutils literal "><span class="pre">True</span></code> （默认），则将生成的共享库作为 Python 模块导入。如果 <code class="docutils literal "><span class="pre">False</span></code> ，行为取决于 <code class="docutils literal "><span class="pre">is_standalone</span></code> 。</p></li>
+<li><p>is_standalone – 如果 <code class="docutils literal "><span class="pre">False</span></code> （默认）将构建的扩展加载到进程作为普通动态库。如果 <code class="docutils literal "><span class="pre">True</span></code> ，构建一个独立可执行文件。</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p></p><p>返回加载的 PyTorch 扩展作为 Python 模块。</p>
+<dl class="simple">
+<dt>如果 <code class="docutils literal "><span class="pre">is_python_module</span></code> 是 <code class="docutils literal "><span class="pre">False</span></code> 并且 <code class="docutils literal "><span class="pre">is_standalone</span></code> 是 <code class="docutils literal "><span class="pre">False</span></code> ：</font></font></font></dt><dd><p><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">返回空值。（共享库作为副作用被加载到进程中。）</p>
+</dd>
+<dt>如果 <code class="docutils literal "><span class="pre">is_standalone</span></code> 是 <code class="docutils literal "><span class="pre">True</span></code> 。</font></font></font></dt><dd><p><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">返回可执行文件的路径。（在 Windows 上，将 TORCH_LIB_PATH 添加到 PATH 环境变量中作为副作用。）</p>
+</dd>
+</dl>
+<p></p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>如果 <code class="docutils literal "><span class="pre">is_python_module</span></code> 是 <code class="docutils literal "><span class="pre">True</span></code> </p>
+</dd>
+</dl>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torch.utils.cpp_extension</span> <span class="kn">import</span> <span class="n">load</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">module</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">name</span><span class="o">=</span><span class="s1">'extension'</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">sources</span><span class="o">=</span><span class="p">[</span><span class="s1">'extension.cpp'</span><span class="p">,</span> <span class="s1">'extension_kernel.cu'</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">extra_cflags</span><span class="o">=</span><span class="p">[</span><span class="s1">'-O2'</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.utils.cpp_extension.load_inline">
+<span class="sig-prename descclassname"><span class="pre">torch.utils.cpp_extension.</span></span><span class="sig-name descname"><span class="pre">load_inline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpp_sources</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cuda_sources</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sycl_sources</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">functions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_cflags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_cuda_cflags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_sycl_cflags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_ldflags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_include_paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">build_directory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_cuda</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_sycl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_python_module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_pytorch_error_handling</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_intermediates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_pch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/utils/cpp_extension.html#load_inline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/utils/cpp_extension.py#L1819"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.utils.cpp_extension.load_inline" title="Permalink to this definition">¶</a></dt>
+<dd><p>从字符串源即时加载 PyTorch C++ 扩展。</p>
+<p>此函数的行为与 <code class="xref py py-func docutils literal "><span class="pre">load()</span></code> 完全相同，但其源为字符串而不是文件名。这些字符串将在构建目录中存储到文件中，之后 <code class="xref py py-func docutils literal "><span class="pre">load_inline()</span></code> 的行为与 <code class="xref py py-func docutils literal "><span class="pre">load()</span></code> 相同。</p>
+<p>查看测试以获取使用此函数的良好示例。</p>
+<p><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">源代码可能省略了典型非内联 C++扩展的两个必需部分：必要的头文件包含以及（pybind11）绑定代码。更确切地说，传递给 <code class="docutils literal "><span class="pre">cpp_sources</span></code> 的字符串首先被连接成一个单独的 <code class="docutils literal "><span class="pre">.cpp</span></code> 文件。然后，在该文件前面添加 <code class="docutils literal "><span class="pre">#include</span>
+<span class="pre">&lt;torch/extension.h&gt;</span></code> 。</font></font></font></p>
+<p>此外，如果提供了 <code class="docutils literal "><span class="pre">functions</span></code> 参数，将为每个指定的函数自动生成绑定。 <code class="docutils literal "><span class="pre">functions</span></code> 可以是函数名称的列表，或者是从函数名称到文档字符串的映射字典。如果给出列表，则每个函数的名称用作其文档字符串。</p>
+<p> <code class="docutils literal "><span class="pre">cuda_sources</span></code> 中的源代码被连接成一个单独的 <code class="docutils literal "><span class="pre">.cu</span></code> 文件，并添加 <code class="docutils literal "><span class="pre">torch/types.h</span></code> 、 <code class="docutils literal "><span class="pre">cuda.h</span></code> 和 <code class="docutils literal "><span class="pre">cuda_runtime.h</span></code> 包含。 <code class="docutils literal "><span class="pre">.cpp</span></code> 和 <code class="docutils literal "><span class="pre">.cu</span></code> 文件分别编译，但最终链接成一个单一库。请注意，对于 <code class="docutils literal "><span class="pre">cuda_sources</span></code> 中的函数本身不生成绑定。要绑定 CUDA 内核，必须创建一个调用它的 C++函数，并在其中一个 <code class="docutils literal "><span class="pre">cpp_sources</span></code> 中声明或定义此 C++函数（并在 <code class="docutils literal "><span class="pre">functions</span></code> 中包含其名称）。</p>
+<p> <code class="docutils literal "><span class="pre">sycl_sources</span></code> 中的源文件被连接成一个单独的 <code class="docutils literal "><span class="pre">.sycl</span></code> 文件，并在前面添加了 <code class="docutils literal "><span class="pre">torch/types.h</span></code> ， <code class="docutils literal "><span class="pre">sycl/sycl.hpp</span></code> 包含。 <code class="docutils literal "><span class="pre">.cpp</span></code> 和 <code class="docutils literal "><span class="pre">.sycl</span></code> 文件分别编译，但最终链接成一个单一库。请注意，对于 <code class="docutils literal "><span class="pre">sycl_sources</span></code> 中的函数不生成绑定。要绑定到 SYCL 内核，必须创建一个调用它的 C++ 函数，并在 <code class="docutils literal "><span class="pre">cpp_sources</span></code> 中声明或定义此 C++ 函数（并在 <code class="docutils literal "><span class="pre">functions</span></code> 中包含其名称）。</p>
+<p>请参阅 <code class="xref py py-func docutils literal "><span class="pre">load()</span></code> 了解以下省略的参数描述。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>cpp_sources – 包含 C++ 源代码的字符串，或字符串列表。</p></li>
+<li><p>cuda_sources – 包含 CUDA 源代码的字符串，或字符串列表。</p></li>
+<li><p>sycl_sources – 包含 SYCL 源代码的字符串或字符串列表。</p></li>
+<li><p>functions – 要生成函数绑定的函数名列表。如果给定字典，则应将函数名映射到文档字符串（否则文档字符串就是函数名）。</p></li>
+<li><p>with_cuda – 决定是否将 CUDA 头文件和库添加到构建中。如果设置为 <code class="docutils literal "><span class="pre">None</span></code> （默认），则此值将根据是否提供 <code class="docutils literal "><span class="pre">cuda_sources</span></code> 自动确定。将其设置为 <code class="docutils literal "><span class="pre">True</span></code> 以强制包含 CUDA 头文件和库。</p></li>
+<li><p>with_sycl – 决定是否将 SYCL 头文件和库添加到构建中。如果设置为 <code class="docutils literal "><span class="pre">None</span></code> （默认），则此值将根据是否提供 <code class="docutils literal "><span class="pre">sycl_sources</span></code> 自动确定。将其设置为 <code class="docutils literal "><span class="pre">True</span></code> 以强制包含 SYCL 头文件和库。</p></li>
+<li><p>with_pytorch_error_handling – 判断 PyTorch 错误和警告宏是否由 PyTorch 而不是 pybind 处理。为此，每个函数 <code class="docutils literal "><span class="pre">foo</span></code> 都通过一个中间函数 <code class="docutils literal "><span class="pre">_safe_foo</span></code> 调用。这种重定向可能在 cpp 的某些罕见情况下引起问题。当这种重定向引起问题时，应将此标志设置为 <code class="docutils literal "><span class="pre">False</span></code> 。</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torch.utils.cpp_extension</span> <span class="kn">import</span> <span class="n">load_inline</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">source</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="go">at::Tensor sin_add(at::Tensor x, at::Tensor y) {</span>
+<span class="go">  return x.sin() + y.sin();</span>
+<span class="go">}</span>
+<span class="go">"""</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s2">module = load_inline(name='inline_extension',</span>
+<span class="gp">... </span><span class="s2">                     cpp_sources=[source],</span>
+<span class="gp">... </span><span class="s2">                     functions=['sin_add'])</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>由于 load_inline 会即时编译源代码，请确保在运行时已安装正确的工具链。例如，当加载 C++时，请确保有 C++编译器可用。如果您正在加载 CUDA 扩展，则需要额外安装相应的 CUDA 工具包（nvcc 和您的代码所需的任何其他依赖项）。编译工具链在安装 torch 时不会包括在内，必须额外安装。</p>
+<p>在编译过程中，默认情况下，Ninja 后端使用#CPUS + 2 个工作线程来构建扩展。这可能在某些系统上消耗过多资源。可以通过将 MAX_JOBS 环境变量设置为非负数来控制工作线程的数量。</p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.utils.cpp_extension.include_paths">
+torch.utils.cpp_extension.include_paths(device_type='cpu')[source][source]</dt>
+<dd><p>获取构建 C++ 或 CUDA 或 SYCL 扩展所需的包含路径。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>device_type（字符串）- 默认为“cpu”。</p>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>包含路径字符串列表。</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.utils.cpp_extension.get_compiler_abi_compatibility_and_version">
+<span class="sig-prename descclassname"><span class="pre">torch.utils.cpp_extension.</span></span><span class="sig-name descname"><span class="pre">get_compiler_abi_compatibility_and_version</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">compiler</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/utils/cpp_extension.html#get_compiler_abi_compatibility_and_version"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/utils/cpp_extension.py#L406"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.utils.cpp_extension.get_compiler_abi_compatibility_and_version" title="Permalink to this definition">¶</a></dt>
+<dd><p>判断给定的编译器是否与 PyTorch 兼容其版本。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>compiler (str) – 要检查的编译器可执行文件名（例如 <code class="docutils literal "><span class="pre">g++</span></code> ）。必须在 shell 进程中可执行。</p>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>一个元组，包含一个布尔值，表示编译器（可能）与 PyTorch 不兼容，后跟一个包含编译器版本（用点分隔）的 TorchVersion 字符串。</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[bool, torch.torch_version.TorchVersion]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.utils.cpp_extension.verify_ninja_availability">
+<span class="sig-prename descclassname"><span class="pre">torch.utils.cpp_extension.</span></span><span class="sig-name descname"><span class="pre">verify_ninja_availability</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/utils/cpp_extension.html#verify_ninja_availability"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/utils/cpp_extension.py#L2238"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.utils.cpp_extension.verify_ninja_availability" title="Permalink to this definition">¶</a></dt>
+<dd><p>如果系统上不可用 ninja 构建系统，则抛出 <code class="docutils literal "><span class="pre">RuntimeError</span></code> ，否则不执行任何操作。</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.utils.cpp_extension.is_ninja_available">
+<span class="sig-prename descclassname"><span class="pre">torch.utils.cpp_extension.</span></span><span class="sig-name descname"><span class="pre">is_ninja_available</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/utils/cpp_extension.html#is_ninja_available"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/utils/cpp_extension.py#L2228"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.utils.cpp_extension.is_ninja_available" title="Permalink to this definition">¶</a></dt>
+<dd><p>返回 <code class="docutils literal "><span class="pre">True</span></code> 如果系统上安装了忍者构建系统， <code class="docutils literal "><span class="pre">False</span></code> 否则。</p>
+</dd></dl>
+
+</section>
+
+
+             </article>
+             
+            </div>
+            <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        下一个 <img height="16" width="16" class="next-page" src="_static/images/chevron-right-orange.svg"> <img height="16" width="16" class="previous-page" src="_static/images/chevron-right-orange.svg"> 上一个
+      
+    </div>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>© 版权所有 PyTorch 贡献者。</p>
+  </div>
+    
+      <div>使用 Sphinx 构建，主题由 Read the Docs 提供。</div>
+     
+
+</footer>
+
+          </div>
+<script>
+
+var match = window.location.href.match(/\/_[a-zA-Z0-9_]*.html|_dynamo/gi);
+var url = window.location.href.lastIndexOf(match[match.length-1]);
+
+if (url)
+  {
+    var div = '<div class="admonition note"><p class="admonition-title">Note</p><p><i class="fa fa-exclamation-circle" aria-hidden="true">&nbsp</i> This page describes an internal API which is not intended to be used outside of the PyTorch codebase and can be modified or removed without notice.</p></div>'
+    document.getElementById("pytorch-article").insertAdjacentHTML('afterBegin', div)
+  }
+</script>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">torch.utils.cpp_extension</a></li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+         <script src="_static/jquery.js"></script>
+         <script src="_static/underscore.js"></script>
+         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+         <script src="_static/doctools.js"></script>
+         <script src="_static/clipboard.min.js"></script>
+         <script src="_static/copybutton.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ 
+<script script="" type="text/javascript">
+  var collapsedSections = ['Developer Notes', 'Language Bindings', 'Libraries', 'Community'];
+</script>
+
+<img height="1" width="1" style="border-style:none;" alt="" src="https://www.googleadservices.com/pagead/conversion/795629140/?label=txkmCPmdtosBENSssfsC&amp;guid=ON&amp;script=0">
+
+
+  <!-- Begin Footer -->
+
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 text-center">
+          <h2>文档</h2>
+          <p>PyTorch 开发者文档全面访问</p>
+          <a class="with-right-arrow" href="https://pytorch.org/docs/stable/index.html">查看文档</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>教程</h2>
+          <p>获取初学者和高级开发者的深入教程</p>
+          <a class="with-right-arrow" href="https://pytorch.org/tutorials">查看教程</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>资源</h2>
+          <p>查找开发资源并获得您的疑问解答</p>
+          <a class="with-right-arrow" href="https://pytorch.org/resources">查看资源</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://pytorch.org/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/">PyTorch</a></li>
+            <li><a href="https://pytorch.org/get-started">开始使用</a></li>
+            <li><a href="https://pytorch.org/features">功能</a></li>
+            <li><a href="https://pytorch.org/ecosystem">生态系统</a></li>
+            <li><a href="https://pytorch.org/blog/">博客</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md">贡献</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/resources">资源</a></li>
+            <li><a href="https://pytorch.org/tutorials">教程</a></li>
+            <li><a href="https://pytorch.org/docs/stable/index.html">文档</a></li>
+            <li><a href="https://discuss.pytorch.org" target="_blank">讨论</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/issues" target="_blank">GitHub 问题和任务</a></li>
+            <li><a href="https://pytorch.org/assets/brand-guidelines/PyTorch-Brand-Guidelines.pdf" target="_blank">品牌指南</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">保持更新</li>
+            <li><a href="https://www.facebook.com/pytorch" target="_blank">Facebook</a></li>
+            <li><a href="https://twitter.com/pytorch" target="_blank">Twitter</a></li>
+            <li><a href="https://www.youtube.com/pytorch" target="_blank">YouTube</a></li>
+            <li><a href="https://www.linkedin.com/company/pytorch" target="_blank">领英</a></li>
+          </ul>  
+          </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">PyTorch 播客</li>
+            <li><a href="https://open.spotify.com/show/6UzHKeiy368jKfQMKKvJY5" target="_blank">Spotify</a></li>
+            <li><a href="https://podcasts.apple.com/us/podcast/pytorch-developer-podcast/id1566080008" target="_blank">苹果</a></li>
+            <li><a href="https://www.google.com/podcasts?feed=aHR0cHM6Ly9mZWVkcy5zaW1wbGVjYXN0LmNvbS9PQjVGa0lsOA%3D%3D" target="_blank">谷歌</a></li>
+            <li><a href="https://music.amazon.com/podcasts/7a4e6f0e-26c2-49e9-a478-41bd244197d0/PyTorch-Developer-Podcast?" target="_blank">亚马逊</a></li>
+          </ul>
+         </div>
+        </div>
+        
+        <div class="privacy-policy">
+          <ul>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/terms/" target="_blank">条款</a></li>
+            <li class="privacy-policy-links">|</li>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/privacy-policy/" target="_blank">隐私</a></li>
+          </ul>
+        </div>
+        <div class="copyright">
+        <p>© 版权所有 Linux 基金会。PyTorch 基金会是 Linux 基金会的一个项目。有关本网站的使用条款、商标政策以及其他适用于 PyTorch 基金会的政策，请参阅 www.linuxfoundation.org/policies/。PyTorch 基金会支持 PyTorch 开源项目，该项目已被确立为 LF Projects, LLC 的 PyTorch 项目系列。有关适用于 PyTorch 项目系列 LF Projects, LLC 的政策，请参阅 www.lfprojects.org/policies/。</p>
+      </div>
+     </div>
+
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">为分析流量并优化您的体验，我们在本网站上提供 cookies。通过点击或导航，您同意允许我们使用 cookies。作为本站点的当前维护者，Facebook 的 Cookies 政策适用。了解更多信息，包括可用的控制选项：Cookies 政策。</p>
+    <img class="close-button" src="_static/images/pytorch-x.svg" width="16" height="16">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+           <li class="resources-mobile-menu-title">
+             <a>学习</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/get-started">开始学习</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials">教程</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/basics/intro.html">学习基础知识</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/recipes/recipes_index.html">PyTorch 菜谱</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/introyt.html">PyTorch 入门 - YouTube 系列</a>
+             </li>
+           </ul>
+           <li class="resources-mobile-menu-title">
+             <a>生态系统</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/ecosystem">工具</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/#community-module">社区</a>
+             </li>
+             <li>
+               <a href="https://discuss.pytorch.org/">论坛</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/resources">开发者资源</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">贡献者奖项 - 2024</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>Edge</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/edge">关于 PyTorch Edge</a>
+             </li>
+             
+             <li>
+               <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch 文档</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>文档</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/docs/stable/index.html">PyTorch</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/pytorch-domains">PyTorch 领域</a>
+            </li>
+          </ul>
+
+          <li class="resources-mobile-menu-title">
+            <a>博客 &amp; 新闻</a>
+          </li>
+            
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/blog/">PyTorch 博客</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/community-blog">社区博客</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/videos">视频</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/community-stories">社区故事</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/events">活动</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">通讯</a>
+             </li>
+          </ul>
+          
+          <li class="resources-mobile-menu-title">
+            <a>关于</a>
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/foundation">PyTorch 基金会</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/governing-board">治理委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">云信用计划</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">技术顾问委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">员工</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">联系我们</a>
+            </li>
+          </ul>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body></html>

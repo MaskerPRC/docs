@@ -1,0 +1,1709 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Automatic differentiation package - torch.autograd — PyTorch main documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pytorch.org/docs/stable/autograd.html">
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css">
+  <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css">
+  <link rel="stylesheet" href="_static/copybutton.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="_static/katex-math.css" type="text/css">
+  <link rel="stylesheet" href="_static/sphinx-dropdown.css" type="text/css">
+  <link rel="stylesheet" href="_static/panels-bootstrap.min.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/jit.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css">
+    <link rel="index" title="Index" href="genindex.html">
+    <link rel="search" title="Search" href="search.html">
+    <link rel="next" title="torch.autograd.backward" href="generated/torch.autograd.backward.html">
+    <link rel="prev" title="Automatic Mixed Precision package - torch.amp" href="amp.html">
+
+<!--
+  Search engines should not index the main version of documentation.
+  Stable documentation are built without release == 'main'.
+-->
+<meta name="robots" content="noindex">
+
+
+  <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T8XT4PS');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+  <!-- Preload the theme fonts -->
+
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<!-- Preload the katex fonts -->
+
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Math-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size1-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size2-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Caligraphic-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
+</head><body class="pytorch-body"><div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+
+          <li class="main-menu-item">
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">学习</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/get-started">
+                  <span class="dropdown-title">开始使用</span>
+                  <p>在本地运行 PyTorch 或快速开始使用支持的云平台之一</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials">
+                  <span class="dropdown-title">教程</span><p></p>
+                  <p>PyTorch 教程中有什么新内容</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/basics/intro.html">
+                  <span class="dropdown-title">学习基础知识</span><p></p>
+                  <p>熟悉 PyTorch 的概念和模块</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/recipes/recipes_index.html">
+                  <span class="dropdown-title">PyTorch 食谱</span><p></p>
+                  <p>短小精悍、即用型 PyTorch 代码示例</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/introyt.html">
+                  <span class="dropdown-title">PyTorch 入门 - YouTube 系列</span><p></p>
+                  <p>使用我们引人入胜的 YouTube 教程系列掌握 PyTorch 基础知识</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">生态系统</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem">
+                  <span class="dropdown-title">工具</span><p></p>
+                  <p>了解 PyTorch 生态系统中的工具和框架</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
+                  <span class="dropdown-title">社区</span>
+                  <p>加入 PyTorch 开发者社区，贡献、学习并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
+                  <span class="dropdown-title">论坛</span>
+                  <p>讨论 PyTorch 代码、问题、安装、研究的地方</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/resources">
+                  <span class="dropdown-title">开发者资源</span>
+                  <p>查找资源并解答问题</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">2024 年度贡献者奖项</span><p></p>
+                  <p>本年度 PyTorch 大会获奖者揭晓</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">
+                Edge
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/edge">
+                  <span class="dropdown-title">关于 PyTorch Edge</span><p></p>
+                  <p>为边缘设备构建创新和隐私感知的 AI 体验</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
+                  <span class="dropdown-title">ExecuTorch</span><p></p>
+                  <p>搭载移动和边缘设备端到端推理能力的解决方案</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch 文档</span><p></p>
+                </a>
+              </div>
+            </div>  
+          </li>
+
+          <li class="main-menu-item">
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">文档</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/docs/stable/index.html">
+                  <span class="dropdown-title">PyTorch</span><p></p>
+                  <p>探索文档以获取全面指导，了解如何使用 PyTorch</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/pytorch-domains">
+                  <span class="dropdown-title">PyTorch 领域</span><p></p>
+                  <p>阅读 PyTorch Domains 文档，了解更多关于特定领域库的信息</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">博客与新闻</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/blog/">
+                  <span class="dropdown-title">PyTorch Blog</span><p></p>
+                  <p>Catch up on the latest technical news and happenings</p>
+                </a>
+                 <a class="nav-dropdown-item" href="https://pytorch.org/community-blog">
+                  <span class="dropdown-title">社区博客</span><p></p>
+                  <p>PyTorch 生态系统故事</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/videos">
+                  <span class="dropdown-title">视频</span><p></p>
+                  <p>了解最新的 PyTorch 教程、新内容等</p>
+                </a><a class="nav-dropdown-item" href="https://pytorch.org/community-stories">
+                  <span class="dropdown-title">社区故事</span><p></p>
+                  <p>了解我们的社区如何使用 PyTorch 解决真实、日常的机器学习问题</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/events">
+                  <span class="dropdown-title">活动</span><p></p>
+                  <p>查找活动、网络研讨会和播客</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">通讯</span><p></p>
+                  <p>跟踪最新更新</p>
+                </a>
+            </div>
+          </div></li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">关于</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/foundation">
+                  <span class="dropdown-title">PyTorch 基金会</span><p></p>
+                  <p>了解更多关于 PyTorch 基金会的信息</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
+                  <span class="dropdown-title">管理委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">云信用计划</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">技术顾问委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">员工</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">联系我们</span><p></p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li class="main-menu-item">
+            <div class="no-dropdown">
+              <a href="https://pytorch.org/join" data-cta="join">成为会员</a>
+            </div>
+          </li>
+          <li>
+           <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="github-icon">
+             </a>
+           </div>
+          </li>
+          <!--- TODO: This block adds the search icon to the nav bar. We will enable it later. 
+          <li>
+            <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="search-icon">
+             </a>
+            </div>
+          </li>
+          --->
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+  </div>
+</div>
+
+
+
+   
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>目录</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+    <div class="version">
+      <a href="https://pytorch.org/docs/versions.html">主程序 (2.7.0+cpu ) ▼</a>
+    </div>
+    <div id="searchBox">
+    <div class="searchbox" id="googleSearchBox">
+      <script async="" src="https://cse.google.com/cse.js?cx=e65585f8c3ea1440e"></script>
+      <div class="gcse-search"></div>
+    </div>
+    <div id="sphinxSearchBox" style="display: none;">
+      <div role="search">
+        <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+          <input type="text" name="q" placeholder="Search Docs">
+          <input type="hidden" name="check_keywords" value="yes">
+          <input type="hidden" name="area" value="default">
+        </form>
+      </div>
+    </div>
+  </div>
+  <form id="searchForm">
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="google" checked="">谷歌搜索</label>
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="sphinx">经典搜索</label>
+  </form>
+
+  <script>
+     document.addEventListener('DOMContentLoaded', function() {
+      const searchForm = document.getElementById('searchForm');
+      const googleSearchBox = document.getElementById('googleSearchBox');
+      const sphinxSearchBox = document.getElementById('sphinxSearchBox');
+      // Function to toggle search box visibility
+      function toggleSearchBox(searchType) {
+        googleSearchBox.style.display = searchType === 'google' ? 'block' : 'none';
+        sphinxSearchBox.style.display = searchType === 'sphinx' ? 'block' : 'none';
+      }
+      // Determine the default search type
+      let defaultSearchType;
+      const currentUrl = window.location.href;
+      if (currentUrl.startsWith('https://pytorch.org/docs/stable')) {
+        // For the stable documentation, default to Google
+        defaultSearchType = localStorage.getItem('searchType') || 'google';
+      } else {
+        // For any other version, including docs-preview, default to Sphinx
+        defaultSearchType = 'sphinx';
+      }
+      // Set the default search type
+      document.querySelector(`input[name="searchType"][value="${defaultSearchType}"]`).checked = true;
+      toggleSearchBox(defaultSearchType);
+      // Event listener for changes in search type
+      searchForm.addEventListener('change', function(event) {
+        const selectedSearchType = event.target.value;
+        localStorage.setItem('searchType', selectedSearchType);
+        toggleSearchBox(selectedSearchType);
+      });
+      // Set placeholder text for Google search box
+      window.onload = function() {
+        var placeholderText = "Search Docs";
+        var googleSearchboxText = document.querySelector("#gsc-i-id1");
+        if (googleSearchboxText) {
+          googleSearchboxText.placeholder = placeholderText;
+          googleSearchboxText.style.fontFamily = 'FreightSans';
+          googleSearchboxText.style.fontSize = "1.2rem";
+          googleSearchboxText.style.color = '#262626';
+        }
+      };
+    });
+  </script>
+
+          </div>
+
+          
+
+<div>
+  <a style="color:#F05732" href="https://pytorch.org/docs/stable/autograd.html">您正在查看不稳定开发者预览文档。点击此处查看最新稳定版本的文档。</a>
+</div>
+
+
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">社区</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="community/build_ci_governance.html">PyTorch 治理 | 构建 + CI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/contribution_guide.html">PyTorch 贡献指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/design.html">PyTorch 设计哲学</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/governance.html">PyTorch 治理 | 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/persons_of_interest.html">PyTorch 治理 | 维护者</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发者说明</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="notes/amp_examples.html">自动混合精度示例</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/autograd.html">Autograd 力学</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/broadcasting.html">广播语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/cpu_threading_torchscript_inference.html">CPU 多线程和 TorchScript 推理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/cuda.html">CUDA 语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/custom_operators.html">PyTorch 自定义操作着陆页面</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/ddp.html">分布式数据并行</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/extending.html">扩展 PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/extending.func.html">扩展 torch.func 与 autograd.Function</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/faq.html">常见问题解答</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/fsdp.html">FSDP 笔记</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/get_start_xpu.html">Intel GPU 上入门指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/gradcheck.html">Gradcheck 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/hip.html">HIP (ROCm) 语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/large_scale_deployments.html">大规模部署功能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/libtorch_stable_abi.html">LibTorch 稳定 ABI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/modules.html">模块</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/mps.html">MPS 后端</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/multiprocessing.html">多进程最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/numerical_accuracy.html">数值精度</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/randomness.html">可重现性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/serialization.html">序列化语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/windows.html">Windows 常见问题解答</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">语言绑定</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cpp_index.html">C++</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/javadoc/">Javadoc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deploy.html">torch::deploy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="torch.html">torch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.html">torch.nn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.functional.html">torch.nn.functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensors.html">torch.Tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensor_attributes.html">张量属性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensor_view.html">张量视图</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amp.html">torch.amp</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">torch.autograd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="library.html">torch.library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accelerator.html">torch.accelerator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpu.html">torch.cpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">torch.cuda</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html">理解 CUDA 内存使用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#generating-a-snapshot">生成快照</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#using-the-visualizer">使用可视化工具</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#snapshot-api-reference">摄像头 API 参考</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mps.html">torch.mps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="xpu.html">torch.xpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mtia.html">torch.mtia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mtia.memory.html">torch.mtia.memory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="meta.html">元设备</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backends.html">torch.backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="export.html">torch.export</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.html">torch.distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.tensor.html">torch.distributed.tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.algorithms.join.html">torch.distributed.algorithms.join</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.elastic.html">torch.distributed.elastic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fsdp.html">torch.distributed.fsdp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.fsdp.fully_shard.html">torch.distributed.fsdp.fully_shard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.tensor.parallel.html">torch.distributed.tensor.parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.optim.html">torch.distributed.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.pipelining.html">torch.distributed.pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.checkpoint.html">torch.distributed.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributions.html">torch.distributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch.compiler.html">torch.compiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fft.html">torch.fft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="func.html">torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="futures.html">torch.futures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fx.html">torch.fx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fx.experimental.html">torch.fx.experimental</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hub.html">torch.hub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jit.html">torch.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="linalg.html">torch.linalg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitor.html">torch.monitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="signal.html">torch.signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="special.html">torch.special</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch.overrides.html">torch.overrides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="package.html">torch.package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="profiler.html">torch.profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.init.html">torch.nn.init</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.attention.html">torch.nn.attention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="onnx.html">torch.onnx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="optim.html">torch.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="complex_numbers.html">复数</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ddp_comm_hooks.html">DDP 通信钩子</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quantization.html">量化</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rpc.html">分布式 RPC 框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="random.html">torch.random</a></li>
+<li class="toctree-l1"><a class="reference internal" href="masked.html">torch.masked</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nested.html">torch.nested</a></li>
+<li class="toctree-l1"><a class="reference internal" href="size.html">torch.Size</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sparse.html">torch.sparse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="storage.html">torch 存储</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">torch 测试</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">torch 工具</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmark_utils.html">torch 工具.基准测试</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bottleneck.html">torch.utils.bottleneck</a></li>
+<li class="toctree-l1"><a class="reference internal" href="checkpoint.html">torch.utils.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp_extension.html">torch.utils.cpp_extension</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data.html">torch.utils.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deterministic.html">torch.utils.deterministic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jit_utils.html">torch.utils.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dlpack.html">torch.utils.dlpack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mobile_optimizer.html">torch.utils.mobile_optimizer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_zoo.html">torch.utils.model_zoo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensorboard.html">torch.utils.tensorboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_tracker.html">torch.utils.module_tracker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="type_info.html">类型信息</a></li>
+<li class="toctree-l1"><a class="reference internal" href="named_tensor.html">命名张量</a></li>
+<li class="toctree-l1"><a class="reference internal" href="name_inference.html">命名张量运算符覆盖率</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config_mod.html">torch.__config__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="future_mod.html">torch.__future__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">torch._logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_environment_variables.html">Torch 环境变量</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">库</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/audio/stable">torchaudio</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/data">火炬数据</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/torchrec">火炬推荐</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/serve">火炬服务</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/text/stable">torchtext</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/vision/stable">torchvision</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/xla/">PyTorch on XLA Devices</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/ao">torchao</a></li>
+</ul>
+
+            
+          
+
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="index.html">
+          
+            Docs
+          
+        </a> &gt;
+      </li>
+
+        
+      <li>自动微分包 - torch.autograd</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+            
+            <a href="_sources/autograd.rst.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg" width="16" height="16"></a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">快捷键</div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+
+          <!-- Google Tag Manager (noscript) -->
+          <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T8XT4PS" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+          <!-- End Google Tag Manager (noscript) -->
+          
+          <div class="rst-content">
+          
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <section id="module-torch.autograd">
+<span id="automatic-differentiation-package-torch-autograd"></span><h1>自动微分包 - torch.autograd ¶</h1>
+<p> <code class="docutils literal "><span class="pre">torch.autograd</span></code> 提供实现任意标量值函数自动微分的类和函数。</p>
+<p>它需要最小化修改现有代码 - 您只需使用 <code class="docutils literal "><span class="pre">requires_grad=True</span></code> 关键字声明 <code class="xref py py-class docutils literal "><span class="pre">Tensor</span></code> ，对于其梯度需要计算的变量。目前，我们仅支持浮点 <code class="xref py py-class docutils literal "><span class="pre">Tensor</span></code> 类型（half、float、double 和 bfloat16）和复数 <code class="xref py py-class docutils literal "><span class="pre">Tensor</span></code> 类型（cfloat、cdouble）。</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p></p><p id="torch.autograd.backward"><a class="reference internal" href="generated/torch.autograd.backward.html#torch.autograd.backward" title="torch.autograd.backward"><code class="xref py py-obj docutils literal "><span class="pre">backward</span></code></a></p></td>
+<td><p>计算给定张量相对于图叶的梯度的总和。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.autograd.grad"><a class="reference internal" href="generated/torch.autograd.grad.html#torch.autograd.grad" title="torch.autograd.grad"><code class="xref py py-obj docutils literal "><span class="pre">grad</span></code></a></p></td>
+<td><p>计算并返回输出相对于输入的梯度的总和。</p></td>
+</tr>
+</tbody>
+</table>
+<section id="forward-mode-automatic-differentiation">
+<span id="forward-mode-ad"></span><h2>前向模式自动微分</h2>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>此 API 处于测试版。尽管函数签名非常不可能更改，但在我们将其视为稳定版之前，计划改进操作覆盖范围。</p>
+</div>
+<p>请参阅前向模式的 AD 教程，以获取如何使用此 API 的详细步骤。</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/torch.autograd.forward_ad.dual_level.html#torch.autograd.forward_ad.dual_level" title="torch.autograd.forward_ad.dual_level"><code class="xref py py-obj docutils literal "><span class="pre">forward_ad.dual_level</span></code></a></p></td>
+<td><p>前向 AD 的上下文管理器，所有前向 AD 计算必须在 <code class="docutils literal "><span class="pre">dual_level</span></code> 上下文中进行。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/torch.autograd.forward_ad.make_dual.html#torch.autograd.forward_ad.make_dual" title="torch.autograd.forward_ad.make_dual"><code class="xref py py-obj docutils literal "><span class="pre">forward_ad.make_dual</span></code></a></p></td>
+<td><p>将张量值与其切线关联以创建用于前向 AD 梯度计算的“双张量”。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/torch.autograd.forward_ad.unpack_dual.html#torch.autograd.forward_ad.unpack_dual" title="torch.autograd.forward_ad.unpack_dual"><code class="xref py py-obj docutils literal "><span class="pre">forward_ad.unpack_dual</span></code></a></p></td>
+<td><p>解包“双张量”以获取其张量值和前向 AD 梯度。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/torch.autograd.forward_ad.enter_dual_level.html#torch.autograd.forward_ad.enter_dual_level" title="torch.autograd.forward_ad.enter_dual_level"><code class="xref py py-obj docutils literal "><span class="pre">forward_ad.enter_dual_level</span></code></a></p></td>
+<td><p>输入新的前向梯度级别。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/torch.autograd.forward_ad.exit_dual_level.html#torch.autograd.forward_ad.exit_dual_level" title="torch.autograd.forward_ad.exit_dual_level"><code class="xref py py-obj docutils literal "><span class="pre">forward_ad.exit_dual_level</span></code></a></p></td>
+<td><p>退出前向梯度级别。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/torch.autograd.forward_ad.UnpackedDualTensor.html#torch.autograd.forward_ad.UnpackedDualTensor" title="torch.autograd.forward_ad.UnpackedDualTensor"><code class="xref py py-obj docutils literal "><span class="pre">forward_ad.UnpackedDualTensor</span></code></a></p></td>
+<td><p>由 <code class="xref py py-func docutils literal "><span class="pre">unpack_dual()</span></code> 返回的 Namedtuple，包含对偶张量的原点和切线分量。</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="functional-higher-level-api">
+<span id="functional-api"></span><h2>函数高级 API ¶</h2>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>此 API 处于测试阶段。尽管函数签名不太可能改变，但在我们将其视为稳定版本之前，计划进行重大性能改进。</p>
+</div>
+<p>本节包含高级 API，用于自动微分，它基于上面的基本 API，并允许您计算雅可比矩阵、海森矩阵等。</p>
+<p>此 API 与用户提供的函数一起工作，这些函数只接受张量作为输入并返回张量。如果您的函数接受其他不是张量或没有设置 requires_grad 属性的张量作为参数，您可以使用 lambda 表达式来捕获它们。例如，对于需要三个输入的函数 <code class="docutils literal "><span class="pre">f</span></code> ，一个我们想要计算雅可比矩阵的张量，另一个应被视为常量的张量，以及一个布尔标志 <code class="docutils literal "><span class="pre">f(input,</span> <span class="pre">constant,</span> <span class="pre">flag=flag)</span></code> ，您可以使用它作为 <code class="docutils literal "><span class="pre">functional.jacobian(lambda</span> <span class="pre">x:</span> <span class="pre">f(x,</span> <span class="pre">constant,</span> <span class="pre">flag=flag),</span> <span class="pre">input)</span></code> 。</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/torch.autograd.functional.jacobian.html#torch.autograd.functional.jacobian" title="torch.autograd.functional.jacobian"><code class="xref py py-obj docutils literal "><span class="pre">functional.jacobian</span></code></a></p></td>
+<td><p>计算给定函数的雅可比矩阵。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/torch.autograd.functional.hessian.html#torch.autograd.functional.hessian" title="torch.autograd.functional.hessian"><code class="xref py py-obj docutils literal "><span class="pre">functional.hessian</span></code></a></p></td>
+<td><p>计算给定标量函数的 Hessian 矩阵。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/torch.autograd.functional.vjp.html#torch.autograd.functional.vjp" title="torch.autograd.functional.vjp"><code class="xref py py-obj docutils literal "><span class="pre">functional.vjp</span></code></a></p></td>
+<td><p>计算向量 <code class="docutils literal "><span class="pre">v</span></code> 与给定函数在输入点处的雅可比矩阵的点积。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/torch.autograd.functional.jvp.html#torch.autograd.functional.jvp" title="torch.autograd.functional.jvp"><code class="xref py py-obj docutils literal "><span class="pre">functional.jvp</span></code></a></p></td>
+<td><p>计算给定函数在输入点处的雅可比矩阵与向量 <code class="docutils literal "><span class="pre">v</span></code> 的点积。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/torch.autograd.functional.vhp.html#torch.autograd.functional.vhp" title="torch.autograd.functional.vhp"><code class="xref py py-obj docutils literal "><span class="pre">functional.vhp</span></code></a></p></td>
+<td><p>计算向量 <code class="docutils literal "><span class="pre">v</span></code> 与给定标量函数在指定点处的 Hessian 矩阵的点积。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/torch.autograd.functional.hvp.html#torch.autograd.functional.hvp" title="torch.autograd.functional.hvp"><code class="xref py py-obj docutils literal "><span class="pre">functional.hvp</span></code></a></p></td>
+<td><p>计算标量函数的 Hessian 矩阵与向量 <code class="docutils literal "><span class="pre">v</span></code> 在指定点的点积。</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="locally-disabling-gradient-computation">
+<span id="locally-disable-grad"></span><h2>局部禁用梯度计算</h2>
+<p>有关 no-grad 和推理模式之间的差异以及其他可能与此混淆的相关机制，请参阅局部禁用梯度计算。另外，请参阅局部禁用梯度计算以获取可以用于局部禁用梯度的函数列表。</p>
+</section>
+<section id="default-gradient-layouts">
+<span id="default-grad-layouts"></span><h2>默认梯度布局</h2>
+<p>当非稀疏的 <code class="docutils literal "><span class="pre">param</span></code> 在 <code class="xref py py-func docutils literal "><span class="pre">torch.autograd.backward()</span></code> 或 <code class="xref py py-func docutils literal "><span class="pre">torch.Tensor.backward()</span></code> 期间接收到非稀疏梯度时， <code class="docutils literal "><span class="pre">param.grad</span></code> 将按如下方式累积。</p>
+<p>如果 <code class="docutils literal "><span class="pre">param.grad</span></code> 最初是 <code class="docutils literal "><span class="pre">None</span></code> ：</p>
+<ol class="arabic simple">
+<li><p>如果 <code class="docutils literal "><span class="pre">param</span></code> 的内存非重叠且密集，则创建 <code class="docutils literal "><span class="pre">.grad</span></code> ，其步长与 <code class="docutils literal "><span class="pre">param</span></code> 匹配（从而与 <code class="docutils literal "><span class="pre">param</span></code> 的布局匹配）。</p></li>
+<li><p>否则， <code class="docutils literal "><span class="pre">.grad</span></code> 将使用 rowmajor-contiguous 步长创建。</p></li>
+</ol>
+<p>如果 <code class="docutils literal "><span class="pre">param</span></code> 已经具有非稀疏的 <code class="docutils literal "><span class="pre">.grad</span></code> 属性：</p>
+<ol class="arabic simple" start="3">
+<li><p>如果 <code class="docutils literal "><span class="pre">create_graph=False</span></code> ， <code class="docutils literal "><span class="pre">backward()</span></code> 将累加到 <code class="docutils literal "><span class="pre">.grad</span></code> 中，并就地保留其步长。</p></li>
+<li><p>如果 <code class="docutils literal "><span class="pre">create_graph=True</span></code> ， <code class="docutils literal "><span class="pre">backward()</span></code> 将用新的张量 <code class="docutils literal "><span class="pre">.grad</span> <span class="pre">+</span> <span class="pre">new</span> <span class="pre">grad</span></code> 替换 <code class="docutils literal "><span class="pre">.grad</span></code> ，尝试（但不保证）与现有的 <code class="docutils literal "><span class="pre">.grad</span></code> 的步长匹配。</p></li>
+</ol>
+<p>默认行为（在第一次 <code class="docutils literal "><span class="pre">.grad</span></code> 之前让 <code class="docutils literal "><span class="pre">None</span></code> 保持 <code class="docutils literal "><span class="pre">backward()</span></code> ，以便它们的布局根据 1 或 2 创建，并根据 3 或 4 在时间上保留）推荐用于最佳性能。对 <code class="docutils literal "><span class="pre">model.zero_grad()</span></code> 或 <code class="docutils literal "><span class="pre">optimizer.zero_grad()</span></code> 的调用不会影响 <code class="docutils literal "><span class="pre">.grad</span></code> 的布局。</p>
+<p>事实上，在每个累积阶段之前将所有 <code class="docutils literal "><span class="pre">.grad</span></code> 重置为 <code class="docutils literal "><span class="pre">None</span></code> ，例如：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">iterations</span><span class="o">...</span>
+    <span class="o">...</span>
+    <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">():</span>
+        <span class="n">param</span><span class="o">.</span><span class="n">grad</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>这样它们每次都会根据 1 或 2 重新创建，是 <code class="docutils literal "><span class="pre">model.zero_grad()</span></code> 或 <code class="docutils literal "><span class="pre">optimizer.zero_grad()</span></code> 的有效替代方案，可能有助于提高某些网络性能。</p>
+<section id="manual-gradient-layouts">
+<h3>手动梯度布局 ¶</h3>
+<p>如果您需要手动控制 <code class="docutils literal "><span class="pre">.grad</span></code> 的步长，请在第一次 <code class="docutils literal "><span class="pre">backward()</span></code> 之前分配一个具有所需步长的零张量给 <code class="docutils literal "><span class="pre">param.grad</span> <span class="pre">=</span></code> ，并且永远不要将其重置为 <code class="docutils literal "><span class="pre">None</span></code> 。3 保证只要 <code class="docutils literal "><span class="pre">create_graph=False</span></code> ，您的布局就会得到保留。4 表示即使 <code class="docutils literal "><span class="pre">create_graph=True</span></code> ，您的布局也很可能得到保留。</p>
+</section>
+</section>
+<section id="in-place-operations-on-tensors">
+<h2>张量原地操作 ¶</h2>
+<p>在 autograd 中支持原地操作是一项艰巨的任务，我们通常不建议使用它们。Autograd 的积极缓冲区释放和重用使其非常高效，而且很少情况下原地操作能显著降低内存使用量。除非你处于严重的内存压力之下，否则你可能永远不需要使用它们。</p>
+<section id="in-place-correctness-checks">
+<h3>原地操作正确性检查 ¶</h3>
+<p>所有 <code class="xref py py-class docutils literal "><span class="pre">Tensor</span></code> 都记录了对其应用的原地操作，如果实现检测到某个张量在一个函数中为反向传播保存了，但之后被原地修改了，一旦开始反向传播，将会引发错误。这确保了如果你使用原地函数且没有看到任何错误，你可以确信计算出的梯度是正确的。</p>
+</section>
+</section>
+<section id="variable-deprecated">
+<h2>变量（已弃用）¶</h2>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>变量 API 已被弃用：使用自动微分与张量不再需要变量。自动微分自动支持将 <code class="docutils literal "><span class="pre">requires_grad</span></code> 设置为 <code class="docutils literal "><span class="pre">True</span></code> 的张量。以下是一个快速指南，说明有哪些变化：</p>
+<ul class="simple">
+<li><p> <code class="docutils literal "><span class="pre">Variable(tensor)</span></code> 和 <code class="docutils literal "><span class="pre">Variable(tensor,</span> <span class="pre">requires_grad)</span></code> 仍然按预期工作，但它们返回的是张量而不是变量。</p></li>
+<li><p> <code class="docutils literal "><span class="pre">var.data</span></code> 与 <code class="docutils literal "><span class="pre">tensor.data</span></code> 是同一回事。</p></li>
+<li><p>现在方法 <code class="docutils literal "><span class="pre">var.backward(),</span> <span class="pre">var.detach(),</span> <span class="pre">var.register_hook()</span></code> 现在可以用于具有相同方法名的张量。</p></li>
+</ul>
+<p>此外，现在可以使用工厂方法 <code class="xref py py-func docutils literal "><span class="pre">torch.randn()</span></code> 、 <code class="xref py py-func docutils literal "><span class="pre">torch.zeros()</span></code> 、 <code class="xref py py-func docutils literal "><span class="pre">torch.ones()</span></code> 等创建张量，如下所示：</p>
+<p><code class="docutils literal "><span class="pre">autograd_tensor</span> <span class="pre">=</span> <span class="pre">torch.randn((2,</span> <span class="pre">3,</span> <span class="pre">4),</span> <span class="pre">requires_grad=True)</span></code></p>
+</div>
+</section>
+<section id="tensor-autograd-functions">
+<h2>张量自动微分函数</h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal "><span class="pre">torch.Tensor.grad</span></code></p></td>
+<td><p>此属性默认为 <code class="docutils literal "><span class="pre">None</span></code> ，并在第一次调用 <code class="xref py py-func docutils literal "><span class="pre">backward()</span></code> 计算 <code class="docutils literal "><span class="pre">self</span></code> 的梯度时变为 Tensor。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal "><span class="pre">torch.Tensor.requires_grad</span></code></p></td>
+<td><p>如果需要为此张量计算梯度，则使用 <code class="docutils literal "><span class="pre">True</span></code> ；否则使用 <code class="docutils literal "><span class="pre">False</span></code> 。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal "><span class="pre">torch.Tensor.is_leaf</span></code></p></td>
+<td><p>所有具有 <code class="xref py py-attr docutils literal "><span class="pre">requires_grad</span></code> 且为 <code class="docutils literal "><span class="pre">False</span></code> 的 Tensor 都将按照惯例成为叶子 Tensor。</p></td>
+</tr>
+<tr class="row-even"><td><p> <code class="xref py py-obj docutils literal "><span class="pre">torch.Tensor.backward</span></code> ([梯度, ...])</p></td>
+<td><p>计算当前张量相对于图叶子的梯度。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal "><span class="pre">torch.Tensor.detach</span></code></p></td>
+<td><p>返回一个新的 Tensor，与当前图分离。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal "><span class="pre">torch.Tensor.detach_</span></code></p></td>
+<td><p>从创建它的图中分离张量，使其成为叶子节点。</p></td>
+</tr>
+<tr class="row-odd"><td><p> <code class="xref py py-obj docutils literal "><span class="pre">torch.Tensor.register_hook</span></code> （钩子）</p></td>
+<td><p>注册反向钩子。</p></td>
+</tr>
+<tr class="row-even"><td><p> <code class="xref py py-obj docutils literal "><span class="pre">torch.Tensor.register_post_accumulate_grad_hook</span></code> （钩子）</p></td>
+<td><p>注册在梯度累积之后运行的回退钩子。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal "><span class="pre">torch.Tensor.retain_grad</span></code>()</p></td>
+<td><p>允许这个张量在 <code class="xref py py-func docutils literal "><span class="pre">backward()</span></code> 期间填充 <code class="xref py py-attr docutils literal "><span class="pre">grad</span></code> 。</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="function">
+<h2>函数 ¶</h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.autograd.Function">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.autograd.</span></span><span class="sig-name descname"><span class="pre">Function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/autograd/function.html#Function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/autograd/function.py#L464"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.autograd.Function" title="Permalink to this definition">¶</a></dt>
+<dd><p>创建自定义 autograd.Function 的基类。</p>
+<p>要创建自定义的 autograd.Function，请继承此类并实现 <code class="xref py py-meth docutils literal "><span class="pre">forward()</span></code> 和 <code class="xref py py-meth docutils literal "><span class="pre">backward()</span></code> 静态方法。然后，要在正向传播中使用您的自定义操作，请调用类方法 <code class="docutils literal "><span class="pre">apply</span></code> 。请不要直接调用 <code class="xref py py-meth docutils literal "><span class="pre">forward()</span></code> 。</p>
+<p>为了确保正确性和最佳性能，请确保您正在调用正确的 <code class="docutils literal "><span class="pre">ctx</span></code> 方法，并使用 <code class="xref py py-func docutils literal "><span class="pre">torch.autograd.gradcheck()</span></code> 验证您的反向函数。</p>
+<p>查看 torch.autograd 的扩展部分以获取更多关于如何使用此类详情。</p>
+<p>示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Exp</span><span class="p">(</span><span class="n">Function</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="nd">@staticmethod</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">result</span> <span class="o">=</span> <span class="n">i</span><span class="o">.</span><span class="n">exp</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">ctx</span><span class="o">.</span><span class="n">save_for_backward</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="k">return</span> <span class="n">result</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="nd">@staticmethod</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="nf">backward</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">grad_output</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">result</span><span class="p">,</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">saved_tensors</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="k">return</span> <span class="n">grad_output</span> <span class="o">*</span> <span class="n">result</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Use it by calling the apply method:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">output</span> <span class="o">=</span> <span class="n">Exp</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/torch.autograd.Function.forward.html#torch.autograd.Function.forward" title="torch.autograd.Function.forward"><code class="xref py py-obj docutils literal "><span class="pre">Function.forward</span></code></a></p></td>
+<td><p>定义自定义 autograd Function 的前向。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/torch.autograd.Function.backward.html#torch.autograd.Function.backward" title="torch.autograd.Function.backward"><code class="xref py py-obj docutils literal "><span class="pre">Function.backward</span></code></a></p></td>
+<td><p>定义使用自动微分反向模式的操作微分公式。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/torch.autograd.Function.jvp.html#torch.autograd.Function.jvp" title="torch.autograd.Function.jvp"><code class="xref py py-obj docutils literal "><span class="pre">Function.jvp</span></code></a></p></td>
+<td><p>定义使用前向模式自动微分的不同操作的分步公式。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/torch.autograd.Function.vmap.html#torch.autograd.Function.vmap" title="torch.autograd.Function.vmap"><code class="xref py py-obj docutils literal "><span class="pre">Function.vmap</span></code></a></p></td>
+<td><p>定义在 <code class="xref py py-func docutils literal "><span class="pre">torch.vmap()</span></code> 下的 autograd.Function 的行为。</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="context-method-mixins">
+<span id="id1"></span><h2>上下文方法混合子。</h2>
+<p>当创建一个新的 <code class="xref py py-class docutils literal "><span class="pre">Function</span></code> 时，ctx 可用以下方法。</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/torch.autograd.function.FunctionCtx.mark_dirty.html#torch.autograd.function.FunctionCtx.mark_dirty" title="torch.autograd.function.FunctionCtx.mark_dirty"><code class="xref py py-obj docutils literal "><span class="pre">function.FunctionCtx.mark_dirty</span></code></a></p></td>
+<td><p>在原地操作中将给定的张量标记为已修改。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/torch.autograd.function.FunctionCtx.mark_non_differentiable.html#torch.autograd.function.FunctionCtx.mark_non_differentiable" title="torch.autograd.function.FunctionCtx.mark_non_differentiable"><code class="xref py py-obj docutils literal "><span class="pre">function.FunctionCtx.mark_non_differentiable</span></code></a></p></td>
+<td><p>将输出标记为不可微分。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/torch.autograd.function.FunctionCtx.save_for_backward.html#torch.autograd.function.FunctionCtx.save_for_backward" title="torch.autograd.function.FunctionCtx.save_for_backward"><code class="xref py py-obj docutils literal "><span class="pre">function.FunctionCtx.save_for_backward</span></code></a></p></td>
+<td><p>保存给定的张量以供未来调用 <code class="xref py py-func docutils literal "><span class="pre">backward()</span></code> 。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/torch.autograd.function.FunctionCtx.set_materialize_grads.html#torch.autograd.function.FunctionCtx.set_materialize_grads" title="torch.autograd.function.FunctionCtx.set_materialize_grads"><code class="xref py py-obj docutils literal "><span class="pre">function.FunctionCtx.set_materialize_grads</span></code></a></p></td>
+<td><p>设置是否实例化梯度张量。</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="custom-function-utilities">
+<h2>沉浸式翻译工具</h2>
+<p>向后方法装饰器。</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/torch.autograd.function.once_differentiable.html#torch.autograd.function.once_differentiable" title="torch.autograd.function.once_differentiable"><code class="xref py py-obj docutils literal "><span class="pre">function.once_differentiable</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<p>基础自定义 <code class="xref py py-class docutils literal "><span class="pre">Function</span></code> ，用于构建 PyTorch 工具。</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/torch.autograd.function.BackwardCFunction.html#torch.autograd.function.BackwardCFunction" title="torch.autograd.function.BackwardCFunction"><code class="xref py py-obj docutils literal "><span class="pre">function.BackwardCFunction</span></code></a></p></td>
+<td><p>此类用于内部自动微分工作。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/torch.autograd.function.InplaceFunction.html#torch.autograd.function.InplaceFunction" title="torch.autograd.function.InplaceFunction"><code class="xref py py-obj docutils literal "><span class="pre">function.InplaceFunction</span></code></a></p></td>
+<td><p>这个类仅为了向后兼容而存在。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/torch.autograd.function.NestedIOFunction.html#torch.autograd.function.NestedIOFunction" title="torch.autograd.function.NestedIOFunction"><code class="xref py py-obj docutils literal "><span class="pre">function.NestedIOFunction</span></code></a></p></td>
+<td><p>这个类仅为了向后兼容而存在。</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-torch.autograd.gradcheck">
+<span id="numerical-gradient-checking"></span><span id="grad-check"></span><h2>数值梯度检查 ¶</h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p></p><p id="torch.autograd.gradcheck.gradcheck"><a class="reference internal" href="generated/torch.autograd.gradcheck.gradcheck.html#torch.autograd.gradcheck.gradcheck" title="torch.autograd.gradcheck.gradcheck"><code class="xref py py-obj docutils literal "><span class="pre">gradcheck</span></code></a></p></td>
+<td><p>将通过小有限差分计算得到的梯度与相对于 <code class="xref py py-attr docutils literal "><span class="pre">inputs</span></code> 中的张量（浮点型或复数类型）的解析梯度进行比较。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.autograd.gradcheck.gradgradcheck"><a class="reference internal" href="generated/torch.autograd.gradcheck.gradgradcheck.html#torch.autograd.gradcheck.gradgradcheck" title="torch.autograd.gradcheck.gradgradcheck"><code class="xref py py-obj docutils literal "><span class="pre">gradgradcheck</span></code></a></p></td>
+<td><p>将通过小有限差分计算得到的梯度与相对于 <code class="xref py py-attr docutils literal "><span class="pre">inputs</span></code> 和 <code class="xref py py-attr docutils literal "><span class="pre">grad_outputs</span></code> 中的张量（浮点型或复数类型）的解析梯度进行比较。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.autograd.gradcheck.GradcheckError"><a class="reference internal" href="generated/torch.autograd.gradcheck.GradcheckError.html#torch.autograd.gradcheck.GradcheckError" title="torch.autograd.gradcheck.GradcheckError"><code class="xref py py-obj docutils literal "><span class="pre">GradcheckError</span></code></a></p></td>
+<td><p>由 <code class="xref py py-func docutils literal "><span class="pre">gradcheck()</span></code> 和 <code class="xref py py-func docutils literal "><span class="pre">gradgradcheck()</span></code> 引发的错误。</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="profiler">
+<h2>分析器</h2>
+<p>Autograd 包含一个分析器，允许您检查模型内部不同操作的成本 - 无论是 CPU 还是 GPU。目前实现了三种模式 - 仅 CPU 使用 <code class="xref py py-class docutils literal "><span class="pre">profile</span></code> . 基于 nvprof 的（注册 CPU 和 GPU 活动使用 <code class="xref py py-class docutils literal "><span class="pre">emit_nvtx</span></code> .）和基于 vtune 分析器的使用 <code class="xref py py-class docutils literal "><span class="pre">emit_itt</span></code> 。</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.autograd.profiler.profile">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.autograd.profiler.</span></span><span class="sig-name descname"><span class="pre">profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">enabled</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_cuda</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">record_shapes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_flops</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profile_memory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_stack</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_modules</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_kineto</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_cpu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experimental_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acc_events</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_trace_id_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/autograd/profiler.html#profile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/autograd/profiler.py#L107"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.autograd.profiler.profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>管理 autograd 分析器状态和保留结果摘要的上下文管理器。</p>
+<p>在底层，它只是记录 C++中执行函数的事件，并将这些事件暴露给 Python。您可以将任何代码包装在其中，它只会报告 PyTorch 函数的运行时间。注意：分析器是线程本地的，并且会自动传播到异步任务中</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>enabled（布尔值，可选）- 将此设置为 False 将使此上下文管理器成为空操作。</p></li>
+<li><p>use_cuda（布尔值，可选）- 启用使用 cudaEvent API 的 CUDA 事件的计时。（将弃用）</p></li>
+<li><p>use_device (str, 可选) – 启用设备事件计时。当使用 cuda 时，每个张量操作会增加大约 4us 的开销。有效的设备选项有‘cuda’，‘xpu’，‘mtia’和‘privateuseone’。</p></li>
+<li><p>record_shapes (bool, 可选) – 如果启用了形状记录，将收集输入维度的信息。这允许用户查看底层使用了哪些维度，并使用 prof.key_averages(group_by_input_shape=True) 进行进一步分组。请注意，形状记录可能会扭曲您的分析数据。建议使用带和不带形状记录的单独运行来验证计时。最可能的情况是，对于最底层的事件（嵌套函数调用的情况），偏差将微不足道。但对于高级函数，由于形状收集，总的自 CPU 时间可能会人为地增加。</p></li>
+<li><p>with_flops (bool, 可选) – 如果设置了 with_flops，分析器将使用操作符的输入形状来估计 FLOPs（浮点运算）值。这允许用户估计硬件性能。目前，此选项仅适用于矩阵乘法和 2D 卷积操作符。</p></li>
+<li><p>profile_memory (bool, optional) – 跟踪张量内存分配/释放。</p></li>
+<li><p>with_stack (bool, optional) – 记录操作（文件和行号）的源信息。</p></li>
+<li><p>with_modules (bool) – 记录操作调用栈对应的模块层次结构（包括函数名）。例如，如果模块 A 的前向调用模块 B 的前向，其中包含 aten::add 操作，则 aten::add 的模块层次结构是 A.B 注意，目前此支持仅适用于 TorchScript 模型，而不适用于 eager 模式模型。</p></li>
+<li><p>use_kineto (bool, optional) – 实验，启用 Kineto 分析器的性能分析。</p></li>
+<li><p>use_cpu (bool, 可选) – 配置 CPU 事件；设置为 <code class="docutils literal "><span class="pre">False</span></code> 需要 <code class="docutils literal "><span class="pre">use_kineto=True</span></code> ，可用于降低仅 GPU 分析的开销。</p></li>
+<li><p>experimental_config (_ExperimentalConfig) – 一组由 Kineto 等分析库使用的实验性选项。注意，不保证向后兼容性。</p></li>
+<li><p>acc_events (bool) – 启用在多个分析周期内累积 FunctionEvents。</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">autograd</span><span class="o">.</span><span class="n">profiler</span><span class="o">.</span><span class="n">profile</span><span class="p">()</span> <span class="k">as</span> <span class="n">prof</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">):</span>  <span class="c1"># any normal python code, really!</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">y</span> <span class="o">=</span> <span class="n">x</span> <span class="o">**</span> <span class="mi">2</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">y</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># NOTE: some columns were removed for brevity</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">prof</span><span class="o">.</span><span class="n">key_averages</span><span class="p">()</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="n">sort_by</span><span class="o">=</span><span class="s2">"self_cpu_time_total"</span><span class="p">))</span>
+<span class="go">-----------------------------------  ---------------  ---------------  ---------------</span>
+<span class="go">Name                                 Self CPU total   CPU time avg     Number of Calls</span>
+<span class="go">-----------------------------------  ---------------  ---------------  ---------------</span>
+<span class="go">mul                                  32.048ms         32.048ms         200</span>
+<span class="go">pow                                  27.041ms         27.041ms         200</span>
+<span class="go">PowBackward0                         9.727ms          55.483ms         100</span>
+<span class="go">torch::autograd::AccumulateGrad      9.148ms          9.148ms          100</span>
+<span class="go">torch::autograd::GraphRoot           691.816us        691.816us        100</span>
+<span class="go">-----------------------------------  ---------------  ---------------  ---------------</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/torch.autograd.profiler.profile.export_chrome_trace.html#torch.autograd.profiler.profile.export_chrome_trace" title="torch.autograd.profiler.profile.export_chrome_trace"><code class="xref py py-obj docutils literal "><span class="pre">profiler.profile.export_chrome_trace</span></code></a></p></td>
+<td><p>将 EventList 导出为 Chrome 跟踪工具文件。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/torch.autograd.profiler.profile.key_averages.html#torch.autograd.profiler.profile.key_averages" title="torch.autograd.profiler.profile.key_averages"><code class="xref py py-obj docutils literal "><span class="pre">profiler.profile.key_averages</span></code></a></p></td>
+<td><p>对所有函数事件按其键进行平均。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/torch.autograd.profiler.profile.self_cpu_time_total.html#torch.autograd.profiler.profile.self_cpu_time_total" title="torch.autograd.profiler.profile.self_cpu_time_total"><code class="xref py py-obj docutils literal "><span class="pre">profiler.profile.self_cpu_time_total</span></code></a></p></td>
+<td><p>返回在 CPU 上花费的总时间。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/torch.autograd.profiler.profile.total_average.html#torch.autograd.profiler.profile.total_average" title="torch.autograd.profiler.profile.total_average"><code class="xref py py-obj docutils literal "><span class="pre">profiler.profile.total_average</span></code></a></p></td>
+<td><p>对所有事件进行平均。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/torch.autograd.profiler.parse_nvprof_trace.html#torch.autograd.profiler.parse_nvprof_trace" title="torch.autograd.profiler.parse_nvprof_trace"><code class="xref py py-obj docutils literal "><span class="pre">profiler.parse_nvprof_trace</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/torch.autograd.profiler.EnforceUnique.html#torch.autograd.profiler.EnforceUnique" title="torch.autograd.profiler.EnforceUnique"><code class="xref py py-obj docutils literal "><span class="pre">profiler.EnforceUnique</span></code></a></p></td>
+<td><p>如果发现一个键被重复使用，则会引发错误。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/torch.autograd.profiler.KinetoStepTracker.html#torch.autograd.profiler.KinetoStepTracker" title="torch.autograd.profiler.KinetoStepTracker"><code class="xref py py-obj docutils literal "><span class="pre">profiler.KinetoStepTracker</span></code></a></p></td>
+<td><p>提供了一个全局增加步数的抽象。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/torch.autograd.profiler.record_function.html#torch.autograd.profiler.record_function" title="torch.autograd.profiler.record_function"><code class="xref py py-obj docutils literal "><span class="pre">profiler.record_function</span></code></a></p></td>
+<td><p>上下文管理器/函数装饰器，在运行自动微分分析器时为代码块/函数添加标签。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/torch.autograd.profiler_util.Interval.html#torch.autograd.profiler_util.Interval" title="torch.autograd.profiler_util.Interval"><code class="xref py py-obj docutils literal "><span class="pre">profiler_util.Interval</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/torch.autograd.profiler_util.Kernel.html#torch.autograd.profiler_util.Kernel" title="torch.autograd.profiler_util.Kernel"><code class="xref py py-obj docutils literal "><span class="pre">profiler_util.Kernel</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/torch.autograd.profiler_util.MemRecordsAcc.html#torch.autograd.profiler_util.MemRecordsAcc" title="torch.autograd.profiler_util.MemRecordsAcc"><code class="xref py py-obj docutils literal "><span class="pre">profiler_util.MemRecordsAcc</span></code></a></p></td>
+<td><p>访问间隔内 mem_records 的加速结构。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/torch.autograd.profiler_util.StringTable.html#torch.autograd.profiler_util.StringTable" title="torch.autograd.profiler_util.StringTable"><code class="xref py py-obj docutils literal "><span class="pre">profiler_util.StringTable</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.autograd.profiler.emit_nvtx">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.autograd.profiler.</span></span><span class="sig-name descname"><span class="pre">emit_nvtx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">enabled</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">record_shapes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/autograd/profiler.html#emit_nvtx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/autograd/profiler.py#L908"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.autograd.profiler.emit_nvtx" title="Permalink to this definition">¶</a></dt>
+<dd><p>每个自动微分操作都会发出一个 NVTX 范围的上下文管理器。</p>
+<p>当在 nvprof 下运行程序时很有用：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">nvprof</span> <span class="o">--</span><span class="n">profile</span><span class="o">-</span><span class="n">from</span><span class="o">-</span><span class="n">start</span> <span class="n">off</span> <span class="o">-</span><span class="n">o</span> <span class="n">trace_name</span><span class="o">.</span><span class="n">prof</span> <span class="o">--</span> <span class="o">&lt;</span><span class="n">regular</span> <span class="n">command</span> <span class="n">here</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>很遗憾，无法强制 nvprof 将收集到的数据刷新到磁盘，因此在进行 CUDA 分析时，必须使用此上下文管理器来注释 nvprof 跟踪，并在检查之前等待进程退出。然后，可以使用 NVIDIA Visual Profiler (nvvp)来可视化时间线，或者 <code class="xref py py-func docutils literal "><span class="pre">torch.autograd.profiler.load_nvprof()</span></code> 可以加载结果以进行检查，例如在 Python 交互式解释器中。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>enabled (布尔值，可选) – 设置 <code class="docutils literal "><span class="pre">enabled=False</span></code> 使此上下文管理器成为空操作。默认： <code class="docutils literal "><span class="pre">True</span></code> 。</p></li>
+<li><p>record_shapes (布尔值，可选) – 如果 <code class="docutils literal "><span class="pre">record_shapes=True</span></code> ，则每个自动微分操作的范围包装将附加有关该操作接收到的 Tensor 参数大小的信息，格式如下： <code class="docutils literal "><span class="pre">[[arg0.size(0),</span> <span class="pre">arg0.size(1),</span> <span class="pre">...],</span> <span class="pre">[arg1.size(0),</span> <span class="pre">arg1.size(1),</span> <span class="pre">...],</span> <span class="pre">...]</span></code> 非张量参数将由 <code class="docutils literal "><span class="pre">[]</span></code> 表示。参数将按照它们由后端操作接收的顺序列出。请注意，此顺序可能与在 Python 端传递参数的顺序不匹配。另外，请注意，形状记录可能会增加 nvtx 范围创建的开销。默认： <code class="docutils literal "><span class="pre">False</span></code> 。</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">profiler</span><span class="o">.</span><span class="n">profile</span><span class="p">():</span>
+<span class="gp">... </span>    <span class="n">model</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>  <span class="c1"># Warmup CUDA memory allocator and profiler</span>
+<span class="gp">... </span>    <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">autograd</span><span class="o">.</span><span class="n">profiler</span><span class="o">.</span><span class="n">emit_nvtx</span><span class="p">():</span>
+<span class="gp">... </span>        <span class="n">model</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>前向-后向相关性</strong></p>
+<p>在使用 <code class="xref py py-class docutils literal "><span class="pre">emit_nvtx</span></code> 在 Nvidia Visual Profiler 中创建的配置文件中查看时，将每个反向传递操作与相应的正向传递操作相关联可能很困难。为了简化这项任务， <code class="xref py py-class docutils literal "><span class="pre">emit_nvtx</span></code> 将序列号信息附加到它生成的范围中。</p>
+<p>在正向传递过程中，每个函数范围都被 <code class="docutils literal "><span class="pre">seq=&lt;N&gt;</span></code> 装饰。 <code class="docutils literal "><span class="pre">seq</span></code> 是一个计数器，每次创建一个新的用于反向的 Function 对象并存储起来时，它都会递增。因此，与每个正向函数范围关联的 <code class="docutils literal "><span class="pre">seq=&lt;N&gt;</span></code> 注释告诉您，如果由这个正向函数创建反向 Function 对象，则反向对象将接收到序列号 N。在反向传递过程中，每个 C++ 反向 Function 的 <code class="docutils literal "><span class="pre">apply()</span></code> 调用的顶层范围都被 <code class="docutils literal "><span class="pre">stashed</span> <span class="pre">seq=&lt;M&gt;</span></code> 装饰。 <code class="docutils literal "><span class="pre">M</span></code> 是反向对象创建时使用的序列号。通过比较反向中的 <code class="docutils literal "><span class="pre">stashed</span> <span class="pre">seq</span></code> 数字和正向中的 <code class="docutils literal "><span class="pre">seq</span></code> 数字，您可以追踪到哪个正向操作创建了每个反向 Function。</p>
+<p>在反向传播过程中执行的所有函数也都装饰了 <code class="docutils literal "><span class="pre">seq=&lt;N&gt;</span></code> 。在默认的反向传播（使用 <code class="docutils literal "><span class="pre">create_graph=False</span></code> ）中，这些信息是无关紧要的，实际上，对于所有这些函数， <code class="docutils literal "><span class="pre">N</span></code> 可能简单地是 0。只有与反向函数对象的 <code class="docutils literal "><span class="pre">apply()</span></code> 方法关联的顶级范围是有用的，作为将这些函数对象与之前的正向传播相关联的方式。</p>
+<p><strong>双向反向传播</strong></p>
+<p>相反，如果正在进行带有 <code class="docutils literal "><span class="pre">create_graph=True</span></code> 的反向传播（换句话说，如果您正在为双向反向传播做准备），则每个函数在反向传播中的执行都会得到一个非零的有用 <code class="docutils literal "><span class="pre">seq=&lt;N&gt;</span></code> 。这些函数本身也可以创建要在双向反向传播中稍后执行的函数对象，就像正向传播中的原始函数一样。反向传播和双向反向传播之间的关系在概念上与正向传播和反向传播之间的关系相同：函数仍然发出带有当前序列号标签的范围，它们创建的函数对象仍然存储这些序列号，在最终的双向反向传播中，函数对象的 <code class="docutils literal "><span class="pre">apply()</span></code> 范围仍然带有 <code class="docutils literal "><span class="pre">stashed</span> <span class="pre">seq</span></code> 标签，这些标签可以与反向传播中的序列号进行比较。</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.autograd.profiler.emit_itt">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.autograd.profiler.</span></span><span class="sig-name descname"><span class="pre">emit_itt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">enabled</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">record_shapes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/autograd/profiler.html#emit_itt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/autograd/profiler.py#L837"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.autograd.profiler.emit_itt" title="Permalink to this definition">¶</a></dt>
+<dd><p>上下文管理器，使每个自动微分操作都发出 ITT 范围。</p>
+<p>在使用英特尔(R) VTune Profiler 运行程序时非常有用：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">vtune</span> <span class="o">&lt;--</span><span class="n">vtune</span><span class="o">-</span><span class="n">flags</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">regular</span> <span class="n">command</span> <span class="n">here</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>仪器和跟踪技术(ITT) API 允许您的应用程序在执行期间生成和控制跨不同英特尔工具的跟踪数据收集。此上下文管理器用于注释英特尔(R) VTune 分析跟踪。借助此上下文管理器，您将能够在英特尔(R) VTune Profiler GUI 中看到标记的范围。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>启用（布尔值，可选）- 设置 <code class="docutils literal "><span class="pre">enabled=False</span></code> 使此上下文管理器成为空操作。默认： <code class="docutils literal "><span class="pre">True</span></code> 。</p></li>
+<li><p>record_shapes（布尔值，可选）- 如果 <code class="docutils literal "><span class="pre">record_shapes=True</span></code> ，itt 范围包装每个自动微分操作将附加有关该操作接收到的 Tensor 参数大小的信息，格式如下： <code class="docutils literal "><span class="pre">[[arg0.size(0),</span> <span class="pre">arg0.size(1),</span> <span class="pre">...],</span> <span class="pre">[arg1.size(0),</span> <span class="pre">arg1.size(1),</span> <span class="pre">...],</span> <span class="pre">...]</span></code> 非张量参数将由 <code class="docutils literal "><span class="pre">[]</span></code> 表示。参数将按照它们由后端操作接收的顺序列出。请注意，此顺序可能与在 Python 端传递参数的顺序不匹配。另外，请注意，形状记录可能会增加 itt 范围创建的开销。默认： <code class="docutils literal "><span class="pre">False</span></code> </p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">autograd</span><span class="o">.</span><span class="n">profiler</span><span class="o">.</span><span class="n">emit_itt</span><span class="p">():</span>
+<span class="gp">... </span>    <span class="n">model</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/torch.autograd.profiler.load_nvprof.html#torch.autograd.profiler.load_nvprof" title="torch.autograd.profiler.load_nvprof"><code class="xref py py-obj docutils literal "><span class="pre">profiler.load_nvprof</span></code></a></p></td>
+<td><p>打开 nvprof 跟踪文件并解析 autograd 注释。</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="debugging-and-anomaly-detection">
+<h2>调试与异常检测 ¶</h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.autograd.detect_anomaly">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.autograd.</span></span><span class="sig-name descname"><span class="pre">detect_anomaly</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">check_nan</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/autograd/anomaly_mode.html#detect_anomaly"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/autograd/anomaly_mode.py#L11"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.autograd.detect_anomaly" title="Permalink to this definition">¶</a></dt>
+<dd><p>上下文管理器，用于为 autograd 引擎启用异常检测。</p>
+<p>这做了两件事：</p>
+<ul class="simple">
+<li><p>启用检测运行前向传递将允许反向传递打印创建失败反向函数的前向操作跟踪。</p></li>
+<li><p>如果 <code class="docutils literal "><span class="pre">check_nan</span></code> 是 <code class="docutils literal "><span class="pre">True</span></code> ，则任何生成“nan”值的反向计算将引发错误。默认 <code class="docutils literal "><span class="pre">True</span></code> 。</p></li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>此模式仅应用于调试，因为不同的测试将减慢程序执行速度。</p>
+</div>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">autograd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">MyFunc</span><span class="p">(</span><span class="n">autograd</span><span class="o">.</span><span class="n">Function</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="nd">@staticmethod</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">inp</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="k">return</span> <span class="n">inp</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="nd">@staticmethod</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="nf">backward</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">gO</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="c1"># Error during the backward pass</span>
+<span class="gp">... </span>        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"Some error in backward"</span><span class="p">)</span>
+<span class="gp">... </span>        <span class="k">return</span> <span class="n">gO</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">run_fn</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">out</span> <span class="o">=</span> <span class="n">MyFunc</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">out</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">inp</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">run_fn</span><span class="p">(</span><span class="n">inp</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">out</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+<span class="go">    Traceback (most recent call last):</span>
+<span class="go">      File "&lt;stdin&gt;", line 1, in &lt;module&gt;</span>
+<span class="go">      File "/your/pytorch/install/torch/_tensor.py", line 93, in backward</span>
+<span class="go">        torch.autograd.backward(self, gradient, retain_graph, create_graph)</span>
+<span class="go">      File "/your/pytorch/install/torch/autograd/__init__.py", line 90, in backward</span>
+<span class="go">        allow_unreachable=True)  # allow_unreachable flag</span>
+<span class="go">      File "/your/pytorch/install/torch/autograd/function.py", line 76, in apply</span>
+<span class="go">        return self._forward_cls.backward(self, *args)</span>
+<span class="go">      File "&lt;stdin&gt;", line 8, in backward</span>
+<span class="go">    RuntimeError: Some error in backward</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">autograd</span><span class="o">.</span><span class="n">detect_anomaly</span><span class="p">():</span>
+<span class="gp">... </span>    <span class="n">inp</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">out</span> <span class="o">=</span> <span class="n">run_fn</span><span class="p">(</span><span class="n">inp</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">out</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+<span class="go">    Traceback of forward call that caused the error:</span>
+<span class="go">      File "tmp.py", line 53, in &lt;module&gt;</span>
+<span class="go">        out = run_fn(inp)</span>
+<span class="go">      File "tmp.py", line 44, in run_fn</span>
+<span class="go">        out = MyFunc.apply(a)</span>
+<span class="go">    Traceback (most recent call last):</span>
+<span class="go">      File "&lt;stdin&gt;", line 4, in &lt;module&gt;</span>
+<span class="go">      File "/your/pytorch/install/torch/_tensor.py", line 93, in backward</span>
+<span class="go">        torch.autograd.backward(self, gradient, retain_graph, create_graph)</span>
+<span class="go">      File "/your/pytorch/install/torch/autograd/__init__.py", line 90, in backward</span>
+<span class="go">        allow_unreachable=True)  # allow_unreachable flag</span>
+<span class="go">      File "/your/pytorch/install/torch/autograd/function.py", line 76, in apply</span>
+<span class="go">        return self._forward_cls.backward(self, *args)</span>
+<span class="go">      File "&lt;stdin&gt;", line 8, in backward</span>
+<span class="go">    RuntimeError: Some error in backward</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.autograd.set_detect_anomaly">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.autograd.</span></span><span class="sig-name descname"><span class="pre">set_detect_anomaly</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_nan</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/autograd/anomaly_mode.html#set_detect_anomaly"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/autograd/anomaly_mode.py#L95"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.autograd.set_detect_anomaly" title="Permalink to this definition">¶</a></dt>
+<dd><p>异常检测上下文管理器，用于开启或关闭自动微分引擎的异常检测。</p>
+<p> <code class="docutils literal "><span class="pre">set_detect_anomaly</span></code> 将根据其参数 <code class="xref py py-attr docutils literal "><span class="pre">mode</span></code> 启用或禁用自动微分引擎的异常检测。它可以作为上下文管理器或函数使用。</p>
+<p>详细了解异常检测行为，请参阅 <code class="docutils literal "><span class="pre">detect_anomaly</span></code> 上文。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>模式（布尔值）- 标志是否启用异常检测（ <code class="docutils literal "><span class="pre">True</span></code> ），或禁用（ <code class="docutils literal "><span class="pre">False</span></code> ）。</p></li>
+<li><p>check_nan（布尔值）- 标志是否在反向生成“nan”时引发错误。</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/torch.autograd.grad_mode.set_multithreading_enabled.html#torch.autograd.grad_mode.set_multithreading_enabled" title="torch.autograd.grad_mode.set_multithreading_enabled"><code class="xref py py-obj docutils literal "><span class="pre">grad_mode.set_multithreading_enabled</span></code></a></p></td>
+<td><p>设置多线程反向开启或关闭的上下文管理器。</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="autograd-graph">
+<h2>自动微分图 ¶</h2>
+<p>Autograd 提供了方法，允许用户在反向传播过程中检查图并插入行为。</p>
+<p>一个 <code class="xref py py-class docutils literal "><span class="pre">torch.Tensor</span></code> 的 <code class="docutils literal "><span class="pre">grad_fn</span></code> 属性包含一个 <code class="xref py py-class docutils literal "><span class="pre">torch.autograd.graph.Node</span></code> ，如果张量是 autograd 记录的操作的输出（即 grad_mode 已启用且至少一个输入需要梯度），否则为 <code class="docutils literal "><span class="pre">None</span></code> 。</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/torch.autograd.graph.Node.name.html#torch.autograd.graph.Node.name" title="torch.autograd.graph.Node.name"><code class="xref py py-obj docutils literal "><span class="pre">graph.Node.name</span></code></a></p></td>
+<td><p>返回名称。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/torch.autograd.graph.Node.metadata.html#torch.autograd.graph.Node.metadata" title="torch.autograd.graph.Node.metadata"><code class="xref py py-obj docutils literal "><span class="pre">graph.Node.metadata</span></code></a></p></td>
+<td><p>返回元数据。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/torch.autograd.graph.Node.next_functions.html#torch.autograd.graph.Node.next_functions" title="torch.autograd.graph.Node.next_functions"><code class="xref py py-obj docutils literal "><span class="pre">graph.Node.next_functions</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/torch.autograd.graph.Node.register_hook.html#torch.autograd.graph.Node.register_hook" title="torch.autograd.graph.Node.register_hook"><code class="xref py py-obj docutils literal "><span class="pre">graph.Node.register_hook</span></code></a></p></td>
+<td><p>注册一个反向钩子。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/torch.autograd.graph.Node.register_prehook.html#torch.autograd.graph.Node.register_prehook" title="torch.autograd.graph.Node.register_prehook"><code class="xref py py-obj docutils literal "><span class="pre">graph.Node.register_prehook</span></code></a></p></td>
+<td><p>注册一个反向预钩子。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/torch.autograd.graph.increment_version.html#torch.autograd.graph.increment_version" title="torch.autograd.graph.increment_version"><code class="xref py py-obj docutils literal "><span class="pre">graph.increment_version</span></code></a></p></td>
+<td><p>更新 autograd 元数据跟踪给定的 Tensor 是否被就地修改。</p></td>
+</tr>
+</tbody>
+</table>
+<p>一些操作需要在正向传播过程中保存中间结果以便执行反向传播。这些中间结果作为属性保存在 <code class="docutils literal "><span class="pre">grad_fn</span></code> 上，并可被访问。例如：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">],</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">exp</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">grad_fn</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">autograd</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">Node</span><span class="p">))</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="nb">dir</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">grad_fn</span><span class="p">))</span>
+<span class="go">['__call__', '__class__', '__delattr__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__init_subclass__', '__le__', '__lt__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '_raw_saved_result', '_register_hook_dict', '_saved_result', 'metadata', 'name', 'next_functions', 'register_hook', 'register_prehook', 'requires_grad']</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">grad_fn</span><span class="o">.</span><span class="n">_saved_result</span><span class="p">,</span> <span class="n">b</span><span class="p">))</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>您也可以定义如何使用钩子来打包/解包这些已保存的张量。一个常见的应用是通过将中间结果保存到磁盘或 CPU 来以内存换取计算，而不是将它们留在 GPU 上。如果您在评估时发现模型适合 GPU，但在训练时不适合，这尤其有用。有关已保存张量的钩子，请参阅钩子。</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.autograd.graph.saved_tensors_hooks">
+class torch.autograd.graph.saved_tensors_hooks(pack_hook, unpack_hook)[source][source]</dt>
+<dd><p>设置一对打包/解包钩子用于保存张量的上下文管理器。</p>
+<p>使用此上下文管理器定义操作中间结果在保存前如何打包，以及在检索时如何解包。</p>
+<p>在该上下文中，每当操作保存张量以进行反向传播时（这包括使用 <code class="xref py py-func docutils literal "><span class="pre">save_for_backward()</span></code> 保存的中间结果，以及由 PyTorch 定义的操作记录的结果），都会调用 <code class="docutils literal "><span class="pre">pack_hook</span></code> 函数。然后， <code class="docutils literal "><span class="pre">pack_hook</span></code> 的输出将存储在计算图中，而不是原始张量。</p>
+<p>当需要访问保存的张量时，即执行 <code class="xref py py-func docutils literal "><span class="pre">torch.Tensor.backward()</span></code> 或 <code class="xref py py-func docutils literal "><span class="pre">torch.autograd.grad()</span></code> 时，会调用 <code class="docutils literal "><span class="pre">unpack_hook</span></code> 。它以 <code class="docutils literal "><span class="pre">pack_hook</span></code> 返回的打包对象作为参数，并应返回与原始张量（作为相应 <code class="docutils literal "><span class="pre">pack_hook</span></code> 的输入传递）具有相同内容的张量。</p>
+<p>钩子应具有以下签名：</p>
+<blockquote>
+<div><p>pack_hook(tensor: Tensor) -&gt; Any</p>
+<p>unpack_hook(Any) -&gt; Tensor</p>
+</div></blockquote>
+<p> <code class="docutils literal "><span class="pre">pack_hook</span></code> 的返回值是 <code class="docutils literal "><span class="pre">unpack_hook</span></code> 的有效输入。</p>
+<p>通常情况下，你希望 <code class="docutils literal "><span class="pre">unpack_hook(pack_hook(t))</span></code> 在值、大小、dtype 和设备方面与 <code class="docutils literal "><span class="pre">t</span></code> 相等。</p>
+<p>例如：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">pack_hook</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s2">"Packing"</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">x</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">unpack_hook</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s2">"Unpacking"</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">x</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">autograd</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">saved_tensors_hooks</span><span class="p">(</span><span class="n">pack_hook</span><span class="p">,</span> <span class="n">unpack_hook</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">y</span> <span class="o">=</span> <span class="n">a</span> <span class="o">*</span> <span class="n">b</span>
+<span class="go">Packing tensor([1., 1., 1., 1., 1.], requires_grad=True)</span>
+<span class="go">Packing tensor([2., 2., 2., 2., 2.], grad_fn=&lt;MulBackward0&gt;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+<span class="go">Unpacking tensor([1., 1., 1., 1., 1.], requires_grad=True)</span>
+<span class="go">Unpacking tensor([2., 2., 2., 2., 2.], grad_fn=&lt;MulBackward0&gt;)</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>对输入钩子执行就地操作可能会导致未定义的行为。</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>一次只能允许一对钩子。在递归嵌套此上下文管理器时，只有最内层的一对钩子会被应用。</p>
+</div>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.autograd.graph.save_on_cpu">
+class torch.autograd.graph.save_on_cpu(pin_memory=False, device_type='cuda')[source][source]</dt>
+<dd><p>在此上下文管理器下，前向传递中保存的张量将存储在 CPU 上，然后用于反向传递时检索。</p>
+<p>在此上下文管理器内执行操作时，前向传递期间在图中保存的中间结果将被移动到 CPU，然后在需要用于反向传递时复制回原始设备。如果图已经在 CPU 上，则不执行张量复制。</p>
+<p>使用此上下文管理器以交换计算与 GPU 内存使用（例如，当您的模型在训练期间无法适应 GPU 内存时）。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pin_memory（布尔值）- 如果 <code class="docutils literal "><span class="pre">True</span></code> 张量将在打包期间保存到 CPU 固定内存，并在解包期间异步复制到 GPU。默认为 <code class="docutils literal "><span class="pre">False</span></code> 。另请参阅使用固定内存缓冲区。</p>
+</dd>
+</dl>
+<p>例如：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s2">"cuda"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s2">"cuda"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s2">"cuda"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">prod_1</span> <span class="o">=</span> <span class="n">a</span> <span class="o">*</span> <span class="n">b</span>           <span class="c1"># a and b are saved on GPU</span>
+<span class="gp">... </span>    <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">autograd</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">save_on_cpu</span><span class="p">():</span>
+<span class="gp">... </span>        <span class="n">prod_2</span> <span class="o">=</span> <span class="n">prod_1</span> <span class="o">*</span> <span class="n">c</span>  <span class="c1"># prod_1 and c are saved on CPU</span>
+<span class="gp">... </span>    <span class="n">y</span> <span class="o">=</span> <span class="n">prod_2</span> <span class="o">*</span> <span class="n">a</span>           <span class="c1"># prod_2 and a are saved on GPU</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">y</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">del</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span>  <span class="c1"># for illustration only</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># the content of a, b, and prod_2 are still alive on GPU</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># the content of prod_1 and c only live on CPU</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>  <span class="c1"># all CPU tensors are moved back to GPU, for backward</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># all intermediary tensors are released (deleted) after the call to backward</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.autograd.graph.disable_saved_tensors_hooks">
+class torch.autograd.graph.disable_saved_tensors_hooks(error_message)[source][source]</dt>
+<dd><p>禁用保存张量默认钩子功能的上下文管理器。</p>
+<p>如果您正在创建一个与保存张量默认钩子不兼容的功能，则很有用。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>error_message (str) – 当使用已禁用的保存张量默认钩子时，将引发带有此错误信息的 RuntimeError。</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>生成器[None, None, None]</p>
+</dd>
+</dl>
+<p>例如：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">message</span> <span class="o">=</span> <span class="s2">"saved tensors default hooks are disabled"</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">autograd</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">disable_saved_tensors_hooks</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="c1"># Raises RuntimeError: saved tensors default hooks are disabled</span>
+<span class="gp">... </span>    <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">autograd</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">save_on_cpu</span><span class="p">():</span>
+<span class="gp">... </span>        <span class="k">pass</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.autograd.graph.register_multi_grad_hook">
+注册多梯度反向钩子。 (class torch.autograd.graph.register_multi_grad_hook(tensors, fn, *, mode='all')[source][source] ¶)</dt>
+<dd><p>注册多梯度反向钩子。</p>
+<p>支持两种模式： <code class="docutils literal "><span class="pre">"all"</span></code> 和 <code class="docutils literal "><span class="pre">"any"</span></code> 。</p>
+<p>在 <code class="docutils literal "><span class="pre">"all"</span></code> 模式下，将在计算 <code class="xref py py-attr docutils literal "><span class="pre">tensors</span></code> 中每个张量相对于梯度的操作之后调用钩子。如果一个张量位于 <code class="xref py py-attr docutils literal "><span class="pre">tensors</span></code> 中但不是图的一部分，或者如果一个张量对于计算当前 <code class="docutils literal "><span class="pre">.backward()</span></code> 或 <code class="docutils literal "><span class="pre">.grad()</span></code> 调用的任何 <code class="docutils literal "><span class="pre">inputs</span></code> 所需的梯度不是必需的，则该张量将被忽略，并且钩子将不会等待其梯度被计算。</p>
+<p>在每个非忽略张量的梯度计算完毕后， <code class="xref py py-attr docutils literal "><span class="pre">fn</span></code> 将使用这些梯度被调用。对于没有计算梯度的张量，将传递 <code class="docutils literal "><span class="pre">None</span></code> 。</p>
+<p>在 <code class="docutils literal "><span class="pre">"any"</span></code> 模式下，将在计算 <code class="xref py py-attr docutils literal "><span class="pre">tensors</span></code> 中张量相对于梯度的第一个操作之后调用钩子。钩子将使用该梯度作为其参数被调用。</p>
+<p>钩子不应修改其参数。</p>
+<p>此函数返回一个带有方法 <code class="docutils literal "><span class="pre">handle.remove()</span></code> 的句柄，用于移除钩子。</p>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>请参阅向后钩子执行，以获取有关此钩子何时执行以及其执行相对于其他钩子的顺序的更多信息。</p>
+</div>
+<p>示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <span class="n">a</span> <span class="o">*</span> <span class="n">b</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span> <span class="o">=</span> <span class="n">a</span> <span class="o">*</span> <span class="n">b</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">fn</span><span class="p">(</span><span class="n">grads</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">([</span><span class="n">g</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">grads</span><span class="p">])</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">torch</span><span class="o">.</span><span class="n">autograd</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">register_multi_grad_hook</span><span class="p">((</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">),</span> <span class="n">fn</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="n">retain_graph</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">[True, True, True, False]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">(</span><span class="n">a</span><span class="p">,),</span> <span class="n">retain_graph</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">[True, False, True, False]</span>
+<span class="gp">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>可移除句柄</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.autograd.graph.allow_mutation_on_saved_tensors">
+class torch.autograd.graph 允许在保存的 tensors 上执行突变[source][source]</dt>
+<dd><p>允许在反向传播中保存可变张量的上下文管理器。</p>
+<p>在此上下文管理器下，保存用于反向传播的张量在修改时会进行克隆，因此原始版本在反向传播期间仍然可以使用。通常，修改保存用于反向传播的张量会导致在反向传播时引发错误。</p>
+<p>为了确保正确的行为，正向和反向传播都应该在同一个上下文管理器下运行。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回<span class="colon">:</span></dt>
+<dd class="field-odd"><p>一个存储由该上下文管理器管理的状态的 _AllowMutationOnSavedContext 对象。此对象在调试过程中可能很有用。上下文管理器管理的状态在退出时将自动清除。</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>生成器[_AllowMutationOnSavedContext, None, None]</p>
+</dd>
+</dl>
+<p>例如：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">autograd</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">allow_mutation_on_saved_tensors</span><span class="p">():</span>
+<span class="gp">... </span>    <span class="c1"># forward</span>
+<span class="gp">... </span>    <span class="n">a</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">b</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="n">out</span> <span class="o">=</span> <span class="p">(</span><span class="n">b</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="n">b</span><span class="o">.</span><span class="n">sin_</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="c1"># backward</span>
+<span class="gp">... </span>    <span class="n">out</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+<span class="gp">...</span>
+<span class="go">tensor([[0.8415, 0.8415, 0.8415],</span>
+<span class="go">        [0.8415, 0.8415, 0.8415]], grad_fn=&lt;SinBackward0&gt;)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.autograd.graph.GradientEdge">
+class torch.autograd.graph.GradientEdge(node, output_nr)[source][source]</dt>
+<dd><p>表示 autograd 图中给定梯度边的对象。</p>
+<p>要获取计算给定 Tensor 梯度的梯度边，您可以这样做 <code class="docutils literal "><span class="pre">edge</span> <span class="pre">=</span> <span class="pre">autograd.graph.get_gradient_edge(tensor)</span></code> 。</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.autograd.graph.get_gradient_edge">
+<span class="sig-prename descclassname"><span class="pre">torch.autograd.graph.</span></span><span class="sig-name descname"><span class="pre">get_gradient_edge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/autograd/graph.html#get_gradient_edge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/autograd/graph.py#L199"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.autograd.graph.get_gradient_edge" title="Permalink to this definition">¶</a></dt>
+<dd><p>获取计算给定 Tensor 梯度的梯度边。</p>
+<p>尤其是相当于调用 <code class="docutils literal "><span class="pre">g</span> <span class="pre">=</span> <span class="pre">autograd.grad(loss,</span> <span class="pre">input)</span></code> 和 <code class="docutils literal "><span class="pre">g</span> <span class="pre">=</span> <span class="pre">autograd.grad(loss,</span> <span class="pre">get_gradient_edge(input))</span></code> 。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#torch.autograd.graph.GradientEdge" title="torch.autograd.graph.GradientEdge"><em>梯度边缘</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<span class="target" id="module-torch.autograd.anomaly_mode"></span><span class="target" id="module-torch.autograd.forward_ad"></span><span class="target" id="module-torch.autograd.function"></span><span class="target" id="module-torch.autograd.functional"></span><span class="target" id="module-torch.autograd.grad_mode"></span><span class="target" id="module-torch.autograd.graph"></span><span class="target" id="module-torch.autograd.profiler"></span><span class="target" id="module-torch.autograd.profiler_legacy"></span><span class="target" id="module-torch.autograd.profiler_util"></span><span class="target" id="module-torch.autograd.variable"></span></section>
+</section>
+
+
+             </article>
+             
+            </div>
+            <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        下一页 <img height="16" width="16" class="next-page" src="_static/images/chevron-right-orange.svg"> <img height="16" width="16" class="previous-page" src="_static/images/chevron-right-orange.svg"> 上一页
+      
+    </div>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>© 版权所有 PyTorch 贡献者。</p>
+  </div>
+    
+      <div>使用 Sphinx 构建，主题由 Read the Docs 提供。</div>
+     
+
+</footer>
+
+          </div>
+<script>
+
+var match = window.location.href.match(/\/_[a-zA-Z0-9_]*.html|_dynamo/gi);
+var url = window.location.href.lastIndexOf(match[match.length-1]);
+
+if (url)
+  {
+    var div = '<div class="admonition note"><p class="admonition-title">Note</p><p><i class="fa fa-exclamation-circle" aria-hidden="true">&nbsp</i> This page describes an internal API which is not intended to be used outside of the PyTorch codebase and can be modified or removed without notice.</p></div>'
+    document.getElementById("pytorch-article").insertAdjacentHTML('afterBegin', div)
+  }
+</script>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">自动微分包 - torch.autograd</a><ul>
+<li><a class="reference internal" href="#forward-mode-automatic-differentiation">前向模式自动微分</a></li>
+<li><a class="reference internal" href="#functional-higher-level-api">函数式高级 API</a></li>
+<li><a class="reference internal" href="#locally-disabling-gradient-computation">局部禁用梯度计算</a></li>
+<li><a class="reference internal" href="#default-gradient-layouts">默认渐变布局</a><ul>
+<li><a class="reference internal" href="#manual-gradient-layouts">手动渐变布局</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#in-place-operations-on-tensors">张量原地操作</a><ul>
+<li><a class="reference internal" href="#in-place-correctness-checks">原地正确性检查</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#variable-deprecated">变量（已弃用）</a></li>
+<li><a class="reference internal" href="#tensor-autograd-functions">张量自动微分函数</a></li>
+<li><a class="reference internal" href="#function"><span class="hidden-section">函数</span></a></li>
+<li><a class="reference internal" href="#context-method-mixins">上下文方法混入</a></li>
+<li><a class="reference internal" href="#custom-function-utilities">自定义函数工具</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-torch.autograd.gradcheck">数值梯度检查</a></li>
+<li><a class="reference internal" href="#profiler">分析器</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#debugging-and-anomaly-detection">调试和异常检测</a></li>
+<li><a class="reference internal" href="#autograd-graph">自动微分图</a></li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+         <script src="_static/jquery.js"></script>
+         <script src="_static/underscore.js"></script>
+         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+         <script src="_static/doctools.js"></script>
+         <script src="_static/clipboard.min.js"></script>
+         <script src="_static/copybutton.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ 
+<script script="" type="text/javascript">
+  var collapsedSections = ['Developer Notes', 'Language Bindings', 'Libraries', 'Community'];
+</script>
+
+<img height="1" width="1" style="border-style:none;" alt="" src="https://www.googleadservices.com/pagead/conversion/795629140/?label=txkmCPmdtosBENSssfsC&amp;guid=ON&amp;script=0">
+
+
+  <!-- Begin Footer -->
+
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 text-center">
+          <h2>文档</h2>
+          <p>访问 PyTorch 的全面开发者文档</p>
+          <a class="with-right-arrow" href="https://pytorch.org/docs/stable/index.html">查看文档</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>教程</h2>
+          <p>获取初学者和高级开发者的深入教程</p>
+          <a class="with-right-arrow" href="https://pytorch.org/tutorials">查看教程</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>资源</h2>
+          <p>查找开发资源并获得您的疑问解答</p>
+          <a class="with-right-arrow" href="https://pytorch.org/resources">查看资源</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://pytorch.org/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/">PyTorch</a></li>
+            <li><a href="https://pytorch.org/get-started">开始使用</a></li>
+            <li><a href="https://pytorch.org/features">功能</a></li>
+            <li><a href="https://pytorch.org/ecosystem">生态系统</a></li>
+            <li><a href="https://pytorch.org/blog/">博客</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md">贡献</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/resources">资源</a></li>
+            <li><a href="https://pytorch.org/tutorials">教程</a></li>
+            <li><a href="https://pytorch.org/docs/stable/index.html">文档</a></li>
+            <li><a href="https://discuss.pytorch.org" target="_blank">讨论</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/issues" target="_blank">GitHub 问题和任务</a></li>
+            <li><a href="https://pytorch.org/assets/brand-guidelines/PyTorch-Brand-Guidelines.pdf" target="_blank">品牌指南</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">保持更新</li>
+            <li><a href="https://www.facebook.com/pytorch" target="_blank">Facebook</a></li>
+            <li><a href="https://twitter.com/pytorch" target="_blank">Twitter</a></li>
+            <li><a href="https://www.youtube.com/pytorch" target="_blank"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">YouTube
+油管</font></font></font></a></li>
+            <li><a href="https://www.linkedin.com/company/pytorch" target="_blank">领英</a></li>
+          </ul>  
+          </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">PyTorch 播客</li>
+            <li><a href="https://open.spotify.com/show/6UzHKeiy368jKfQMKKvJY5" target="_blank">Spotify</a></li>
+            <li><a href="https://podcasts.apple.com/us/podcast/pytorch-developer-podcast/id1566080008" target="_blank">苹果</a></li>
+            <li><a href="https://www.google.com/podcasts?feed=aHR0cHM6Ly9mZWVkcy5zaW1wbGVjYXN0LmNvbS9PQjVGa0lsOA%3D%3D" target="_blank">谷歌</a></li>
+            <li><a href="https://music.amazon.com/podcasts/7a4e6f0e-26c2-49e9-a478-41bd244197d0/PyTorch-Developer-Podcast?" target="_blank">亚马逊</a></li>
+          </ul>
+         </div>
+        </div>
+        
+        <div class="privacy-policy">
+          <ul>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/terms/" target="_blank">条款</a></li>
+            <li class="privacy-policy-links">|</li>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/privacy-policy/" target="_blank">隐私</a></li>
+          </ul>
+        </div>
+        <div class="copyright">
+        <p>© 版权所有 Linux 基金会。PyTorch 基金会是 Linux 基金会的一个项目。有关 PyTorch 基金会的网站使用条款、商标政策以及其他适用政策，请参阅 www.linuxfoundation.org/policies/。PyTorch 基金会支持 PyTorch 开源项目，该项目已被确立为 LF Projects, LLC 的 PyTorch 项目系列。有关适用于 PyTorch 项目系列 LF Projects, LLC 的政策，请参阅 www.lfprojects.org/policies/。</p>
+      </div>
+     </div>
+
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">为了分析流量并优化您的体验，我们在本网站上使用 cookies。通过点击或导航，您同意允许我们使用 cookies。作为本网站的当前维护者，适用 Facebook 的 Cookies 政策。了解更多信息，包括关于可用控制的信息：Cookies 政策。</p>
+    <img class="close-button" src="_static/images/pytorch-x.svg" width="16" height="16">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+           <li class="resources-mobile-menu-title">
+             <a>学习</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/get-started">开始学习</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials">教程</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/basics/intro.html">学习基础知识</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/recipes/recipes_index.html">PyTorch 菜谱</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/introyt.html">PyTorch 入门 - YouTube 系列</a>
+             </li>
+           </ul>
+           <li class="resources-mobile-menu-title">
+             <a>生态系统</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/ecosystem">工具</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/#community-module">社区</a>
+             </li>
+             <li>
+               <a href="https://discuss.pytorch.org/">论坛</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/resources">开发者资源</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">贡献者奖项 - 2024</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>Edge</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/edge">关于 PyTorch Edge</a>
+             </li>
+             
+             <li>
+               <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch 文档</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>文档</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/docs/stable/index.html">PyTorch</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/pytorch-domains">PyTorch 领域</a>
+            </li>
+          </ul>
+
+          <li class="resources-mobile-menu-title">
+            <a>博客 &amp; 新闻</a>
+          </li>
+            
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/blog/">PyTorch 博客</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/community-blog">社区博客</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/videos">视频</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/community-stories">社区故事</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/events">活动</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">通讯</a>
+             </li>
+          </ul>
+          
+          <li class="resources-mobile-menu-title">
+            <a>关于</a>
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/foundation">PyTorch 基金会</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/governing-board">治理委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">云信用计划</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">技术顾问委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">员工</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">联系我们</a>
+            </li>
+          </ul>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body></html>

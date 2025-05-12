@@ -1,0 +1,1919 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>torch.compile Troubleshooting — PyTorch main documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pytorch.org/docs/stable/torch.compiler_troubleshooting.html">
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css">
+  <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css">
+  <link rel="stylesheet" href="_static/copybutton.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="_static/katex-math.css" type="text/css">
+  <link rel="stylesheet" href="_static/sphinx-dropdown.css" type="text/css">
+  <link rel="stylesheet" href="_static/panels-bootstrap.min.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/jit.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css">
+    <link rel="index" title="Index" href="genindex.html">
+    <link rel="search" title="Search" href="search.html">
+    <link rel="next" title="PyTorch 2.0 Performance Dashboard" href="torch.compiler_performance_dashboard.html">
+    <link rel="prev" title="Frequently Asked Questions" href="torch.compiler_faq.html">
+
+<!--
+  Search engines should not index the main version of documentation.
+  Stable documentation are built without release == 'main'.
+-->
+<meta name="robots" content="noindex">
+
+
+  <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T8XT4PS');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+  <!-- Preload the theme fonts -->
+
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<!-- Preload the katex fonts -->
+
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Math-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size1-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size2-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Caligraphic-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
+</head><body class="pytorch-body"><div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+
+          <li class="main-menu-item">
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">学习</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/get-started">
+                  <span class="dropdown-title">开始使用</span>
+                  <p>在本地运行 PyTorch 或快速开始使用支持的云平台之一</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials">
+                  <span class="dropdown-title">教程</span><p></p>
+                  <p>PyTorch 教程中的新内容</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/basics/intro.html">
+                  <span class="dropdown-title">学习基础知识</span><p></p>
+                  <p>熟悉 PyTorch 的概念和模块</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/recipes/recipes_index.html">
+                  <span class="dropdown-title">PyTorch 食谱</span><p></p>
+                  <p>精简版、可直接部署的 PyTorch 代码示例</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/introyt.html">
+                  <span class="dropdown-title">PyTorch 入门 - YouTube 系列</span><p></p>
+                  <p>通过我们引人入胜的 YouTube 教程系列掌握 PyTorch 基础知识</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">生态系统</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem">
+                  <span class="dropdown-title">工具</span><p></p>
+                  <p>了解 PyTorch 生态系统中的工具和框架</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
+                  <span class="dropdown-title">社区</span>
+                  <p>加入 PyTorch 开发者社区，贡献、学习并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
+                  <span class="dropdown-title">论坛</span>
+                  <p>讨论 PyTorch 代码、问题、安装、研究的地方</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/resources">
+                  <span class="dropdown-title">开发者资源</span>
+                  <p>查找资源并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">贡献者奖项 - 2024</span><p></p>
+                  <p>本届 PyTorch 会议揭晓获奖者</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">
+                Edge
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/edge">
+                  <span class="dropdown-title">关于 PyTorch Edge</span><p></p>
+                  <p>为边缘设备构建创新和隐私感知的 AI 体验</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
+                  <span class="dropdown-title">ExecuTorch</span><p></p>
+                  <p>基于移动和边缘设备的端到端推理能力解决方案</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch 文档</span><p></p>
+                </a>
+              </div>
+            </div>  
+          </li>
+
+          <li class="main-menu-item">
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">文档</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/docs/stable/index.html">
+                  <span class="dropdown-title">PyTorch</span><p></p>
+                  <p>探索文档以获取全面指导，了解如何使用 PyTorch</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/pytorch-domains">
+                  <span class="dropdown-title">PyTorch 领域</span><p></p>
+                  <p>阅读 PyTorch 领域的文档，了解更多关于特定领域库的信息</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">博客与新闻</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/blog/">
+                  <span class="dropdown-title">PyTorch 博客</span><p></p>
+                  <p>捕捉最新的技术新闻和事件</p>
+                </a>
+                 <a class="nav-dropdown-item" href="https://pytorch.org/community-blog">
+                  <span class="dropdown-title">社区博客</span><p></p>
+                  <p>PyTorch 生态系统故事</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/videos">
+                  <span class="dropdown-title">视频</span><p></p>
+                  <p>了解最新的 PyTorch 教程、新内容等</p>
+                </a><a class="nav-dropdown-item" href="https://pytorch.org/community-stories">
+                  <span class="dropdown-title">社区故事</span><p></p>
+                  <p>学习如何我们的社区使用 PyTorch 解决真实、日常的机器学习问题</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/events">
+                  <span class="dropdown-title">活动</span><p></p>
+                  <p>查找活动、网络研讨会和播客</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">通讯</span><p></p>
+                  <p>跟踪最新更新</p>
+                </a>
+            </div>
+          </div></li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">关于</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/foundation">
+                  <span class="dropdown-title">PyTorch 基金会</span><p></p>
+                  <p>了解更多关于 PyTorch 基金会的信息</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
+                  <span class="dropdown-title">管理委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">云信用计划</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">技术顾问委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">员工</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">联系我们</span><p></p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li class="main-menu-item">
+            <div class="no-dropdown">
+              <a href="https://pytorch.org/join" data-cta="join">成为会员</a>
+            </div>
+          </li>
+          <li>
+           <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="github-icon">
+             </a>
+           </div>
+          </li>
+          <!--- TODO: This block adds the search icon to the nav bar. We will enable it later. 
+          <li>
+            <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="search-icon">
+             </a>
+            </div>
+          </li>
+          --->
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+  </div>
+</div>
+
+
+
+   
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>目录</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+    <div class="version">
+      <a href="https://pytorch.org/docs/versions.html">主程序 (2.7.0+cpu ) ▼</a>
+    </div>
+    <div id="searchBox">
+    <div class="searchbox" id="googleSearchBox">
+      <script async="" src="https://cse.google.com/cse.js?cx=e65585f8c3ea1440e"></script>
+      <div class="gcse-search"></div>
+    </div>
+    <div id="sphinxSearchBox" style="display: none;">
+      <div role="search">
+        <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+          <input type="text" name="q" placeholder="Search Docs">
+          <input type="hidden" name="check_keywords" value="yes">
+          <input type="hidden" name="area" value="default">
+        </form>
+      </div>
+    </div>
+  </div>
+  <form id="searchForm">
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="google" checked="">谷歌搜索</label>
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="sphinx">经典搜索</label>
+  </form>
+
+  <script>
+     document.addEventListener('DOMContentLoaded', function() {
+      const searchForm = document.getElementById('searchForm');
+      const googleSearchBox = document.getElementById('googleSearchBox');
+      const sphinxSearchBox = document.getElementById('sphinxSearchBox');
+      // Function to toggle search box visibility
+      function toggleSearchBox(searchType) {
+        googleSearchBox.style.display = searchType === 'google' ? 'block' : 'none';
+        sphinxSearchBox.style.display = searchType === 'sphinx' ? 'block' : 'none';
+      }
+      // Determine the default search type
+      let defaultSearchType;
+      const currentUrl = window.location.href;
+      if (currentUrl.startsWith('https://pytorch.org/docs/stable')) {
+        // For the stable documentation, default to Google
+        defaultSearchType = localStorage.getItem('searchType') || 'google';
+      } else {
+        // For any other version, including docs-preview, default to Sphinx
+        defaultSearchType = 'sphinx';
+      }
+      // Set the default search type
+      document.querySelector(`input[name="searchType"][value="${defaultSearchType}"]`).checked = true;
+      toggleSearchBox(defaultSearchType);
+      // Event listener for changes in search type
+      searchForm.addEventListener('change', function(event) {
+        const selectedSearchType = event.target.value;
+        localStorage.setItem('searchType', selectedSearchType);
+        toggleSearchBox(selectedSearchType);
+      });
+      // Set placeholder text for Google search box
+      window.onload = function() {
+        var placeholderText = "Search Docs";
+        var googleSearchboxText = document.querySelector("#gsc-i-id1");
+        if (googleSearchboxText) {
+          googleSearchboxText.placeholder = placeholderText;
+          googleSearchboxText.style.fontFamily = 'FreightSans';
+          googleSearchboxText.style.fontSize = "1.2rem";
+          googleSearchboxText.style.color = '#262626';
+        }
+      };
+    });
+  </script>
+
+          </div>
+
+          
+
+<div>
+  <a style="color:#F05732" href="https://pytorch.org/docs/stable/torch.compiler_troubleshooting.html">您正在查看不稳定开发者预览文档。请点击此处查看最新稳定版本的文档。</a>
+</div>
+
+
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">社区</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="community/build_ci_governance.html">PyTorch 治理 | 构建 + CI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/contribution_guide.html">PyTorch 贡献指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/design.html">PyTorch 设计哲学</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/governance.html">PyTorch 治理 | 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/persons_of_interest.html">PyTorch 治理 | 维护者</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发者笔记</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="notes/amp_examples.html">自动混合精度示例</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/autograd.html">Autograd 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/broadcasting.html">广播语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/cpu_threading_torchscript_inference.html">CPU 多线程和 TorchScript 推理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/cuda.html">CUDA 语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/custom_operators.html">PyTorch 自定义算子页面</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/ddp.html">分布式数据并行</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/extending.html">扩展 PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/extending.func.html">使用 autograd.Function 扩展 torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/faq.html">常见问题解答</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/fsdp.html">FSDP 笔记</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/get_start_xpu.html">在 Intel GPU 上入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/gradcheck.html">Gradcheck 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/hip.html">HIP (ROCm)语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/large_scale_deployments.html">大规模部署功能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/libtorch_stable_abi.html">LibTorch 稳定 ABI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/modules.html">模块</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/mps.html">MPS 后端</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/multiprocessing.html">多进程最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/numerical_accuracy.html">数值精度</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/randomness.html">可重现性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/serialization.html">序列化语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/windows.html">Windows 常见问题解答</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">语言绑定</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cpp_index.html">C++</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/javadoc/">Javadoc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deploy.html">torch::deploy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="torch.html">torch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.html">torch.nn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.functional.html">torch.nn.functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensors.html">torch.Tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensor_attributes.html">张量属性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensor_view.html">索引视图</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amp.html">torch.自动混合精度</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autograd.html">torch.autograd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="library.html">torch.library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accelerator.html">torch.accelerator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpu.html">torch.cpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">torch.cuda</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html">理解 CUDA 内存使用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#generating-a-snapshot">生成快照</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#using-the-visualizer">使用可视化工具</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#snapshot-api-reference">摄像头 API 参考</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mps.html">torch.mps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="xpu.html">torch.xpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mtia.html">torch.mtia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mtia.memory.html">torch.mtia.memory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="meta.html">元设备</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backends.html">torch.backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="export.html">torch.export</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.html">torch.distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.tensor.html">torch.distributed.tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.algorithms.join.html">torch.distributed.algorithms.join</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.elastic.html">torch.distributed.elastic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fsdp.html">torch.distributed.fsdp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.fsdp.fully_shard.html">torch.distributed.fsdp.fully_shard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.tensor.parallel.html">torch.distributed.tensor.parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.optim.html">torch.distributed.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.pipelining.html">torch.distributed.pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.checkpoint.html">torch.distributed.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributions.html">torch.distributions</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="torch.compiler.html">torch.compiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fft.html">torch.fft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="func.html">torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="futures.html">torch.futures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fx.html">torch.fx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fx.experimental.html">torch.fx.experimental</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hub.html">torch.hub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jit.html">torch.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="linalg.html">torch.linalg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitor.html">torch.monitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="signal.html">torch.signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="special.html">torch.special</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch.overrides.html">torch.overrides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="package.html">torch.package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="profiler.html">torch.profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.init.html">torch.nn.init</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.attention.html">torch.nn.attention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="onnx.html">torch.onnx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="optim.html">torch.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="complex_numbers.html">复数</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ddp_comm_hooks.html">DDP 通信钩子</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quantization.html">量化</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rpc.html">分布式 RPC 框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="random.html">torch.random</a></li>
+<li class="toctree-l1"><a class="reference internal" href="masked.html">torch.masked</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nested.html">torch.nested</a></li>
+<li class="toctree-l1"><a class="reference internal" href="size.html">torch.Size</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sparse.html">torch.sparse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="storage.html">torch.Storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">torch.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">torch.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmark_utils.html">torch.utils.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bottleneck.html">torch.utils.bottleneck</a></li>
+<li class="toctree-l1"><a class="reference internal" href="checkpoint.html">torch.utils.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp_extension.html">torch.utils.cpp_extension</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data.html">torch.utils.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deterministic.html">torch.utils.deterministic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jit_utils.html">torch.utils.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dlpack.html">torch.utils.dlpack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mobile_optimizer.html">torch.utils.mobile_optimizer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_zoo.html">torch.utils.model_zoo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensorboard.html">torch.utils.tensorboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_tracker.html">torch.utils.module_tracker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="type_info.html">类型信息</a></li>
+<li class="toctree-l1"><a class="reference internal" href="named_tensor.html">命名张量</a></li>
+<li class="toctree-l1"><a class="reference internal" href="name_inference.html">命名张量操作覆盖率</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config_mod.html">torch.__config__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="future_mod.html">torch.__future__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">torch._logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_environment_variables.html">火炬环境变量</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">库</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/audio/stable">torchaudio</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/data">TorchData</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/torchrec">火炬推荐</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/serve">TorchServe</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/text/stable">torchtext</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/vision/stable">torchvision</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/xla/">PyTorch 在 XLA 设备上</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/ao">torchao</a></li>
+</ul>
+
+            
+          
+
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        文档 &gt;</li>
+
+        
+          <li><a href="torch.compiler.html">torch.compiler</a> &gt;</li>
+        
+      <li>torch.compile 故障排除</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+            
+            <a href="_sources/torch.compiler_troubleshooting.rst.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg" width="16" height="16"></a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">快捷键</div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+
+          <!-- Google Tag Manager (noscript) -->
+          <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T8XT4PS" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+          <!-- End Google Tag Manager (noscript) -->
+          
+          <div class="rst-content">
+          
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <section id="torch-compile-troubleshooting">
+<span id="torch-compiler-troubleshooting"></span><h1>torch.compile 故障排除 ¶</h1>
+<p>您尝试在 PyTorch 模型中使用 <code class="docutils literal "><span class="pre">torch.compile</span></code> 来提升其性能，但它并没有按预期工作。可能性能没有提升，发生了崩溃，或者编译时间过长。本文提供了技巧、解决方案和调试工具，以帮助您克服这些挑战。</p>
+<p><strong>目录</strong></p>
+<nav class="contents local" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#setting-expectations" id="id1">设置期望</a></p>
+<ul>
+<li><p><a class="reference internal" href="#compile-times" id="id2">编译时间</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#terminology" id="id3">术语</a></p>
+<ul>
+<li><p><a class="reference internal" href="#graph-break" id="id4">图断开</a></p></li>
+<li><p><a class="reference internal" href="#guards" id="id5">守卫</a></p></li>
+<li><p><a class="reference internal" href="#recompilation" id="id6">重新编译</a></p></li>
+<li><p><a class="reference internal" href="#dynamic-shapes" id="id7">动态形状</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#logging-tools" id="id8">日志工具</a></p>
+<ul>
+<li><p><a class="reference internal" href="#tlparse-torch-trace" id="id9">tlparse / 火炬追踪</a></p></li>
+<li><p><a class="reference internal" href="#torch-logs" id="id10">火炬日志</a></p></li>
+<li><p><a class="reference internal" href="#tlparse-vs-torch-logs" id="id11">tlparse 与 火炬日志</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#simple-workarounds" id="id12">简单的解决方案</a></p>
+<ul>
+<li><p><a class="reference internal" href="#where-to-apply-torch-compile" id="id13">torch.compile() 的应用位置</a></p></li>
+<li><p><a class="reference internal" href="#disabling-and-suppressing-errors" id="id14">禁用和抑制错误</a></p></li>
+<li><p><a class="reference internal" href="#resolving-graph-breaks" id="id15">解决图断裂问题</a></p>
+<ul>
+<li><p><a class="reference internal" href="#data-dependent-operations" id="id16">数据依赖操作</a></p></li>
+<li><p><a class="reference internal" href="#custom-ops" id="id17">自定义操作</a></p></li>
+<li><p><a class="reference internal" href="#printing" id="id18">打印</a></p></li>
+<li><p><a class="reference internal" href="#incorrect-code" id="id19">错误代码</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#dealing-with-recompilations" id="id20">处理重新编译</a></p>
+<ul>
+<li><p><a class="reference internal" href="#is-dynamic-shapes-enabled" id="id21">动态形状是否启用？</a></p></li>
+<li><p><a class="reference internal" href="#changing-the-cache-size-limit" id="id22">修改缓存大小限制</a></p></li>
+<li><p><a class="reference internal" href="#wrapping-constants-with-tensors" id="id23">使用张量包装常量</a></p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#reporting-issues" id="id24">报告问题</a></p>
+<ul>
+<li><p><a class="reference internal" href="#ablation" id="id25">消融</a></p></li>
+<li><p><a class="reference internal" href="#bisecting" id="id26">二分法</a></p></li>
+<li><p><a class="reference internal" href="#creating-a-reproducer" id="id27">创建重现程序</a></p></li>
+<li><p><a class="reference internal" href="#minifier" id="id28">压缩器</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#debugging-deeper" id="id29">深入调试</a></p>
+<ul>
+<li><p><a class="reference internal" href="#torchdynamo" id="id30">TorchDynamo</a></p>
+<ul>
+<li><p><a class="reference internal" href="#logging-what-dynamo-is-tracing" id="id31">记录 Dynamo 追踪的内容</a></p></li>
+<li><p><a class="reference internal" href="#breakpointing-dynamo-tracing" id="id32">设置 Dynamo 追踪的断点</a></p></li>
+<li><p><a class="reference internal" href="#bytecode-generation-errors" id="id33">字节码生成错误</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#aotautograd" id="id34">AOTAutograd</a></p></li>
+<li><p><a class="reference internal" href="#summary-of-torch-logs-options" id="id35">TORCH_LOGS 选项摘要</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#related-articles" id="id36">相关文章</a></p></li>
+</ul>
+</nav>
+<section id="setting-expectations">
+<h2>设置期望</h2>
+<p> <code class="docutils literal "><span class="pre">torch.compile</span></code> 被设计为一个通用的 PyTorch 编译器。与之前的编译器解决方案 TorchScript 不同， <code class="docutils literal "><span class="pre">torch.compile</span></code> 需要更少的代码更改，这意味着模型通常不需要从头开始重写。它还能更优雅地处理不支持的代码 - 不支持的代码会导致失去优化机会而不是崩溃。</p>
+<p>在理想的世界里，人们可以简单地应用 <code class="docutils literal "><span class="pre">torch.compile</span></code> 到任何 PyTorch 模型，并享受自动加速。然而，在现实中，代码复杂性可能导致以下三种情况之一：</p>
+<ol class="arabic simple">
+<li><p> <code class="docutils literal "><span class="pre">torch.compile</span></code> 运作顺畅，提供加速。</p></li>
+<li><p>需要进行一些代码修改。 <code class="docutils literal "><span class="pre">torch.compile</span></code> 不会崩溃或花费太多时间，但你可能看不到明显的性能提升。</p></li>
+<li><p>需要对你的代码进行大量修改。</p></li>
+</ol>
+<p>我们预计大部分代码将属于场景（1）和（2）。本文档提供了按参与程度排列的技巧，以帮助解决场景（2）中的代码问题。</p>
+<section id="compile-times">
+<h3>编译时间 ¶</h3>
+<p>即时编译器，因此编译函数的前一两次运行可能会明显较慢。在某些条件下（下文将详细介绍）的重新编译也会使运行速度变慢。各种组件缓存结果以减少未来调用的编译时间，即使在不同的进程中也是如此。冷启动（未缓存）的编译时间通常从几秒到几分钟，对于常见或基准模型。更大的模型可能需要 30 分钟以上到几小时。</p>
+</section>
+</section>
+<section id="terminology">
+<h2>术语 §</h2>
+<p>以下术语与解决 <code class="docutils literal "><span class="pre">torch.compile</span></code> 问题相关。</p>
+<section id="graph-break">
+<h3>图断点</h3>
+<p> <code class="docutils literal "><span class="pre">torch.compile</span></code> 跟踪您的代码并尝试将您的 PyTorch 代码捕获到单个 PyTorch 操作符（FX 图）的计算图中。然而，这并不总是可能的。当遇到无法跟踪的代码时，会发生“图断裂”。图断裂涉及编译到目前为止已确定的 FX 图，运行不受支持的代码，然后在不受支持的代码之后使用新的 FX 图继续跟踪。由于计算图被分割，我们失去了优化机会，因此模型代码应尽可能避免图断裂。图断裂发生在诸如：</p>
+<ul class="simple">
+<li><p>数据依赖的 if 语句</p></li>
+<li><p>许多 Python 内置函数</p></li>
+<li><p>C 语言函数</p></li>
+</ul>
+<p>以下是一个由于 Python 内置库中的函数 <code class="docutils literal "><span class="pre">copy.deepcopy</span></code> 导致的图断点示例（输出可能有所不同）。</p>
+<div class="highlight-py "><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="nd">@torch</span><span class="o">.</span><span class="n">compile</span>
+<span class="k">def</span> <span class="nf">fn</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">"test.txt"</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+
+<span class="n">fn</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="highlight-default "><div class="highlight"><pre><span></span>$TORCH_LOGS="graph_breaks" python playground.py
+Graph break in user code at /data/users/williamwen/pytorch/playground.py:7
+Reason: Unsupported: builtin: open [&lt;class 'torch._dynamo.variables.constant.ConstantVariable'&gt;, &lt;class 'torch._dynamo.variables.constant.ConstantVariable'&gt;] False
+User code traceback:
+File "/data/users/williamwen/pytorch/playground.py", line 7, in fn
+    with open("test.txt", "r") as f:
+Traceback (most recent call last):
+File "/data/users/williamwen/pytorch/torch/_dynamo/symbolic_convert.py", line 635, in wrapper
+    return inner_fn(self, inst)
+        ^^^^^^^^^^^^^^^^^^^^
+File "/data/users/williamwen/pytorch/torch/_dynamo/symbolic_convert.py", line 2414, in CALL
+    self._call(inst)
+File "/data/users/williamwen/pytorch/torch/_dynamo/symbolic_convert.py", line 2408, in _call
+    self.call_function(fn, args, kwargs)
+File "/data/users/williamwen/pytorch/torch/_dynamo/symbolic_convert.py", line 962, in call_function
+    self.push(fn.call_function(self, args, kwargs))  # type: ignore[arg-type]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+File "/data/users/williamwen/pytorch/torch/_dynamo/variables/builtin.py", line 997, in call_function
+    return handler(tx, args, kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+File "/data/users/williamwen/pytorch/torch/_dynamo/variables/builtin.py", line 831, in &lt;lambda&gt;
+    return lambda *args: unimplemented(error_msg)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^
+File "/data/users/williamwen/pytorch/torch/_dynamo/exc.py", line 313, in unimplemented
+    raise Unsupported(msg, case_name=case_name)
+torch._dynamo.exc.Unsupported: builtin: open [&lt;class 'torch._dynamo.variables.constant.ConstantVariable'&gt;, &lt;class 'torch._dynamo.variables.constant.ConstantVariable'&gt;] False
+</pre></div>
+</div>
+</section>
+<section id="guards">
+<h3>守卫</h3>
+<p>在代码跟踪过程中，我们对运行时值做出一些假设。在跟踪过程中，我们生成“守卫”，这些是针对这些假设的运行时检查。守卫将在编译函数的后续调用中运行，以确定我们是否可以重用先前编译的代码。运行时检查的示例包括常量值、类型和对象 ID。</p>
+<p>下面是一个生成的守卫示例。 <code class="docutils literal "><span class="pre">TENSOR_MATCH</span></code> 守卫检查输入的类型、设备、dtype、形状等。</p>
+<div class="highlight-py "><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="nd">@torch</span><span class="o">.</span><span class="n">compile</span>
+<span class="k">def</span> <span class="nf">fn</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span>
+
+<span class="n">fn</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="highlight-default "><div class="highlight"><pre><span></span>$ TORCH_LOGS="guards" python playground.py
+GUARDS:
+
+TREE_GUARD_MANAGER:
++- RootGuardManager
+| +- DEFAULT_DEVICE: utils_device.CURRENT_DEVICE == None                           # _dynamo/output_graph.py:471 in init_ambient_guards
+| +- GLOBAL_STATE: ___check_global_state()
+| +- TORCH_FUNCTION_MODE_STACK: ___check_torch_function_mode_stack()
+| +- GuardManager: source=L['x'], accessed_by=DictGetItemGuardAccessor(x)
+| | +- TENSOR_MATCH: check_tensor(L['x'], Tensor, DispatchKeySet(CPU, BackendSelect, ADInplaceOrView, AutogradCPU), torch.float32, device=None, requires_grad=False, size=[3, 3], stride=[3, 1])  # return x + 1  # playground.py:6 in fn
+| | +- NO_HASATTR: hasattr(L['x'], '_dynamo_dynamic_indices') == False           # return x + 1  # playground.py:6 in fn
+</pre></div>
+</div>
+</section>
+<section id="recompilation">
+<h3>重新编译</h3>
+<p>如果守卫在之前编译的每个实例中失败，那么 <code class="docutils literal "><span class="pre">torch.compile</span></code> 必须“重新编译”函数，需要再次追踪原始代码。</p>
+<p>在下面的示例中，由于检查张量参数形状的守卫失败，需要重新编译。</p>
+<div class="highlight-py "><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="nd">@torch</span><span class="o">.</span><span class="n">compile</span>
+<span class="k">def</span> <span class="nf">fn</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span>
+
+<span class="n">fn</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="n">fn</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="highlight-default "><div class="highlight"><pre><span></span>$ TORCH_LOGS="recompiles" python playground.py
+Recompiling function fn in /data/users/williamwen/pytorch/playground.py:3
+    triggered by the following guard failure(s):
+    - 0/0: tensor 'L['x']' size mismatch at index 0. expected 3, actual 4
+</pre></div>
+</div>
+</section>
+<section id="dynamic-shapes">
+<h3>动态形状</h3>
+<p> <code class="docutils literal "><span class="pre">torch.compile</span></code> 最初假设张量形状是静态/常量的，并基于这些假设设置守卫。通过使用“动态形状”，我们可以让 <code class="docutils literal "><span class="pre">torch.compile</span></code> 生成可以接受不同形状张量输入的编译代码——我们避免了每次形状不同时都需要重新编译。默认情况下，自动动态形状是启用的 <code class="docutils literal "><span class="pre">torch.compile(dynamic=None)</span></code> - 如果由于形状不匹配导致编译失败，将尝试使用动态形状进行重新编译。动态形状也可以完全启用 <code class="docutils literal "><span class="pre">dynamic=True</span></code> 或禁用 <code class="docutils literal "><span class="pre">dynamic=False</span></code> 。</p>
+<p>以下，我们启用动态形状，并指出我们不再需要重新编译。</p>
+<div class="highlight-py "><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="nd">@torch</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">dynamic</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">fn</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span>
+
+<span class="n">fn</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="n">fn</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="highlight-default "><div class="highlight"><pre><span></span>$ TORCH_LOGS="dynamic,recompiles" python playground.py
+create_symbol s0 = 3 for L['x'].size()[0] [2, int_oo] at playground.py:5 in fn (_dynamo/variables/builder.py:2718 in &lt;lambda&gt;), for more info run with TORCHDYNAMO_EXTENDED_DEBUG_CREATE_SYMBOL="s0"
+produce_guards
+produce_guards
+</pre></div>
+</div>
+<p>想了解更多关于动态形状的信息，请参阅《动态形状手册》。</p>
+</section>
+</section>
+<section id="logging-tools">
+<h2>日志工具 ¶</h2>
+<section id="tlparse-torch-trace">
+<h3><a class="toc-backref" href="#id9" role="doc-backlink">tlparse / TORCH_TRACE</a><a class="headerlink" href="#tlparse-torch-trace" title="Permalink to this heading">¶</a></h3>
+<p> <code class="docutils literal "><span class="pre">tlparse</span></code> / <code class="docutils literal "><span class="pre">TORCH_TRACE</span></code> 是一对工具，它们生成的编译报告看起来像这样：https://web.mit.edu/~ezyang/Public/bhack-20240609-tlparse/index.html。</p>
+<p>跟踪收集非常简单。要收集跟踪，请运行您的重现命令</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">TORCH_TRACE</span><span class="o">=</span><span class="s2">"/tmp/tracedir"</span> <span class="n">python</span> <span class="n">foo</span><span class="o">.</span><span class="n">py</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="n">tlparse</span>
+<span class="n">tlparse</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">tracedir</span>
+</pre></div>
+</div>
+<p>即使您正在运行分布式作业，此方法也适用，为每个 rank 提供跟踪。它将以与上面生成的类似的 HTML 打开您的浏览器。如果您正在为没有独立重现的复杂问题编写错误报告，您仍然可以通过附加在 <code class="docutils literal "><span class="pre">/tmp/tracedir</span></code> 生成的跟踪日志来极大地帮助 PyTorch 开发者。</p>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>跟踪日志包含您所有的模型代码。如果您正在处理的模型是敏感的，请不要分享跟踪日志。跟踪日志不包含权重。</p>
+</div>
+<style>
+    .red {background-color:#ff0000;}
+    .green {background-color:#00ff00;}
+    .dark-green {background-color:#027f02;}
+</style><p> <code class="docutils literal "><span class="pre">tlparse</span></code> 的输出主要面向 PyTorch 开发者，日志格式便于上传和分享到 GitHub。然而，即使你不是 PyTorch 开发者，仍然可以从中提取有用的信息。我们建议从报告中的内联帮助文本开始，它解释了其内容。以下是一些你可以从 <code class="docutils literal "><span class="pre">tlparse</span></code> 中获得的见解：</p>
+<ul class="simple">
+<li><p>通过查看堆栈 trie，编译了哪些模型代码？这对于不熟悉正在编译的代码库的人来说特别有用！</p></li>
+<li><p>有多少个图断开/不同的编译区域？（每个不同的编译都有一个像 [0/0] 这样的颜色编码块）。可能发生图断开的帧是浅绿色 [2/4]。如果有很多帧，那么这是可疑的，表明你可能有一些灾难性的图断开，或者你的代码可能不适合 <code class="docutils literal "><span class="pre">torch.compile</span></code> 。</p></li>
+<li><p>我重新编译了特定帧多少次？被大量重新编译的内容看起来像：[10/0] [10/1] [10/2] - 如果某物被大量重新编译，那么这是非常可疑的，值得调查，即使它不是你问题的根本原因。</p></li>
+<li><p>出现了编译错误吗？出现错误的帧将类似于[0/1]。</p></li>
+<li><p>对于给定的帧，我生成了哪些中间编译产品？例如，你可以查看生成的高级 FX 图或生成的 Triton 代码。</p></li>
+<li><p>对于特定的帧是否有相关信息？你可以在 <code class="docutils literal "><span class="pre">compilation_metrics</span></code> 中找到这些信息。</p></li>
+</ul>
+</section>
+<section id="torch-logs">
+<h3>TORCH_LOGS §</h3>
+<p>您可以使用 <code class="docutils literal "><span class="pre">TORCH_LOGS</span></code> 环境变量有选择地启用 <code class="docutils literal "><span class="pre">torch.compile</span></code> 栈的部分以记录日志。 <code class="docutils literal "><span class="pre">TORCH_LOGS</span></code> 实际上是 <code class="docutils literal "><span class="pre">tlparse</span></code> 的日志来源。 <code class="docutils literal "><span class="pre">TORCH_LOGS</span></code> 环境变量的格式如下：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">TORCH_LOGS</span><span class="o">=</span><span class="s2">"&lt;option1&gt;,&lt;option2&gt;,..."</span> <span class="n">python</span> <span class="n">foo</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>有用的高级选项包括：</p>
+<ul class="simple">
+<li><p> <code class="docutils literal "><span class="pre">graph_breaks</span></code> ：记录用户代码中图断点的位置和图断开的原因</p></li>
+<li><p> <code class="docutils literal "><span class="pre">guards</span></code> ：记录生成的守卫</p></li>
+<li><p> <code class="docutils literal "><span class="pre">recompiles</span></code> : 记录重新编译的函数和失败的守卫，导致重新编译</p></li>
+<li><p> <code class="docutils literal "><span class="pre">dynamic</span></code> : 与动态形状相关的日志</p></li>
+</ul>
+<p>此外，您还可以使用 <code class="docutils literal "><span class="pre">torch._logging.set_logs</span></code> : 以编程方式设置日志选项</p>
+<div class="highlight-py "><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="n">torch</span><span class="o">.</span><span class="n">_logging</span><span class="o">.</span><span class="n">set_logs</span><span class="p">(</span><span class="n">graph_breaks</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p>以下详细介绍了更多 <code class="docutils literal "><span class="pre">TORCH_LOGS</span></code> 选项。有关选项的完整列表，请参阅 torch._logging 和 torch._logging.set_logs。</p>
+</section>
+<section id="tlparse-vs-torch-logs">
+<h3>tlparse 与 TORCH_LOGS</h3>
+<p>通常建议首先使用 <code class="docutils literal "><span class="pre">tlparse</span></code> 来解决问题。 <code class="docutils literal "><span class="pre">tlparse</span></code> 适用于调试大型模型并获取模型编译的高级概述。另一方面， <code class="docutils literal "><span class="pre">TORCH_LOGS</span></code> 更适合用于小型示例和细粒度调试细节，当我们已经知道哪个 <code class="docutils literal "><span class="pre">torch.compile</span></code> 组件导致问题时。</p>
+</section>
+</section>
+<section id="simple-workarounds">
+<h2>简单的解决方案</h2>
+<p>在这里，我们描述了一些涉及少量代码修改或更改一些 <code class="docutils literal "><span class="pre">torch.compile</span></code> 设置的 <code class="docutils literal "><span class="pre">torch.compile</span></code> 问题的解决方案。</p>
+<section id="where-to-apply-torch-compile">
+<h3>torch.compile 应该应用在哪里？</h3>
+<p>我们建议将 <code class="docutils literal "><span class="pre">torch.compile</span></code> 应用到最高级别的函数上，这个函数不会引起过多问题。通常情况下，这是你的训练或评估步骤，与优化器一起使用，但没有循环，你的顶级 <code class="docutils literal "><span class="pre">nn.Module</span></code> 或某些子 <code class="docutils literal "><span class="pre">nn.Module``s.</span> <span class="pre">``torch.compile</span></code> 并不适合处理分布式包装模块，如 DDP 或 FSDP，因此请考虑将 <code class="docutils literal "><span class="pre">torch.compile</span></code> 应用到传递给包装器的内部模块上。</p>
+<div class="highlight-py "><div class="highlight"><pre><span></span><span class="c1"># inference</span>
+<span class="n">model</span> <span class="o">=</span> <span class="o">...</span>
+<span class="n">opt_model</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N_ITERS</span><span class="p">):</span>
+    <span class="n">inp</span> <span class="o">=</span> <span class="o">...</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">opt_model</span><span class="p">(</span><span class="n">inp</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-py "><div class="highlight"><pre><span></span><span class="c1"># training</span>
+<span class="n">model</span> <span class="o">=</span> <span class="o">...</span>
+<span class="n">opt</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">())</span>
+
+<span class="nd">@torch</span><span class="o">.</span><span class="n">compile</span>
+<span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="n">opt</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">pred</span> <span class="o">=</span> <span class="n">mod</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">loss</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">CrossEntropyLoss</span><span class="p">()(</span><span class="n">pred</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+    <span class="n">opt</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N_ITERS</span><span class="p">):</span>
+    <span class="n">inp</span> <span class="o">=</span> <span class="o">...</span>
+    <span class="n">train</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">inp</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-py "><div class="highlight"><pre><span></span><span class="c1"># DistributedDataParallel</span>
+<span class="n">model</span> <span class="o">=</span> <span class="o">...</span>
+<span class="n">opt_model</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+<span class="n">model_ddp</span> <span class="o">=</span> <span class="n">DistributedDataParallel</span><span class="p">(</span><span class="n">opt_model</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N_ITERS</span><span class="p">):</span>
+    <span class="n">inp</span> <span class="o">=</span> <span class="o">...</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">model_ddp</span><span class="p">(</span><span class="n">inp</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="disabling-and-suppressing-errors">
+<h3>禁用和抑制错误</h3>
+<p>对于某些模型架构，模型中的一些部分特别难以编译——要么有很多图断开，要么有崩溃。你可能想明确禁用这些有问题的模型部分，以便可以将 <code class="docutils literal "><span class="pre">torch.compile</span></code> 应用到可以工作的部分。你可以通过使用 <code class="docutils literal "><span class="pre">@torch.compiler.disable</span></code> 装饰器来完成此操作。当 <code class="docutils literal "><span class="pre">torch.compile</span></code> 尝试调用禁用的函数时，它会断开图并跳过禁用函数的跟踪，在调用后继续跟踪。默认情况下，从禁用函数发出的所有递归调用也都被禁用。使用 <code class="docutils literal "><span class="pre">recursive=False</span></code> 选项允许递归调用进行编译。</p>
+<div class="highlight-py "><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">bad1_inner</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+    <span class="c1"># skipped</span>
+
+<span class="nd">@torch</span><span class="o">.</span><span class="n">compiler</span><span class="o">.</span><span class="n">disable</span>
+<span class="k">def</span> <span class="nf">bad1_outer</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+    <span class="c1"># skipped</span>
+    <span class="n">bad1_inner</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">bad2_inner</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+    <span class="c1"># traced</span>
+
+<span class="nd">@torch</span><span class="o">.</span><span class="n">compiler</span><span class="o">.</span><span class="n">disable</span><span class="p">(</span><span class="n">recursive</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">bad2_outer</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+    <span class="c1"># skipped</span>
+    <span class="n">bad2_inner</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+
+<span class="nd">@torch</span><span class="o">.</span><span class="n">compile</span>
+<span class="k">def</span> <span class="nf">fn</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+    <span class="c1"># graph break</span>
+    <span class="n">bad1_outer</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+    <span class="o">...</span>
+    <span class="c1"># graph break</span>
+    <span class="n">bad2_outer</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>例如，我们使用 <code class="docutils literal "><span class="pre">torch.compiler.disable</span></code> 来在稀疏架构的推荐模型中禁用 <code class="docutils literal "><span class="pre">torch.compile</span></code> ，因为稀疏架构难以编译。预处理和日志函数是其他通常会导致大量图断开且编译无价值的函数的例子。</p>
+<p>如果你在经历编译器崩溃并且想要继续，你可以设置 <code class="docutils literal "><span class="pre">torch._dynamo.config.suppress_errors</span> <span class="pre">=</span> <span class="pre">True</span></code> 。当编译器崩溃时，我们将只是跳过跟踪函数，稍后再尝试。这不是最佳实践——最好是最终手动添加禁用注释。</p>
+</section>
+<section id="resolving-graph-breaks">
+<h3>解决图断开问题</h3>
+<p>为了最大化优化机会，减少图断开的数量非常重要。回想一下，你可以使用 <code class="docutils literal "><span class="pre">tlparse</span></code> 或 <code class="docutils literal "><span class="pre">TORCH_LOGS="graph_breaks"</span></code> 来查看正在发生的图断开。一般来说，图断开是由以下原因之一引起的：</p>
+<ol class="arabic simple">
+<li><p>你试图做的是一种本质上无法追踪的事情，例如数据依赖的控制流。</p></li>
+<li><p>你正在尝试做的是目前还不支持的事情。例如，我们目前对使用内置 Python <code class="docutils literal "><span class="pre">inspect</span></code> 模块的代码追踪支持有限。</p></li>
+<li><p>你的代码中存在错误。例如，你可能尝试用一个错误的参数数量调用一个函数。</p></li>
+</ol>
+<p>图断开日志会告诉你用户代码的位置和图断开的原因。不幸的是，许多图断开在没有对 Dynamo 有更深入理解的情况下是不可操作的。甚至可能很难确定导致你的图断开的三个原因中哪个是真正的原因。我们正在努力使图断开消息更具可操作性。</p>
+<p>此外，丢失优化机会的影响在不同图断点之间也有所不同。例如，发生在模型 <code class="docutils literal "><span class="pre">forward</span></code> 中间的图断点可能比发生在 <code class="docutils literal "><span class="pre">forward</span></code> 预处理部分开始的图断点有更大的负面影响。因此，并不是每个断点都需要防止，而是应该防止那些造成性能显著下降的断点。</p>
+<p>如果图断点消息没有建议任何操作，你怀疑图断点的原因是（2），并且你认为图断点正在造成性能下降，那么请将图断点报告为一个问题。如果一个函数有很多图断点，考虑禁用该函数的编译，因为图断点的开销可能会变得难以承受。</p>
+<p>以下是一些常见的图断点和一些解决方案。</p>
+<section id="data-dependent-operations">
+<h4>数据相关操作 ¶</h4>
+<p>图在数据相关操作上会中断，例如数据相关的控制流（if 语句、张量循环）和直接张量数据访问（ <code class="docutils literal "><span class="pre">.item</span></code> ， <code class="docutils literal "><span class="pre">.data_ptr</span></code> ）。</p>
+<div class="highlight-py "><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="nd">@torch</span><span class="o">.</span><span class="n">compile</span>
+<span class="k">def</span> <span class="nf">fn</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">y</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">x</span> <span class="o">-</span> <span class="n">y</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+
+<span class="n">fn</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="highlight-default "><div class="highlight"><pre><span></span>$ TORCH_LOGS="graph_breaks" python playground.py
+Graph break in user code at /data/users/williamwen/pytorch/playground.py:6
+Reason: Data-dependent jump
+User code traceback:
+File "/data/users/williamwen/pytorch/playground.py", line 6, in fn
+    if y &gt; 0:
+
+Graph break in user code at /data/users/williamwen/pytorch/playground.py:7
+Reason: Unsupported: Tensor.item
+User code traceback:
+File "/data/users/williamwen/pytorch/playground.py", line 7, in torch_dynamo_resume_in_fn_at_6
+    return x + y.item()
+Traceback (most recent call last):
+File "/data/users/williamwen/pytorch/torch/_dynamo/symbolic_convert.py", line 616, in wrapper
+    return inner_fn(self, inst)
+        ^^^^^^^^^^^^^^^^^^^^
+File "/data/users/williamwen/pytorch/torch/_dynamo/symbolic_convert.py", line 2288, in CALL
+    self._call(inst)
+File "/data/users/williamwen/pytorch/torch/_dynamo/symbolic_convert.py", line 2282, in _call
+    self.call_function(fn, args, kwargs)
+File "/data/users/williamwen/pytorch/torch/_dynamo/symbolic_convert.py", line 838, in call_function
+    self.push(fn.call_function(self, args, kwargs))  # type: ignore[arg-type]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+File "/data/users/williamwen/pytorch/torch/_dynamo/variables/misc.py", line 1038, in call_function
+    return self.obj.call_method(tx, self.name, args, kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+File "/data/users/williamwen/pytorch/torch/_dynamo/variables/tensor.py", line 527, in call_method
+    result = handler_method(*args, **kwargs)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+File "/data/users/williamwen/pytorch/torch/_dynamo/variables/tensor.py", line 773, in method_item
+    unimplemented("Tensor.item")
+File "/data/users/williamwen/pytorch/torch/_dynamo/exc.py", line 304, in unimplemented
+    raise Unsupported(msg, case_name=case_name)
+torch._dynamo.exc.Unsupported: Tensor.item
+</pre></div>
+</div>
+<p>对于这些图中断的一般解决方案是避免执行数据相关操作。一些具体的解决方案包括：</p>
+<ul class="simple">
+<li><p>如果您的控制流实际上不依赖于数据值，请考虑修改您的代码以在常量上执行控制流。</p></li>
+</ul>
+<div class="highlight-py "><div class="highlight"><pre><span></span><span class="c1"># old</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="nd">@torch</span><span class="o">.</span><span class="n">compile</span>
+<span class="k">def</span> <span class="nf">fn</span><span class="p">(</span><span class="n">y</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">y</span> <span class="o">+</span> <span class="n">x</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">y</span> <span class="o">-</span> <span class="n">x</span>
+
+<span class="c1"># new</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="n">cond</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+<span class="nd">@torch</span><span class="o">.</span><span class="n">compile</span>
+<span class="k">def</span> <span class="nf">fn</span><span class="p">(</span><span class="n">y</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">cond</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">y</span> <span class="o">+</span> <span class="n">x</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">y</span> <span class="o">-</span> <span class="n">x</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>使用高级操作符如 <code class="docutils literal "><span class="pre">torch.cond</span></code> （https://pytorch.org/docs/main/cond.html）来替代数据相关的控制流</p></li>
+</ul>
+<div class="highlight-py "><div class="highlight"><pre><span></span><span class="c1"># old</span>
+<span class="nd">@torch</span><span class="o">.</span><span class="n">compile</span>
+<span class="k">def</span> <span class="nf">fn</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">x</span> <span class="o">-</span> <span class="mi">1</span>
+
+<span class="c1"># new</span>
+<span class="nd">@torch</span><span class="o">.</span><span class="n">compile</span>
+<span class="k">def</span> <span class="nf">fn</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span>
+        <span class="n">x</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="p">(</span><span class="n">x</span><span class="p">,),</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>如果你有 <code class="docutils literal "><span class="pre">.item()</span></code> 调用，尝试 <code class="docutils literal "><span class="pre">torch._dynamo.config.capture_scalar_outputs</span> <span class="pre">=</span> <span class="pre">True</span></code> 或 <code class="docutils literal "><span class="pre">TORCHDYNAMO_CAPTURE_SCALAR_OUTPUTS=1</span></code> </p></li>
+<li><p>将函数中的问题部分包裹在自定义操作符中</p></li>
+</ul>
+</section>
+<section id="custom-ops">
+<h4>自定义操作符 ¶</h4>
+<p>如果你有的代码 <code class="docutils literal "><span class="pre">torch.compile</span></code> 难以追踪，无论是由于缺少支持还是基本不兼容，你可以考虑将问题代码包裹在自定义操作符中。</p>
+<p>自定义操作需要一点额外的工作才能使其与 <code class="docutils literal "><span class="pre">torch.compile</span></code> 兼容。有关更多详细信息，请参阅 https://pytorch.org/tutorials/advanced/custom_ops_landing_page.html。</p>
+</section>
+<section id="printing">
+<h4>打印¶</h4>
+<p>打印/记录/发出警告会导致图断开。如果您有一个执行许多记录调用的函数，例如记录训练迭代数据的函数，请考虑在它上面应用 <code class="docutils literal "><span class="pre">torch.compiler.disable</span></code> 。</p>
+<p>或者，您可以尝试使用 <code class="docutils literal "><span class="pre">torch._dynamo.config.reorderable_logging_functions</span></code> 。此配置用于重新排序记录函数，以便在跟踪函数的末尾调用它们，从而避免图断开。但是，如果发生突变等，记录的内容可能会有所不同。</p>
+<div class="highlight-py "><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="n">torch</span><span class="o">.</span><span class="n">_dynamo</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">reorderable_logging_functions</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="nb">print</span><span class="p">)</span>
+
+<span class="nd">@torch</span><span class="o">.</span><span class="n">compile</span>
+<span class="k">def</span> <span class="nf">fn</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="n">x</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"log!"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+<span class="n">fn</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="highlight-default "><div class="highlight"><pre><span></span>$ TORCH_LOGS="graph_breaks" python playground.py
+log!
+</pre></div>
+</div>
+</section>
+<section id="incorrect-code">
+<h4>代码错误</h4>
+<p>您的代码可能错误，或者遇到了来自外部 <code class="docutils literal "><span class="pre">torch.compile</span></code> 的错误。在下面的代码中，我们在 <code class="docutils literal "><span class="pre">torch.sin</span></code> 调用中犯了一个拼写错误，多提供了一个参数。</p>
+<div class="highlight-py "><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="nd">@torch</span><span class="o">.</span><span class="n">compile</span>
+<span class="k">def</span> <span class="nf">fn</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">y</span>
+
+<span class="n">fn</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="highlight-default "><div class="highlight"><pre><span></span>$ TORCH_LOGS="graph_breaks" python playground.py
+Graph break in user code at /data/users/williamwen/pytorch/playground.py:5
+Reason: Unsupported: TypeError &lt;built-in method sin of type object at 0x7fd6fd764600&gt;: sin() takes 1 positional argument but 2 were given
+User code traceback:
+File "/data/users/williamwen/pytorch/playground.py", line 5, in fn
+    y = torch.sin(x, x)
+...
+</pre></div>
+</div>
+<p>从日志中很难判断错误是由您的代码引起的，还是因为 <code class="docutils literal "><span class="pre">torch.compile</span></code> 的 bug。为了区分，我们建议尝试在不使用 <code class="docutils literal "><span class="pre">torch.compile</span></code> 的情况下运行您的代码，看是否仍然出现错误。</p>
+</section>
+</section>
+<section id="dealing-with-recompilations">
+<h3>处理重新编译</h3>
+<p>您可以使用 <code class="docutils literal "><span class="pre">tlparse</span></code> 或 <code class="docutils literal "><span class="pre">TORCH_LOGS=recompiles</span></code> 查看重编译及其原因。</p>
+<section id="is-dynamic-shapes-enabled">
+<h4>动态形状已启用吗？¶</h4>
+<p>由于形状不匹配而导致的重编译形式如下：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">tensor</span> <span class="s1">'L['</span><span class="n">x</span><span class="s1">']'</span> <span class="n">size</span> <span class="n">mismatch</span> <span class="n">at</span> <span class="n">index</span> <span class="mf">0.</span> <span class="n">expected</span> <span class="mi">3</span><span class="p">,</span> <span class="n">actual</span> <span class="mi">4</span>
+</pre></div>
+</div>
+<p>确保不要将 <code class="docutils literal "><span class="pre">torch.compile</span></code> 的 <code class="docutils literal "><span class="pre">dynamic</span></code> 选项设置为 <code class="docutils literal "><span class="pre">False</span></code> 。默认选项 <code class="docutils literal "><span class="pre">dynamic=None</span></code> 将仅在第一次编译后尝试动态形状。您可以将 <code class="docutils literal "><span class="pre">dynamic=True</span></code> 设置为尽可能提前编译为动态形状。</p>
+<p>关于动态形状的更多信息，请参阅《动态形状手册》。</p>
+</section>
+<section id="changing-the-cache-size-limit">
+<h4>修改缓存大小限制 ¶</h4>
+<p>函数可以被重新编译的次数有限，由 <code class="docutils literal "><span class="pre">torch._dynamo.config.recompile_limit</span></code> 和 <code class="docutils literal "><span class="pre">torch._dynamo.config.accumulated_recompile_limit</span></code> 决定。如果任一限制被超过，则我们不会再次尝试编译该函数，而是会立即执行该函数。 <code class="docutils literal "><span class="pre">torch.compile</span></code> 还会发出警告，包含受影响的函数和达到的限制。在下面的示例中，每次函数调用都会尝试重新编译。当我们达到缓存大小限制（8）时，我们将停止尝试重新编译。</p>
+<div class="highlight-py "><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="nd">@torch</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">dynamic</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">fn</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">):</span>
+    <span class="n">fn</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="highlight-default "><div class="highlight"><pre><span></span>$ python playground.py
+torch._dynamo hit config.recompile_limit (8)
+    function: 'fn' (/data/users/williamwen/pytorch/playground.py:5)
+    last reason: 0/0: tensor 'L['x']' size mismatch at index 0. expected 1, actual 9
+</pre></div>
+</div>
+<p>如果你知道重新编译的次数有一个合理的常数上限，你可以提高缓存大小限制。如果重新编译的成本超过了编译的收益，那么你可以考虑降低缓存大小限制。</p>
+</section>
+<section id="wrapping-constants-with-tensors">
+<h4>将常量用张量包装 ¶</h4>
+<p>默认情况下， <code class="docutils literal "><span class="pre">int</span></code> / <code class="docutils literal "><span class="pre">float</span></code> 变量被视为常量并受到保护。在下面的示例中，每次函数调用都会进行重新编译。</p>
+<div class="highlight-py "><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="nd">@torch</span><span class="o">.</span><span class="n">compile</span>
+<span class="k">def</span> <span class="nf">fn</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="n">c</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">):</span>
+    <span class="n">fn</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="mf">0.5</span> <span class="o">+</span> <span class="n">i</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default "><div class="highlight"><pre><span></span>$ TORCH_LOGS="recompiles" python playground.py
+Recompiling function fn in /data/users/williamwen/pytorch/playground.py:3
+    triggered by the following guard failure(s):
+    - 0/7: L['c'] == 8.5
+    - 0/6: L['c'] == 7.5
+    - 0/5: L['c'] == 6.5
+    - 0/4: L['c'] == 5.5
+    - 0/3: L['c'] == 4.5
+    - 0/2: L['c'] == 3.5
+    - 0/1: L['c'] == 2.5
+    - 0/0: L['c'] == 1.5
+torch._dynamo hit config.recompile_limit (8)
+    function: 'fn' (/data/users/williamwen/pytorch/playground.py:3)
+    last reason: 0/0: L['c'] == 1.5
+</pre></div>
+</div>
+<p>尤其对于 LR 调度器，使用常量初始化可能会导致重新编译：</p>
+<div class="highlight-py "><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="n">mod</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="n">opt</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+<span class="n">sched</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">lr_scheduler</span><span class="o">.</span><span class="n">ExponentialLR</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">)</span>
+
+<span class="nd">@torch</span><span class="o">.</span><span class="n">compile</span>
+<span class="k">def</span> <span class="nf">fn</span><span class="p">(</span><span class="n">inp</span><span class="p">):</span>
+    <span class="n">opt</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">mod</span><span class="p">(</span><span class="n">inp</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+    <span class="n">opt</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+    <span class="n">sched</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">):</span>
+    <span class="n">fn</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="highlight-default "><div class="highlight"><pre><span></span>$ TORCH_LOGS="recompiles" python playground.py
+Recompiling function step in /data/users/williamwen/pytorch/torch/optim/adam.py:189
+    triggered by the following guard failure(s):
+    - 3/7: L['self'].param_groups[0]['lr'] == 0.004782969000000002
+    - 3/6: L['self'].param_groups[0]['lr'] == 0.005314410000000002
+    - 3/5: L['self'].param_groups[0]['lr'] == 0.005904900000000002
+    - 3/4: L['self'].param_groups[0]['lr'] == 0.006561000000000002
+    - 3/3: L['self'].param_groups[0]['lr'] == 0.007290000000000001
+    - 3/2: L['self'].param_groups[0]['lr'] == 0.008100000000000001
+    - 3/1: L['self'].param_groups[0]['lr'] == 0.009000000000000001
+    - 3/0: L['self'].param_groups[0]['lr'] == 0.01
+torch._dynamo hit config.recompile_limit (8)
+    function: 'step' (/data/users/williamwen/pytorch/torch/optim/adam.py:189)
+    last reason: 3/0: L['self'].param_groups[0]['lr'] == 0.01
+</pre></div>
+</div>
+<p>在这两个示例中，我们可以将浮点变量包装在张量中，以防止重新编译。</p>
+<div class="highlight-py "><div class="highlight"><pre><span></span><span class="c1"># first example</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">):</span>
+    <span class="n">fn</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">+</span> <span class="n">i</span><span class="p">))</span>
+
+<span class="c1"># second example</span>
+<span class="n">opt</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="mf">0.01</span><span class="p">))</span>
+<span class="n">sched</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">lr_scheduler</span><span class="o">.</span><span class="n">ExponentialLR</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="mf">0.9</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="reporting-issues">
+<h2>报告问题</h2>
+<p>如果上述解决方案不足以使 <code class="docutils literal "><span class="pre">torch.compile</span></code> 工作正常，那么您应该考虑向 PyTorch 报告问题。但在我们生活中，还有一些事情可以让我们更容易地处理。</p>
+<section id="ablation">
+<h3>消融</h3>
+<p>使用 <code class="docutils literal "><span class="pre">backend=</span></code> 选项检查 <code class="docutils literal "><span class="pre">torch.compile</span></code> 栈中哪个组件导致问题。特别是尝试：</p>
+<ul class="simple">
+<li><p>仅运行 TorchDynamo，即 <code class="docutils literal "><span class="pre">torch.compile</span></code> 的图捕获组件。</p></li>
+<li><p>运行 TorchDynamo 和 AOTAutograd，编译期间额外生成反向图。</p></li>
+<li><p>运行 TorchDynamo 和 AOTAutograd，并带有算子分解/分区。</p></li>
+<li><p>运行 TorchDynamo、AOTAutograd 和 TorchInductor，即生成编译内核的后端 ML 编译器。</p></li>
+</ul>
+<p>如果你只使用电感器后端失败，你可以额外测试各种电感器模式：</p>
+<ul class="simple">
+<li><p><code class="docutils literal "><span class="pre">torch.compile(fn,</span> <span class="pre">backend="inductor",</span> <span class="pre">mode="default")</span></code></p></li>
+<li><p><code class="docutils literal "><span class="pre">torch.compile(fn,</span> <span class="pre">backend="inductor",</span> <span class="pre">mode="reduce-overhead")</span></code></p></li>
+<li><p><code class="docutils literal "><span class="pre">torch.compile(fn,</span> <span class="pre">backend="inductor",</span> <span class="pre">mode="max-autotune")</span></code></p></li>
+</ul>
+<p>你还可以检查动态形状是否会导致任何后端出现问题：</p>
+<ul class="simple">
+<li><p> <code class="docutils literal "><span class="pre">torch.compile(fn,</span> <span class="pre">dynamic=True)</span></code> （始终使用动态形状）</p></li>
+<li><p> <code class="docutils literal "><span class="pre">torch.compile(fn,</span> <span class="pre">dynamic=False)</span></code> （永不使用动态形状）</p></li>
+<li><p> <code class="docutils literal "><span class="pre">torch.compile(fn,</span> <span class="pre">dynamic=None)</span></code> (自动动态形状)</p></li>
+</ul>
+</section>
+<section id="bisecting">
+<h3>二分法</h3>
+<p>你尝试过最新的夜间版本吗？过去能工作但现在不再工作了吗？你能通过二分法来确定问题首次出现的夜间版本吗？二分法对于性能、准确性或编译时间回归尤其有帮助，在这些情况下，问题起源并不明显。</p>
+</section>
+<section id="creating-a-reproducer">
+<h3>创建重现程序</h3>
+<p>创建复现器是一项繁重的工作，如果您没有时间做这件事，那完全没问题。然而，如果您是一个对 <code class="docutils literal "><span class="pre">torch.compile</span></code> 内部不熟悉的积极用户，创建一个独立的复现器可以对我们修复 bug 的能力产生巨大影响。如果没有复现器，您的 bug 报告必须包含足够的信息，以便我们能够识别问题的根本原因并从头开始编写复现器。</p>
+<p>以下是一些有用的复现器列表，按优先级从高到低排序：</p>
+<ol class="arabic">
+<li><p>自包含的小型复现器：一个没有外部依赖的脚本，代码行数不超过 100 行，运行时可以复现问题。</p></li>
+<li><p>自包含的大型复现器：即使它很大，自包含也是一个巨大的优势！</p></li>
+<li><p>非自包含的复现器，具有可管理的依赖关系：例如，如果您可以通过运行脚本在 <code class="docutils literal "><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">transformers</span></code> 之后复现问题，那么这是可管理的。我们很可能运行它并调查。</p></li>
+<li><p>需要大量设置的不可包含的复现器：这可能涉及下载数据集、多个环境设置步骤或需要 Docker 镜像的特定系统库版本。设置越复杂，我们复现环境就越困难。</p>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>Docker 简化了设置，但使环境更改变得复杂，因此它不是完美的解决方案，尽管必要时我们会使用它。</p>
+</div>
+</li>
+</ol>
+<p>在某种程度上，单进程可运行的复现器比需要多进程训练的复现器更好（但再次强调，如果您只有多进程复现器，我们也会接受！）</p>
+<p>此外，以下是一个非详尽的列表，您可以在问题中检查的方面，并尝试在您的复现器中尝试复现：</p>
+<ul class="simple">
+<li><p>自动微分。您是否有带有 <code class="docutils literal "><span class="pre">requires_grad=True</span></code> 的张量输入？您是否在输出上调用 <code class="docutils literal "><span class="pre">backward()</span></code> ？</p></li>
+<li><p>动态形状。您是否设置了 <code class="docutils literal "><span class="pre">dynamic=True</span></code> ？或者您是否多次运行测试代码，形状各不相同？</p></li>
+<li><p>自定义算子。在真实工作流程中是否涉及自定义算子？您能否使用 Python 自定义算子 API 复现其中一些重要特性？</p></li>
+<li><p>配置。你是否设置了所有相同的配置？这包括 <code class="docutils literal "><span class="pre">torch._dynamo.config</span></code> 和 <code class="docutils literal "><span class="pre">torch._inductor.config</span></code> 设置，以及 <code class="docutils literal "><span class="pre">torch.compile</span></code> 的参数，如 <code class="docutils literal "><span class="pre">backend</span></code> / <code class="docutils literal "><span class="pre">mode</span></code> 。</p></li>
+<li><p>上下文管理器。你是否复制了任何活动上下文管理器？这可能包括 <code class="docutils literal "><span class="pre">torch.no_grad</span></code> ，自动混合精度， <code class="docutils literal "><span class="pre">TorchFunctionMode</span></code> / <code class="docutils literal "><span class="pre">TorchDispatchMode</span></code> ，激活检查点，编译自动微分等。</p></li>
+<li><p>张量子类。是否涉及张量子类？</p></li>
+</ul>
+</section>
+<section id="minifier">
+<h3>压缩器 ¶</h3>
+<p>压缩器是一种早期工具，它给定一个在尝试运行或编译时崩溃的 FX 图，找到也崩溃的子图，并输出执行该子图操作的代码。本质上，压缩器找到了一类与 <code class="docutils literal "><span class="pre">torch.compile</span></code> -相关崩溃的最小化复现。这假设我们已经能够成功追踪代码。</p>
+<p>不幸的是，现在大多数时候，压缩器不能按预期工作，可能需要其他方法。这很可能是由于可以通过这种方式自动复现的 bug 通常更容易修复，并且已经得到解决，留下了不易复现的更复杂问题。然而，尝试使用压缩器很简单，所以即使可能不成功，也值得一试。</p>
+<p>压缩器操作说明可在此处找到。如果编译器崩溃，您可以设置 <code class="docutils literal "><span class="pre">TORCHDYNAMO_REPRO_AFTER="dynamo"</span></code> 或 <code class="docutils literal "><span class="pre">TORCHDYNAMO_REPRO_AFTER="aot"</span></code> 。 <code class="docutils literal "><span class="pre">aot</span></code> 选项更有可能成功，尽管它可能无法识别 <code class="docutils literal "><span class="pre">AOTAutograd</span></code> 问题。这将生成 <code class="docutils literal "><span class="pre">repro.py</span></code> 文件，可能有助于诊断问题。对于与准确性相关的问题，请考虑设置 <code class="docutils literal "><span class="pre">TORCHDYNAMO_REPRO_LEVEL=4</span></code> 。请注意，这并不总是能成功识别出问题子图。</p>
+</section>
+</section>
+<section id="debugging-deeper">
+<h2>深入调试</h2>
+<p>本节提供了独立调试 <code class="docutils literal "><span class="pre">torch.compile</span></code> 问题或深入了解 <code class="docutils literal "><span class="pre">torch.compile</span></code> 堆栈的工具和技术。这些方法比上面介绍的方法更复杂，并且是 PyTorch 开发者经常用来调试真实 <code class="docutils literal "><span class="pre">torch.compile</span></code> 问题的方法。</p>
+<p>下面是堆栈的高级概述：</p>
+<img alt="_images/td_stack.png" src="_images/td_stack.png">
+<p>栈由三个主要组件组成：TorchDynamo、AOTAutograd 和 Inductor。我们的调试策略是首先确定错误发生的组件，然后分别调试该组件。要确定导致问题的组件，请参阅上述“报告问题”部分下的消融部分。有关调试特定组件的指导，请参阅下面的章节。</p>
+<section id="torchdynamo">
+<h3><a class="toc-backref" href="#id30" role="doc-backlink">TorchDynamo</a><a class="headerlink" href="#torchdynamo" title="Permalink to this heading">¶</a></h3>
+<section id="logging-what-dynamo-is-tracing">
+<h4>记录 Dynamo 正在追踪的内容 ¶</h4>
+<p> <code class="docutils literal "><span class="pre">TORCH_LOGS=trace_bytecode</span></code> 选项允许您查看 Dynamo 正在追踪的确切字节码指令，以及 Python 解释器堆栈的符号表示。在遇到图断开或崩溃时，建议检查最后追踪的几个字节码指令。</p>
+<p>您还可以使用 <code class="docutils literal "><span class="pre">TORCH_LOGS=trace_source</span></code> 来查看 Dynamo 跟踪的源代码的哪些行。这在与 <code class="docutils literal "><span class="pre">trace_bytecode</span></code> 结合使用时非常有用，可以查看每个跟踪的字节码指令对应的源代码行。</p>
+<p>最后，您可以使用 <code class="docutils literal "><span class="pre">TORCH_LOGS=graph_code</span></code> 来查看 Dynamo 跟踪的 FX 图表示的 Python 代码。您可以查看此代码以确认是否正确跟踪了操作。</p>
+<div class="highlight-py "><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="k">def</span> <span class="nf">g</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+
+<span class="nd">@torch</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="s2">"eager"</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">g</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">x</span>
+
+<span class="n">f</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="highlight-default "><div class="highlight"><pre><span></span>$ TORCH_LOGS="trace_bytecode,trace_source,graph_code" python playground.py
+TRACE starts_line /data/users/williamwen/pytorch/playground.py:6 in f ()
+    @torch.compile(backend="eager")
+TRACE RESUME 0 []
+TRACE starts_line /data/users/williamwen/pytorch/playground.py:8 in f (f)
+        x = torch.sin(x)
+TRACE LOAD_GLOBAL torch []
+TRACE LOAD_ATTR sin [NullVariable(), PythonModuleVariable(&lt;module 'torch' from '/data/users/williamwen/pytorch/torch/__init__.py'&gt;)]
+TRACE LOAD_FAST x [NullVariable(), TorchInGraphFunctionVariable(&lt;built-in method sin of type object at 0x7f00f6964600&gt;)]
+TRACE CALL 1 [NullVariable(), TorchInGraphFunctionVariable(&lt;built-in method sin of type object at 0x7f00f6964600&gt;), LazyVariableTracker()]
+TRACE STORE_FAST x [TensorVariable()]
+TRACE starts_line /data/users/williamwen/pytorch/playground.py:9 in f (f)
+        x = g(x, x)
+TRACE LOAD_GLOBAL g []
+TRACE LOAD_FAST x [NullVariable(), UserFunctionVariable()]
+TRACE LOAD_FAST x [NullVariable(), UserFunctionVariable(), TensorVariable()]
+TRACE CALL 2 [NullVariable(), UserFunctionVariable(), TensorVariable(), TensorVariable()]
+TRACE starts_line /data/users/williamwen/pytorch/playground.py:3 in g (g) (inline depth: 1)
+    def g(x, y):
+TRACE RESUME 0 []
+TRACE starts_line /data/users/williamwen/pytorch/playground.py:4 in g (g) (inline depth: 1)
+        return x + y
+TRACE LOAD_FAST x []
+TRACE LOAD_FAST y [TensorVariable()]
+TRACE BINARY_OP 0 [TensorVariable(), TensorVariable()]
+TRACE RETURN_VALUE None [TensorVariable()]
+TRACE STORE_FAST x [TensorVariable()]
+TRACE starts_line /data/users/williamwen/pytorch/playground.py:10 in f (f)
+        return x
+TRACE LOAD_FAST x []
+TRACE RETURN_VALUE None [TensorVariable()]
+TRACED GRAPH
+===== __compiled_fn_1 =====
+/data/users/williamwen/pytorch/torch/fx/_lazy_graph_module.py class GraphModule(torch.nn.Module):
+    def forward(self, L_x_: "f32[3, 3][3, 1]cpu"):
+        l_x_ = L_x_
+
+        # File: /data/users/williamwen/pytorch/playground.py:8 in f, code: x = torch.sin(x)
+        x: "f32[3, 3][3, 1]cpu" = torch.sin(l_x_);  l_x_ = None
+
+        # File: /data/users/williamwen/pytorch/playground.py:4 in g, code: return x + y
+        x_1: "f32[3, 3][3, 1]cpu" = x + x;  x = None
+        return (x_1,)
+</pre></div>
+</div>
+</section>
+<section id="breakpointing-dynamo-tracing">
+<h4>Dynamo 跟踪断点设置</h4>
+<p>在 Dynamo/用户代码中设置断点有时有助于查看跟踪用户代码时 Dynamo 的状态。不幸的是，以常规 Python 方式设置断点会导致 TorchDynamo 中的图断开，因此我们无法在预期的断点位置查看 Dynamo 的状态。</p>
+<p>设置断点的第一种方法是在 Dynamo 源代码中插入。推荐放置断点的三个位置是：</p>
+<ul class="simple">
+<li><p>在 <code class="docutils literal "><span class="pre">torch/_dynamo/symbolic_convert.py</span></code> 处设置断点，针对名称与问题字节码指令相同的函数，例如 <code class="docutils literal "><span class="pre">def</span> <span class="pre">CALL_FUNCTION</span></code> 和 <code class="docutils literal "><span class="pre">def</span> <span class="pre">STORE_ATTR</span></code> 。您可以根据输入条件设置断点，例如指令的 <code class="docutils literal "><span class="pre">argval</span></code> 或栈顶对象的名称，因为某些字节码操作码被频繁使用。</p></li>
+<li><p>在图形断点或错误起源处设置断点。通常，图形断点是从对 <code class="docutils literal "><span class="pre">unimplemented(...)</span></code> 的调用中发出的。</p></li>
+<li><p>在 <code class="docutils literal "><span class="pre">torch/_dynamo/variables/builder.py,</span> <span class="pre">function:_wrap</span></code> 处设置断点。您可能需要根据输入条件设置断点。此函数确定如何符号化表示给定值。如果您怀疑值表示不正确，请在此处设置断点。</p></li>
+</ul>
+<p>在第二种方式中，可以通过使用 <code class="docutils literal "><span class="pre">torch._dynamo.comptime.comptime.breakpoint</span></code> :来插入断点</p>
+<div class="highlight-py "><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">torch._dynamo.comptime</span> <span class="kn">import</span> <span class="n">comptime</span>
+
+<span class="nd">@torch</span><span class="o">.</span><span class="n">compile</span>
+<span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+    <span class="o">...</span>
+    <span class="n">comptime</span><span class="o">.</span><span class="n">breakpoint</span><span class="p">()</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<p>编译时断点非常方便，因为它允许你在被跟踪的用户代码中的特定位置检查 Dynamo 的状态。它不需要你在 Dynamo 源代码中插入断点，也不需要根据变量条件性地设置断点。</p>
+<p>当编译时断点被触发时，你可以执行以下操作：</p>
+<ul class="simple">
+<li><p> <code class="docutils literal "><span class="pre">ctx.print_bt()</span></code> 用于打印用户堆栈跟踪</p></li>
+<li><p> <code class="docutils literal "><span class="pre">ctx.print_locals()</span></code> 打印所有当前局部变量</p></li>
+<li><p> <code class="docutils literal "><span class="pre">ctx.print_graph()</span></code> 打印当前追踪的图</p></li>
+<li><p> <code class="docutils literal "><span class="pre">ctx.disas()</span></code> 打印当前追踪函数的字节码</p></li>
+<li><p>使用标准 <code class="docutils literal "><span class="pre">pdb</span></code> 命令，例如 <code class="docutils literal "><span class="pre">bt/u/d/n/s/r</span></code> ，- 你可以向上 <code class="docutils literal "><span class="pre">pdb</span></code> 栈移动以检查更多 Dynamo 内部功能</p></li>
+</ul>
+<div class="highlight-py "><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torch._dynamo.comptime</span> <span class="kn">import</span> <span class="n">comptime</span>
+
+<span class="nd">@torch</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="s2">"eager"</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">comptime</span><span class="o">.</span><span class="n">breakpoint</span><span class="p">()</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">y</span>
+
+<span class="n">f</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="highlight-default "><div class="highlight"><pre><span></span>$ python playground.py
+--Return--
+&gt; /data/users/williamwen/pytorch/torch/_dynamo/comptime.py(392)inner()-&gt;None
+-&gt; builtins.breakpoint()
+(Pdb) ctx.print_bt()
+File "/data/users/williamwen/pytorch/playground.py", line 7, in f
+    comptime.breakpoint()
+
+(Pdb) ctx.print_locals()
+x = FakeTensor(..., size=(3, 3))
+y = FakeTensor(..., size=(3, 3))
+(Pdb) bt
+...
+/data/users/williamwen/pytorch/torch/_dynamo/symbolic_convert.py(826)call_function()
+-&gt; self.push(fn.call_function(self, args, kwargs))  # type: ignore[arg-type]
+/data/users/williamwen/pytorch/torch/_dynamo/variables/misc.py(331)call_function()
+-&gt; func(ComptimeContext(tx))
+&gt; /data/users/williamwen/pytorch/torch/_dynamo/comptime.py(392)inner()-&gt;None
+-&gt; builtins.breakpoint()
+(Pdb) ctx.print_graph()
+
+
+
+def forward(self, L_x_: "f32[3, 3]"):
+    l_x_ = L_x_
+
+    # File: /data/users/williamwen/pytorch/playground.py:6 in f, code: y = x + 1
+    y: "f32[3, 3]" = l_x_ + 1;  l_x_ = y = None
+</pre></div>
+</div>
+</section>
+<section id="bytecode-generation-errors">
+<h4>字节码生成错误 ¶</h4>
+<p>虽然不常见，但 Dynamo 可能会生成错误的字节码。这可能发生在你确定以下情况时：</p>
+<ul class="simple">
+<li><p>消融实验表明错误发生在 TorchDynamo 级别</p></li>
+<li><p>错误并非来自 TorchDynamo 的堆栈帧</p></li>
+<li><p>错误看起来更像是用户错误，而不是 Dynamo 错误，或者是一个段错误</p></li>
+<li><p>在没有 <code class="docutils literal "><span class="pre">torch.compile</span></code> 的情况下不会出现错误</p></li>
+</ul>
+<p>字节码生成错误通常很难修复，我们建议提交问题而不是自己尝试修复。如果您想查看 Dynamo 生成的字节码，可以使用 <code class="docutils literal "><span class="pre">TORCH_LOGS=bytecode</span></code> 。您可以在这里查看 Dynamo 生成的字节码的高级概述。</p>
+</section>
+</section>
+<section id="aotautograd">
+<h3><a class="toc-backref" href="#id34" role="doc-backlink">AOTAutograd</a><a class="headerlink" href="#aotautograd" title="Permalink to this heading">¶</a></h3>
+<p>AOTAutograd 错误通常很难调试 - 我们建议直接提交问题。AOTAutograd 的日志输出主要有助于查看 Inductor 的输入。</p>
+</section>
+<section id="summary-of-torch-logs-options">
+<span id="troubleshooting-torch-logs-options"></span><h3>TORCH_LOGS 选项摘要</h3>
+<p>有用的 <code class="docutils literal "><span class="pre">TORCH_LOGS</span></code> 选项摘要如下：</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 67%">
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>选项</p></th>
+<th class="head"><p>描述</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>全部</p></td>
+<td><p>从所有 <code class="docutils literal "><span class="pre">torch.compile</span></code> 组件输出调试日志</p></td>
+</tr>
+<tr class="row-odd"><td><p>+dynamo</p></td>
+<td><p>从 TorchDynamo 输出调试日志</p></td>
+</tr>
+<tr class="row-even"><td><p>+aot</p></td>
+<td><p>从 AOTAutograd 输出调试日志</p></td>
+</tr>
+<tr class="row-odd"><td><p>+inductor</p></td>
+<td><p>从 TorchInductor 输出调试日志</p></td>
+</tr>
+<tr class="row-even"><td><p>动态</p></td>
+<td><p>输出动态形状的日志</p></td>
+</tr>
+<tr class="row-odd"><td><p>图形代码</p></td>
+<td><p>输出 Dynamo 生成的 FX 图的 Python 代码</p></td>
+</tr>
+<tr class="row-even"><td><p>图大小</p></td>
+<td><p>输出 Dynamo 生成的 FX 图张量的尺寸</p></td>
+</tr>
+<tr class="row-odd"><td><p>trace_bytecode</p></td>
+<td><p>输出 Dynamo 正在跟踪的字节码指令以及 Dynamo 跟踪的符号解释器堆栈</p></td>
+</tr>
+<tr class="row-even"><td><p>跟踪源</p></td>
+<td><p>输出 Dynamo 当前正在跟踪的原始源代码的行</p></td>
+</tr>
+<tr class="row-odd"><td><p>字节码</p></td>
+<td><p>输出 Dynamo 生成的字节码</p></td>
+</tr>
+<tr class="row-even"><td><p>守卫</p></td>
+<td><p>生成输出守卫</p></td>
+</tr>
+<tr class="row-odd"><td><p>重新编译</p></td>
+<td><p>输出重新编译原因（仅失败的第一个守卫检查）</p></td>
+</tr>
+<tr class="row-even"><td><p>重新编译详细</p></td>
+<td><p>输出在重新编译时失败的守卫检查</p></td>
+</tr>
+<tr class="row-odd"><td><p>aot_graphs</p></td>
+<td><p>输出由 AOTAutograd 生成的图</p></td>
+</tr>
+<tr class="row-even"><td><p>AOT 联合图</p></td>
+<td><p>输出由 AOTAutograd 生成的联合前向-后向图</p></td>
+</tr>
+<tr class="row-odd"><td><p>输出代码</p></td>
+<td><p>输出 Inductor 生成的代码</p></td>
+</tr>
+<tr class="row-even"><td><p>内核代码</p></td>
+<td><p>每个内核由 Inductor 生成的输出代码</p></td>
+</tr>
+<tr class="row-odd"><td><p>调度</p></td>
+<td><p>输出 Inductor 调度日志</p></td>
+</tr>
+<tr class="row-even"><td><p>性能提示</p></td>
+<td><p>输出电感性能提示日志</p></td>
+</tr>
+<tr class="row-odd"><td><p>融合</p></td>
+<td><p>输出电感融合日志</p></td>
+</tr>
+</tbody>
+</table>
+<p>查看完整选项列表，请参阅 torch._logging 和 torch._logging.set_logs。</p>
+</section>
+</section>
+<section id="related-articles">
+<h2>相关文章</h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://pytorch.org/tutorials/intermediate/torch_compile_tutorial.html">torch.compile 教程</a></p></li>
+<li><p><a class="reference external" href="https://pytorch.org/docs/stable/torch.compiler_fine_grain_apis.html">torch.compile 细粒度 API</a></p></li>
+<li><p><a class="reference external" href="https://pytorch.org/docs/stable/torch.compiler_faq.html">torch.compile 常见问题解答</a></p></li>
+<li><p><a class="reference external" href="https://pytorch.org/docs/stable/torch.compiler.html#torch-compiler-overview">torch.compiler 命名空间概览</a></p></li>
+<li><p><a class="reference external" href="https://pytorch.org/docs/stable/torch.compiler_api.html">torch.compiler API 参考</a></p></li>
+<li><p><a class="reference external" href="https://pytorch.org/docs/stable/torch.compiler_profiling_torch_compile.html">torch.compile 性能分析</a></p></li>
+<li><p><a class="reference external" href="https://docs.google.com/document/d/1y5CRfMLdwEoF1nTk9q8qEu1mgMUuUtvhklPKJ2emLU8/edit?usp=sharing">torch.compile 缺失手册</a></p></li>
+<li><p><a class="reference external" href="https://docs.google.com/document/d/1GgvOe7C8_NVOMLOCwDaYV1mXXyHMXY7ExoewHqooxrs/edit#heading=h.fh8zzonyw8ng">动态形状手册</a></p></li>
+<li><p><a class="reference external" href="https://pytorch.org/tutorials/recipes/torch_compile_caching_tutorial.html">TorchInductor 缓存教程</a></p></li>
+</ul>
+</section>
+</section>
+
+
+             </article>
+             
+            </div>
+            <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        下一个 <img height="16" width="16" class="next-page" src="_static/images/chevron-right-orange.svg"> <img height="16" width="16" class="previous-page" src="_static/images/chevron-right-orange.svg"> 上一个
+      
+    </div>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>© 版权所有 PyTorch 贡献者。</p>
+  </div>
+    
+      <div>使用 Sphinx 构建，主题由 Read the Docs 提供。</div>
+     
+
+</footer>
+
+          </div>
+<script>
+
+var match = window.location.href.match(/\/_[a-zA-Z0-9_]*.html|_dynamo/gi);
+var url = window.location.href.lastIndexOf(match[match.length-1]);
+
+if (url)
+  {
+    var div = '<div class="admonition note"><p class="admonition-title">Note</p><p><i class="fa fa-exclamation-circle" aria-hidden="true">&nbsp</i> This page describes an internal API which is not intended to be used outside of the PyTorch codebase and can be modified or removed without notice.</p></div>'
+    document.getElementById("pytorch-article").insertAdjacentHTML('afterBegin', div)
+  }
+</script>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">torch.compile 故障排除</a><ul>
+<li><a class="reference internal" href="#setting-expectations">设定期望</a><ul>
+<li><a class="reference internal" href="#compile-times">编译时间</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#terminology">术语</a><ul>
+<li><a class="reference internal" href="#graph-break">图中断</a></li>
+<li><a class="reference internal" href="#guards">守卫</a></li>
+<li><a class="reference internal" href="#recompilation">重新编译</a></li>
+<li><a class="reference internal" href="#dynamic-shapes">动态形状</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#logging-tools">日志工具</a><ul>
+<li><a class="reference internal" href="#tlparse-torch-trace">tlparse / 火炬痕迹</a></li>
+<li><a class="reference internal" href="#torch-logs">火炬日志</a></li>
+<li><a class="reference internal" href="#tlparse-vs-torch-logs">tlparse 与 TORCH_LOGS</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#simple-workarounds">简单的解决方案</a><ul>
+<li><a class="reference internal" href="#where-to-apply-torch-compile">torch.compile() 的应用位置</a></li>
+<li><a class="reference internal" href="#disabling-and-suppressing-errors">禁用和抑制错误</a></li>
+<li><a class="reference internal" href="#resolving-graph-breaks">解决图断裂问题</a><ul>
+<li><a class="reference internal" href="#data-dependent-operations">数据相关操作</a></li>
+<li><a class="reference internal" href="#custom-ops">自定义操作</a></li>
+<li><a class="reference internal" href="#printing">打印</a></li>
+<li><a class="reference internal" href="#incorrect-code">代码错误</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dealing-with-recompilations">处理重新编译</a><ul>
+<li><a class="reference internal" href="#is-dynamic-shapes-enabled">动态形状是否已启用？</a></li>
+<li><a class="reference internal" href="#changing-the-cache-size-limit">修改缓存大小限制</a></li>
+<li><a class="reference internal" href="#wrapping-constants-with-tensors">使用张量包装常量</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#reporting-issues">报告问题</a><ul>
+<li><a class="reference internal" href="#ablation">消融</a></li>
+<li><a class="reference internal" href="#bisecting">二分法</a></li>
+<li><a class="reference internal" href="#creating-a-reproducer">创建复现</a></li>
+<li><a class="reference internal" href="#minifier">压缩器</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#debugging-deeper">深入调试</a><ul>
+<li><a class="reference internal" href="#torchdynamo">TorchDynamo</a><ul>
+<li><a class="reference internal" href="#logging-what-dynamo-is-tracing">记录 Dynamo 正在跟踪的内容</a></li>
+<li><a class="reference internal" href="#breakpointing-dynamo-tracing">动态追踪断点设置</a></li>
+<li><a class="reference internal" href="#bytecode-generation-errors">字节码生成错误</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#aotautograd">AOTAutograd</a></li>
+<li><a class="reference internal" href="#summary-of-torch-logs-options">TORCH_LOGS 选项概要</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#related-articles">相关文章</a></li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+         <script src="_static/jquery.js"></script>
+         <script src="_static/underscore.js"></script>
+         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+         <script src="_static/doctools.js"></script>
+         <script src="_static/clipboard.min.js"></script>
+         <script src="_static/copybutton.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ 
+<script script="" type="text/javascript">
+  var collapsedSections = ['Developer Notes', 'Language Bindings', 'Libraries', 'Community'];
+</script>
+
+<img height="1" width="1" style="border-style:none;" alt="" src="https://www.googleadservices.com/pagead/conversion/795629140/?label=txkmCPmdtosBENSssfsC&amp;guid=ON&amp;script=0">
+
+
+  <!-- Begin Footer -->
+
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 text-center">
+          <h2>文档</h2>
+          <p>查看 PyTorch 的全面开发者文档</p>
+          <a class="with-right-arrow" href="https://pytorch.org/docs/stable/index.html">查看文档</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>教程</h2>
+          <p>深入了解初学者和高级开发者的教程</p>
+          <a class="with-right-arrow" href="https://pytorch.org/tutorials">查看教程</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>资源</h2>
+          <p>查找开发资源并获得您的疑问解答</p>
+          <a class="with-right-arrow" href="https://pytorch.org/resources">查看资源</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://pytorch.org/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/">PyTorch</a></li>
+            <li><a href="https://pytorch.org/get-started">开始使用</a></li>
+            <li><a href="https://pytorch.org/features">功能</a></li>
+            <li><a href="https://pytorch.org/ecosystem">生态系统</a></li>
+            <li><a href="https://pytorch.org/blog/">博客</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md">贡献</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/resources">资源</a></li>
+            <li><a href="https://pytorch.org/tutorials">教程</a></li>
+            <li><a href="https://pytorch.org/docs/stable/index.html">文档</a></li>
+            <li><a href="https://discuss.pytorch.org" target="_blank">讨论</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/issues" target="_blank">GitHub 问题和任务</a></li>
+            <li><a href="https://pytorch.org/assets/brand-guidelines/PyTorch-Brand-Guidelines.pdf" target="_blank">品牌指南</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">保持更新</li>
+            <li><a href="https://www.facebook.com/pytorch" target="_blank">Facebook</a></li>
+            <li><a href="https://twitter.com/pytorch" target="_blank">推特</a></li>
+            <li><a href="https://www.youtube.com/pytorch" target="_blank">YouTube</a></li>
+            <li><a href="https://www.linkedin.com/company/pytorch" target="_blank">领英</a></li>
+          </ul>  
+          </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">PyTorch 播客</li>
+            <li><a href="https://open.spotify.com/show/6UzHKeiy368jKfQMKKvJY5" target="_blank">Spotify</a></li>
+            <li><a href="https://podcasts.apple.com/us/podcast/pytorch-developer-podcast/id1566080008" target="_blank">苹果</a></li>
+            <li><a href="https://www.google.com/podcasts?feed=aHR0cHM6Ly9mZWVkcy5zaW1wbGVjYXN0LmNvbS9PQjVGa0lsOA%3D%3D" target="_blank">谷歌</a></li>
+            <li><a href="https://music.amazon.com/podcasts/7a4e6f0e-26c2-49e9-a478-41bd244197d0/PyTorch-Developer-Podcast?" target="_blank">亚马逊</a></li>
+          </ul>
+         </div>
+        </div>
+        
+        <div class="privacy-policy">
+          <ul>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/terms/" target="_blank">条款</a></li>
+            <li class="privacy-policy-links">|</li>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/privacy-policy/" target="_blank">隐私</a></li>
+          </ul>
+        </div>
+        <div class="copyright">
+        <p>© 版权所有 Linux 基金会。PyTorch 基金会是 Linux 基金会的一个项目。有关本网站的使用条款、商标政策以及其他适用于 PyTorch 基金会的政策，请参阅 www.linuxfoundation.org/policies/。PyTorch 基金会支持 PyTorch 开源项目，该项目已被确立为 LF Projects, LLC 的 PyTorch 项目系列。有关适用于 PyTorch 项目系列 LF Projects, LLC 的政策，请参阅 www.lfprojects.org/policies/。</p>
+      </div>
+     </div>
+
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">为了分析流量并优化您的体验，我们在本网站上提供 cookie。通过点击或导航，您同意允许我们使用 cookie。作为本网站的当前维护者，Facebook 的 cookie 政策适用。了解更多信息，包括可用的控制选项：cookie 政策。</p>
+    <img class="close-button" src="_static/images/pytorch-x.svg" width="16" height="16">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+           <li class="resources-mobile-menu-title">
+             <a>学习</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/get-started">开始使用</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials">教程</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/basics/intro.html">学习基础知识</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/recipes/recipes_index.html">PyTorch 菜谱</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/introyt.html">PyTorch 入门 - YouTube 系列</a>
+             </li>
+           </ul>
+           <li class="resources-mobile-menu-title">
+             <a>生态系统</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/ecosystem">工具</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/#community-module">社区</a>
+             </li>
+             <li>
+               <a href="https://discuss.pytorch.org/">论坛</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/resources">开发者资源</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">贡献者奖项 - 2024</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>Edge</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/edge">关于 PyTorch Edge</a>
+             </li>
+             
+             <li>
+               <a href="https://pytorch.org/executorch-overview">执行火炬</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch 文档</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>文档</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/docs/stable/index.html">PyTorch</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/pytorch-domains">PyTorch 领域</a>
+            </li>
+          </ul>
+
+          <li class="resources-mobile-menu-title">
+            <a>博客 &amp; 新闻</a>
+          </li>
+            
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/blog/">PyTorch 博客</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/community-blog">社区博客</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/videos">视频</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/community-stories">社区故事</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/events">活动</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">通讯</a>
+             </li>
+          </ul>
+          
+          <li class="resources-mobile-menu-title">
+            <a>关于</a>
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/foundation">PyTorch 基金会</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/governing-board">治理委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">云信用计划</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">技术顾问委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">员工</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">联系我们</a>
+            </li>
+          </ul>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body></html>

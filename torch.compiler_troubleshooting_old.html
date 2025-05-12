@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>PyTorch 2.0 Troubleshooting (old) — PyTorch main documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pytorch.org/docs/stable/torch.compiler_troubleshooting_old.html">
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css">
+  <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css">
+  <link rel="stylesheet" href="_static/copybutton.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="_static/katex-math.css" type="text/css">
+  <link rel="stylesheet" href="_static/sphinx-dropdown.css" type="text/css">
+  <link rel="stylesheet" href="_static/panels-bootstrap.min.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/jit.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css">
+    <link rel="index" title="Index" href="genindex.html">
+    <link rel="search" title="Search" href="search.html">
+
+<!--
+  Search engines should not index the main version of documentation.
+  Stable documentation are built without release == 'main'.
+-->
+<meta name="robots" content="noindex">
+
+
+  <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T8XT4PS');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+  <!-- Preload the theme fonts -->
+
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<!-- Preload the katex fonts -->
+
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Math-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size1-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size2-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Caligraphic-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
+</head><body class="pytorch-body"><div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+
+          <li class="main-menu-item">
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">学习</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/get-started">
+                  <span class="dropdown-title">开始使用</span>
+                  <p>在本地运行 PyTorch 或快速开始使用支持的云平台之一</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials">
+                  <span class="dropdown-title">教程</span><p></p>
+                  <p>PyTorch 教程中的新内容</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/basics/intro.html">
+                  <span class="dropdown-title">学习基础知识</span><p></p>
+                  <p>熟悉 PyTorch 的概念和模块</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/recipes/recipes_index.html">
+                  <span class="dropdown-title">PyTorch 食谱</span><p></p>
+                  <p>精简版、可直接部署的 PyTorch 代码示例</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/introyt.html">
+                  <span class="dropdown-title">PyTorch 入门 - YouTube 系列</span><p></p>
+                  <p>通过我们引人入胜的 YouTube 教程系列掌握 PyTorch 基础知识</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">生态系统</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem">
+                  <span class="dropdown-title">工具</span><p></p>
+                  <p>了解 PyTorch 生态系统中的工具和框架</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
+                  <span class="dropdown-title">社区</span>
+                  <p>加入 PyTorch 开发者社区，贡献、学习并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
+                  <span class="dropdown-title">论坛</span>
+                  <p>讨论 PyTorch 代码、问题、安装、研究的地方</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/resources">
+                  <span class="dropdown-title">开发者资源</span>
+                  <p>查找资源并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">贡献者奖项 - 2024</span><p></p>
+                  <p>本届 PyTorch 会议揭晓获奖者</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">
+                Edge
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/edge">
+                  <span class="dropdown-title">关于 PyTorch Edge</span><p></p>
+                  <p>为边缘设备构建创新和隐私感知的 AI 体验</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
+                  <span class="dropdown-title">ExecuTorch</span><p></p>
+                  <p>基于移动和边缘设备的端到端推理能力解决方案</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch 文档</span><p></p>
+                </a>
+              </div>
+            </div>  
+          </li>
+
+          <li class="main-menu-item">
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">文档</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/docs/stable/index.html">
+                  <span class="dropdown-title">PyTorch</span><p></p>
+                  <p>探索文档以获取全面指导，了解如何使用 PyTorch</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/pytorch-domains">
+                  <span class="dropdown-title">PyTorch 领域</span><p></p>
+                  <p>阅读 PyTorch 领域的文档，了解更多关于特定领域库的信息</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">博客与新闻</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/blog/">
+                  <span class="dropdown-title">PyTorch 博客</span><p></p>
+                  <p>捕捉最新的技术新闻和事件</p>
+                </a>
+                 <a class="nav-dropdown-item" href="https://pytorch.org/community-blog">
+                  <span class="dropdown-title">社区博客</span><p></p>
+                  <p>PyTorch 生态系统故事</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/videos">
+                  <span class="dropdown-title">视频</span><p></p>
+                  <p>了解最新的 PyTorch 教程、新内容等</p>
+                </a><a class="nav-dropdown-item" href="https://pytorch.org/community-stories">
+                  <span class="dropdown-title">社区故事</span><p></p>
+                  <p>学习如何我们的社区使用 PyTorch 解决真实、日常的机器学习问题</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/events">
+                  <span class="dropdown-title">活动</span><p></p>
+                  <p>查找活动、网络研讨会和播客</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">通讯</span><p></p>
+                  <p>跟踪最新更新</p>
+                </a>
+            </div>
+          </div></li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">关于</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/foundation">
+                  <span class="dropdown-title">PyTorch 基金会</span><p></p>
+                  <p>了解更多关于 PyTorch 基金会的信息</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
+                  <span class="dropdown-title">管理委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">云信用计划</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">技术顾问委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">员工</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">联系我们</span><p></p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li class="main-menu-item">
+            <div class="no-dropdown">
+              <a href="https://pytorch.org/join" data-cta="join">成为会员</a>
+            </div>
+          </li>
+          <li>
+           <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="github-icon">
+             </a>
+           </div>
+          </li>
+          <!--- TODO: This block adds the search icon to the nav bar. We will enable it later. 
+          <li>
+            <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="search-icon">
+             </a>
+            </div>
+          </li>
+          --->
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+  </div>
+</div>
+
+
+
+   
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>目录</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+    <div class="version">
+      <a href="https://pytorch.org/docs/versions.html">主程序 (2.7.0+cpu ) ▼</a>
+    </div>
+    <div id="searchBox">
+    <div class="searchbox" id="googleSearchBox">
+      <script async="" src="https://cse.google.com/cse.js?cx=e65585f8c3ea1440e"></script>
+      <div class="gcse-search"></div>
+    </div>
+    <div id="sphinxSearchBox" style="display: none;">
+      <div role="search">
+        <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+          <input type="text" name="q" placeholder="Search Docs">
+          <input type="hidden" name="check_keywords" value="yes">
+          <input type="hidden" name="area" value="default">
+        </form>
+      </div>
+    </div>
+  </div>
+  <form id="searchForm">
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="google" checked="">谷歌搜索</label>
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="sphinx">经典搜索</label>
+  </form>
+
+  <script>
+     document.addEventListener('DOMContentLoaded', function() {
+      const searchForm = document.getElementById('searchForm');
+      const googleSearchBox = document.getElementById('googleSearchBox');
+      const sphinxSearchBox = document.getElementById('sphinxSearchBox');
+      // Function to toggle search box visibility
+      function toggleSearchBox(searchType) {
+        googleSearchBox.style.display = searchType === 'google' ? 'block' : 'none';
+        sphinxSearchBox.style.display = searchType === 'sphinx' ? 'block' : 'none';
+      }
+      // Determine the default search type
+      let defaultSearchType;
+      const currentUrl = window.location.href;
+      if (currentUrl.startsWith('https://pytorch.org/docs/stable')) {
+        // For the stable documentation, default to Google
+        defaultSearchType = localStorage.getItem('searchType') || 'google';
+      } else {
+        // For any other version, including docs-preview, default to Sphinx
+        defaultSearchType = 'sphinx';
+      }
+      // Set the default search type
+      document.querySelector(`input[name="searchType"][value="${defaultSearchType}"]`).checked = true;
+      toggleSearchBox(defaultSearchType);
+      // Event listener for changes in search type
+      searchForm.addEventListener('change', function(event) {
+        const selectedSearchType = event.target.value;
+        localStorage.setItem('searchType', selectedSearchType);
+        toggleSearchBox(selectedSearchType);
+      });
+      // Set placeholder text for Google search box
+      window.onload = function() {
+        var placeholderText = "Search Docs";
+        var googleSearchboxText = document.querySelector("#gsc-i-id1");
+        if (googleSearchboxText) {
+          googleSearchboxText.placeholder = placeholderText;
+          googleSearchboxText.style.fontFamily = 'FreightSans';
+          googleSearchboxText.style.fontSize = "1.2rem";
+          googleSearchboxText.style.color = '#262626';
+        }
+      };
+    });
+  </script>
+
+          </div>
+
+          
+
+<div>
+  <a style="color:#F05732" href="https://pytorch.org/docs/stable/torch.compiler_troubleshooting_old.html">您正在查看不稳定开发者预览文档。请点击此处查看最新稳定版本的文档。</a>
+</div>
+
+
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">社区</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="community/build_ci_governance.html">PyTorch 治理 | 构建 + CI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/contribution_guide.html">PyTorch 贡献指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/design.html">PyTorch 设计哲学</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/governance.html">PyTorch 治理 | 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/persons_of_interest.html">PyTorch 治理 | 维护者</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发者笔记</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="notes/amp_examples.html">自动混合精度示例</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/autograd.html">Autograd 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/broadcasting.html">广播语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/cpu_threading_torchscript_inference.html">CPU 多线程和 TorchScript 推理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/cuda.html">CUDA 语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/custom_operators.html">PyTorch 自定义算子页面</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/ddp.html">分布式数据并行</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/extending.html">扩展 PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/extending.func.html">使用 autograd.Function 扩展 torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/faq.html">常见问题解答</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/fsdp.html">FSDP 笔记</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/get_start_xpu.html">在 Intel GPU 上入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/gradcheck.html">Gradcheck 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/hip.html">HIP (ROCm)语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/large_scale_deployments.html">大规模部署功能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/libtorch_stable_abi.html">LibTorch 稳定 ABI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/modules.html">模块</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/mps.html">MPS 后端</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/multiprocessing.html">多进程最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/numerical_accuracy.html">数值精度</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/randomness.html">可重现性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/serialization.html">序列化语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/windows.html">Windows 常见问题解答</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">语言绑定</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cpp_index.html">C++</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/javadoc/">Javadoc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deploy.html">torch::deploy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="torch.html">torch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.html">torch.nn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.functional.html">torch.nn.functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensors.html">torch.Tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensor_attributes.html">张量属性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensor_view.html">索引视图</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amp.html">torch.自动混合精度</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autograd.html">torch.autograd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="library.html">torch.library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accelerator.html">torch.accelerator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpu.html">torch.cpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">torch.cuda</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html">理解 CUDA 内存使用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#generating-a-snapshot">生成快照</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#using-the-visualizer">使用可视化工具</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#snapshot-api-reference">摄像头 API 参考</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mps.html">torch.mps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="xpu.html">torch.xpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mtia.html">torch.mtia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mtia.memory.html">torch.mtia.memory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="meta.html">元设备</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backends.html">torch.backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="export.html">torch.export</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.html">torch.distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.tensor.html">torch.distributed.tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.algorithms.join.html">torch.distributed.algorithms.join</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.elastic.html">torch.distributed.elastic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fsdp.html">torch.distributed.fsdp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.fsdp.fully_shard.html">torch.distributed.fsdp.fully_shard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.tensor.parallel.html">torch.distributed.tensor.parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.optim.html">torch.distributed.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.pipelining.html">torch.distributed.pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.checkpoint.html">torch.distributed.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributions.html">torch.distributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch.compiler.html">torch.compiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fft.html">torch.fft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="func.html">torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="futures.html">torch.futures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fx.html">torch.fx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fx.experimental.html">torch.fx.experimental</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hub.html">torch.hub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jit.html">torch.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="linalg.html">torch.linalg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitor.html">torch.monitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="signal.html">torch.signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="special.html">torch.special</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch.overrides.html">torch.overrides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="package.html">torch.package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="profiler.html">torch.profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.init.html">torch.nn.init</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.attention.html">torch.nn.attention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="onnx.html">torch.onnx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="optim.html">torch.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="complex_numbers.html">复数</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ddp_comm_hooks.html">DDP 通信钩子</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quantization.html">量化</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rpc.html">分布式 RPC 框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="random.html">torch.random</a></li>
+<li class="toctree-l1"><a class="reference internal" href="masked.html">torch.masked</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nested.html">torch.nested</a></li>
+<li class="toctree-l1"><a class="reference internal" href="size.html">torch.Size</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sparse.html">torch.sparse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="storage.html">torch.Storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">torch.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">torch.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmark_utils.html">torch.utils.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bottleneck.html">torch.utils.bottleneck</a></li>
+<li class="toctree-l1"><a class="reference internal" href="checkpoint.html">torch.utils.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp_extension.html">torch.utils.cpp_extension</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data.html">torch.utils.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deterministic.html">torch.utils.deterministic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jit_utils.html">torch.utils.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dlpack.html">torch.utils.dlpack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mobile_optimizer.html">torch.utils.mobile_optimizer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_zoo.html">torch.utils.model_zoo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensorboard.html">torch.utils.tensorboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_tracker.html">torch.utils.module_tracker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="type_info.html">类型信息</a></li>
+<li class="toctree-l1"><a class="reference internal" href="named_tensor.html">命名张量</a></li>
+<li class="toctree-l1"><a class="reference internal" href="name_inference.html">命名张量操作覆盖率</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config_mod.html">torch.__config__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="future_mod.html">torch.__future__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">torch._logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_environment_variables.html">火炬环境变量</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">库</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/audio/stable">torchaudio</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/data">TorchData</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/torchrec">火炬推荐</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/serve">TorchServe</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/text/stable">torchtext</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/vision/stable">torchvision</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/xla/">PyTorch 在 XLA 设备上</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/ao">torchao</a></li>
+</ul>
+
+            
+          
+
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        文档 &gt;</li>
+
+        
+      <li>PyTorch 2.0 故障排除（旧版）</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+            
+            <a href="_sources/torch.compiler_troubleshooting_old.rst.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg" width="16" height="16"></a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">快捷键</div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+
+          <!-- Google Tag Manager (noscript) -->
+          <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T8XT4PS" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+          <!-- End Google Tag Manager (noscript) -->
+          
+          <div class="rst-content">
+          
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <section id="pytorch-2-0-troubleshooting-old">
+<span id="torch-compiler-troubleshooting-old"></span><h1>PyTorch 2.0 故障排除（旧版）¶</h1>
+<p>作者：迈克尔·拉佐斯</p>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>本文档已过时，现在主要作为如何运行 <code class="docutils literal "><span class="pre">torch.compile</span></code> minifier 的初级资源。请参阅更新的故障排除文档。同时，torch.compile 也提供了更全面的指南。</p>
+</div>
+<p>我们正在积极开发调试工具、性能分析器，并改进错误和警告信息。以下是一个表格，列出了可用的工具及其典型用法。如需更多帮助，请参阅诊断运行时错误。</p>
+<table class="docutils align-default" id="id1">
+<caption>标题 ¶</caption>
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>工具</p></th>
+<th class="head"><p>目的</p></th>
+<th class="head"><p>使用说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>信息记录</p></td>
+<td><p>查看编译的总结步骤</p></td>
+<td><p> <code class="docutils literal "><span class="pre">torch._logging.set_logs(dynamo</span> <span class="pre">=</span> <span class="pre">logging.INFO)</span></code> 或 <code class="docutils literal "><span class="pre">TORCH_LOGS="dynamo"</span></code> </p></td>
+</tr>
+<tr class="row-odd"><td><p>调试日志</p></td>
+<td><p>查看编译的详细步骤（打印每条跟踪的指令）</p></td>
+<td><p> <code class="docutils literal "><span class="pre">torch._logging.set_logs(dynamo</span> <span class="pre">=</span> <span class="pre">logging.DEBUG)</span></code> 和 <code class="docutils literal "><span class="pre">torch._dynamo.config.verbose</span> <span class="pre">=</span> <span class="pre">True</span></code> ，或 <code class="docutils literal "><span class="pre">TORCH_LOGS="+dynamo"</span> <span class="pre">TORCHDYNAMO_VERBOSE=1</span></code> </p></td>
+</tr>
+<tr class="row-even"><td><p>任何后端的代码压缩器</p></td>
+<td><p>寻找能重现任何后端错误的子图</p></td>
+<td><p>设置环境变量 <code class="docutils literal "><span class="pre">TORCHDYNAMO_REPRO_AFTER="dynamo"</span></code> </p></td>
+</tr>
+<tr class="row-odd"><td><p> <code class="docutils literal "><span class="pre">TorchInductor</span></code> 的代码压缩器</p></td>
+<td><p>如果已知错误发生在 <code class="docutils literal "><span class="pre">AOTAutograd</span></code> 之后，则找到在 <code class="docutils literal "><span class="pre">TorchInductor</span></code> 降低过程中复现错误的最低子图</p></td>
+<td><p>设置环境变量 <code class="docutils literal "><span class="pre">TORCHDYNAMO_REPRO_AFTER="aot"</span></code> </p></td>
+</tr>
+<tr class="row-even"><td><p>Dynamo 精度最小化器</p></td>
+<td><p>当你怀疑问题出现在 <code class="docutils literal "><span class="pre">AOTAutograd</span></code> 时，找到复现急切模式模型和优化模型之间精度问题的最低子图</p></td>
+<td><p><code class="docutils literal "><span class="pre">TORCHDYNAMO_REPRO_AFTER="dynamo"</span> <span class="pre">TORCHDYNAMO_REPRO_LEVEL=4</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>电感精度最小化器</p></td>
+<td><p>查找最小的子图，该子图可以重现急切模式模型和优化模型之间的精度问题，当你怀疑问题出在后台（例如电感）时。如果这不起作用，请尝试使用 Dynamo 精度最小化器。</p></td>
+<td><p><code class="docutils literal "><span class="pre">TORCHDYNAMO_REPRO_AFTER="aot"</span> <span class="pre">TORCHDYNAMO_REPRO_LEVEL=4</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal "><span class="pre">torch._dynamo.explain</span></code></p></td>
+<td><p>查找图中断并显示其推理</p></td>
+<td><p><code class="docutils literal "><span class="pre">torch._dynamo.explain(fn)(*inputs)</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>记录/回放</p></td>
+<td><p>记录和回放捕获图时重现错误的帧</p></td>
+<td><p><code class="docutils literal "><span class="pre">torch._dynamo.config.replay_record_enabled</span> <span class="pre">=</span> <span class="pre">True</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>TorchDynamo 函数名过滤</p></td>
+<td><p>仅编译具有给定名称的函数，以减少调试问题时产生的噪音</p></td>
+<td><p>设置环境变量 <code class="docutils literal "><span class="pre">TORCHDYNAMO_DEBUG_FUNCTION=&lt;name&gt;</span></code> </p></td>
+</tr>
+<tr class="row-odd"><td><p>火炬电感器调试日志</p></td>
+<td><p>打印火炬电感器通用调试信息和生成的 Triton/C++代码</p></td>
+<td><p><code class="docutils literal "><span class="pre">torch._inductor.config.debug</span> <span class="pre">=</span> <span class="pre">True</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>火炬电感器跟踪</p></td>
+<td><p>显示每个火炬电感器阶段的耗时 + 输出代码和图形可视化</p></td>
+<td><p>设置环境变量 TORCH_COMPILE_DEBUG=1 或 <code class="docutils literal "><span class="pre">torch._inductor.config.trace.enabled</span> <span class="pre">=</span> <span class="pre">True</span></code> </p></td>
+</tr>
+</tbody>
+</table>
+<p>除了 info 和 debug 日志记录外，您还可以使用 torch._logging 进行更细粒度的日志记录。</p>
+<section id="diagnosing-runtime-errors">
+<h2>运行时错误诊断</h2>
+<p>从高层次来看，TorchDynamo 堆栈由 Python 代码的图捕获（TorchDynamo）和后端编译器组成。例如，后端编译器可能包括后向图跟踪（AOTAutograd）和图降级（TorchInductor）*。错误可能发生在堆栈的任何组件中，并将提供完整的堆栈跟踪。</p>
+<p>确定错误发生的位置，您可以使用信息级别日志 <code class="docutils literal "><span class="pre">torch._logging.set_logs(dynamo</span> <span class="pre">=</span> <span class="pre">logging.INFO)</span></code> 或 <code class="docutils literal "><span class="pre">TORCH_LOGS="dynamo"</span></code> 并查找 <code class="docutils literal "><span class="pre">Step</span> <span class="pre">#:</span> <span class="pre">...</span></code> 输出。日志在每个步骤的开始和结束时生成，因此错误应对应的步骤是最新的已记录步骤，其结束尚未被记录。步骤对应于堆栈的以下部分：</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>步骤</p></th>
+<th class="head"><p>组件</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>TorchDynamo</p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p>编译器后端</p></td>
+</tr>
+<tr class="row-even"><td><p>3</p></td>
+<td><p>TorchInductor</p></td>
+</tr>
+</tbody>
+</table>
+<p>如果信息日志不足，您可以使用可用的后端选项。这些选项包括：</p>
+<ul class="simple">
+<li><p> <code class="docutils literal "><span class="pre">"eager"</span></code> : 仅运行 TorchDynamo 的前向图捕获，然后使用 PyTorch 运行捕获的图。这可以提供 TorchDynamo 是否引发错误的指示。</p></li>
+<li><p> <code class="docutils literal "><span class="pre">"aot_eager"</span></code> : 运行 TorchDynamo 捕获前向图，然后使用 AOTAutograd 跟踪后向图，而不需要任何额外的后端编译器步骤。然后使用 PyTorch 的 eager 模式运行前向和后向图。这有助于缩小问题范围到 AOTAutograd。</p></li>
+</ul>
+<p>缩小问题的通用步骤如下：</p>
+<ol class="arabic simple">
+<li><p>使用 <code class="docutils literal "><span class="pre">"eager"</span></code> 后端运行您的程序。如果错误不再出现，问题在于所使用的后端编译器（如果使用 TorchInductor，请继续进行第 2 步。如果不使用，请参阅本节）。如果使用 <code class="docutils literal "><span class="pre">"eager"</span></code> 后端时错误仍然存在，则是在运行 torchdynamo 时出现错误。</p></li>
+<li><p>此步骤仅在 <code class="docutils literal "><span class="pre">TorchInductor</span></code> 作为后端编译器时才需要。使用 <code class="docutils literal "><span class="pre">"aot_eager"</span></code> 后端运行模型。如果此后端引发错误，则错误发生在 AOTAutograd 跟踪期间。如果使用此后端时错误不再出现，则错误在于 TorchInductor*。</p></li>
+</ol>
+<p>以下各节将分析这些情况。</p>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>火炬电感器后端由 AOTAutograd 追踪和火炬电感器编译器本身组成。我们将通过引用 <code class="docutils literal "><span class="pre">TorchInductor</span></code> 作为后端，并将火炬电感器降级作为降低 AOTAutograd 追踪的图的阶段来消除歧义。</p>
+</div>
+<section id="torchdynamo-errors">
+<h3>Torchdynamo 错误</h3>
+<p>如果生成的错误发生在 <code class="docutils literal "><span class="pre">"eager"</span></code> 后端，那么 TorchDynamo 很可能是错误的来源。以下是一个将生成错误的示例代码。</p>
+<div class="highlight-py "><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="kn">import</span> <span class="nn">torch._dynamo</span> <span class="k">as</span> <span class="nn">dynamo</span>
+
+
+<span class="k">def</span> <span class="nf">test_assertion_error</span><span class="p">():</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="p">{</span><span class="n">y</span><span class="p">:</span> <span class="mi">5</span><span class="p">}</span>
+    <span class="k">return</span> <span class="n">z</span>
+
+<span class="n">compiled_test_assertion_error</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">test_assertion_error</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s2">"eager"</span><span class="p">)</span>
+
+<span class="n">compiled_test_assertion_error</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>上述代码生成以下错误：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">torch</span><span class="o">.</span><span class="n">_dynamo</span><span class="o">.</span><span class="n">convert_frame</span><span class="p">:</span> <span class="p">[</span><span class="n">ERROR</span><span class="p">]</span> <span class="n">WON</span><span class="s1">'T CONVERT test_assertion_error /scratch/mlazos/torchdynamo/../test/errors.py line 26</span>
+<span class="n">due</span> <span class="n">to</span><span class="p">:</span>
+<span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
+  <span class="n">File</span> <span class="s2">"/scratch/mlazos/torchdynamo/torchdynamo/symbolic_convert.py"</span><span class="p">,</span> <span class="n">line</span> <span class="mi">837</span><span class="p">,</span> <span class="ow">in</span> <span class="n">BUILD_MAP</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">ConstantVariable</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
+<span class="ne">AssertionError</span>
+
+<span class="kn">from</span> <span class="nn">user</span> <span class="n">code</span><span class="p">:</span>
+   <span class="n">File</span> <span class="s2">"/scratch/mlazos/torchdynamo/../test/errors.py"</span><span class="p">,</span> <span class="n">line</span> <span class="mi">34</span><span class="p">,</span> <span class="ow">in</span> <span class="n">test_assertion_error</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="p">{</span><span class="n">y</span><span class="p">:</span> <span class="mi">5</span><span class="p">}</span>
+
+<span class="n">Set</span> <span class="n">torch</span><span class="o">.</span><span class="n">_dynamo</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">verbose</span><span class="o">=</span><span class="kc">True</span> <span class="k">for</span> <span class="n">more</span> <span class="n">information</span>
+<span class="o">==========</span>
+</pre></div>
+</div>
+<p>如消息所示，您可以通过设置 <code class="docutils literal "><span class="pre">torch._dynamo.config.verbose=True</span></code> 来获取 TorchDynamo 错误和用户代码的完整堆栈跟踪。除了此标志外，您还可以通过 <code class="docutils literal "><span class="pre">torch._logging.set_logs(dynamo</span> <span class="pre">=</span> <span class="pre">logging.INFO)</span></code> 或 <code class="docutils literal "><span class="pre">TORCH_LOGS="dynamo"</span></code> 设置 TorchDynamo 的 <code class="docutils literal "><span class="pre">log_level</span></code> 。这些级别包括：</p>
+<ul class="simple">
+<li><p> <code class="docutils literal "><span class="pre">logging.DEBUG</span></code> 或 <code class="docutils literal "><span class="pre">TORCH_LOGS="+dynamo"</span></code> ：打印遇到的每条指令以及以下所有日志级别。</p></li>
+<li><p> <code class="docutils literal "><span class="pre">logging.INFO</span></code> ：打印编译的每个函数（原始和修改后的字节码）以及捕获的图，以及以下所有日志级别。</p></li>
+<li><p> <code class="docutils literal "><span class="pre">logging.WARNING</span></code> （默认）：打印图断点以及以下所有日志级别。</p></li>
+<li><p> <code class="docutils literal "><span class="pre">logging.ERROR</span></code> ：仅打印错误。</p></li>
+</ul>
+<p>如果模型非常大，日志可能会变得难以处理。如果错误发生在模型 Python 代码的深处，仅执行发生错误的帧可以方便调试。有两个工具可以实现这一点：</p>
+<ul class="simple">
+<li><p>将环境变量 <code class="docutils literal "><span class="pre">TORCHDYNAMO_DEBUG_FUNCTION</span></code> 设置为所需的函数名，将只运行具有该名称的 torchdynamo 函数。</p></li>
+<li><p>启用记录/回放工具（设置 <code class="docutils literal "><span class="pre">torch._dynamo.config.replay_record_enabled</span> <span class="pre">=</span> <span class="pre">True</span></code> ），当遇到错误时将导出执行记录。然后可以回放此记录，仅运行发生错误的帧。</p></li>
+</ul>
+</section>
+<section id="diagnosing-torchinductor-errors">
+<h3>诊断 TorchInductor 错误</h3>
+<p>如果错误在没有使用 <code class="docutils literal "><span class="pre">"eager"</span></code> 后端时不会发生，那么后端编译器就是错误的来源（例如错误示例）。TorchDynamo 的后端编译器有多种选择，其中 TorchInductor 适合大多数用户的需求。本节以 TorchInductor 为例进行说明，但一些工具也可以与其他后端编译器一起使用。</p>
+<p>下面是我们关注的堆栈部分：</p>
+<p>使用 TorchInductor 作为后端，AOTAutograd 用于从 torchdynamo 捕获的前向图中生成反向图。需要注意的是，在跟踪过程中以及 TorchInductor 将前向和反向图降低到 GPU 代码或 C++时可能会发生错误。一个模型可能由数百或数千个 FX 节点组成，因此很难缩小到导致此问题发生的确切节点。幸运的是，有工具可以自动将这些输入图缩小到导致问题的节点。第一步是确定错误是在 AOTAutograd 跟踪反向图期间发生还是在 TorchInductor 降低期间发生。如上所述，在步骤 2 中，可以使用 <code class="docutils literal "><span class="pre">"aot_eager"</span></code> 后端单独运行 AOTAutograd 而不进行降低。如果使用此后端错误仍然发生，这表明错误发生在 AOTAutograd 跟踪期间。</p>
+<p>下面是一个例子：</p>
+<div class="highlight-py "><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="kn">import</span> <span class="nn">torch._dynamo</span> <span class="k">as</span> <span class="nn">dynamo</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">)])</span>
+
+<span class="k">def</span> <span class="nf">test_backend_error</span><span class="p">():</span>
+
+    <span class="n">y</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">aten</span><span class="o">.</span><span class="n">_foobar</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>  <span class="c1"># dummy function which errors</span>
+    <span class="k">return</span> <span class="n">model</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+
+
+<span class="n">compiled_test_backend_error</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">test_backend_error</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s2">"inductor"</span><span class="p">)</span>
+<span class="n">compiled_test_backend_error</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>运行此命令应该会给出以下错误，下面是更长的堆栈跟踪：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
+  <span class="n">File</span> <span class="s2">"/scratch/mlazos/torchdynamo/torchinductor/graph.py"</span><span class="p">,</span> <span class="n">line</span> <span class="mi">246</span><span class="p">,</span> <span class="ow">in</span> <span class="n">call_function</span>
+    <span class="k">return</span> <span class="n">lowerings</span><span class="p">[</span><span class="n">target</span><span class="p">](</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+  <span class="n">File</span> <span class="s2">"/scratch/mlazos/torchdynamo/torchinductor/lowering.py"</span><span class="p">,</span> <span class="n">line</span> <span class="mi">185</span><span class="p">,</span> <span class="ow">in</span> <span class="n">wrapped</span>
+    <span class="k">return</span> <span class="n">decomp_fn</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+  <span class="n">File</span> <span class="s2">"/scratch/mlazos/torchdynamo/torchinductor/lowering.py"</span><span class="p">,</span> <span class="n">line</span> <span class="mi">810</span><span class="p">,</span> <span class="ow">in</span> <span class="n">_foobar</span>
+    <span class="k">assert</span> <span class="kc">False</span>
+<span class="ne">AssertionError</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p><a class="reference external" href="https://gist.github.com/mlazos/d6947854aa56d686800259a164c62100">完整的堆栈跟踪错误</a></p>
+<p>如果你将 <code class="docutils literal "><span class="pre">torch.compile(backend="inductor")</span></code> 更改为 <code class="docutils literal "><span class="pre">torch.compile(backend="aot_eager")</span></code> ，它将无错误运行，因为问题出在 TorchInductor 降级过程中，而不是 AOTAutograd 中。</p>
+</section>
+<section id="minifying-torchinductor-errors">
+<h3>精简 TorchInductor 错误</h3>
+<p>从这里，让我们运行精简器以获取最小化复现。设置环境变量 <code class="docutils literal "><span class="pre">TORCHDYNAMO_REPRO_AFTER="aot"</span></code> （或直接设置 <code class="docutils literal "><span class="pre">torch._dynamo.config.repro_after="aot"</span></code> ）将生成一个 Python 程序，该程序将 AOTAutograd 生成的图减少到最小的子图，该子图可以复现错误。（下面是一个示例，其中我们精简了 TorchDynamo 生成的图）使用此环境变量运行程序应显示几乎相同的输出，并额外显示 <code class="docutils literal "><span class="pre">minifier_launcher.py</span></code> 已写入的位置。输出目录可以通过设置 <code class="docutils literal "><span class="pre">torch._dynamo.config.base_dir</span></code> 为有效的目录名称进行配置。最后一步是运行精简器并检查它是否成功运行。成功的运行看起来像这样。如果精简器成功运行，它将生成可运行的 Python 代码，该代码可以复现确切的错误。对于我们的示例，这是以下代码：</p>
+<div class="highlight-python "><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">tensor</span><span class="p">,</span> <span class="n">device</span>
+<span class="kn">import</span> <span class="nn">torch.fx</span> <span class="k">as</span> <span class="nn">fx</span>
+<span class="kn">from</span> <span class="nn">torch._dynamo.testing</span> <span class="kn">import</span> <span class="n">rand_strided</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">inf</span>
+<span class="kn">from</span> <span class="nn">torch.fx.experimental.proxy_tensor</span> <span class="kn">import</span> <span class="n">make_fx</span>
+
+<span class="c1"># torch version: 1.13.0a0+gitfddfc44</span>
+<span class="c1"># torch cuda version: 11.6</span>
+<span class="c1"># torch git version: fddfc4488afb207971c54ad4bf58130fdc8a4dc5</span>
+
+
+<span class="c1"># CUDA Info:</span>
+<span class="c1"># nvcc: NVIDIA (R) Cuda compiler driver</span>
+<span class="c1"># Copyright (c) 2005-2022 NVIDIA Corporation</span>
+<span class="c1"># Built on Thu_Feb_10_18:23:41_PST_2022</span>
+<span class="c1"># Cuda compilation tools, release 11.6, V11.6.112</span>
+<span class="c1"># Build cuda_11.6.r11.6/compiler.30978841_0</span>
+
+<span class="c1"># GPU Hardware Info:</span>
+<span class="c1"># NVIDIA A100-SXM4-40GB : 8</span>
+
+<span class="kn">from</span> <span class="nn">torch.nn</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="k">class</span> <span class="nc">Repro</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">add</span><span class="p">):</span>
+        <span class="n">_foobar</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">aten</span><span class="o">.</span><span class="n">_foobar</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="n">add</span><span class="p">);</span>  <span class="n">add</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">_foobar</span><span class="p">,)</span>
+
+<span class="n">args</span> <span class="o">=</span> <span class="p">[((</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">),</span> <span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="s1">'cpu'</span><span class="p">)]</span>
+<span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">rand_strided</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">stride</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span> <span class="k">for</span> <span class="n">shape</span><span class="p">,</span> <span class="n">stride</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">device</span> <span class="ow">in</span> <span class="n">args</span><span class="p">]</span>
+<span class="n">mod</span> <span class="o">=</span> <span class="n">make_fx</span><span class="p">(</span><span class="n">Repro</span><span class="p">())(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">torch._inductor.compile_fx</span> <span class="kn">import</span> <span class="n">compile_fx_inner</span>
+
+<span class="n">compiled</span> <span class="o">=</span> <span class="n">compile_fx_inner</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+<span class="n">compiled</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+</pre></div>
+</div>
+<p> <code class="docutils literal "><span class="pre">Repro</span></code> 模块的 <code class="docutils literal "><span class="pre">forward</span></code> 方法包含导致问题的确切操作。在提交问题时要包括任何精简的复现，以帮助调试。</p>
+</section>
+<section id="minifying-backend-compiler-errors">
+<h3>压缩后端编译器错误 ¶</h3>
+<p>对于除 TorchInductor 之外的后端编译器，查找导致错误的子图的过程几乎与 TorchInductor 中的错误处理过程相同，但有一个重要的注意事项。即，现在将在 TorchDynamo 跟踪的图上运行压缩器，而不是 AOTAutograd 的输出图。让我们通过一个例子来讲解。</p>
+<div class="highlight-py "><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="kn">import</span> <span class="nn">torch._dynamo</span> <span class="k">as</span> <span class="nn">dynamo</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">)])</span>
+<span class="c1"># toy compiler which fails if graph contains relu</span>
+<span class="k">def</span> <span class="nf">toy_compiler</span><span class="p">(</span><span class="n">gm</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">fx</span><span class="o">.</span><span class="n">GraphModule</span><span class="p">,</span> <span class="n">_</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">gm</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">target</span> <span class="o">==</span> <span class="n">torch</span><span class="o">.</span><span class="n">relu</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="kc">False</span>
+
+    <span class="k">return</span> <span class="n">gm</span>
+
+
+<span class="k">def</span> <span class="nf">test_backend_error</span><span class="p">():</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">model</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+
+
+<span class="n">compiled_test_backend_error</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">test_backend_error</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">toy_compiler</span><span class="p">)</span>
+<span class="n">compiled_test_backend_error</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>为了在 TorchDynamo 跟踪前向图后运行代码，您可以使用 <code class="docutils literal "><span class="pre">TORCHDYNAMO_REPRO_AFTER</span></code> 环境变量。使用 <code class="docutils literal "><span class="pre">TORCHDYNAMO_REPRO_AFTER="dynamo"</span></code> （或 <code class="docutils literal "><span class="pre">torch._dynamo.config.repro_after="dynamo"</span></code> ）运行此程序应产生以下输出，并在 <code class="docutils literal "><span class="pre">{torch._dynamo.config.base_dir}/repro.py</span></code> 中显示以下代码。</p>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>另一个选项是 TORCHDYNAMO_REPRO_AFTER 为 <code class="docutils literal "><span class="pre">"aot"</span></code> ，这将运行压缩器在生成反向图之后。</p>
+</div>
+<div class="highlight-python "><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch._dynamo</span> <span class="k">as</span> <span class="nn">dynamo</span>
+<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">tensor</span><span class="p">,</span> <span class="n">device</span>
+<span class="kn">import</span> <span class="nn">torch.fx</span> <span class="k">as</span> <span class="nn">fx</span>
+<span class="kn">from</span> <span class="nn">torch._dynamo.testing</span> <span class="kn">import</span> <span class="n">rand_strided</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">inf</span>
+<span class="kn">from</span> <span class="nn">torch._dynamo.debug_utils</span> <span class="kn">import</span> <span class="n">run_fwd_maybe_bwd</span>
+
+<span class="kn">from</span> <span class="nn">torch.nn</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="k">class</span> <span class="nc">Repro</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">add</span><span class="p">):</span>
+        <span class="n">relu</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">add</span><span class="p">);</span>  <span class="n">add</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">relu</span><span class="p">,)</span>
+
+
+<span class="n">mod</span> <span class="o">=</span> <span class="n">Repro</span><span class="p">()</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+<span class="n">opt_mod</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s2">"None"</span><span class="p">)</span>
+
+
+<span class="n">args</span> <span class="o">=</span> <span class="p">[((</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">),</span> <span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="s1">'cpu'</span><span class="p">,</span> <span class="kc">False</span><span class="p">)]</span>
+<span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">rand_strided</span><span class="p">(</span><span class="n">sh</span><span class="p">,</span> <span class="n">st</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">dev</span><span class="p">)</span><span class="o">.</span><span class="n">requires_grad_</span><span class="p">(</span><span class="n">rg</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">sh</span><span class="p">,</span> <span class="n">st</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">dev</span><span class="p">,</span> <span class="n">rg</span><span class="p">)</span> <span class="ow">in</span> <span class="n">args</span><span class="p">]</span>
+
+
+<span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">amp</span><span class="o">.</span><span class="n">autocast</span><span class="p">(</span><span class="n">enabled</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">ref</span> <span class="o">=</span> <span class="n">run_fwd_maybe_bwd</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">run_fwd_maybe_bwd</span><span class="p">(</span><span class="n">opt_mod</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>压缩器成功将图压缩到引发错误的操作 <code class="docutils literal "><span class="pre">toy_compiler</span></code> 。与 TorchInductor 错误处理流程的不同之处在于，压缩器在遇到后端编译器错误后自动运行。运行成功后，压缩器将 <code class="docutils literal "><span class="pre">repro.py</span></code> 写入 <code class="docutils literal "><span class="pre">torch._dynamo.config.base_dir</span></code> 。</p>
+</section>
+</section>
+<section id="performance-profiling">
+<h2>性能分析 ¶</h2>
+<section id="accessing-torchdynamo-profiler">
+<h3>访问 TorchDynamo 分析器 ¶</h3>
+<p>TorchDynamo 内置了用于收集和显示每个编译阶段花费时间的统计函数。这些统计信息可以通过调用 <code class="docutils literal "><span class="pre">torch._dynamo.utils.compile_times()</span></code> 在执行 Torch._Dynamo 后访问。默认情况下，它返回一个字符串表示，显示了每个 TorchDynamo 函数按名称花费的编译时间。</p>
+</section>
+<section id="torchinductor-debugging-using-torch-compile-debug">
+<h3>使用 TORCH_COMPILE_DEBUG 进行 TorchInductor 调试</h3>
+<p>TorchInductor 内置了统计和跟踪功能，用于显示每个编译阶段花费的时间、输出代码、输出图可视化以及 IR 转储。这是一个旨在使理解并调试 TorchInductor 内部结构更加容易的调试工具。</p>
+<p>让我们用一个以下测试程序（ <code class="docutils literal "><span class="pre">repro.py</span></code> ）来运行一个示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="nd">@torch</span><span class="o">.</span><span class="n">compile</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">test_model</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">LayerNorm</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">model</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+
+<span class="n">y</span> <span class="o">=</span> <span class="n">test_model</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>设置环境变量 <code class="docutils literal "><span class="pre">TORCH_COMPILE_DEBUG=1</span></code> 将导致创建一个调试跟踪目录，默认情况下，此目录将位于当前目录，并命名为 torch_compile_debug（这可以在 torchdynamo 配置字段 <code class="docutils literal "><span class="pre">debug_dir_root</span></code> 和 <code class="docutils literal "><span class="pre">env</span> <span class="pre">var</span> <span class="pre">TORCH_COMPILE_DEBUG_DIR</span></code> 中覆盖）。在此目录内，每次运行将有一个单独的文件夹，该文件夹以运行的时间戳和进程 ID 命名：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span>$ env TORCH_COMPILE_DEBUG=1 python repro.py
+$ cd torch_compile_debug
+$ ls
+run_2023_03_01_08_20_52_143510-pid_180167
+</pre></div>
+</div>
+<p>在运行文件夹中，将有一个 <code class="docutils literal "><span class="pre">torchdynamo</span></code> 目录，其中包含调试日志，以及一个 <code class="docutils literal "><span class="pre">torchinductor</span></code> 文件夹，其中包含每个编译内核的子文件夹，用于存储电感调试工件。</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span>$ cd
+run_2023_03_01_08_20_52_143510-pid_180167
+$ ls
+torchinductor  torchdynamo
+</pre></div>
+</div>
+<p>进一步进入 <code class="docutils literal "><span class="pre">torchinductor</span></code> 目录， <code class="docutils literal "><span class="pre">\*.log</span></code> 文件是编译 AOT Autograd 阶段的日志， <code class="docutils literal "><span class="pre">model__0_forward_1.0</span></code> 包含电感调试工件。</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span>$ cd torchinductor
+$ ls
+aot_model___0_debug.log  model__0_forward_1.0
+$ cd model__0_forward_1.0
+$ ls
+debug.log  fx_graph_readable.py  fx_graph_runnable.py  fx_graph_transformed.py  ir_post_fusion.txt  ir_pre_fusion.txt  output_code.py
+</pre></div>
+</div>
+<p>下面是内容摘要：</p>
+<ul class="simple">
+<li><p> <code class="docutils literal "><span class="pre">fx_graph_readable.py</span></code> 和 <code class="docutils literal "><span class="pre">fx_graph_runnable.py</span></code> 是电感接收到的 <code class="docutils literal "><span class="pre">fx_graph</span></code> 的可读和可运行版本。</p></li>
+<li><p> <code class="docutils literal "><span class="pre">fx_graph_transformed.py</span></code> 是电感器运行所有效果后 fx 图。</p></li>
+<li><p> <code class="docutils literal "><span class="pre">ir\*.txt</span></code> 是电感器融合前后的 ir。</p></li>
+<li><p> <code class="docutils literal "><span class="pre">output_code.py</span></code> 是子图编译后的 triton 内核。</p></li>
+</ul>
+<p>这里是测试程序示例调试目录内容：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="nd">@torch</span><span class="o">.</span><span class="n">compile</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">test_model</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">LayerNorm</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">model</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+
+<span class="n">y</span> <span class="o">=</span> <span class="n">test_model</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>那个调试跟踪中的每个文件都可以通过 <code class="docutils literal "><span class="pre">torch._inductor.config.trace.*</span></code> 来启用和禁用。由于生成成本较高，配置文件和图表默认都是禁用的。</p>
+<p>在这个新的调试格式中，单个节点看起来是这样的：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">buf1</span><span class="p">:</span> <span class="n">SchedulerNode</span><span class="p">(</span><span class="n">ComputedBuffer</span><span class="p">)</span>
+<span class="n">buf1</span><span class="o">.</span><span class="n">writes</span> <span class="o">=</span>
+    <span class="p">{</span>   <span class="n">MemoryDep</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">'buf1'</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">()),</span>
+        <span class="n">MemoryDep</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">'buf1'</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">s0</span><span class="p">,))}</span>
+<span class="n">buf1</span><span class="o">.</span><span class="n">unmet_dependencies</span> <span class="o">=</span> <span class="p">{</span><span class="n">MemoryDep</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">'buf0'</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">c0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">s0</span><span class="p">,))}</span>
+<span class="n">buf1</span><span class="o">.</span><span class="n">met_dependencies</span> <span class="o">=</span> <span class="p">{</span><span class="n">MemoryDep</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">'primals_2'</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">c0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">s0</span><span class="p">,))}</span>
+<span class="n">buf1</span><span class="o">.</span><span class="n">group</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">cuda</span><span class="p">:</span><span class="mi">0</span>
+<span class="n">buf1</span><span class="o">.</span><span class="n">group</span><span class="o">.</span><span class="n">iteration</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">s0</span><span class="p">)</span>
+<span class="n">buf1</span><span class="o">.</span><span class="n">sizes</span> <span class="o">=</span> <span class="p">([],</span> <span class="p">[</span><span class="n">s0</span><span class="p">])</span>
+<span class="k">class</span> <span class="nc">buf1_loop_body</span><span class="p">:</span>
+    <span class="n">var_ranges</span> <span class="o">=</span> <span class="p">{</span><span class="n">z0</span><span class="p">:</span> <span class="n">s0</span><span class="p">}</span>
+    <span class="n">index0</span> <span class="o">=</span> <span class="n">z0</span>
+    <span class="n">index1</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">def</span> <span class="nf">body</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ops</span><span class="p">):</span>
+        <span class="n">get_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_index</span><span class="p">(</span><span class="s1">'index0'</span><span class="p">)</span>
+        <span class="n">load</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">'buf0'</span><span class="p">,</span> <span class="n">get_index</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">get_index_1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_index</span><span class="p">(</span><span class="s1">'index0'</span><span class="p">)</span>
+        <span class="n">load_1</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">'primals_2'</span><span class="p">,</span> <span class="n">get_index_1</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">add</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">load</span><span class="p">,</span> <span class="n">load_1</span><span class="p">)</span>
+        <span class="n">get_index_2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_index</span><span class="p">(</span><span class="s1">'index1'</span><span class="p">)</span>
+        <span class="n">reduction</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">reduction</span><span class="p">(</span><span class="s1">'buf1'</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="s1">'sum'</span><span class="p">,</span> <span class="n">get_index_2</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">reduction</span>
+</pre></div>
+</div>
+<p>更多示例，请参阅示例调试目录输出。</p>
+</section>
+<section id="graph-breaks">
+<h3>图断点</h3>
+<p>给定如下程序：</p>
+<div class="highlight-python "><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">some_fun</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="o">...</span>
+
+<span class="n">compiled_fun</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">some_fun</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p>TorchDynamo 将尝试将 some_fun 中的所有 torch/tensor 操作编译成一个单一的 FX 图，但它可能无法将所有内容都捕获到一个图中。</p>
+<p>一些图断裂的原因对 TorchDynamo 来说是无法克服的，并且难以修复。 - 调用 torch 之外的 C 扩展对 torchdynamo 来说是不可见的，并且可能执行任意操作，而 TorchDynamo 无法引入必要的保护措施（参见《让 Dynamo 声音响亮：保护措施》）以确保编译后的程序可以安全重用。如果生成的片段很小，图断裂可能会影响性能。为了最大化性能，尽可能减少图断裂是很重要的。</p>
+</section>
+</section>
+<section id="identifying-the-cause-of-a-graph-break">
+<h2>识别图断裂的原因</h2>
+<p>要识别程序中的所有图断点及其原因，可以使用 <code class="docutils literal "><span class="pre">torch._dynamo.explain</span></code> 。该工具在提供的函数上运行 TorchDynamo 并汇总遇到的图断点。以下是一个示例用法：</p>
+<div class="highlight-python "><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch._dynamo</span> <span class="k">as</span> <span class="nn">dynamo</span>
+<span class="k">def</span> <span class="nf">toy_example</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">a</span> <span class="o">/</span> <span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"woo"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">b</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">b</span> <span class="o">*</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="k">return</span> <span class="n">x</span> <span class="o">*</span> <span class="n">b</span>
+<span class="n">explanation</span> <span class="o">=</span> <span class="n">dynamo</span><span class="o">.</span><span class="n">explain</span><span class="p">(</span><span class="n">toy_example</span><span class="p">)(</span><span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">explanation_verbose</span><span class="p">)</span>
+<span class="sd">"""</span>
+<span class="sd">Graph Count: 3</span>
+<span class="sd">Graph Break Count: 2</span>
+<span class="sd">Op Count: 5</span>
+<span class="sd">Break Reasons:</span>
+<span class="sd">  Break Reason 1:</span>
+<span class="sd">    Reason: builtin: print [&lt;class 'torch._dynamo.variables.constant.ConstantVariable'&gt;] False</span>
+<span class="sd">    User Stack:</span>
+<span class="sd">      &lt;FrameSummary file foo.py, line 5 in toy_example&gt;</span>
+<span class="sd">  Break Reason 2:</span>
+<span class="sd">    Reason: generic_jump TensorVariable()</span>
+<span class="sd">    User Stack:</span>
+<span class="sd">      &lt;FrameSummary file foo.py, line 6 in torch_dynamo_resume_in_toy_example_at_5&gt;</span>
+<span class="sd">Ops per Graph:</span>
+<span class="sd">  ...</span>
+<span class="sd">Out Guards:</span>
+<span class="sd">  ...</span>
+<span class="sd">"""</span>
+</pre></div>
+</div>
+<p>输出包括：</p>
+<ul class="simple">
+<li><p> <code class="docutils literal "><span class="pre">out_guards</span></code> - 一个列表的列表，其中每个子列表包含必须通过的守卫，以确保跟踪的图有效。</p></li>
+<li><p> <code class="docutils literal "><span class="pre">graphs</span></code> - 成功跟踪的图模块列表。</p></li>
+<li><p> <code class="docutils literal "><span class="pre">ops_per_graph</span></code> - 一个列表的列表，其中每个子列表包含在图中运行的运算。</p></li>
+</ul>
+<p>要在遇到第一个图断点时抛出错误，请使用 <code class="docutils literal "><span class="pre">fullgraph</span></code> 模式。此模式禁用 TorchDynamo 的 Python 回退，并且只有当整个程序可转换为单个图时才成功。示例用法：</p>
+<div class="highlight-python "><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">toy_example</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+   <span class="o">...</span>
+
+<span class="n">compiled_toy</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">toy_example</span><span class="p">,</span> <span class="n">fullgraph</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">backend</span><span class="o">=&lt;</span><span class="n">compiler</span><span class="o">&gt;</span><span class="p">)(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+</pre></div>
+</div>
+<section id="excessive-recompilation">
+<h3>过度重新编译</h3>
+<p>当 TorchDynamo 编译一个函数（或其一部分）时，它会针对局部变量和全局变量做出某些假设，以便允许编译器优化，并将这些假设表达为在运行时检查特定值的守卫。如果这些守卫中的任何一个失败，Dynamo 将重新编译该函数（或其一部分）多达 <code class="docutils literal "><span class="pre">torch._dynamo.config.recompile_limit</span></code> 次。如果您的程序正在达到缓存限制，您首先需要确定哪个守卫失败以及您的程序中的哪个部分触发了它。</p>
+<p>如果您的程序具有有限度的动态性，您可能能够调整 TorchDynamo 的缓存限制，以便为每个变体编译和缓存，但如果缓存限制过高，您可能会发现重新编译的成本超过了任何优化好处。</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">torch</span><span class="o">.</span><span class="n">_dynamo</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">recompile_limit</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">your</span> <span class="n">desired</span> <span class="n">cache</span> <span class="n">limit</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>TorchDynamo 计划支持许多常见的动态张量形状的情况，例如变化的批量大小或序列长度。它不计划支持秩动态性。在此期间，可以通过与分桶技术协调使用，设置特定的缓存限制，以实现某些动态模型可接受的重新编译次数。</p>
+</section>
+</section>
+<section id="accuracy-debugging">
+<h2>准确性调试 ¶</h2>
+<p>如果您设置环境变量 <code class="docutils literal "><span class="pre">TORCHDYNAMO_REPRO_LEVEL=4</span></code> ，可以减少精度问题，它的工作方式与 git bisect 模型类似，完整的重现可能如下 <code class="docutils literal "><span class="pre">TORCHDYNAMO_REPRO_AFTER="aot"</span> <span class="pre">TORCHDYNAMO_REPRO_LEVEL=4</span></code> 我们需要这样做的原因是下游编译器会生成代码，无论是 Triton 代码还是 C++后端，这些下游编译器的数值可能在细微之处有所不同，但会对您的训练稳定性产生重大影响。因此，精度调试器对我们检测代码生成或后端编译器中的错误非常有用。</p>
+<p>如果您想确保 torch 和 triton 之间的随机数生成相同，则可以启用 <code class="docutils literal "><span class="pre">torch._inductor.config.fallback_random</span> <span class="pre">=</span> <span class="pre">True</span></code> </p>
+</section>
+<section id="extended-debugging">
+<h2>扩展调试 ¶</h2>
+<p>可以通过以下实验性标志启用扩展调试。</p>
+<p> <code class="docutils literal "><span class="pre">TORCHDYNAMO_EXTENDED_DEBUG_GUARD_ADDED</span></code> - 如果守卫的字符串表示与该标志值匹配，则提供扩展调试信息。例如，将其设置为“Ne(s0, 10)”以在守卫发出时生成完整的 Python 和 C++回溯。 <code class="docutils literal "><span class="pre">TORCHDYNAMO_EXTENDED_DEBUG_CREATE_SYMBOL</span></code> - 当特定符号分配时提供扩展调试信息。例如，将其设置为“u2”以在创建此符号时生成完整的 Python 和 C++回溯。 <code class="docutils literal "><span class="pre">TORCHDYNAMO_EXTENDED_DEBUG_CPP</span></code> - 为所有扩展调试设置以及错误提供扩展调试信息（C++回溯）。例如，将其设置为“1”。C++回溯速度慢且非常频繁，因此默认情况下不包括在扩展调试中。</p>
+</section>
+<section id="cold-start-timing-and-cache-corruption-debugging">
+<h2>冷启动时间及缓存损坏调试</h2>
+<p>为了测量冷启动编译时间或调试缓存损坏，可以通过传递 <code class="docutils literal "><span class="pre">TORCHINDUCTOR_FORCE_DISABLE_CACHES=1</span></code> 或设置 <code class="docutils literal "><span class="pre">torch._inductor.config.force_disable_caches</span> <span class="pre">=</span> <span class="pre">True</span></code> 来覆盖任何其他缓存配置选项并禁用所有编译时间缓存。</p>
+</section>
+</section>
+
+
+             </article>
+             
+            </div>
+            <footer>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>© 版权所有 PyTorch 贡献者。</p>
+  </div>
+    
+      <div>使用 Sphinx 构建，主题由 Read the Docs 提供。</div>
+     
+
+</footer>
+
+          </div>
+<script>
+
+var match = window.location.href.match(/\/_[a-zA-Z0-9_]*.html|_dynamo/gi);
+var url = window.location.href.lastIndexOf(match[match.length-1]);
+
+if (url)
+  {
+    var div = '<div class="admonition note"><p class="admonition-title">Note</p><p><i class="fa fa-exclamation-circle" aria-hidden="true">&nbsp</i> This page describes an internal API which is not intended to be used outside of the PyTorch codebase and can be modified or removed without notice.</p></div>'
+    document.getElementById("pytorch-article").insertAdjacentHTML('afterBegin', div)
+  }
+</script>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">PyTorch 2.0 故障排除（旧）</a><ul>
+<li><a class="reference internal" href="#diagnosing-runtime-errors">运行时错误诊断</a><ul>
+<li><a class="reference internal" href="#torchdynamo-errors">火炬动态错误</a></li>
+<li><a class="reference internal" href="#diagnosing-torchinductor-errors">诊断火炬诱导器错误</a></li>
+<li><a class="reference internal" href="#minifying-torchinductor-errors">缩小火炬诱导器错误</a></li>
+<li><a class="reference internal" href="#minifying-backend-compiler-errors">缩小后端编译器错误</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#performance-profiling">性能分析</a><ul>
+<li><a class="reference internal" href="#accessing-torchdynamo-profiler">访问 TorchDynamo 分析器</a></li>
+<li><a class="reference internal" href="#torchinductor-debugging-using-torch-compile-debug">使用 TORCH_COMPILE_DEBUG 进行 TorchInductor 调试</a></li>
+<li><a class="reference internal" href="#graph-breaks">图断裂</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#identifying-the-cause-of-a-graph-break">识别图断开的原因</a><ul>
+<li><a class="reference internal" href="#excessive-recompilation">过度重新编译</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#accuracy-debugging">准确性调试</a></li>
+<li><a class="reference internal" href="#extended-debugging">扩展调试</a></li>
+<li><a class="reference internal" href="#cold-start-timing-and-cache-corruption-debugging">冷启动时间及缓存损坏调试</a></li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+         <script src="_static/jquery.js"></script>
+         <script src="_static/underscore.js"></script>
+         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+         <script src="_static/doctools.js"></script>
+         <script src="_static/clipboard.min.js"></script>
+         <script src="_static/copybutton.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ 
+<script script="" type="text/javascript">
+  var collapsedSections = ['Developer Notes', 'Language Bindings', 'Libraries', 'Community'];
+</script>
+
+<img height="1" width="1" style="border-style:none;" alt="" src="https://www.googleadservices.com/pagead/conversion/795629140/?label=txkmCPmdtosBENSssfsC&amp;guid=ON&amp;script=0">
+
+
+  <!-- Begin Footer -->
+
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 text-center">
+          <h2>文档</h2>
+          <p>查看 PyTorch 的全面开发者文档</p>
+          <a class="with-right-arrow" href="https://pytorch.org/docs/stable/index.html">查看文档</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>教程</h2>
+          <p>深入了解初学者和高级开发者的教程</p>
+          <a class="with-right-arrow" href="https://pytorch.org/tutorials">查看教程</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>资源</h2>
+          <p>查找开发资源并获得您的疑问解答</p>
+          <a class="with-right-arrow" href="https://pytorch.org/resources">查看资源</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://pytorch.org/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/">PyTorch</a></li>
+            <li><a href="https://pytorch.org/get-started">开始使用</a></li>
+            <li><a href="https://pytorch.org/features">功能</a></li>
+            <li><a href="https://pytorch.org/ecosystem">生态系统</a></li>
+            <li><a href="https://pytorch.org/blog/">博客</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md">贡献</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/resources">资源</a></li>
+            <li><a href="https://pytorch.org/tutorials">教程</a></li>
+            <li><a href="https://pytorch.org/docs/stable/index.html">文档</a></li>
+            <li><a href="https://discuss.pytorch.org" target="_blank">讨论</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/issues" target="_blank">GitHub 问题和任务</a></li>
+            <li><a href="https://pytorch.org/assets/brand-guidelines/PyTorch-Brand-Guidelines.pdf" target="_blank">品牌指南</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">保持更新</li>
+            <li><a href="https://www.facebook.com/pytorch" target="_blank">Facebook</a></li>
+            <li><a href="https://twitter.com/pytorch" target="_blank">推特</a></li>
+            <li><a href="https://www.youtube.com/pytorch" target="_blank">YouTube</a></li>
+            <li><a href="https://www.linkedin.com/company/pytorch" target="_blank">领英</a></li>
+          </ul>  
+          </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">PyTorch 播客</li>
+            <li><a href="https://open.spotify.com/show/6UzHKeiy368jKfQMKKvJY5" target="_blank">Spotify</a></li>
+            <li><a href="https://podcasts.apple.com/us/podcast/pytorch-developer-podcast/id1566080008" target="_blank">苹果</a></li>
+            <li><a href="https://www.google.com/podcasts?feed=aHR0cHM6Ly9mZWVkcy5zaW1wbGVjYXN0LmNvbS9PQjVGa0lsOA%3D%3D" target="_blank">谷歌</a></li>
+            <li><a href="https://music.amazon.com/podcasts/7a4e6f0e-26c2-49e9-a478-41bd244197d0/PyTorch-Developer-Podcast?" target="_blank">亚马逊</a></li>
+          </ul>
+         </div>
+        </div>
+        
+        <div class="privacy-policy">
+          <ul>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/terms/" target="_blank">条款</a></li>
+            <li class="privacy-policy-links">|</li>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/privacy-policy/" target="_blank">隐私</a></li>
+          </ul>
+        </div>
+        <div class="copyright">
+        <p>© 版权所有 Linux 基金会。PyTorch 基金会是 Linux 基金会的一个项目。有关本网站的使用条款、商标政策以及其他适用于 PyTorch 基金会的政策，请参阅 www.linuxfoundation.org/policies/。PyTorch 基金会支持 PyTorch 开源项目，该项目已被确立为 LF Projects, LLC 的 PyTorch 项目系列。有关适用于 PyTorch 项目系列 LF Projects, LLC 的政策，请参阅 www.lfprojects.org/policies/。</p>
+      </div>
+     </div>
+
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">为了分析流量并优化您的体验，我们在本网站上提供 cookie。通过点击或导航，您同意允许我们使用 cookie。作为本网站的当前维护者，Facebook 的 cookie 政策适用。了解更多信息，包括可用的控制选项：cookie 政策。</p>
+    <img class="close-button" src="_static/images/pytorch-x.svg" width="16" height="16">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+           <li class="resources-mobile-menu-title">
+             <a>学习</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/get-started">开始使用</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials">教程</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/basics/intro.html">学习基础知识</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/recipes/recipes_index.html">PyTorch 菜谱</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/introyt.html">PyTorch 入门 - YouTube 系列</a>
+             </li>
+           </ul>
+           <li class="resources-mobile-menu-title">
+             <a>生态系统</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/ecosystem">工具</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/#community-module">社区</a>
+             </li>
+             <li>
+               <a href="https://discuss.pytorch.org/">论坛</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/resources">开发者资源</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">贡献者奖项 - 2024</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>Edge</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/edge">关于 PyTorch Edge</a>
+             </li>
+             
+             <li>
+               <a href="https://pytorch.org/executorch-overview">执行火炬</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch 文档</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>文档</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/docs/stable/index.html">PyTorch</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/pytorch-domains">PyTorch 领域</a>
+            </li>
+          </ul>
+
+          <li class="resources-mobile-menu-title">
+            <a>博客 &amp; 新闻</a>
+          </li>
+            
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/blog/">PyTorch 博客</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/community-blog">社区博客</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/videos">视频</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/community-stories">社区故事</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/events">活动</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">通讯</a>
+             </li>
+          </ul>
+          
+          <li class="resources-mobile-menu-title">
+            <a>关于</a>
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/foundation">PyTorch 基金会</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/governing-board">治理委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">云信用计划</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">技术顾问委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">员工</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">联系我们</a>
+            </li>
+          </ul>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body></html>

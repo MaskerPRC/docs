@@ -1,0 +1,1716 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>torch.utils.data — PyTorch main documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pytorch.org/docs/stable/data.html">
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css">
+  <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css">
+  <link rel="stylesheet" href="_static/copybutton.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="_static/katex-math.css" type="text/css">
+  <link rel="stylesheet" href="_static/sphinx-dropdown.css" type="text/css">
+  <link rel="stylesheet" href="_static/panels-bootstrap.min.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/jit.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css">
+    <link rel="index" title="Index" href="genindex.html">
+    <link rel="search" title="Search" href="search.html">
+    <link rel="next" title="torch.utils.deterministic" href="deterministic.html">
+    <link rel="prev" title="torch.utils.cpp_extension" href="cpp_extension.html">
+
+<!--
+  Search engines should not index the main version of documentation.
+  Stable documentation are built without release == 'main'.
+-->
+<meta name="robots" content="noindex">
+
+
+  <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T8XT4PS');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+  <!-- Preload the theme fonts -->
+
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<!-- Preload the katex fonts -->
+
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Math-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size1-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size2-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Caligraphic-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
+</head><body class="pytorch-body"><div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+
+          <li class="main-menu-item">
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">学习</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/get-started">
+                  <span class="dropdown-title">开始学习</span>
+                  <p>在本地运行 PyTorch 或快速开始使用支持的云平台之一</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials">
+                  <span class="dropdown-title">教程</span><p></p>
+                  <p>PyTorch 教程中的新内容</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/basics/intro.html">
+                  <span class="dropdown-title">学习基础知识</span><p></p>
+                  <p>熟悉 PyTorch 的概念和模块</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/recipes/recipes_index.html">
+                  <span class="dropdown-title">PyTorch 食谱</span><p></p>
+                  <p>精简版、可直接部署的 PyTorch 代码示例</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/introyt.html">
+                  <span class="dropdown-title">PyTorch 入门 - YouTube 系列教程</span><p></p>
+                  <p>通过我们引人入胜的 YouTube 教程系列掌握 PyTorch 基础知识</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">生态系统</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem">
+                  <span class="dropdown-title">工具</span><p></p>
+                  <p>了解 PyTorch 生态系统中的工具和框架</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
+                  <span class="dropdown-title">社区</span>
+                  <p>加入 PyTorch 开发者社区，贡献、学习并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
+                  <span class="dropdown-title">论坛</span>
+                  <p>讨论 PyTorch 代码、问题、安装、研究的地方</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/resources">
+                  <span class="dropdown-title">开发者资源</span>
+                  <p>查找资源并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">贡献者奖项 - 2024</span><p></p>
+                  <p>本届 PyTorch 会议揭晓获奖者</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">
+                Edge
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/edge">
+                  <span class="dropdown-title">关于 PyTorch Edge</span><p></p>
+                  <p>为边缘设备构建创新和隐私感知的 AI 体验</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
+                  <span class="dropdown-title">ExecuTorch</span><p></p>
+                  <p>基于移动和边缘设备的端到端推理能力解决方案</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch 文档</span><p></p>
+                </a>
+              </div>
+            </div>  
+          </li>
+
+          <li class="main-menu-item">
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">文档</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/docs/stable/index.html">
+                  <span class="dropdown-title">PyTorch</span><p></p>
+                  <p>探索文档以获取全面指导，了解如何使用 PyTorch</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/pytorch-domains">
+                  <span class="dropdown-title">PyTorch 领域</span><p></p>
+                  <p>阅读 PyTorch 领域的文档，了解更多关于特定领域库的信息</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">博客与新闻</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/blog/">
+                  <span class="dropdown-title">PyTorch 博客</span><p></p>
+                  <p>捕捉最新的技术新闻和事件</p>
+                </a>
+                 <a class="nav-dropdown-item" href="https://pytorch.org/community-blog">
+                  <span class="dropdown-title">社区博客</span><p></p>
+                  <p>PyTorch 生态系统故事</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/videos">
+                  <span class="dropdown-title">视频</span><p></p>
+                  <p>了解最新的 PyTorch 教程、新内容等</p>
+                </a><a class="nav-dropdown-item" href="https://pytorch.org/community-stories">
+                  <span class="dropdown-title">社区故事</span><p></p>
+                  <p>学习如何我们的社区使用 PyTorch 解决真实、日常的机器学习问题</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/events">
+                  <span class="dropdown-title">活动</span><p></p>
+                  <p>查找活动、网络研讨会和播客</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">通讯</span><p></p>
+                  <p>跟踪最新更新</p>
+                </a>
+            </div>
+          </div></li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">关于</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/foundation">
+                  <span class="dropdown-title">PyTorch 基金会</span><p></p>
+                  <p>了解更多关于 PyTorch 基金会的信息</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
+                  <span class="dropdown-title">管理委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">云信用计划</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">技术顾问委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">员工</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">联系我们</span><p></p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li class="main-menu-item">
+            <div class="no-dropdown">
+              <a href="https://pytorch.org/join" data-cta="join">成为会员</a>
+            </div>
+          </li>
+          <li>
+           <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="github-icon">
+             </a>
+           </div>
+          </li>
+          <!--- TODO: This block adds the search icon to the nav bar. We will enable it later. 
+          <li>
+            <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="search-icon">
+             </a>
+            </div>
+          </li>
+          --->
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+  </div>
+</div>
+
+
+
+   
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>目录</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+    <div class="version">
+      <a href="https://pytorch.org/docs/versions.html">主程序 (2.7.0+cpu ) ▼</a>
+    </div>
+    <div id="searchBox">
+    <div class="searchbox" id="googleSearchBox">
+      <script async="" src="https://cse.google.com/cse.js?cx=e65585f8c3ea1440e"></script>
+      <div class="gcse-search"></div>
+    </div>
+    <div id="sphinxSearchBox" style="display: none;">
+      <div role="search">
+        <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+          <input type="text" name="q" placeholder="Search Docs">
+          <input type="hidden" name="check_keywords" value="yes">
+          <input type="hidden" name="area" value="default">
+        </form>
+      </div>
+    </div>
+  </div>
+  <form id="searchForm">
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="google" checked="">谷歌搜索</label>
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="sphinx">经典搜索</label>
+  </form>
+
+  <script>
+     document.addEventListener('DOMContentLoaded', function() {
+      const searchForm = document.getElementById('searchForm');
+      const googleSearchBox = document.getElementById('googleSearchBox');
+      const sphinxSearchBox = document.getElementById('sphinxSearchBox');
+      // Function to toggle search box visibility
+      function toggleSearchBox(searchType) {
+        googleSearchBox.style.display = searchType === 'google' ? 'block' : 'none';
+        sphinxSearchBox.style.display = searchType === 'sphinx' ? 'block' : 'none';
+      }
+      // Determine the default search type
+      let defaultSearchType;
+      const currentUrl = window.location.href;
+      if (currentUrl.startsWith('https://pytorch.org/docs/stable')) {
+        // For the stable documentation, default to Google
+        defaultSearchType = localStorage.getItem('searchType') || 'google';
+      } else {
+        // For any other version, including docs-preview, default to Sphinx
+        defaultSearchType = 'sphinx';
+      }
+      // Set the default search type
+      document.querySelector(`input[name="searchType"][value="${defaultSearchType}"]`).checked = true;
+      toggleSearchBox(defaultSearchType);
+      // Event listener for changes in search type
+      searchForm.addEventListener('change', function(event) {
+        const selectedSearchType = event.target.value;
+        localStorage.setItem('searchType', selectedSearchType);
+        toggleSearchBox(selectedSearchType);
+      });
+      // Set placeholder text for Google search box
+      window.onload = function() {
+        var placeholderText = "Search Docs";
+        var googleSearchboxText = document.querySelector("#gsc-i-id1");
+        if (googleSearchboxText) {
+          googleSearchboxText.placeholder = placeholderText;
+          googleSearchboxText.style.fontFamily = 'FreightSans';
+          googleSearchboxText.style.fontSize = "1.2rem";
+          googleSearchboxText.style.color = '#262626';
+        }
+      };
+    });
+  </script>
+
+          </div>
+
+          
+
+<div>
+  <a style="color:#F05732" href="https://pytorch.org/docs/stable/data.html">您正在查看不稳定开发者预览文档。请点击此处查看最新稳定版本的文档。</a>
+</div>
+
+
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">社区</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="community/build_ci_governance.html">PyTorch 治理 | 构建 + CI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/contribution_guide.html">PyTorch 贡献指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/design.html">PyTorch 设计哲学</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/governance.html">PyTorch 治理 | 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/persons_of_interest.html">PyTorch 治理 | 维护者</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发者笔记</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="notes/amp_examples.html">自动混合精度示例</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/autograd.html">Autograd 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/broadcasting.html">广播语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/cpu_threading_torchscript_inference.html">CPU 多线程和 TorchScript 推理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/cuda.html">CUDA 语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/custom_operators.html">PyTorch 自定义算子页面</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/ddp.html">分布式数据并行</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/extending.html">扩展 PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/extending.func.html">使用 autograd.Function 扩展 torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/faq.html">常见问题解答</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/fsdp.html">FSDP 笔记</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/get_start_xpu.html">在 Intel GPU 上入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/gradcheck.html">Gradcheck 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/hip.html">HIP (ROCm)语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/large_scale_deployments.html">大规模部署功能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/libtorch_stable_abi.html">LibTorch 稳定 ABI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/modules.html">模块</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/mps.html">MPS 后端</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/multiprocessing.html">多进程最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/numerical_accuracy.html">数值精度</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/randomness.html">可重现性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/serialization.html">序列化语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/windows.html">Windows 常见问题解答</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">语言绑定</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cpp_index.html">C++</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/javadoc/">Javadoc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deploy.html">torch::deploy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="torch.html">torch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.html">torch.nn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.functional.html">torch.nn.functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensors.html">torch.Tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensor_attributes.html">张量属性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensor_view.html">张量视图</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amp.html">torch.amp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autograd.html">torch.autograd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="library.html">torch.library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accelerator.html">torch.accelerator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpu.html">torch.cpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">torch.cuda</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html">理解 CUDA 内存使用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#generating-a-snapshot">生成快照</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#using-the-visualizer">使用可视化工具</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#snapshot-api-reference">快照 API 参考</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mps.html">torch.mps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="xpu.html">torch.xpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mtia.html">torch.mtia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mtia.memory.html">torch.mtia.memory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="meta.html">元设备</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backends.html">torch.backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="export.html">torch.export</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.html">torch.distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.tensor.html">torch.distributed.tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.algorithms.join.html">torch.distributed.algorithms.join</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.elastic.html">torch.distributed.elastic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fsdp.html">torch.distributed.fsdp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.fsdp.fully_shard.html">torch.distributed.fsdp.fully_shard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.tensor.parallel.html">torch.distributed.tensor.parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.optim.html">torch.distributed.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.pipelining.html">torch.distributed.pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.checkpoint.html">torch.distributed.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributions.html">torch.distributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch.compiler.html">torch.compiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fft.html">torch.fft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="func.html">torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="futures.html">torch.futures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fx.html">torch.fx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fx.experimental.html">torch.fx.experimental</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hub.html">torch.hub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jit.html">torch.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="linalg.html">torch.linalg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitor.html">torch.monitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="signal.html">torch.signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="special.html">torch.special</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch.overrides.html">torch.overrides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="package.html">torch.package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="profiler.html">torch.profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.init.html">torch.nn.init</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.attention.html">torch.nn.attention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="onnx.html">torch.onnx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="optim.html">torch.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="complex_numbers.html">复数</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ddp_comm_hooks.html">DDP 通信钩子</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quantization.html">量化</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rpc.html">分布式 RPC 框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="random.html">torch.random</a></li>
+<li class="toctree-l1"><a class="reference internal" href="masked.html">torch.masked</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nested.html">torch.nested</a></li>
+<li class="toctree-l1"><a class="reference internal" href="size.html">torch.Size</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sparse.html">torch.sparse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="storage.html">torch.Storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">torch.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">torch.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmark_utils.html">torch.utils.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bottleneck.html">torch.utils.bottleneck</a></li>
+<li class="toctree-l1"><a class="reference internal" href="checkpoint.html">torch.utils.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp_extension.html">torch.utils.cpp_extension</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">torch.utils.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deterministic.html">torch.utils.deterministic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jit_utils.html">torch.utils.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dlpack.html">torch.utils.dlpack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mobile_optimizer.html">torch.utils.mobile_optimizer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_zoo.html">torch.utils.model_zoo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensorboard.html">torch.utils.tensorboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_tracker.html">torch.utils.module_tracker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="type_info.html">类型信息</a></li>
+<li class="toctree-l1"><a class="reference internal" href="named_tensor.html">命名张量</a></li>
+<li class="toctree-l1"><a class="reference internal" href="name_inference.html">命名张量操作覆盖率</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config_mod.html">torch.__config__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="future_mod.html">torch.__future__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">torch._logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_environment_variables.html">火炬环境变量</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">库</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/audio/stable">torchaudio</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/data">TorchData</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/torchrec">火炬推荐</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/serve">TorchServe</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/text/stable">torchtext</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/vision/stable">torchvision</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/xla/">PyTorch 在 XLA 设备上</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/ao">torchao</a></li>
+</ul>
+
+            
+          
+
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        文档 &gt;</li>
+
+        
+      <li>torch.utils.data</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+            
+            <a href="_sources/data.rst.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg" width="16" height="16"></a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">快捷键</div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+
+          <!-- Google Tag Manager (noscript) -->
+          <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T8XT4PS" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+          <!-- End Google Tag Manager (noscript) -->
+          
+          <div class="rst-content">
+          
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <section id="module-torch.utils.data">
+<span id="torch-utils-data"></span><h1>torch.utils.data 注释</h1>
+<p>PyTorch 数据加载工具的核心是 <code class="xref py py-class docutils literal "><span class="pre">torch.utils.data.DataLoader</span></code> 类。它表示一个 Python 迭代器，遍历数据集，并支持</p>
+<ul class="simple">
+<li><p>沉浸式地图样式和可迭代样式数据集，</p></li>
+<li><p>自定义数据加载顺序，</p></li>
+<li><p>自动批量处理，</p></li>
+<li><p>单进程和多进程数据加载，</p></li>
+<li><p>自动内存固定。</p></li>
+</ul>
+<p>这些选项由构造函数的参数配置，该参数的签名是：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">DataLoader</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sampler</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+           <span class="n">batch_sampler</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">collate_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+           <span class="n">pin_memory</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">drop_last</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+           <span class="n">worker_init_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">prefetch_factor</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+           <span class="n">persistent_workers</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>下面的部分详细描述了这些选项的效果和用法。</p>
+<section id="dataset-types">
+<h2>数据集类型 ¶</h2>
+<p> <code class="xref py py-class docutils literal "><span class="pre">DataLoader</span></code> 构造函数最重要的参数是 <code class="xref py py-attr docutils literal "><span class="pre">dataset</span></code> ，它表示一个用于加载数据的数据集对象。PyTorch 支持两种不同类型的数据集：</p>
+<ul class="simple">
+<li><p>映射风格的数据集，</p></li>
+<li><p>可迭代风格的数据集。</p></li>
+</ul>
+<section id="map-style-datasets">
+<h3>映射风格的数据集 ¶</h3>
+<p>地图风格的数据集是指实现了 <code class="xref py py-meth docutils literal "><span class="pre">__getitem__()</span></code> 和 <code class="xref py py-meth docutils literal "><span class="pre">__len__()</span></code> 协议，并将（可能是非整数的）索引/键映射到数据样本的映射。</p>
+<p>例如，当使用 <code class="docutils literal "><span class="pre">dataset[idx]</span></code> 访问此类数据集时，可以从磁盘上的文件夹中读取第 <code class="docutils literal "><span class="pre">idx</span></code> 张图像及其对应的标签。</p>
+<p>更多详情请见 <code class="xref py py-class docutils literal "><span class="pre">Dataset</span></code> 。</p>
+</section>
+<section id="iterable-style-datasets">
+<h3>可迭代风格的数据集 ¶</h3>
+<p>可迭代式数据集是 <code class="xref py py-class docutils literal "><span class="pre">IterableDataset</span></code> 的子类实例，实现了 <code class="xref py py-meth docutils literal "><span class="pre">__iter__()</span></code> 协议，并代表对数据样本的可迭代访问。此类数据集特别适用于随机读取昂贵或甚至不可能的情况，以及批量大小依赖于获取的数据的情况。</p>
+<p>例如，此类数据集在调用 <code class="docutils literal "><span class="pre">iter(dataset)</span></code> 时，可以返回从数据库、远程服务器或实时生成的日志的数据流。</p>
+<p>更多详情请见 <code class="xref py py-class docutils literal "><span class="pre">IterableDataset</span></code> 。</p>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>当使用多进程数据加载的 <code class="xref py py-class docutils literal "><span class="pre">IterableDataset</span></code> 时。相同的数据集对象在每个工作进程中都会被复制，因此副本必须配置不同，以避免数据重复。有关如何实现此操作的文档，请参阅 <code class="xref py py-class docutils literal "><span class="pre">IterableDataset</span></code> 。</p>
+</div>
+</section>
+</section>
+<section id="data-loading-order-and-sampler">
+<h2>数据加载顺序和 <code class="xref py py-class docutils literal "><span class="pre">Sampler</span></code> ¶</h2>
+<p>对于迭代式数据集，数据加载顺序完全由用户定义的迭代器控制。这允许更容易地实现分块读取和动态批量大小（例如，通过每次产生一个批处理样本）。</p>
+<p>本节其余部分涉及具有映射式数据集的情况。 <code class="xref py py-class docutils literal "><span class="pre">torch.utils.data.Sampler</span></code> 类用于指定数据加载中使用的索引/键的顺序。它们代表对数据集索引的可迭代对象。例如，在常见的随机梯度下降（SGD）情况下， <code class="xref py py-class docutils literal "><span class="pre">Sampler</span></code> 可以随机排列索引列表，并逐个产生每个索引，或者为小批量 SGD 产生少量索引。</p>
+<p>将根据 <code class="xref py py-attr docutils literal "><span class="pre">shuffle</span></code> 参数自动构建一个顺序或洗牌采样器，或者用户可以使用 <code class="xref py py-attr docutils literal "><span class="pre">sampler</span></code> 参数指定一个自定义的 <code class="xref py py-class docutils literal "><span class="pre">Sampler</span></code> 对象，该对象在每个时间点产生下一个要获取的索引/键。</p>
+<p>可以将一个自定义的 <code class="xref py py-class docutils literal "><span class="pre">Sampler</span></code> ，该 <code class="xref py py-class docutils literal "><span class="pre">Sampler</span></code>  在每次产生一个批次的索引列表，作为 <code class="xref py py-attr docutils literal "><span class="pre">batch_sampler</span></code> 参数传递。也可以通过 <code class="xref py py-attr docutils literal "><span class="pre">batch_size</span></code> 和 <code class="xref py py-attr docutils literal "><span class="pre">drop_last</span></code> 参数启用自动批处理。有关更多详细信息，请参阅下一节。</p>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>由于此类数据集没有键或索引的概念，因此 <code class="xref py py-attr docutils literal "><span class="pre">sampler</span></code> 和 <code class="xref py py-attr docutils literal "><span class="pre">batch_sampler</span></code> 都不兼容可迭代式数据集。</p>
+</div>
+</section>
+<section id="loading-batched-and-non-batched-data">
+<h2>加载批处理和非批处理数据</h2>
+<p> <code class="xref py py-class docutils literal "><span class="pre">DataLoader</span></code> 支持通过参数 <code class="xref py py-attr docutils literal "><span class="pre">batch_size</span></code> 、 <code class="xref py py-attr docutils literal "><span class="pre">drop_last</span></code> 、 <code class="xref py py-attr docutils literal "><span class="pre">batch_sampler</span></code> 和 <code class="xref py py-attr docutils literal "><span class="pre">collate_fn</span></code> （具有默认函数）自动将单独获取的数据样本整理成批次（默认函数）。</p>
+<section id="automatic-batching-default">
+<h3>自动批量处理（默认）</h3>
+<p>这是最常见的用例，对应于获取一个数据小批量并将它们整理成批处理样本，即包含具有一个维度为批处理维度的张量（通常为第一个维度）。</p>
+<p>当 <code class="xref py py-attr docutils literal "><span class="pre">batch_size</span></code> （默认 <code class="docutils literal "><span class="pre">1</span></code> ）不是 <code class="docutils literal "><span class="pre">None</span></code> 时，数据加载器将返回批处理样本而不是单个样本。 <code class="xref py py-attr docutils literal "><span class="pre">batch_size</span></code> 和 <code class="xref py py-attr docutils literal "><span class="pre">drop_last</span></code> 参数用于指定数据加载器如何获取数据集键的批次。对于映射样式数据集，用户可以指定 <code class="xref py py-attr docutils literal "><span class="pre">batch_sampler</span></code> ，它一次返回一个键的列表。</p>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p> <code class="xref py py-attr docutils literal "><span class="pre">batch_size</span></code> 和 <code class="xref py py-attr docutils literal "><span class="pre">drop_last</span></code> 参数本质上用于从 <code class="xref py py-attr docutils literal "><span class="pre">sampler</span></code> 构建 <code class="xref py py-attr docutils literal "><span class="pre">batch_sampler</span></code> 。对于映射样式数据集， <code class="xref py py-attr docutils literal "><span class="pre">sampler</span></code> 由用户提供或基于 <code class="xref py py-attr docutils literal "><span class="pre">shuffle</span></code> 参数构建。对于可迭代样式数据集， <code class="xref py py-attr docutils literal "><span class="pre">sampler</span></code> 是一个虚拟的无限迭代器。请参阅有关采样器的更多详细信息。</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>在从多进程的迭代式数据集获取数据时， <code class="xref py py-attr docutils literal "><span class="pre">drop_last</span></code> 参数会丢弃每个工作进程数据副本的最后一个非满批次。</p>
+</div>
+<p>使用采样器索引获取样本列表后，将作为 <code class="xref py py-attr docutils literal "><span class="pre">collate_fn</span></code> 参数传递的函数用于将样本列表汇总成批次。</p>
+<p>在这种情况下，从映射式数据集加载大致等同于：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">indices</span> <span class="ow">in</span> <span class="n">batch_sampler</span><span class="p">:</span>
+    <span class="k">yield</span> <span class="n">collate_fn</span><span class="p">([</span><span class="n">dataset</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>以及从迭代式数据集加载大致等同于：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">dataset_iter</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">indices</span> <span class="ow">in</span> <span class="n">batch_sampler</span><span class="p">:</span>
+    <span class="k">yield</span> <span class="n">collate_fn</span><span class="p">([</span><span class="nb">next</span><span class="p">(</span><span class="n">dataset_iter</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>可以使用自定义的 <code class="xref py py-attr docutils literal "><span class="pre">collate_fn</span></code> 来定制排序，例如将序列数据填充到批次的最大长度。请参阅本节了解有关 <code class="xref py py-attr docutils literal "><span class="pre">collate_fn</span></code> 的更多信息。</p>
+</section>
+<section id="disable-automatic-batching">
+<h3>禁用自动批处理</h3>
+<p>在某些情况下，用户可能希望在数据集代码中手动处理批处理，或者简单地加载单个样本。例如，直接加载批处理数据（例如从数据库的批量读取或读取内存的连续块）可能更便宜，或者批处理大小与数据相关，或者程序设计为处理单个样本。在这些情况下，最好不使用自动批处理（其中 <code class="xref py py-attr docutils literal "><span class="pre">collate_fn</span></code> 用于排序样本），而是让数据加载器直接返回 <code class="xref py py-attr docutils literal "><span class="pre">dataset</span></code> 对象的每个成员。</p>
+<p>当 <code class="xref py py-attr docutils literal "><span class="pre">batch_size</span></code> 和 <code class="xref py py-attr docutils literal "><span class="pre">batch_sampler</span></code> 都是 <code class="docutils literal "><span class="pre">None</span></code> （ <code class="xref py py-attr docutils literal "><span class="pre">batch_sampler</span></code> 的默认值已经是 <code class="docutils literal "><span class="pre">None</span></code> ）时，自动批处理被禁用。从 <code class="xref py py-attr docutils literal "><span class="pre">dataset</span></code> 获得的每个样本都使用作为 <code class="xref py py-attr docutils literal "><span class="pre">collate_fn</span></code> 参数传递的函数进行处理。</p>
+<p>当自动批处理被禁用时，默认的 <code class="xref py py-attr docutils literal "><span class="pre">collate_fn</span></code> 只是将 NumPy 数组转换为 PyTorch 张量，其他一切保持不变。</p>
+<p>在这种情况下，从地图样式数据集中加载数据大致等同于：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">sampler</span><span class="p">:</span>
+    <span class="k">yield</span> <span class="n">collate_fn</span><span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>从可迭代样式数据集中加载数据大致等同于：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="nb">iter</span><span class="p">(</span><span class="n">dataset</span><span class="p">):</span>
+    <span class="k">yield</span> <span class="n">collate_fn</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>请参阅本节了解更多关于 <code class="xref py py-attr docutils literal "><span class="pre">collate_fn</span></code> 的信息。</p>
+</section>
+<section id="working-with-collate-fn">
+<span id="dataloader-collate-fn"></span><h3>与 <code class="xref py py-attr docutils literal "><span class="pre">collate_fn</span></code> ¶合作</h3>
+<p> <code class="xref py py-attr docutils literal "><span class="pre">collate_fn</span></code> 在自动批处理启用或禁用时使用略有不同。</p>
+<p>当自动批处理被禁用时，每个单独的数据样本都会调用 <code class="xref py py-attr docutils literal "><span class="pre">collate_fn</span></code> ，输出从数据加载器迭代器中产生。在这种情况下，默认的 <code class="xref py py-attr docutils literal "><span class="pre">collate_fn</span></code> 简单地将 NumPy 数组转换为 PyTorch 张量。</p>
+<p>当启用自动批处理时，每次调用 <code class="xref py py-attr docutils literal "><span class="pre">collate_fn</span></code> 时都会带有一个数据样本列表。它预期将输入样本收集到一个批次中，以便从数据加载器迭代器中产生。本节其余部分描述了默认的 <code class="xref py py-attr docutils literal "><span class="pre">collate_fn</span></code> （ <code class="xref py py-func docutils literal "><span class="pre">default_collate()</span></code> ）的行为。</p>
+<p>例如，如果每个数据样本由一个 3 通道图像和一个积分类别标签组成，即数据集中的每个元素返回一个元组 <code class="docutils literal "><span class="pre">(image,</span> <span class="pre">class_index)</span></code> ，默认的 <code class="xref py py-attr docutils literal "><span class="pre">collate_fn</span></code> 将此类元组列表合并成一个包含批处理图像张量和批处理类别标签张量的单个元组。特别是默认的 <code class="xref py py-attr docutils literal "><span class="pre">collate_fn</span></code> 具有以下特性：</p>
+<ul class="simple">
+<li><p>它始终在前面添加一个新维度作为批处理维度。</p></li>
+<li><p>它自动将 NumPy 数组和 Python 数值转换为 PyTorch 张量。</p></li>
+<li><p>它保留数据结构，例如，如果每个样本是一个字典，则输出具有相同键集的字典，但值是批处理张量（如果值不能转换为张量，则为列表）。同样适用于 <code class="docutils literal "><span class="pre">list</span></code> 、 <code class="docutils literal "><span class="pre">tuple</span></code> 、 <code class="docutils literal "><span class="pre">namedtuple</span></code> 等。</p></li>
+</ul>
+<p>用户可以使用自定义的 <code class="xref py py-attr docutils literal "><span class="pre">collate_fn</span></code> 来实现自定义批处理，例如按除第一个维度以外的维度整理，填充不同长度的序列，或添加对自定义数据类型的支持。</p>
+<p>如果您遇到 <code class="xref py py-class docutils literal "><span class="pre">DataLoader</span></code> 的输出维度或类型与您的预期不同的情况，您可能需要检查您的 <code class="xref py py-attr docutils literal "><span class="pre">collate_fn</span></code> 。</p>
+</section>
+</section>
+<section id="single-and-multi-process-data-loading">
+<h2>单进程和多进程数据加载 ¶</h2>
+<p> <code class="xref py py-class docutils literal "><span class="pre">DataLoader</span></code> 默认使用单进程数据加载。</p>
+<p>在 Python 进程中，全局解释器锁（GIL）阻止了 Python 代码在多个线程中真正并行执行。为了避免数据加载阻塞计算代码，PyTorch 提供了一个简单的开关，通过将参数 <code class="xref py py-attr docutils literal "><span class="pre">num_workers</span></code> 设置为正整数来执行多进程数据加载。</p>
+<section id="single-process-data-loading-default">
+<h3>单进程数据加载（默认）</h3>
+<p>在此模式下，数据获取是在初始化 <code class="xref py py-class docutils literal "><span class="pre">DataLoader</span></code> 的同一进程中完成的。因此，数据加载可能会阻塞计算。然而，当用于进程间共享数据（例如，共享内存、文件描述符）的资源有限，或者整个数据集很小且可以完全加载到内存中时，此模式可能更受欢迎。此外，单进程加载通常显示更易读的错误跟踪，因此对于调试很有用。</p>
+</section>
+<section id="multi-process-data-loading">
+<h3>多进程数据加载</h3>
+<p>将参数 <code class="xref py py-attr docutils literal "><span class="pre">num_workers</span></code> 设置为正整数将启用多进程数据加载，并指定加载工作进程的数量。</p>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>经过多次迭代后，加载工作进程将消耗与父进程相同的 CPU 内存，用于父进程中所有从工作进程访问的 Python 对象。如果数据集包含大量数据（例如，在构建数据集时加载一个非常大的文件名列表）并且/或者使用大量工作进程（总内存使用量为 <code class="docutils literal "><span class="pre">number</span> <span class="pre">of</span> <span class="pre">workers</span> <span class="pre">*</span> <span class="pre">size</span> <span class="pre">of</span> <span class="pre">parent</span> <span class="pre">process</span></code> ），则可能会出现问题。最简单的解决方案是将 Python 对象替换为非引用计数表示，例如 Pandas、Numpy 或 PyArrow 对象。有关此问题的更多详细信息以及如何解决这些问题的示例代码，请参阅问题#13246。</p>
+</div>
+<p>在此模式下，每次创建 <code class="xref py py-class docutils literal "><span class="pre">DataLoader</span></code> 的迭代器时（例如，当您调用 <code class="docutils literal "><span class="pre">enumerate(dataloader)</span></code> 时），将创建 <code class="xref py py-attr docutils literal "><span class="pre">num_workers</span></code> 个工作进程。此时， <code class="xref py py-attr docutils literal "><span class="pre">dataset</span></code> 、 <code class="xref py py-attr docutils literal "><span class="pre">collate_fn</span></code> 和 <code class="xref py py-attr docutils literal "><span class="pre">worker_init_fn</span></code> 将传递给每个工作进程，它们用于初始化和获取数据。这意味着数据集访问及其内部 IO、转换（包括 <code class="xref py py-attr docutils literal "><span class="pre">collate_fn</span></code> ）都在工作进程中运行。</p>
+<p> <code class="xref py py-func docutils literal "><span class="pre">torch.utils.data.get_worker_info()</span></code> 在工作进程中返回各种有用的信息（包括工作进程 ID、数据集副本、初始种子等），并在主进程中返回 <code class="docutils literal "><span class="pre">None</span></code> 。用户可以在数据集代码中使用此函数，并通过 <code class="xref py py-attr docutils literal "><span class="pre">worker_init_fn</span></code> 单独配置每个数据集副本，以及确定代码是否在工作进程中运行。例如，这可以在数据集分片时特别有用。</p>
+<p>对于映射样式的数据集，主进程使用 <code class="xref py py-attr docutils literal "><span class="pre">sampler</span></code> 生成索引，并将它们发送到工作进程。因此，任何洗牌随机化都在主进程中完成，通过分配索引来引导加载。</p>
+<p>对于可迭代样式的数据集，由于每个工作进程都获得 <code class="xref py py-attr docutils literal "><span class="pre">dataset</span></code> 对象的副本，因此简单的多进程加载通常会得到重复的数据。用户可以使用 <code class="xref py py-func docutils literal "><span class="pre">torch.utils.data.get_worker_info()</span></code> 和/或 <code class="xref py py-attr docutils literal "><span class="pre">worker_init_fn</span></code> 独立配置每个副本。（有关如何实现此操作的说明，请参阅 <code class="xref py py-class docutils literal "><span class="pre">IterableDataset</span></code> 文档。）出于类似原因，在多进程加载中， <code class="xref py py-attr docutils literal "><span class="pre">drop_last</span></code> 参数将丢弃每个工作进程的可迭代数据集副本的最后一个非完整批次。</p>
+<p>当迭代结束时或迭代器被垃圾回收时，将关闭工作进程。</p>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>通常不建议在多进程加载时返回 CUDA 张量，因为 CUDA 和多进程共享 CUDA 张量存在许多细微之处（参见多进程中的 CUDA）。相反，我们建议使用自动内存固定（即设置 <code class="xref py py-attr docutils literal "><span class="pre">pin_memory=True</span></code> ），这可以启用快速数据传输到 CUDA 支持的 GPU。</p>
+</div>
+<section id="platform-specific-behaviors">
+<h4>平台特定行为</h4>
+<p>由于工作进程依赖于 Python <code class="xref py py-mod docutils literal "><span class="pre">multiprocessing</span></code> ，与 Unix 相比，Windows 上的工作进程启动行为不同。</p>
+<ul class="simple">
+<li><p>在 Unix 上， <code class="xref py py-func docutils literal "><span class="pre">fork()</span></code> 是默认的 <code class="xref py py-mod docutils literal "><span class="pre">multiprocessing</span></code> 启动方法。使用 <code class="xref py py-func docutils literal "><span class="pre">fork()</span></code> ，子工作进程通常可以直接通过复制的地址空间直接访问 <code class="xref py py-attr docutils literal "><span class="pre">dataset</span></code> 和 Python 参数函数。</p></li>
+<li><p>在 Windows 或 MacOS 上， <code class="xref py py-func docutils literal "><span class="pre">spawn()</span></code> 是默认的 <code class="xref py py-mod docutils literal "><span class="pre">multiprocessing</span></code> 启动方法。使用 <code class="xref py py-func docutils literal "><span class="pre">spawn()</span></code> 时，将启动另一个解释器来运行您的主脚本，随后是内部工作函数，该函数通过 <code class="xref py py-mod docutils literal "><span class="pre">pickle</span></code> 序列化接收 <code class="xref py py-attr docutils literal "><span class="pre">dataset</span></code> 、 <code class="xref py py-attr docutils literal "><span class="pre">collate_fn</span></code> 和其他参数。</p></li>
+</ul>
+<p>这种独立的序列化意味着，在使用多进程数据加载时，您需要采取两个步骤来确保与 Windows 兼容：</p>
+<ul class="simple">
+<li><p>将您主脚本的大部分代码包裹在 <code class="docutils literal "><span class="pre">if</span> <span class="pre">__name__</span> <span class="pre">==</span> <span class="pre">'__main__':</span></code> 块中，以确保在每次启动工作进程时不会再次运行（很可能会生成错误）。您可以将数据集和 <code class="xref py py-class docutils literal "><span class="pre">DataLoader</span></code> 实例创建逻辑放在这里，因为它们不需要在工作进程中重新执行。</p></li>
+<li><p>确保任何自定义的 <code class="xref py py-attr docutils literal "><span class="pre">collate_fn</span></code> 、 <code class="xref py py-attr docutils literal "><span class="pre">worker_init_fn</span></code> 或 <code class="xref py py-attr docutils literal "><span class="pre">dataset</span></code> 代码都被声明为顶级定义，位于 <code class="docutils literal "><span class="pre">__main__</span></code> 检查之外。这确保它们在工作进程中可用。（这是必要的，因为函数仅作为引用序列化，而不是 <code class="docutils literal "><span class="pre">bytecode</span></code> 。）</p></li>
+</ul>
+</section>
+<section id="randomness-in-multi-process-data-loading">
+<span id="data-loading-randomness"></span><h4>多进程数据加载中的随机性 ¶</h4>
+<p>默认情况下，每个工作进程都将将其 PyTorch 随机数种子设置为 <code class="docutils literal "><span class="pre">base_seed</span> <span class="pre">+</span> <span class="pre">worker_id</span></code> ，其中 <code class="docutils literal "><span class="pre">base_seed</span></code> 是主进程使用其 RNG 生成的长随机数（因此，必须消耗 RNG 状态）或指定的 <code class="xref py py-attr docutils literal "><span class="pre">generator</span></code> 。然而，在初始化工作进程时，其他库的种子可能会重复，导致每个工作进程返回相同的随机数。（参见 FAQ 中的本节。）</p>
+<p>在 <code class="xref py py-attr docutils literal "><span class="pre">worker_init_fn</span></code> 中，您可以使用 <code class="xref py py-func docutils literal "><span class="pre">torch.utils.data.get_worker_info().seed</span></code> 或 <code class="xref py py-func docutils literal "><span class="pre">torch.initial_seed()</span></code> 访问每个工作进程的 PyTorch 随机数种子，并在数据加载之前使用它来初始化其他库。</p>
+</section>
+</section>
+</section>
+<section id="memory-pinning">
+<h2>内存固定 ¶</h2>
+<p>当主机到 GPU 的复制操作从固定（页面锁定）内存发起时，速度会快得多。有关何时以及如何一般使用固定内存缓冲区的详细信息，请参阅使用固定内存缓冲区。</p>
+<p>对于数据加载，将 <code class="xref py py-attr docutils literal "><span class="pre">pin_memory=True</span></code> 传递给 <code class="xref py py-class docutils literal "><span class="pre">DataLoader</span></code> 将自动将获取的数据 Tensors 放入固定内存中，从而实现更快的 CUDA 启用 GPU 数据传输。</p>
+<p>默认内存固定逻辑仅识别 Tensors 以及包含 Tensors 的映射和可迭代对象。默认情况下，如果固定逻辑看到的是一个自定义类型的数据批次（如果您有一个返回自定义批次类型的 <code class="xref py py-attr docutils literal "><span class="pre">collate_fn</span></code> ），或者如果批次中的每个元素都是自定义类型，固定逻辑将不会识别它们，并且将返回该批次（或这些元素）而不固定内存。要为自定义批次或数据类型启用内存固定，请在您的自定义类型上定义一个 <code class="xref py py-meth docutils literal "><span class="pre">pin_memory()</span></code> 方法。</p>
+<p>请参阅下面的示例。</p>
+<p>示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SimpleCustomBatch</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="n">transposed_data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">data</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inp</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">transposed_data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tgt</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">transposed_data</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># custom memory pinning method on custom type</span>
+    <span class="k">def</span> <span class="nf">pin_memory</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inp</span><span class="o">.</span><span class="n">pin_memory</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tgt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tgt</span><span class="o">.</span><span class="n">pin_memory</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+<span class="k">def</span> <span class="nf">collate_wrapper</span><span class="p">(</span><span class="n">batch</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">SimpleCustomBatch</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+
+<span class="n">inps</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="mi">5</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="n">tgts</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="mi">5</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">TensorDataset</span><span class="p">(</span><span class="n">inps</span><span class="p">,</span> <span class="n">tgts</span><span class="p">)</span>
+
+<span class="n">loader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">collate_fn</span><span class="o">=</span><span class="n">collate_wrapper</span><span class="p">,</span>
+                    <span class="n">pin_memory</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">batch_ndx</span><span class="p">,</span> <span class="n">sample</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">loader</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">sample</span><span class="o">.</span><span class="n">inp</span><span class="o">.</span><span class="n">is_pinned</span><span class="p">())</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">sample</span><span class="o">.</span><span class="n">tgt</span><span class="o">.</span><span class="n">is_pinned</span><span class="p">())</span>
+</pre></div>
+</div>
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.utils.data.DataLoader">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.utils.data.</span></span><span class="sig-name descname"><span class="pre">DataLoader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampler</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_sampler</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_workers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collate_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pin_memory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drop_last</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">worker_init_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiprocessing_context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefetch_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">persistent_workers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pin_memory_device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/utils/data/dataloader.html#DataLoader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/utils/data/dataloader.py#L131"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.utils.data.DataLoader" title="Permalink to this definition">¶</a></dt>
+<dd><p>数据加载器结合数据集和采样器，并为给定数据集提供可迭代的对象。</p>
+<p> <code class="xref py py-class docutils literal "><span class="pre">DataLoader</span></code> 支持使用单进程或多进程加载的映射风格和可迭代风格的数据集，可自定义加载顺序和可选的自动批处理（收集）以及内存固定。</p>
+<p>更多详细信息，请参阅 <code class="xref py py-mod docutils literal "><span class="pre">torch.utils.data</span></code> 文档页面。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>数据集（数据集）- 从中加载数据的数据集。</p></li>
+<li><p>批大小（整数，可选）- 每批加载的样本数量（默认： <code class="docutils literal "><span class="pre">1</span></code> ）。</p></li>
+<li><p>打乱顺序（布尔值，可选）- 设置为 <code class="docutils literal "><span class="pre">True</span></code> 以在每个 epoch 重新打乱数据（默认： <code class="docutils literal "><span class="pre">False</span></code> ）。</p></li>
+<li><p>样本抽取器（Sampler 或可迭代对象，可选）- 定义从数据集中抽取样本的策略。可以是实现了 <code class="docutils literal "><span class="pre">__len__</span></code> 的任何 <code class="docutils literal "><span class="pre">Iterable</span></code> 。如果指定，则必须不指定 <code class="xref py py-attr docutils literal "><span class="pre">shuffle</span></code> 。</p></li>
+<li><p>batch_sampler（采样器或可迭代对象，可选）- 类似于 <code class="xref py py-attr docutils literal "><span class="pre">sampler</span></code> ，但每次返回一批索引。与 <code class="xref py py-attr docutils literal "><span class="pre">batch_size</span></code> 、 <code class="xref py py-attr docutils literal "><span class="pre">shuffle</span></code> 、 <code class="xref py py-attr docutils literal "><span class="pre">sampler</span></code> 和 <code class="xref py py-attr docutils literal "><span class="pre">drop_last</span></code> 互斥。</p></li>
+<li><p>num_workers（整数，可选）- 用于数据加载的子进程数量。 <code class="docutils literal "><span class="pre">0</span></code> 表示数据将在主进程中加载。（默认： <code class="docutils literal "><span class="pre">0</span></code> ）</p></li>
+<li><p>collate_fn（可调用对象，可选）- 将样本列表合并成一个包含张量的迷你批次。在从映射式数据集使用批量加载时使用。</p></li>
+<li><p>pin_memory（布尔值，可选）- 如果 <code class="docutils literal "><span class="pre">True</span></code> ，数据加载器将在返回之前将张量复制到设备/CUDA 固定内存中。如果您的数据元素是自定义类型，或者您的 <code class="xref py py-attr docutils literal "><span class="pre">collate_fn</span></code> 返回的批次是自定义类型，请参阅下面的示例。</p></li>
+<li><p>drop_last (bool, 可选) – 设置为 <code class="docutils literal "><span class="pre">True</span></code> 以丢弃最后一个不完整的批次，如果数据集大小不能被批次大小整除。如果 <code class="docutils literal "><span class="pre">False</span></code> 且数据集大小不能被批次大小整除，则最后一个批次将更小。(默认: <code class="docutils literal "><span class="pre">False</span></code> )</p></li>
+<li><p>timeout (数值，可选) – 如果为正数，则为从工作者那里收集一个批次的超时值。应始终为非负数。(默认: <code class="docutils literal "><span class="pre">0</span></code> )</p></li>
+<li><p>worker_init_fn (Callable，可选) – 如果不为 <code class="docutils literal "><span class="pre">None</span></code> ，则将在每个工作者子进程中以工作者 ID（一个整数， <code class="docutils literal "><span class="pre">[0,</span> <span class="pre">num_workers</span> <span class="pre">-</span> <span class="pre">1]</span></code> ）作为输入调用此函数，在播种之后和加载数据之前。(默认: <code class="docutils literal "><span class="pre">None</span></code> )</p></li>
+<li><p>multiprocessing_context (str 或 multiprocessing.context.BaseContext，可选) – 如果为 <code class="docutils literal "><span class="pre">None</span></code> ，则使用操作系统的默认多进程上下文。(默认: <code class="docutils literal "><span class="pre">None</span></code> )</p></li>
+<li><p>generator (torch.Generator, 可选) – 如果不是 <code class="docutils literal "><span class="pre">None</span></code> ，则此随机数生成器将被 RandomSampler 用于生成随机索引，以及用于工作进程的 <code class="docutils literal "><span class="pre">base_seed</span></code> 。(默认： <code class="docutils literal "><span class="pre">None</span></code> )</p></li>
+<li><p>prefetch_factor (int, 可选，关键字参数) – 每个工作进程预先加载的批次数。 <code class="docutils literal "><span class="pre">2</span></code> 表示所有工作进程将总共预取 2 * num_workers 批次。 (默认值取决于 num_workers 的设置值。如果 num_workers 的值为 0，则默认为 <code class="docutils literal "><span class="pre">None</span></code> 。否则，如果 <code class="docutils literal "><span class="pre">num_workers</span> <span class="pre">&gt;</span> <span class="pre">0</span></code> 的默认值为 <code class="docutils literal "><span class="pre">2</span></code> 。)</p></li>
+<li><p>persistent_workers (bool, 可选) – 如果 <code class="docutils literal "><span class="pre">True</span></code> ，则数据加载器在消耗完数据集后不会关闭工作进程。这允许保持工作进程的 Dataset 实例存活。 (默认： <code class="docutils literal "><span class="pre">False</span></code> )</p></li>
+<li><p>pin_memory_device (str, 可选) – 如果 <code class="docutils literal "><span class="pre">pin_memory</span></code> 是 <code class="docutils literal "><span class="pre">True</span></code> ，则在 <code class="xref py py-attr docutils literal "><span class="pre">pin_memory</span></code> 上。如果没有给出，则当前加速器将是默认值。此参数不建议使用，并可能被弃用。</p></li>
+<li><p>in_order（布尔值，可选）- 如果 <code class="docutils literal "><span class="pre">False</span></code> ，数据加载器将不会强制要求返回的批次按先入先出顺序排列。仅当 <code class="docutils literal "><span class="pre">num_workers</span> <span class="pre">&gt;</span> <span class="pre">0</span></code> 时适用。（默认： <code class="docutils literal "><span class="pre">True</span></code> ）</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>如果使用 <code class="docutils literal "><span class="pre">spawn</span></code> 启动方法， <code class="xref py py-attr docutils literal "><span class="pre">worker_init_fn</span></code> 不能是一个不可序列化的对象，例如 lambda 函数。有关 PyTorch 中多进程的更多详细信息，请参阅多进程最佳实践。</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p> <code class="docutils literal "><span class="pre">len(dataloader)</span></code> 启发式算法基于采样器的长度。当 <code class="xref py py-attr docutils literal "><span class="pre">dataset</span></code> 是 <code class="xref py py-class docutils literal "><span class="pre">IterableDataset</span></code> 时，它将基于 <code class="docutils literal "><span class="pre">len(dataset)</span> <span class="pre">/</span> <span class="pre">batch_size</span></code> 返回一个估计值，并根据 <code class="xref py py-attr docutils literal "><span class="pre">drop_last</span></code> 进行适当的舍入，无论多进程加载配置如何。这代表了 PyTorch 能做出的最佳猜测，因为 PyTorch 相信用户 <code class="xref py py-attr docutils literal "><span class="pre">dataset</span></code> 代码能够正确处理多进程加载以避免数据重复。</p>
+<p>然而，如果分片导致多个工作进程拥有不完整的最后一个批次，这个估计仍然可能不准确，因为（1）一个本应完整的批次可能被分割成多个批次，并且（2）当 <code class="xref py py-attr docutils literal "><span class="pre">drop_last</span></code> 被设置时，可能丢弃超过一个批次值的样本。不幸的是，PyTorch 通常无法检测到这种情况。</p>
+<p>请参阅数据集类型，以获取有关这两种数据集的更多详细信息以及 <code class="xref py py-class docutils literal "><span class="pre">IterableDataset</span></code> 如何与多进程数据加载交互。</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>请参阅可重现性、我的数据加载器工作进程返回相同的随机数以及多进程数据加载中的随机性相关笔记，以了解随机种子相关问题。</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>将 in_order 设置为 False 可能会损害可重现性，并可能导致在数据不平衡的情况下，倾斜的数据分布被喂给训练器。</p>
+</div>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.utils.data.Dataset">
+class torch.utils.data.Dataset[source][source]</dt>
+<dd><p>表示一个抽象类的 <code class="xref py py-class docutils literal "><span class="pre">Dataset</span></code> 。</p>
+<p>所有表示从键到数据样本映射的数据集都应该继承它。所有子类都应该重写 <code class="xref py py-meth docutils literal "><span class="pre">__getitem__()</span></code> ，以支持获取给定键的数据样本。子类还可以选择性地重写 <code class="xref py py-meth docutils literal "><span class="pre">__len__()</span></code> ，这在许多 <code class="xref py py-class docutils literal "><span class="pre">Sampler</span></code> 实现和 <code class="xref py py-class docutils literal "><span class="pre">DataLoader</span></code> 默认选项中预期返回数据集的大小。子类还可以选择性地实现 <code class="xref py py-meth docutils literal "><span class="pre">__getitems__()</span></code> ，以加速批量样本加载。此方法接受样本批次的索引列表，并返回样本列表。</p>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p> <code class="xref py py-class docutils literal "><span class="pre">DataLoader</span></code> 默认构建一个产生整数索引的索引采样器。为了使其与非整数索引/键的映射式数据集兼容，必须提供自定义采样器。</p>
+</div>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.utils.data.IterableDataset">
+class torch.utils.data.IterableDataset[source][source]</dt>
+<dd><p>一个可迭代的数据集。</p>
+<p>所有表示数据样本可迭代的集合都应该继承它。这种形式的集合在数据来自流时尤其有用。</p>
+<p>所有子类都应该重写 <code class="xref py py-meth docutils literal "><span class="pre">__iter__()</span></code> ，这将返回该数据集中的样本迭代器。</p>
+<p>当子类与 <code class="xref py py-class docutils literal "><span class="pre">DataLoader</span></code> 一起使用时，数据集中的每个项目都将从 <code class="xref py py-class docutils literal "><span class="pre">DataLoader</span></code> 迭代器中产生。当 <code class="xref py py-attr docutils literal "><span class="pre">num_workers</span> <span class="pre">&gt;</span> <span class="pre">0</span></code> 时，每个工作进程将拥有数据集对象的不同副本，因此通常希望独立配置每个副本以避免从工作进程返回重复的数据。 <code class="xref py py-func docutils literal "><span class="pre">get_worker_info()</span></code> ，当在工作进程中调用时，返回有关工作进程的信息。它可以用在数据集的 <code class="xref py py-meth docutils literal "><span class="pre">__iter__()</span></code> 方法或 <code class="xref py py-class docutils literal "><span class="pre">DataLoader</span></code> 的 <code class="xref py py-attr docutils literal "><span class="pre">worker_init_fn</span></code> 选项中，以修改每个副本的行为。</p>
+<p>示例 1：在 <code class="xref py py-meth docutils literal "><span class="pre">__iter__()</span></code> 中将工作负载分配给所有工作者</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">MyIterableDataset</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">IterableDataset</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="nb">super</span><span class="p">(</span><span class="n">MyIterableDataset</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+<span class="gp">... </span>        <span class="k">assert</span> <span class="n">end</span> <span class="o">&gt;</span> <span class="n">start</span><span class="p">,</span> <span class="s2">"this example code only works with end &gt;= start"</span>
+<span class="gp">... </span>        <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="n">start</span>
+<span class="gp">... </span>        <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="n">end</span>
+<span class="gp">...</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="n">worker_info</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get_worker_info</span><span class="p">()</span>
+<span class="gp">... </span>        <span class="k">if</span> <span class="n">worker_info</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># single-process data loading, return the full iterator</span>
+<span class="gp">... </span>            <span class="n">iter_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span>
+<span class="gp">... </span>            <span class="n">iter_end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span>
+<span class="gp">... </span>        <span class="k">else</span><span class="p">:</span>  <span class="c1"># in a worker process</span>
+<span class="gp">... </span>            <span class="c1"># split workload</span>
+<span class="gp">... </span>            <span class="n">per_worker</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">)</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">worker_info</span><span class="o">.</span><span class="n">num_workers</span><span class="p">)))</span>
+<span class="gp">... </span>            <span class="n">worker_id</span> <span class="o">=</span> <span class="n">worker_info</span><span class="o">.</span><span class="n">id</span>
+<span class="gp">... </span>            <span class="n">iter_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">+</span> <span class="n">worker_id</span> <span class="o">*</span> <span class="n">per_worker</span>
+<span class="gp">... </span>            <span class="n">iter_end</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">iter_start</span> <span class="o">+</span> <span class="n">per_worker</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span><span class="p">)</span>
+<span class="gp">... </span>        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">iter_start</span><span class="p">,</span> <span class="n">iter_end</span><span class="p">))</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># should give same set of data as range(3, 7), i.e., [3, 4, 5, 6].</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span> <span class="o">=</span> <span class="n">MyIterableDataset</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Single-process loading</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">0</span><span class="p">)))</span>
+<span class="go">[tensor([3]), tensor([4]), tensor([5]), tensor([6])]</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Multi-process loading with two worker processes</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Worker 0 fetched [3, 4].  Worker 1 fetched [5, 6].</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">2</span><span class="p">)))</span>
+<span class="go">[tensor([3]), tensor([5]), tensor([4]), tensor([6])]</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># With even more workers</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">12</span><span class="p">)))</span>
+<span class="go">[tensor([3]), tensor([5]), tensor([4]), tensor([6])]</span>
+</pre></div>
+</div>
+<p>示例 2：使用 <code class="xref py py-attr docutils literal "><span class="pre">worker_init_fn</span></code> 在所有工作者之间分配工作负载</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">MyIterableDataset</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">IterableDataset</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="nb">super</span><span class="p">(</span><span class="n">MyIterableDataset</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+<span class="gp">... </span>        <span class="k">assert</span> <span class="n">end</span> <span class="o">&gt;</span> <span class="n">start</span><span class="p">,</span> <span class="s2">"this example code only works with end &gt;= start"</span>
+<span class="gp">... </span>        <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="n">start</span>
+<span class="gp">... </span>        <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="n">end</span>
+<span class="gp">...</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span><span class="p">))</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># should give same set of data as range(3, 7), i.e., [3, 4, 5, 6].</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span> <span class="o">=</span> <span class="n">MyIterableDataset</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Single-process loading</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">0</span><span class="p">)))</span>
+<span class="go">[3, 4, 5, 6]</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Directly doing multi-process loading yields duplicate data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">2</span><span class="p">)))</span>
+<span class="go">[3, 3, 4, 4, 5, 5, 6, 6]</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Define a `worker_init_fn` that configures each dataset copy differently</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">worker_init_fn</span><span class="p">(</span><span class="n">worker_id</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">worker_info</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get_worker_info</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="n">dataset</span> <span class="o">=</span> <span class="n">worker_info</span><span class="o">.</span><span class="n">dataset</span>  <span class="c1"># the dataset copy in this worker process</span>
+<span class="gp">... </span>    <span class="n">overall_start</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">start</span>
+<span class="gp">... </span>    <span class="n">overall_end</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">end</span>
+<span class="gp">... </span>    <span class="c1"># configure the dataset to only process the split workload</span>
+<span class="gp">... </span>    <span class="n">per_worker</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">((</span><span class="n">overall_end</span> <span class="o">-</span> <span class="n">overall_start</span><span class="p">)</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">worker_info</span><span class="o">.</span><span class="n">num_workers</span><span class="p">)))</span>
+<span class="gp">... </span>    <span class="n">worker_id</span> <span class="o">=</span> <span class="n">worker_info</span><span class="o">.</span><span class="n">id</span>
+<span class="gp">... </span>    <span class="n">dataset</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="n">overall_start</span> <span class="o">+</span> <span class="n">worker_id</span> <span class="o">*</span> <span class="n">per_worker</span>
+<span class="gp">... </span>    <span class="n">dataset</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">start</span> <span class="o">+</span> <span class="n">per_worker</span><span class="p">,</span> <span class="n">overall_end</span><span class="p">)</span>
+<span class="gp">...</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Mult-process loading with the custom `worker_init_fn`</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Worker 0 fetched [3, 4].  Worker 1 fetched [5, 6].</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">worker_init_fn</span><span class="o">=</span><span class="n">worker_init_fn</span><span class="p">)))</span>
+<span class="go">[3, 5, 4, 6]</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># With even more workers</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">worker_init_fn</span><span class="o">=</span><span class="n">worker_init_fn</span><span class="p">)))</span>
+<span class="go">[3, 4, 5, 6]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.utils.data.TensorDataset">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.utils.data.</span></span><span class="sig-name descname"><span class="pre">TensorDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">tensors</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/utils/data/dataset.html#TensorDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/utils/data/dataset.py#L189"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.utils.data.TensorDataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>包装张量的数据集。</p>
+<p>每个样本将通过沿第一个维度索引张量来检索。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>*张量（Tensor）- 第一个维度大小相同的张量。</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.utils.data.StackDataset">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.utils.data.</span></span><span class="sig-name descname"><span class="pre">StackDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/utils/data/dataset.html#StackDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/utils/data/dataset.py#L213"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.utils.data.StackDataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>数据集作为多个数据集的堆叠。</p>
+<p>这个类用于组装复杂输入数据的各个部分，这些数据以数据集的形式给出。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">images</span> <span class="o">=</span> <span class="n">ImageDataset</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">texts</span> <span class="o">=</span> <span class="n">TextDataset</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tuple_stack</span> <span class="o">=</span> <span class="n">StackDataset</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">texts</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tuple_stack</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="p">(</span><span class="n">images</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">texts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dict_stack</span> <span class="o">=</span> <span class="n">StackDataset</span><span class="p">(</span><span class="n">image</span><span class="o">=</span><span class="n">images</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">texts</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dict_stack</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="p">{</span><span class="s1">'image'</span><span class="p">:</span> <span class="n">images</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">'text'</span><span class="p">:</span> <span class="n">texts</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>*args（数据集）- 返回的数据集以元组形式堆叠。</p></li>
+<li><p>**kwargs（数据集）- 返回的数据集以字典形式堆叠。</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.utils.data.ConcatDataset">
+class torch.utils.data.ConcatDataset(datasets)[source][source]</dt>
+<dd><p>数据集作为多个数据集的拼接。</p>
+<p>此类可用于组装不同的现有数据集。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>数据集（序列）- 要拼接的数据集列表</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.utils.data.ChainDataset">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.utils.data.</span></span><span class="sig-name descname"><span class="pre">ChainDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datasets</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/utils/data/dataset.html#ChainDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/utils/data/dataset.py#L357"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.utils.data.ChainDataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>多个 <code class="xref py py-class docutils literal "><span class="pre">IterableDataset</span></code> 的数据集。</p>
+<p>此类可用于组装不同的现有数据集流。链式操作是即时完成的，因此使用此类连接大规模数据集将非常高效。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>datasets (IterableDataset 的可迭代集合) – 要连接的数据集</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.utils.data.Subset">
+class torch.utils.data.Subset(dataset, indices)[source][source]</dt>
+<dd><p>指定索引的子数据集。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>数据集（数据集）- 整个数据集</p></li>
+<li><p>索引（序列）- 在整个集合中选择的子集索引</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.utils.data._utils.collate.collate">
+torch.utils.data._utils.collate.collate(batch, *, collate_fn_map=None)[source][source]</dt>
+<dd><p>处理每个批次中元素集合的通用归并函数。</p>
+<p>该函数还打开功能注册表以处理特定元素类型。default_collate_fn_map 为张量、NumPy 数组、数字和字符串提供默认归并函数。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>batch – 要归并的单个批次。</p></li>
+<li><p>collate_fn_map（可选[dict[Union[type, tuple[type, ...]], Callable]]）- 可选字典，将元素类型映射到相应的归并函数。如果元素类型不在此字典中，则该函数将按插入顺序遍历字典的每个键，如果元素类型是键的子类，则调用相应的归并函数。</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">collate_tensor_fn</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">collate_fn_map</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="c1"># Extend this function to handle batch of tensors</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">custom_collate</span><span class="p">(</span><span class="n">batch</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">collate_map</span> <span class="o">=</span> <span class="p">{</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span> <span class="n">collate_tensor_fn</span><span class="p">}</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">collate</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">collate_fn_map</span><span class="o">=</span><span class="n">collate_map</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Extend `default_collate` by in-place modifying `default_collate_fn_map`</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">default_collate_fn_map</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span> <span class="n">collate_tensor_fn</span><span class="p">})</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>每个归一化函数都需要一个位置参数用于批次和一个关键字参数用于归一化函数字典，即 collate_fn_map。</p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.utils.data.default_collate">
+torch.utils.data.default_collate(batch)[source][source]</dt>
+<dd><p>接收一个数据批次，并将批次中的元素放入一个具有额外外部维度的张量中 - 批次大小。</p>
+<p>确切的输出类型可以是 <code class="xref py py-class docutils literal "><span class="pre">torch.Tensor</span></code> ， <code class="xref py py-class docutils literal "><span class="pre">torch.Tensor</span></code> 的序列， <code class="xref py py-class docutils literal "><span class="pre">torch.Tensor</span></code> 的集合，或者根据输入类型保持不变。当在 <code class="xref py py-class docutils literal "><span class="pre">DataLoader</span></code> 中定义 batch_size 或 batch_sampler 时，这用作归一化的默认函数。</p>
+<p>这里是通用输入类型（基于批次中元素的类型）到输出类型的映射：</p>
+<blockquote>
+<div><ul class="simple">
+<li><p> <code class="xref py py-class docutils literal "><span class="pre">torch.Tensor</span></code> -&gt; <code class="xref py py-class docutils literal "><span class="pre">torch.Tensor</span></code> （添加了外部批次大小维度）</p></li>
+<li><p>NumPy 数组 -&gt; <code class="xref py py-class docutils literal "><span class="pre">torch.Tensor</span></code> </p></li>
+<li><p><cite>float</cite> -&gt; <a class="reference internal" href="tensors.html#torch.Tensor" title="torch.Tensor"><code class="xref py py-class docutils literal "><span class="pre">torch.Tensor</span></code></a></p></li>
+<li><p><cite>int</cite> -&gt; <a class="reference internal" href="tensors.html#torch.Tensor" title="torch.Tensor"><code class="xref py py-class docutils literal "><span class="pre">torch.Tensor</span></code></a></p></li>
+<li><p>str -&gt; str (未改变)</p></li>
+<li><p>bytes -&gt; bytes (未改变)</p></li>
+<li><p><cite>Mapping[K, V_i]</cite> -&gt; <cite>Mapping[K, default_collate([V_1, V_2, …])]</cite></p></li>
+<li><p><cite>NamedTuple[V1_i, V2_i, …]</cite> -&gt; <cite>NamedTuple[default_collate([V1_1, V1_2, …]),
+default_collate([V2_1, V2_2, …]), …]</cite></p></li>
+<li><p><cite>Sequence[V1_i, V2_i, …]</cite> -&gt; <cite>Sequence[default_collate([V1_1, V1_2, …]),
+default_collate([V2_1, V2_2, …]), …]</cite></p></li>
+</ul>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>批次 – 要合并的单个批次</p>
+</dd>
+</dl>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Example with a batch of `int`s:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">default_collate</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+<span class="go">tensor([0, 1, 2, 3])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Example with a batch of `str`s:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">default_collate</span><span class="p">([</span><span class="s1">'a'</span><span class="p">,</span> <span class="s1">'b'</span><span class="p">,</span> <span class="s1">'c'</span><span class="p">])</span>
+<span class="go">['a', 'b', 'c']</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Example with `Map` inside the batch:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">default_collate</span><span class="p">([{</span><span class="s1">'A'</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'B'</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span> <span class="p">{</span><span class="s1">'A'</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span> <span class="s1">'B'</span><span class="p">:</span> <span class="mi">100</span><span class="p">}])</span>
+<span class="go">{'A': tensor([  0, 100]), 'B': tensor([  1, 100])}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Example with `NamedTuple` inside the batch:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Point</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s1">'Point'</span><span class="p">,</span> <span class="p">[</span><span class="s1">'x'</span><span class="p">,</span> <span class="s1">'y'</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">default_collate</span><span class="p">([</span><span class="n">Point</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">Point</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)])</span>
+<span class="go">Point(x=tensor([0, 1]), y=tensor([0, 1]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Example with `Tuple` inside the batch:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">default_collate</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)])</span>
+<span class="go">[tensor([0, 2]), tensor([1, 3])]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Example with `List` inside the batch:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">default_collate</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]])</span>
+<span class="go">[tensor([0, 2]), tensor([1, 3])]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Two options to extend `default_collate` to handle specific type</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Option 1: Write custom collate function and invoke `default_collate`</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">custom_collate</span><span class="p">(</span><span class="n">batch</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">elem</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="n">CustomType</span><span class="p">):</span>  <span class="c1"># Some custom condition</span>
+<span class="gp">... </span>        <span class="k">return</span> <span class="o">...</span>
+<span class="gp">... </span>    <span class="k">else</span><span class="p">:</span>  <span class="c1"># Fall back to `default_collate`</span>
+<span class="gp">... </span>        <span class="k">return</span> <span class="n">default_collate</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Option 2: In-place modify `default_collate_fn_map`</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">collate_customtype_fn</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">collate_fn_map</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="o">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">default_collate_fn_map</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">CustomType</span><span class="p">,</span> <span class="n">collate_customtype_fn</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">default_collate</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>  <span class="c1"># Handle `CustomType` automatically</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.utils.data.default_convert">
+<span class="sig-prename descclassname"><span class="pre">torch.utils.data.</span></span><span class="sig-name descname"><span class="pre">default_convert</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/utils/data/_utils/collate.html#default_convert"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/utils/data/_utils/collate.py#L23"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.utils.data.default_convert" title="Permalink to this definition">¶</a></dt>
+<dd><p>将每个 NumPy 数组元素转换为 <code class="xref py py-class docutils literal "><span class="pre">torch.Tensor</span></code> 。</p>
+<p>如果输入是序列、集合或映射，则尝试将内部每个元素转换为 <code class="xref py py-class docutils literal "><span class="pre">torch.Tensor</span></code> 。如果输入不是 NumPy 数组，则保持不变。这是在 <code class="xref py py-class docutils literal "><span class="pre">DataLoader</span></code> 中未定义 batch_sampler 和 batch_size 时的默认函数，用于合并。</p>
+<p>输入类型到输出类型的映射与 <code class="xref py py-func docutils literal "><span class="pre">default_collate()</span></code> 类似。更多详细信息请参阅那里的描述。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>data – 要转换的单个数据点</p>
+</dd>
+</dl>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Example with `int`</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">default_convert</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="go">0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Example with NumPy array</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">default_convert</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]))</span>
+<span class="go">tensor([0, 1])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Example with NamedTuple</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Point</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s1">'Point'</span><span class="p">,</span> <span class="p">[</span><span class="s1">'x'</span><span class="p">,</span> <span class="s1">'y'</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">default_convert</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+<span class="go">Point(x=0, y=0)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">default_convert</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="mi">0</span><span class="p">)))</span>
+<span class="go">Point(x=tensor(0), y=tensor(0))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Example with List</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">default_convert</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])])</span>
+<span class="go">[tensor([0, 1]), tensor([2, 3])]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.utils.data.get_worker_info">
+<span class="sig-prename descclassname"><span class="pre">torch.utils.data.</span></span><span class="sig-name descname"><span class="pre">get_worker_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/utils/data/_utils/worker.html#get_worker_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/utils/data/_utils/worker.py#L101"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.utils.data.get_worker_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>返回当前 <code class="xref py py-class docutils literal "><span class="pre">DataLoader</span></code> 迭代器工作进程的信息。</p>
+<p>当在工作进程中调用时，此函数返回一个保证具有以下属性的对象：</p>
+<ul class="simple">
+<li><p> <code class="xref py py-attr docutils literal "><span class="pre">id</span></code> ：当前工作进程 ID。</p></li>
+<li><p> <code class="xref py py-attr docutils literal "><span class="pre">num_workers</span></code> : 总工人数。</p></li>
+<li><p> <code class="xref py py-attr docutils literal "><span class="pre">seed</span></code> : 当前工作者的随机种子设置。此值由主进程的 RNG 和工作者 ID 决定。有关详细信息，请参阅 <code class="xref py py-class docutils literal "><span class="pre">DataLoader</span></code> 的文档。</p></li>
+<li><p> <code class="xref py py-attr docutils literal "><span class="pre">dataset</span></code> : 此进程中的数据集对象副本。请注意，这将在主进程中的不同进程中是不同的对象。</p></li>
+</ul>
+<p>当在主进程中调用时，此函数返回 <code class="docutils literal "><span class="pre">None</span></code> 。</p>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>当用于传递给 <code class="xref py py-attr docutils literal "><span class="pre">worker_init_fn</span></code> 的 <code class="xref py py-class docutils literal "><span class="pre">DataLoader</span></code> 时，此方法可以用来分别设置每个工作进程，例如，使用 <code class="docutils literal "><span class="pre">worker_id</span></code> 来配置 <code class="docutils literal "><span class="pre">dataset</span></code> 对象，使其只读取分片数据集的一部分，或者使用 <code class="docutils literal "><span class="pre">seed</span></code> 来初始化数据集代码中使用的其他库。</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>可选[WorkerInfo]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.utils.data.random_split">
+<span class="sig-prename descclassname"><span class="pre">torch.utils.data.</span></span><span class="sig-name descname"><span class="pre">random_split</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lengths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator=&lt;torch._C.Generator</span> <span class="pre">object&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/utils/data/dataset.html#random_split"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/utils/data/dataset.py#L422"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.utils.data.random_split" title="Permalink to this definition">¶</a></dt>
+<dd><p>随机将数据集分割为给定长度的非重叠新数据集。</p>
+<p>如果给定一个总和为 1 的分数列表，则将自动计算每个分数的长度，长度为 floor(frac * len(dataset))。</p>
+<p>计算长度后，如果有任何余数，则将 1 个计数以轮询方式分配给长度，直到没有余数为止。</p>
+<p>可选地固定生成器以获得可重复的结果，例如：</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">generator1</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Generator</span><span class="p">()</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">generator2</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Generator</span><span class="p">()</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">random_split</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">7</span><span class="p">],</span> <span class="n">generator</span><span class="o">=</span><span class="n">generator1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">random_split</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">30</span><span class="p">),</span> <span class="p">[</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">],</span> <span class="n">generator</span><span class="o">=</span><span class="n">generator2</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>dataset (数据集) – 要分割的数据集</p></li>
+<li><p>长度（序列）- 要生成的分割的长度或分数</p></li>
+<li><p>生成器（Generator）- 用于随机排列的生成器</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>列[torch.utils.data.dataset.Subset[~_T]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.utils.data.Sampler">
+类 torch.utils.data.Sampler(data_source=None)[source][source]</dt>
+<dd><p>所有采样器的基类。</p>
+<p>每个采样器子类都必须提供一个 <code class="xref py py-meth docutils literal "><span class="pre">__iter__()</span></code> 方法，提供遍历数据集元素索引或索引列表（批次）的方式，并且可以提供一个 <code class="xref py py-meth docutils literal "><span class="pre">__len__()</span></code> 方法，返回返回迭代器的长度。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>data_source（数据集）- 此参数未使用，将在 2.2.0 版本中删除。您仍然可以自定义使用它的实现。</p>
+</dd>
+</dl>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">AccedingSequenceLengthSampler</span><span class="p">(</span><span class="n">Sampler</span><span class="p">[</span><span class="nb">int</span><span class="p">]):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">sizes</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="k">yield from</span> <span class="n">torch</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">sizes</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">AccedingSequenceLengthBatchSampler</span><span class="p">(</span><span class="n">Sampler</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="k">return</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">sizes</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">torch</span><span class="o">.</span><span class="n">chunk</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">sizes</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
+<span class="gp">&gt;&gt;&gt; </span>            <span class="k">yield</span> <span class="n">batch</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p> <code class="xref py py-meth docutils literal "><span class="pre">__len__()</span></code> 方法不是 <code class="xref py py-class docutils literal "><span class="pre">DataLoader</span></code> 严格要求的，但在涉及 <code class="xref py py-class docutils literal "><span class="pre">DataLoader</span></code> 长度的任何计算中都是期望的。</p>
+</div>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.utils.data.SequentialSampler">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.utils.data.</span></span><span class="sig-name descname"><span class="pre">SequentialSampler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_source</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/utils/data/sampler.html#SequentialSampler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/utils/data/sampler.py#L104"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.utils.data.SequentialSampler" title="Permalink to this definition">¶</a></dt>
+<dd><p>依次采样元素，始终按相同顺序。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>data_source (Dataset) – 从中采样的数据集</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.utils.data.RandomSampler">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.utils.data.</span></span><span class="sig-name descname"><span class="pre">RandomSampler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replacement</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/utils/data/sampler.html#RandomSampler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/utils/data/sampler.py#L123"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.utils.data.RandomSampler" title="Permalink to this definition">¶</a></dt>
+<dd><p>随机抽取样本。如果不带替换，则从打乱的数据集中抽取。</p>
+<p>如果带替换，则用户可以指定 <code class="xref py py-attr docutils literal "><span class="pre">num_samples</span></code> 来抽取。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>data_source（数据集）- 从中抽取样本的数据集</p></li>
+<li><p>replacement（布尔值）- 如果为 <code class="docutils literal "><span class="pre">True</span></code> ，则按需带替换抽取样本，默认为 ``False``</p></li>
+<li><p>num_samples (int) – 要抽取的样本数量，默认为`len(dataset)`。</p></li>
+<li><p>generator (Generator) – 用于抽取的生成器。</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.utils.data.SubsetRandomSampler">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.utils.data.</span></span><span class="sig-name descname"><span class="pre">SubsetRandomSampler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/utils/data/sampler.html#SubsetRandomSampler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/utils/data/sampler.py#L198"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.utils.data.SubsetRandomSampler" title="Permalink to this definition">¶</a></dt>
+<dd><p>从给定的索引列表中随机抽取样本，不重复。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>索引（序列）- 索引的序列</p></li>
+<li><p>生成器（Generator）- 用于采样的生成器</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.utils.data.WeightedRandomSampler">
+类 torch.utils.data.WeightedRandomSampler(weights, num_samples, replacement=True, generator=None)[source][source] ¶</dt>
+<dd><p>根据给定的概率（权重）从 <code class="docutils literal "><span class="pre">[0,..,len(weights)-1]</span></code> 中采样元素。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>权重（序列）- 一系列权重，不一定要加起来等于一</p></li>
+<li><p>num_samples（整数）- 要抽取的样本数量</p></li>
+<li><p>replacement（布尔值）- 如果是 <code class="docutils literal "><span class="pre">True</span></code> ，则进行有放回的抽样。如果不是，则进行无放回抽样，这意味着当抽取一个样本索引时，该索引在该行中不能再被抽取。</p></li>
+<li><p>generator（生成器）- 用于抽样的生成器</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">WeightedRandomSampler</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">],</span> <span class="mi">5</span><span class="p">,</span> <span class="n">replacement</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+<span class="go">[4, 4, 1, 4, 5]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">WeightedRandomSampler</span><span class="p">([</span><span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">],</span> <span class="mi">5</span><span class="p">,</span> <span class="n">replacement</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+<span class="go">[0, 1, 4, 3, 2]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.utils.data.BatchSampler">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.utils.data.</span></span><span class="sig-name descname"><span class="pre">BatchSampler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sampler</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drop_last</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/utils/data/sampler.html#BatchSampler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/utils/data/sampler.py#L285"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.utils.data.BatchSampler" title="Permalink to this definition">¶</a></dt>
+<dd><p>包装另一个采样器以生成索引的迷你批次。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>sampler (采样器或可迭代对象) – 基础采样器。可以是任何可迭代对象</p></li>
+<li><p>batch_size (int) – 迷你批次的大小。</p></li>
+<li><p>drop_last (bool) – 如果 <code class="docutils literal "><span class="pre">True</span></code> ，采样器将丢弃最后一个批次，如果其大小将小于 <code class="docutils literal "><span class="pre">batch_size</span></code> </p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">BatchSampler</span><span class="p">(</span><span class="n">SequentialSampler</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)),</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">drop_last</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+<span class="go">[[0, 1, 2], [3, 4, 5], [6, 7, 8], [9]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">BatchSampler</span><span class="p">(</span><span class="n">SequentialSampler</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)),</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">drop_last</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+<span class="go">[[0, 1, 2], [3, 4, 5], [6, 7, 8]]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.utils.data.distributed.DistributedSampler">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.utils.data.distributed.</span></span><span class="sig-name descname"><span class="pre">DistributedSampler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_replicas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rank</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drop_last</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/utils/data/distributed.html#DistributedSampler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/utils/data/distributed.py#L17"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.utils.data.distributed.DistributedSampler" title="Permalink to this definition">¶</a></dt>
+<dd><p>采样器，限制数据加载到数据集的子集。</p>
+<p>特别适用于与 <code class="xref py py-class docutils literal "><span class="pre">torch.nn.parallel.DistributedDataParallel</span></code> 结合使用。在这种情况下，每个进程可以将 <code class="xref py py-class docutils literal "><span class="pre">DistributedSampler</span></code> 实例作为 <code class="xref py py-class docutils literal "><span class="pre">DataLoader</span></code> 采样器传递，并加载原始数据集的子集，该子集仅属于它。</p>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>数据集假设为固定大小，并且任何实例都始终返回相同的元素，且顺序相同。</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>数据集（Dataset）- 用于采样的数据集。</p></li>
+<li><p>num_replicas（int，可选）- 参与分布式训练的进程数。默认情况下，从当前分布式组中检索 <code class="xref py py-attr docutils literal "><span class="pre">world_size</span></code> 。</p></li>
+<li><p>rank（int，可选）- 当前进程在 <code class="xref py py-attr docutils literal "><span class="pre">num_replicas</span></code> 中的排名。默认情况下，从当前分布式组中检索 <code class="xref py py-attr docutils literal "><span class="pre">rank</span></code> 。</p></li>
+<li><p>shuffle（布尔值，可选）- 如果 <code class="docutils literal "><span class="pre">True</span></code> （默认），采样器将打乱索引。</p></li>
+<li><p>seed（整数，可选）- 用于打乱采样器的随机种子。此数字应在分布式组中的所有进程中保持一致。默认： <code class="docutils literal "><span class="pre">0</span></code> 。</p></li>
+<li><p>drop_last（布尔值，可选）- 如果 <code class="docutils literal "><span class="pre">True</span></code> ，则采样器将丢弃数据尾部以使其能够被副本数整除。如果 <code class="docutils literal "><span class="pre">False</span></code> ，采样器将添加额外的索引以使数据能够被副本数整除。默认： <code class="docutils literal "><span class="pre">False</span></code> 。</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>在分布式模式下，在每个 epoch 开始时调用 <code class="xref py py-meth docutils literal "><span class="pre">set_epoch()</span></code> 方法，在创建 <code class="xref py py-class docutils literal "><span class="pre">DataLoader</span></code> 迭代器之前，以确保跨多个 epoch 正确打乱。否则，将始终使用相同的顺序。</p>
+</div>
+<p>示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sampler</span> <span class="o">=</span> <span class="n">DistributedSampler</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span> <span class="k">if</span> <span class="n">is_distributed</span> <span class="k">else</span> <span class="kc">None</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="p">(</span><span class="n">sampler</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">),</span>
+<span class="gp">... </span>                    <span class="n">sampler</span><span class="o">=</span><span class="n">sampler</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start_epoch</span><span class="p">,</span> <span class="n">n_epochs</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">if</span> <span class="n">is_distributed</span><span class="p">:</span>
+<span class="gp">... </span>        <span class="n">sampler</span><span class="o">.</span><span class="n">set_epoch</span><span class="p">(</span><span class="n">epoch</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">train</span><span class="p">(</span><span class="n">loader</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<span class="target" id="module-torch.utils.data.datapipes"></span><span class="target" id="module-torch.utils.data.datapipes.dataframe"></span><span class="target" id="module-torch.utils.data.datapipes.iter"></span><span class="target" id="module-torch.utils.data.datapipes.map"></span><span class="target" id="module-torch.utils.data.datapipes.utils"></span></section>
+</section>
+
+
+             </article>
+             
+            </div>
+            <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        下一个 <img height="16" width="16" class="next-page" src="_static/images/chevron-right-orange.svg"> <img height="16" width="16" class="previous-page" src="_static/images/chevron-right-orange.svg"> 上一个
+      
+    </div>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>© 版权所有 PyTorch 贡献者。</p>
+  </div>
+    
+      <div>使用 Sphinx 构建，主题由 Read the Docs 提供。</div>
+     
+
+</footer>
+
+          </div>
+<script>
+
+var match = window.location.href.match(/\/_[a-zA-Z0-9_]*.html|_dynamo/gi);
+var url = window.location.href.lastIndexOf(match[match.length-1]);
+
+if (url)
+  {
+    var div = '<div class="admonition note"><p class="admonition-title">Note</p><p><i class="fa fa-exclamation-circle" aria-hidden="true">&nbsp</i> This page describes an internal API which is not intended to be used outside of the PyTorch codebase and can be modified or removed without notice.</p></div>'
+    document.getElementById("pytorch-article").insertAdjacentHTML('afterBegin', div)
+  }
+</script>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">torch.utils.data</a><ul>
+<li><a class="reference internal" href="#dataset-types">数据集类型</a><ul>
+<li><a class="reference internal" href="#map-style-datasets">地图样式数据集</a></li>
+<li><a class="reference internal" href="#iterable-style-datasets">可迭代样式数据集</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#data-loading-order-and-sampler">数据加载顺序和 <code class="xref py py-class docutils literal "><span class="pre">Sampler</span></code> </a></li>
+<li><a class="reference internal" href="#loading-batched-and-non-batched-data">加载批处理和非批处理数据</a><ul>
+<li><a class="reference internal" href="#automatic-batching-default">自动批处理（默认）</a></li>
+<li><a class="reference internal" href="#disable-automatic-batching">禁用自动批处理</a></li>
+<li><a class="reference internal" href="#working-with-collate-fn">使用 <code class="xref py py-attr docutils literal "><span class="pre">collate_fn</span></code> </a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#single-and-multi-process-data-loading">单进程和多进程数据加载</a><ul>
+<li><a class="reference internal" href="#single-process-data-loading-default">单进程数据加载（默认）</a></li>
+<li><a class="reference internal" href="#multi-process-data-loading">多进程数据加载</a><ul>
+<li><a class="reference internal" href="#platform-specific-behaviors">平台特定行为</a></li>
+<li><a class="reference internal" href="#randomness-in-multi-process-data-loading">多进程数据加载中的随机性</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#memory-pinning">内存固定</a></li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+         <script src="_static/jquery.js"></script>
+         <script src="_static/underscore.js"></script>
+         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+         <script src="_static/doctools.js"></script>
+         <script src="_static/clipboard.min.js"></script>
+         <script src="_static/copybutton.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ 
+<script script="" type="text/javascript">
+  var collapsedSections = ['Developer Notes', 'Language Bindings', 'Libraries', 'Community'];
+</script>
+
+<img height="1" width="1" style="border-style:none;" alt="" src="https://www.googleadservices.com/pagead/conversion/795629140/?label=txkmCPmdtosBENSssfsC&amp;guid=ON&amp;script=0">
+
+
+  <!-- Begin Footer -->
+
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 text-center">
+          <h2>文档</h2>
+          <p>PyTorch 开发者文档全面访问</p>
+          <a class="with-right-arrow" href="https://pytorch.org/docs/stable/index.html">查看文档</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>教程</h2>
+          <p>获取初学者和高级开发者的深入教程</p>
+          <a class="with-right-arrow" href="https://pytorch.org/tutorials">查看教程</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>资源</h2>
+          <p>查找开发资源并获得您的疑问解答</p>
+          <a class="with-right-arrow" href="https://pytorch.org/resources">查看资源</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://pytorch.org/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/">PyTorch</a></li>
+            <li><a href="https://pytorch.org/get-started">开始使用</a></li>
+            <li><a href="https://pytorch.org/features">功能</a></li>
+            <li><a href="https://pytorch.org/ecosystem">生态系统</a></li>
+            <li><a href="https://pytorch.org/blog/">博客</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md">贡献</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/resources">资源</a></li>
+            <li><a href="https://pytorch.org/tutorials">教程</a></li>
+            <li><a href="https://pytorch.org/docs/stable/index.html">文档</a></li>
+            <li><a href="https://discuss.pytorch.org" target="_blank">讨论</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/issues" target="_blank">GitHub 问题和任务</a></li>
+            <li><a href="https://pytorch.org/assets/brand-guidelines/PyTorch-Brand-Guidelines.pdf" target="_blank">品牌指南</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">保持更新</li>
+            <li><a href="https://www.facebook.com/pytorch" target="_blank">Facebook</a></li>
+            <li><a href="https://twitter.com/pytorch" target="_blank">Twitter</a></li>
+            <li><a href="https://www.youtube.com/pytorch" target="_blank">YouTube</a></li>
+            <li><a href="https://www.linkedin.com/company/pytorch" target="_blank">领英</a></li>
+          </ul>  
+          </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">PyTorch 播客</li>
+            <li><a href="https://open.spotify.com/show/6UzHKeiy368jKfQMKKvJY5" target="_blank">Spotify</a></li>
+            <li><a href="https://podcasts.apple.com/us/podcast/pytorch-developer-podcast/id1566080008" target="_blank">苹果</a></li>
+            <li><a href="https://www.google.com/podcasts?feed=aHR0cHM6Ly9mZWVkcy5zaW1wbGVjYXN0LmNvbS9PQjVGa0lsOA%3D%3D" target="_blank">谷歌</a></li>
+            <li><a href="https://music.amazon.com/podcasts/7a4e6f0e-26c2-49e9-a478-41bd244197d0/PyTorch-Developer-Podcast?" target="_blank">亚马逊</a></li>
+          </ul>
+         </div>
+        </div>
+        
+        <div class="privacy-policy">
+          <ul>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/terms/" target="_blank">条款</a></li>
+            <li class="privacy-policy-links">|</li>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/privacy-policy/" target="_blank">隐私</a></li>
+          </ul>
+        </div>
+        <div class="copyright">
+        <p>© 版权所有 Linux 基金会。PyTorch 基金会是 Linux 基金会的一个项目。有关本网站的使用条款、商标政策以及其他适用于 PyTorch 基金会的政策，请参阅 www.linuxfoundation.org/policies/。PyTorch 基金会支持 PyTorch 开源项目，该项目已被确立为 LF Projects, LLC 的 PyTorch 项目系列。有关适用于 PyTorch 项目系列 LF Projects, LLC 的政策，请参阅 www.lfprojects.org/policies/。</p>
+      </div>
+     </div>
+
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">为分析流量并优化您的体验，我们在本网站上提供 cookies。通过点击或导航，您同意允许我们使用 cookies。作为本站点的当前维护者，Facebook 的 Cookies 政策适用。了解更多信息，包括可用的控制选项：Cookies 政策。</p>
+    <img class="close-button" src="_static/images/pytorch-x.svg" width="16" height="16">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+           <li class="resources-mobile-menu-title">
+             <a>学习</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/get-started">开始学习</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials">教程</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/basics/intro.html">学习基础知识</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/recipes/recipes_index.html">PyTorch 菜谱</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/introyt.html">PyTorch 入门 - YouTube 系列</a>
+             </li>
+           </ul>
+           <li class="resources-mobile-menu-title">
+             <a>生态系统</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/ecosystem">工具</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/#community-module">社区</a>
+             </li>
+             <li>
+               <a href="https://discuss.pytorch.org/">论坛</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/resources">开发者资源</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">贡献者奖项 - 2024</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>Edge</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/edge">关于 PyTorch Edge</a>
+             </li>
+             
+             <li>
+               <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch 文档</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>文档</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/docs/stable/index.html">PyTorch</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/pytorch-domains">PyTorch 领域</a>
+            </li>
+          </ul>
+
+          <li class="resources-mobile-menu-title">
+            <a>博客 &amp; 新闻</a>
+          </li>
+            
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/blog/">PyTorch 博客</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/community-blog">社区博客</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/videos">视频</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/community-stories">社区故事</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/events">活动</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">通讯</a>
+             </li>
+          </ul>
+          
+          <li class="resources-mobile-menu-title">
+            <a>关于</a>
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/foundation">PyTorch 基金会</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/governing-board">治理委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">云信用计划</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">技术顾问委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">员工</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">联系我们</a>
+            </li>
+          </ul>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body></html>

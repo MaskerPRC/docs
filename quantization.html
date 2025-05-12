@@ -1,0 +1,2190 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Quantization — PyTorch main documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pytorch.org/docs/stable/quantization.html">
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css">
+  <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css">
+  <link rel="stylesheet" href="_static/copybutton.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="_static/katex-math.css" type="text/css">
+  <link rel="stylesheet" href="_static/sphinx-dropdown.css" type="text/css">
+  <link rel="stylesheet" href="_static/panels-bootstrap.min.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/jit.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css">
+    <link rel="index" title="Index" href="genindex.html">
+    <link rel="search" title="Search" href="search.html">
+    <link rel="next" title="Quantization API Reference" href="quantization-support.html">
+    <link rel="prev" title="DDP Communication Hooks" href="ddp_comm_hooks.html">
+
+<!--
+  Search engines should not index the main version of documentation.
+  Stable documentation are built without release == 'main'.
+-->
+<meta name="robots" content="noindex">
+
+
+  <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T8XT4PS');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+  <!-- Preload the theme fonts -->
+
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<!-- Preload the katex fonts -->
+
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Math-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size1-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size2-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Caligraphic-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
+</head><body class="pytorch-body"><div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+
+          <li class="main-menu-item">
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">学习</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/get-started">
+                  <span class="dropdown-title">开始使用</span>
+                  <p>在本地运行 PyTorch 或快速开始使用支持的云平台之一</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials">
+                  <span class="dropdown-title">教程</span><p></p>
+                  <p>PyTorch 教程中的新内容</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/basics/intro.html">
+                  <span class="dropdown-title">学习基础知识</span><p></p>
+                  <p>熟悉 PyTorch 的概念和模块</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/recipes/recipes_index.html">
+                  <span class="dropdown-title">PyTorch 食谱</span><p></p>
+                  <p>精简版、可直接部署的 PyTorch 代码示例</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/introyt.html">
+                  <span class="dropdown-title">PyTorch 入门 - YouTube 系列</span><p></p>
+                  <p>通过我们引人入胜的 YouTube 教程系列掌握 PyTorch 基础知识</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">生态系统</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem">
+                  <span class="dropdown-title">工具</span><p></p>
+                  <p>了解 PyTorch 生态系统中的工具和框架</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
+                  <span class="dropdown-title">社区</span>
+                  <p>加入 PyTorch 开发者社区，贡献、学习并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
+                  <span class="dropdown-title">论坛</span>
+                  <p>讨论 PyTorch 代码、问题、安装、研究的地方</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/resources">
+                  <span class="dropdown-title">开发者资源</span>
+                  <p>查找资源并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">贡献者奖项 - 2024</span><p></p>
+                  <p>本届 PyTorch 会议揭晓获奖者</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">
+                Edge
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/edge">
+                  <span class="dropdown-title">关于 PyTorch Edge</span><p></p>
+                  <p>为边缘设备构建创新和隐私感知的 AI 体验</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
+                  <span class="dropdown-title">ExecuTorch</span><p></p>
+                  <p>基于移动和边缘设备的端到端推理能力解决方案</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch 文档</span><p></p>
+                </a>
+              </div>
+            </div>  
+          </li>
+
+          <li class="main-menu-item">
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">文档</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/docs/stable/index.html">
+                  <span class="dropdown-title">PyTorch</span><p></p>
+                  <p>探索文档以获取全面指导，了解如何使用 PyTorch</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/pytorch-domains">
+                  <span class="dropdown-title">PyTorch 领域</span><p></p>
+                  <p>阅读 PyTorch 领域的文档，了解更多关于特定领域库的信息</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">博客与新闻</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/blog/">
+                  <span class="dropdown-title">PyTorch 博客</span><p></p>
+                  <p>捕捉最新的技术新闻和事件</p>
+                </a>
+                 <a class="nav-dropdown-item" href="https://pytorch.org/community-blog">
+                  <span class="dropdown-title">社区博客</span><p></p>
+                  <p>PyTorch 生态系统故事</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/videos">
+                  <span class="dropdown-title">视频</span><p></p>
+                  <p>了解最新的 PyTorch 教程、新内容等</p>
+                </a><a class="nav-dropdown-item" href="https://pytorch.org/community-stories">
+                  <span class="dropdown-title">社区故事</span><p></p>
+                  <p>学习如何我们的社区使用 PyTorch 解决真实、日常的机器学习问题</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/events">
+                  <span class="dropdown-title">活动</span><p></p>
+                  <p>查找活动、网络研讨会和播客</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">通讯</span><p></p>
+                  <p>跟踪最新更新</p>
+                </a>
+            </div>
+          </div></li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">关于</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/foundation">
+                  <span class="dropdown-title">PyTorch 基金会</span><p></p>
+                  <p>了解更多关于 PyTorch 基金会的信息</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
+                  <span class="dropdown-title">管理委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">云信用计划</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">技术顾问委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">员工</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">联系我们</span><p></p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li class="main-menu-item">
+            <div class="no-dropdown">
+              <a href="https://pytorch.org/join" data-cta="join">成为会员</a>
+            </div>
+          </li>
+          <li>
+           <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="github-icon">
+             </a>
+           </div>
+          </li>
+          <!--- TODO: This block adds the search icon to the nav bar. We will enable it later. 
+          <li>
+            <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="search-icon">
+             </a>
+            </div>
+          </li>
+          --->
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+  </div>
+</div>
+
+
+
+   
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>目录</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+    <div class="version">
+      <a href="https://pytorch.org/docs/versions.html">主程序 (2.7.0+cpu ) ▼</a>
+    </div>
+    <div id="searchBox">
+    <div class="searchbox" id="googleSearchBox">
+      <script async="" src="https://cse.google.com/cse.js?cx=e65585f8c3ea1440e"></script>
+      <div class="gcse-search"></div>
+    </div>
+    <div id="sphinxSearchBox" style="display: none;">
+      <div role="search">
+        <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+          <input type="text" name="q" placeholder="Search Docs">
+          <input type="hidden" name="check_keywords" value="yes">
+          <input type="hidden" name="area" value="default">
+        </form>
+      </div>
+    </div>
+  </div>
+  <form id="searchForm">
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="google" checked="">谷歌搜索</label>
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="sphinx">经典搜索</label>
+  </form>
+
+  <script>
+     document.addEventListener('DOMContentLoaded', function() {
+      const searchForm = document.getElementById('searchForm');
+      const googleSearchBox = document.getElementById('googleSearchBox');
+      const sphinxSearchBox = document.getElementById('sphinxSearchBox');
+      // Function to toggle search box visibility
+      function toggleSearchBox(searchType) {
+        googleSearchBox.style.display = searchType === 'google' ? 'block' : 'none';
+        sphinxSearchBox.style.display = searchType === 'sphinx' ? 'block' : 'none';
+      }
+      // Determine the default search type
+      let defaultSearchType;
+      const currentUrl = window.location.href;
+      if (currentUrl.startsWith('https://pytorch.org/docs/stable')) {
+        // For the stable documentation, default to Google
+        defaultSearchType = localStorage.getItem('searchType') || 'google';
+      } else {
+        // For any other version, including docs-preview, default to Sphinx
+        defaultSearchType = 'sphinx';
+      }
+      // Set the default search type
+      document.querySelector(`input[name="searchType"][value="${defaultSearchType}"]`).checked = true;
+      toggleSearchBox(defaultSearchType);
+      // Event listener for changes in search type
+      searchForm.addEventListener('change', function(event) {
+        const selectedSearchType = event.target.value;
+        localStorage.setItem('searchType', selectedSearchType);
+        toggleSearchBox(selectedSearchType);
+      });
+      // Set placeholder text for Google search box
+      window.onload = function() {
+        var placeholderText = "Search Docs";
+        var googleSearchboxText = document.querySelector("#gsc-i-id1");
+        if (googleSearchboxText) {
+          googleSearchboxText.placeholder = placeholderText;
+          googleSearchboxText.style.fontFamily = 'FreightSans';
+          googleSearchboxText.style.fontSize = "1.2rem";
+          googleSearchboxText.style.color = '#262626';
+        }
+      };
+    });
+  </script>
+
+          </div>
+
+          
+
+<div>
+  <a style="color:#F05732" href="https://pytorch.org/docs/stable/quantization.html">您正在查看不稳定开发者预览文档。请点击此处查看最新稳定版本的文档。</a>
+</div>
+
+
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">社区</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="community/build_ci_governance.html">PyTorch 治理 | 构建 + CI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/contribution_guide.html">PyTorch 贡献指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/design.html">PyTorch 设计哲学</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/governance.html">PyTorch 治理 | 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/persons_of_interest.html">PyTorch 治理 | 维护者</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发者笔记</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="notes/amp_examples.html">自动混合精度示例</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/autograd.html">Autograd 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/broadcasting.html">广播语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/cpu_threading_torchscript_inference.html">CPU 多线程和 TorchScript 推理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/cuda.html">CUDA 语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/custom_operators.html">PyTorch 自定义算子页面</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/ddp.html">分布式数据并行</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/extending.html">扩展 PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/extending.func.html">使用 autograd.Function 扩展 torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/faq.html">常见问题解答</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/fsdp.html">FSDP 笔记</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/get_start_xpu.html">在 Intel GPU 上入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/gradcheck.html">Gradcheck 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/hip.html">HIP (ROCm)语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/large_scale_deployments.html">大规模部署功能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/libtorch_stable_abi.html">LibTorch 稳定 ABI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/modules.html">模块</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/mps.html">MPS 后端</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/multiprocessing.html">多进程最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/numerical_accuracy.html">数值精度</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/randomness.html">可重现性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/serialization.html">序列化语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/windows.html">Windows 常见问题解答</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">语言绑定</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cpp_index.html">C++</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/javadoc/">Javadoc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deploy.html">torch::deploy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="torch.html">torch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.html">torch.nn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.functional.html">torch.nn.functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensors.html">torch.Tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensor_attributes.html">张量属性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensor_view.html">张量视图</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amp.html">torch.amp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autograd.html">torch.autograd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="library.html">torch.library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accelerator.html">torch.accelerator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpu.html">torch.cpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">torch.cuda</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html">理解 CUDA 内存使用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#generating-a-snapshot">生成快照</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#using-the-visualizer">使用可视化工具</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#snapshot-api-reference">快照 API 参考</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mps.html">torch.mps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="xpu.html">torch.xpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mtia.html">torch.mtia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mtia.memory.html">torch.mtia.memory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="meta.html">元设备</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backends.html">torch.backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="export.html">torch.export</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.html">torch.distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.tensor.html">torch.distributed.tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.algorithms.join.html">torch.distributed.algorithms.join</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.elastic.html">torch.distributed.elastic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fsdp.html">torch.distributed.fsdp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.fsdp.fully_shard.html">torch.distributed.fsdp.fully_shard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.tensor.parallel.html">torch.distributed.tensor.parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.optim.html">torch.distributed.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.pipelining.html">torch.distributed.pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.checkpoint.html">torch.distributed.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributions.html">torch.distributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch.compiler.html">torch.compiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fft.html">torch.fft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="func.html">torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="futures.html">torch.futures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fx.html">torch.fx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fx.experimental.html">torch.fx.experimental</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hub.html">torch.hub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jit.html">torch.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="linalg.html">torch.linalg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitor.html">torch.monitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="signal.html">torch.signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="special.html">torch.special</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch.overrides.html">torch.overrides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="package.html">torch.package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="profiler.html">torch.profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.init.html">torch.nn.init</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.attention.html">torch.nn.attention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="onnx.html">torch.onnx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="optim.html">torch.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="complex_numbers.html">复数</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ddp_comm_hooks.html">DDP 通信钩子</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">量化</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rpc.html">分布式 RPC 框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="random.html">torch.random</a></li>
+<li class="toctree-l1"><a class="reference internal" href="masked.html">torch.masked</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nested.html">torch.nested</a></li>
+<li class="toctree-l1"><a class="reference internal" href="size.html">torch.Size</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sparse.html">torch.sparse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="storage.html">torch.Storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">torch.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">torch.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmark_utils.html">torch.utils.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bottleneck.html">torch.utils.bottleneck</a></li>
+<li class="toctree-l1"><a class="reference internal" href="checkpoint.html">torch.utils.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp_extension.html">torch.utils.cpp_extension</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data.html">torch.utils.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deterministic.html">torch.utils.deterministic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jit_utils.html">torch.utils.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dlpack.html">torch.utils.dlpack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mobile_optimizer.html">torch.utils.mobile_optimizer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_zoo.html">torch.utils.model_zoo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensorboard.html">torch.utils.tensorboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_tracker.html">torch.utils.module_tracker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="type_info.html">类型信息</a></li>
+<li class="toctree-l1"><a class="reference internal" href="named_tensor.html">命名张量</a></li>
+<li class="toctree-l1"><a class="reference internal" href="name_inference.html">命名张量操作覆盖率</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config_mod.html">torch.__config__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="future_mod.html">torch.__future__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">torch._logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_environment_variables.html">火炬环境变量</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">库</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/audio/stable">torchaudio</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/data">TorchData</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/torchrec">火炬推荐</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/serve">TorchServe</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/text/stable">torchtext</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/vision/stable">torchvision</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/xla/">PyTorch 在 XLA 设备上</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/ao">torchao</a></li>
+</ul>
+
+            
+          
+
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        文档 &gt;</li>
+
+        
+      <li>量化</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+            
+            <a href="_sources/quantization.rst.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg" width="16" height="16"></a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">快捷键</div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+
+          <!-- Google Tag Manager (noscript) -->
+          <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T8XT4PS" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+          <!-- End Google Tag Manager (noscript) -->
+          
+          <div class="rst-content">
+          
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <section id="module-torch.ao.quantization">
+<span id="quantization"></span><span id="quantization-doc"></span><h1>量化</h1>
+<span class="target" id="module-torch.ao.quantization.fx"></span><div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>量化处于测试阶段，可能会发生变化。</p>
+</div>
+<section id="introduction-to-quantization">
+<h2>量化简介 ¶</h2>
+<p>量化是指执行计算和存储张量时使用低于浮点精度位宽的技术。量化模型在执行张量操作时使用的是降低精度的值，而不是全精度（浮点）值。这允许模型表示更加紧凑，并在许多硬件平台上使用高性能的矢量化操作。与典型的 FP32 模型相比，PyTorch 支持 INT8 量化，可以实现模型大小和内存带宽需求减少 4 倍。INT8 计算的硬件支持通常比 FP32 计算快 2 到 4 倍。量化主要是为了加速推理，仅支持量化算子的正向传递。</p>
+<p>PyTorch 支持多种深度学习模型的量化方法。在大多数情况下，模型是在 FP32 精度下训练的，然后将其转换为 INT8 精度。此外，PyTorch 还支持量化感知训练，该训练在正向和反向传播过程中使用伪量化模块来模拟量化误差。请注意，整个计算都是在浮点数下进行的。在量化感知训练结束时，PyTorch 提供了转换函数，可以将训练好的模型转换为低精度。</p>
+<p>在较低级别，PyTorch 提供了一种表示量化张量并对其执行操作的方法。它们可以直接构建在低精度下执行所有或部分计算的模型。还提供了高级 API，这些 API 结合了将 FP32 模型转换为低精度的工作流程，以最小化精度损失。</p>
+</section>
+<section id="quantization-api-summary">
+<h2>量化 API 摘要</h2>
+<p>PyTorch 提供了三种不同的量化模式：急切模式量化、FX 图模式量化（维护中）和 PyTorch 2 导出量化。</p>
+<p>热切模式量化是一个测试功能。用户需要手动进行融合并指定量化和反量化的位置，而且它只支持模块，不支持函数。</p>
+<p>FX 图模式量化是 PyTorch 中的自动化量化工作流程，目前它是一个原型功能，由于我们有 PyTorch 2 导出量化，它处于维护模式。它通过添加对函数的支持并自动化量化过程来改进热切模式量化，尽管人们可能需要重构模型以使模型与 FX 图模式量化兼容（可以通过 <code class="docutils literal "><span class="pre">torch.fx</span></code> 符号化跟踪）。请注意，FX 图模式量化可能无法在任意模型上工作，因为模型可能无法进行符号化跟踪，我们将将其集成到领域库如 torchvision 中，用户可以使用 FX 图模式量化量化与支持领域库中类似的模型。对于任意模型，我们将提供一般性指南，但为了使其真正工作，用户可能需要熟悉 <code class="docutils literal "><span class="pre">torch.fx</span></code> ，特别是如何使模型符号化跟踪。</p>
+<p>PyTorch 2 导出量化是新的全图模式量化工作流程，作为原型功能在 PyTorch 2.1 中发布。随着 PyTorch 2 的推出，我们正在转向更好的全程序捕获（torch.export）解决方案，因为它可以捕获更高比例（14K 模型上的 88.8%）的模型，相比于 FX 图模式量化使用的 torch.fx.symbolic_trace（14K 模型上的 72.7%），torch.export 在一些 Python 构造上仍有限制，需要用户参与以支持导出模型中的动态性，但总体上它比之前的程序捕获解决方案有所改进。PyTorch 2 导出量化是为由 torch.export 捕获的模型构建的，考虑到建模用户和后端开发者的灵活性和生产力。主要特性包括（1）可编程 API，用于配置模型如何量化，可以扩展到更多用例（2）简化了建模用户和后端开发者的用户体验，因为他们只需要与单个对象（量化器）交互，以表达用户对如何量化模型以及后端支持的意图。（3） 可选的参考量化模型表示，可以表示使用整数运算的量化计算，更接近硬件中实际发生的量化计算。 </p>
+<p>建议量化新用户首先尝试 PyTorch 2 导出量化，如果效果不佳，用户可以尝试急切模式量化。</p>
+<p>下表比较了急切模式量化、FX 图模式量化与 PyTorch 2 导出量化的区别：</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td></td>
+<td><p>急切模式量化</p></td>
+<td><p>沉浸式翻译模式量化</p></td>
+<td><p>PyTorch 2 导出量化</p></td>
+</tr>
+<tr class="row-even"><td><p>发布状态</p></td>
+<td><p>测试版</p></td>
+<td><p>原型（维护中）</p></td>
+<td><p>原型</p></td>
+</tr>
+<tr class="row-odd"><td><p>运算符融合</p></td>
+<td><p>手动</p></td>
+<td><p>自动</p></td>
+<td><p>自动</p></td>
+</tr>
+<tr class="row-even"><td><p>量化/反量化定位</p></td>
+<td><p>手动</p></td>
+<td><p>自动</p></td>
+<td><p>自动</p></td>
+</tr>
+<tr class="row-odd"><td><p>模块量化</p></td>
+<td><p>支持</p></td>
+<td><p>支持</p></td>
+<td><p>支持</p></td>
+</tr>
+<tr class="row-even"><td><p>量化泛函/PyTorch 操作</p></td>
+<td><p>手动</p></td>
+<td><p>自动</p></td>
+<td><p>支持</p></td>
+</tr>
+<tr class="row-odd"><td><p>支持定制</p></td>
+<td><p>有限支持</p></td>
+<td><p>完全支持</p></td>
+<td><p>全面支持</p></td>
+</tr>
+<tr class="row-even"><td><p>量化模式支持</p></td>
+<td><p>基于训练的量化：静态、动态、仅权重</p>
+<p>量化感知训练：静态</p>
+</td>
+<td><p>训练后量化：静态、动态、权重仅</p>
+<p>量化感知训练：静态</p>
+</td>
+<td><p>由后端特定量化器定义</p></td>
+</tr>
+<tr class="row-odd"><td><p>输入/输出模型类型</p></td>
+<td><p><code class="docutils literal "><span class="pre">torch.nn.Module</span></code></p></td>
+<td><p> <code class="docutils literal "><span class="pre">torch.nn.Module</span></code> （可能需要一些重构以使模型兼容 FX 图模式量化）</p></td>
+<td><p> <code class="docutils literal "><span class="pre">torch.fx.GraphModule</span></code> （由 <code class="docutils literal "><span class="pre">torch.export</span></code> 捕获）</p></td>
+</tr>
+</tbody>
+</table>
+<p>支持三种量化类型：</p>
+<ol class="arabic simple">
+<li><p>动态量化（权重量化，激活值以浮点数读取/存储，并在计算时量化）</p></li>
+<li><p>静态量化（权重量化，激活量化，训练后需要校准）</p></li>
+<li><p>静态量化感知训练（权重量化，激活量化，在训练期间对量化数值建模）</p></li>
+</ol>
+<p>请参阅我们关于 PyTorch 量化介绍的博客文章，以获取这些量化类型之间权衡的更全面概述。</p>
+<p>动态和静态量化之间的算子覆盖范围不同，如下表所示。</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td></td>
+<td><p>静态量化</p></td>
+<td><p>动态量化</p></td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">nn.Linear</div>
+<div class="line">nn.Conv1d/2d/3d</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">Y</div>
+<div class="line">Y</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">Y</div>
+<div class="line">N</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">nn.LSTM</div>
+<div class="line"><br></div>
+<div class="line">nn.GRU</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">Y（通过）</div>
+<div class="line">自定义模块）</div>
+<div class="line">N</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">Y</div>
+<div class="line"><br></div>
+<div class="line">Y</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">nn.RNNCell</div>
+<div class="line">nn.GRUCell</div>
+<div class="line">nn.LSTMCell</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">N</div>
+<div class="line">N</div>
+<div class="line">N</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">Y</div>
+<div class="line">Y</div>
+<div class="line">Y</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><p>nn.EmbeddingBag</p></td>
+<td><p>Y (激活值以 fp32 格式存储)</p></td>
+<td><p>Y</p></td>
+</tr>
+<tr class="row-even"><td><p>nn.Embedding</p></td>
+<td><p>Y</p></td>
+<td><p>Y</p></td>
+</tr>
+<tr class="row-odd"><td><p>nn.MultiheadAttention</p></td>
+<td><p>Y（通过自定义模块）</p></td>
+<td><p>不支持</p></td>
+</tr>
+<tr class="row-even"><td><p>激活函数</p></td>
+<td><p>广泛支持</p></td>
+<td><p>未改变，计算保持为 fp32</p></td>
+</tr>
+</tbody>
+</table>
+<section id="eager-mode-quantization">
+<h3>贪婪模式量化 ¶</h3>
+<p>想要了解量化流程的通用介绍，包括不同类型的量化，请参阅通用量化流程。</p>
+<section id="post-training-dynamic-quantization">
+<h4>训练后动态量化 ¶</h4>
+<p>这是最简单的量化形式，权重在训练前量化，但在推理过程中动态量化激活。这种情况适用于模型执行时间主要由从内存中加载权重而不是计算矩阵乘法所主导的情况。这对于小批量大小的 LSTM 和 Transformer 类型模型来说是真的。</p>
+<p>图表：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="c1"># original model</span>
+<span class="c1"># all tensors and computations are in floating point</span>
+<span class="n">previous_layer_fp32</span> <span class="o">--</span> <span class="n">linear_fp32</span> <span class="o">--</span> <span class="n">activation_fp32</span> <span class="o">--</span> <span class="n">next_layer_fp32</span>
+                 <span class="o">/</span>
+<span class="n">linear_weight_fp32</span>
+
+<span class="c1"># dynamically quantized model</span>
+<span class="c1"># linear and LSTM weights are in int8</span>
+<span class="n">previous_layer_fp32</span> <span class="o">--</span> <span class="n">linear_int8_w_fp32_inp</span> <span class="o">--</span> <span class="n">activation_fp32</span> <span class="o">--</span> <span class="n">next_layer_fp32</span>
+                     <span class="o">/</span>
+   <span class="n">linear_weight_int8</span>
+</pre></div>
+</div>
+<p>PTDQ API 示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="c1"># define a floating point model</span>
+<span class="k">class</span> <span class="nc">M</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fc</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fc</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span>
+
+<span class="c1"># create a model instance</span>
+<span class="n">model_fp32</span> <span class="o">=</span> <span class="n">M</span><span class="p">()</span>
+<span class="c1"># create a quantized model instance</span>
+<span class="n">model_int8</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ao</span><span class="o">.</span><span class="n">quantization</span><span class="o">.</span><span class="n">quantize_dynamic</span><span class="p">(</span>
+    <span class="n">model_fp32</span><span class="p">,</span>  <span class="c1"># the original model</span>
+    <span class="p">{</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">},</span>  <span class="c1"># a set of layers to dynamically quantize</span>
+    <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">qint8</span><span class="p">)</span>  <span class="c1"># the target dtype for quantized weights</span>
+
+<span class="c1"># run the model</span>
+<span class="n">input_fp32</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="n">res</span> <span class="o">=</span> <span class="n">model_int8</span><span class="p">(</span><span class="n">input_fp32</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>要了解更多关于动态量化的信息，请参阅我们的动态量化教程。</p>
+</section>
+<section id="post-training-static-quantization">
+<h4>后训练静态量化 ¶</h4>
+<p>后训练静态量化（PTQ 静态）量化模型的权重和激活。尽可能地将激活融合到前面的层中。它需要与代表性数据集进行校准，以确定激活的最佳量化参数。后训练静态量化通常在内存带宽和计算节省都很重要时使用，卷积神经网络（CNN）是一个典型用例。</p>
+<p>在应用后训练静态量化之前，我们可能需要修改模型。请参阅“Eager Mode 静态量化模型准备”。</p>
+<p>图：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="c1"># original model</span>
+<span class="c1"># all tensors and computations are in floating point</span>
+<span class="n">previous_layer_fp32</span> <span class="o">--</span> <span class="n">linear_fp32</span> <span class="o">--</span> <span class="n">activation_fp32</span> <span class="o">--</span> <span class="n">next_layer_fp32</span>
+                    <span class="o">/</span>
+    <span class="n">linear_weight_fp32</span>
+
+<span class="c1"># statically quantized model</span>
+<span class="c1"># weights and activations are in int8</span>
+<span class="n">previous_layer_int8</span> <span class="o">--</span> <span class="n">linear_with_activation_int8</span> <span class="o">--</span> <span class="n">next_layer_int8</span>
+                    <span class="o">/</span>
+  <span class="n">linear_weight_int8</span>
+</pre></div>
+</div>
+<p>PTSQ API 示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="c1"># define a floating point model where some layers could be statically quantized</span>
+<span class="k">class</span> <span class="nc">M</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="c1"># QuantStub converts tensors from floating point to quantized</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">quant</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ao</span><span class="o">.</span><span class="n">quantization</span><span class="o">.</span><span class="n">QuantStub</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conv</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">relu</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">()</span>
+        <span class="c1"># DeQuantStub converts tensors from quantized to floating point</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dequant</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ao</span><span class="o">.</span><span class="n">quantization</span><span class="o">.</span><span class="n">DeQuantStub</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="c1"># manually specify where tensors will be converted from floating</span>
+        <span class="c1"># point to quantized in the quantized model</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">quant</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conv</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="c1"># manually specify where tensors will be converted from quantized</span>
+        <span class="c1"># to floating point in the quantized model</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dequant</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span>
+
+<span class="c1"># create a model instance</span>
+<span class="n">model_fp32</span> <span class="o">=</span> <span class="n">M</span><span class="p">()</span>
+
+<span class="c1"># model must be set to eval mode for static quantization logic to work</span>
+<span class="n">model_fp32</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+
+<span class="c1"># attach a global qconfig, which contains information about what kind</span>
+<span class="c1"># of observers to attach. Use 'x86' for server inference and 'qnnpack'</span>
+<span class="c1"># for mobile inference. Other quantization configurations such as selecting</span>
+<span class="c1"># symmetric or asymmetric quantization and MinMax or L2Norm calibration techniques</span>
+<span class="c1"># can be specified here.</span>
+<span class="c1"># Note: the old 'fbgemm' is still available but 'x86' is the recommended default</span>
+<span class="c1"># for server inference.</span>
+<span class="c1"># model_fp32.qconfig = torch.ao.quantization.get_default_qconfig('fbgemm')</span>
+<span class="n">model_fp32</span><span class="o">.</span><span class="n">qconfig</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ao</span><span class="o">.</span><span class="n">quantization</span><span class="o">.</span><span class="n">get_default_qconfig</span><span class="p">(</span><span class="s1">'x86'</span><span class="p">)</span>
+
+<span class="c1"># Fuse the activations to preceding layers, where applicable.</span>
+<span class="c1"># This needs to be done manually depending on the model architecture.</span>
+<span class="c1"># Common fusions include `conv + relu` and `conv + batchnorm + relu`</span>
+<span class="n">model_fp32_fused</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ao</span><span class="o">.</span><span class="n">quantization</span><span class="o">.</span><span class="n">fuse_modules</span><span class="p">(</span><span class="n">model_fp32</span><span class="p">,</span> <span class="p">[[</span><span class="s1">'conv'</span><span class="p">,</span> <span class="s1">'relu'</span><span class="p">]])</span>
+
+<span class="c1"># Prepare the model for static quantization. This inserts observers in</span>
+<span class="c1"># the model that will observe activation tensors during calibration.</span>
+<span class="n">model_fp32_prepared</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ao</span><span class="o">.</span><span class="n">quantization</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="n">model_fp32_fused</span><span class="p">)</span>
+
+<span class="c1"># calibrate the prepared model to determine quantization parameters for activations</span>
+<span class="c1"># in a real world setting, the calibration would be done with a representative dataset</span>
+<span class="n">input_fp32</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="n">model_fp32_prepared</span><span class="p">(</span><span class="n">input_fp32</span><span class="p">)</span>
+
+<span class="c1"># Convert the observed model to a quantized model. This does several things:</span>
+<span class="c1"># quantizes the weights, computes and stores the scale and bias value to be</span>
+<span class="c1"># used with each activation tensor, and replaces key operators with quantized</span>
+<span class="c1"># implementations.</span>
+<span class="n">model_int8</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ao</span><span class="o">.</span><span class="n">quantization</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="n">model_fp32_prepared</span><span class="p">)</span>
+
+<span class="c1"># run the model, relevant calculations will happen in int8</span>
+<span class="n">res</span> <span class="o">=</span> <span class="n">model_int8</span><span class="p">(</span><span class="n">input_fp32</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>了解静态量化，请参阅静态量化教程。</p>
+</section>
+<section id="quantization-aware-training-for-static-quantization">
+<h4>量化感知训练用于静态量化</h4>
+<p>量化感知训练（QAT）在训练过程中模拟量化效果，与其它量化方法相比，可以实现更高的精度。我们可以对静态、动态或仅权重量化进行 QAT。在训练过程中，所有计算都使用浮点数进行，通过 fake_quant 模块通过钳位和舍入来模拟 INT8 的效果。在模型转换后，权重和激活量进行量化，并在可能的情况下将激活量融合到前一层。它通常与 CNN 一起使用，与静态量化相比，精度更高。</p>
+<p>在应用训练后静态量化之前，我们可能需要修改模型。请参阅“Eager Mode 静态量化模型准备”。</p>
+<p>图表：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="c1"># original model</span>
+<span class="c1"># all tensors and computations are in floating point</span>
+<span class="n">previous_layer_fp32</span> <span class="o">--</span> <span class="n">linear_fp32</span> <span class="o">--</span> <span class="n">activation_fp32</span> <span class="o">--</span> <span class="n">next_layer_fp32</span>
+                      <span class="o">/</span>
+    <span class="n">linear_weight_fp32</span>
+
+<span class="c1"># model with fake_quants for modeling quantization numerics during training</span>
+<span class="n">previous_layer_fp32</span> <span class="o">--</span> <span class="n">fq</span> <span class="o">--</span> <span class="n">linear_fp32</span> <span class="o">--</span> <span class="n">activation_fp32</span> <span class="o">--</span> <span class="n">fq</span> <span class="o">--</span> <span class="n">next_layer_fp32</span>
+                           <span class="o">/</span>
+   <span class="n">linear_weight_fp32</span> <span class="o">--</span> <span class="n">fq</span>
+
+<span class="c1"># quantized model</span>
+<span class="c1"># weights and activations are in int8</span>
+<span class="n">previous_layer_int8</span> <span class="o">--</span> <span class="n">linear_with_activation_int8</span> <span class="o">--</span> <span class="n">next_layer_int8</span>
+                     <span class="o">/</span>
+   <span class="n">linear_weight_int8</span>
+</pre></div>
+</div>
+<p>QAT API 示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="c1"># define a floating point model where some layers could benefit from QAT</span>
+<span class="k">class</span> <span class="nc">M</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="c1"># QuantStub converts tensors from floating point to quantized</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">quant</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ao</span><span class="o">.</span><span class="n">quantization</span><span class="o">.</span><span class="n">QuantStub</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conv</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bn</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">BatchNorm2d</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">relu</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">()</span>
+        <span class="c1"># DeQuantStub converts tensors from quantized to floating point</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dequant</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ao</span><span class="o">.</span><span class="n">quantization</span><span class="o">.</span><span class="n">DeQuantStub</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">quant</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conv</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bn</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dequant</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span>
+
+<span class="c1"># create a model instance</span>
+<span class="n">model_fp32</span> <span class="o">=</span> <span class="n">M</span><span class="p">()</span>
+
+<span class="c1"># model must be set to eval for fusion to work</span>
+<span class="n">model_fp32</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+
+<span class="c1"># attach a global qconfig, which contains information about what kind</span>
+<span class="c1"># of observers to attach. Use 'x86' for server inference and 'qnnpack'</span>
+<span class="c1"># for mobile inference. Other quantization configurations such as selecting</span>
+<span class="c1"># symmetric or asymmetric quantization and MinMax or L2Norm calibration techniques</span>
+<span class="c1"># can be specified here.</span>
+<span class="c1"># Note: the old 'fbgemm' is still available but 'x86' is the recommended default</span>
+<span class="c1"># for server inference.</span>
+<span class="c1"># model_fp32.qconfig = torch.ao.quantization.get_default_qconfig('fbgemm')</span>
+<span class="n">model_fp32</span><span class="o">.</span><span class="n">qconfig</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ao</span><span class="o">.</span><span class="n">quantization</span><span class="o">.</span><span class="n">get_default_qat_qconfig</span><span class="p">(</span><span class="s1">'x86'</span><span class="p">)</span>
+
+<span class="c1"># fuse the activations to preceding layers, where applicable</span>
+<span class="c1"># this needs to be done manually depending on the model architecture</span>
+<span class="n">model_fp32_fused</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ao</span><span class="o">.</span><span class="n">quantization</span><span class="o">.</span><span class="n">fuse_modules</span><span class="p">(</span><span class="n">model_fp32</span><span class="p">,</span>
+    <span class="p">[[</span><span class="s1">'conv'</span><span class="p">,</span> <span class="s1">'bn'</span><span class="p">,</span> <span class="s1">'relu'</span><span class="p">]])</span>
+
+<span class="c1"># Prepare the model for QAT. This inserts observers and fake_quants in</span>
+<span class="c1"># the model needs to be set to train for QAT logic to work</span>
+<span class="c1"># the model that will observe weight and activation tensors during calibration.</span>
+<span class="n">model_fp32_prepared</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ao</span><span class="o">.</span><span class="n">quantization</span><span class="o">.</span><span class="n">prepare_qat</span><span class="p">(</span><span class="n">model_fp32_fused</span><span class="o">.</span><span class="n">train</span><span class="p">())</span>
+
+<span class="c1"># run the training loop (not shown)</span>
+<span class="n">training_loop</span><span class="p">(</span><span class="n">model_fp32_prepared</span><span class="p">)</span>
+
+<span class="c1"># Convert the observed model to a quantized model. This does several things:</span>
+<span class="c1"># quantizes the weights, computes and stores the scale and bias value to be</span>
+<span class="c1"># used with each activation tensor, fuses modules where appropriate,</span>
+<span class="c1"># and replaces key operators with quantized implementations.</span>
+<span class="n">model_fp32_prepared</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+<span class="n">model_int8</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ao</span><span class="o">.</span><span class="n">quantization</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="n">model_fp32_prepared</span><span class="p">)</span>
+
+<span class="c1"># run the model, relevant calculations will happen in int8</span>
+<span class="n">res</span> <span class="o">=</span> <span class="n">model_int8</span><span class="p">(</span><span class="n">input_fp32</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>想了解更多关于量化感知训练的信息，请参阅 QAT 教程。</p>
+</section>
+<section id="model-preparation-for-eager-mode-static-quantization">
+<h4>想要为急切模式静态量化准备模型</h4>
+<p>在进行急切模式量化之前，需要对模型定义进行一些修改。这是因为当前的量化是按模块进行的。具体来说，对于所有量化技术，用户需要：</p>
+<ol class="arabic simple">
+<li><p>将需要输出再量化的任何操作（因此具有额外的参数）从函数形式转换为模块形式（例如，使用 <code class="docutils literal "><span class="pre">torch.nn.ReLU</span></code> 代替 <code class="docutils literal "><span class="pre">torch.nn.functional.relu</span></code> ）。</p></li>
+<li><p>指定模型中需要量化的部分，可以通过在子模块上分配 <code class="docutils literal "><span class="pre">.qconfig</span></code> 属性或通过指定 <code class="docutils literal "><span class="pre">qconfig_mapping</span></code> 来实现。例如，设置 <code class="docutils literal "><span class="pre">model.conv1.qconfig</span> <span class="pre">=</span> <span class="pre">None</span></code> 表示 <code class="docutils literal "><span class="pre">model.conv</span></code> 层将不会量化，设置 <code class="docutils literal "><span class="pre">model.linear1.qconfig</span> <span class="pre">=</span> <span class="pre">custom_qconfig</span></code> 表示 <code class="docutils literal "><span class="pre">model.linear1</span></code> 的量化设置将使用 <code class="docutils literal "><span class="pre">custom_qconfig</span></code> 而不是全局 qconfig。</p></li>
+</ol>
+<p>对于量化激活的静态量化技术，用户还需要做以下操作：</p>
+<ol class="arabic simple">
+<li><p>指定激活的量化和去量化位置。这通过使用 <code class="xref py py-class docutils literal "><span class="pre">QuantStub</span></code> 和 <code class="xref py py-class docutils literal "><span class="pre">DeQuantStub</span></code> 模块来完成。</p></li>
+<li><p>使用 <code class="xref py py-class docutils literal "><span class="pre">FloatFunctional</span></code> 将需要特殊量化处理的张量操作封装到模块中。例如，像 <code class="docutils literal "><span class="pre">add</span></code> 和 <code class="docutils literal "><span class="pre">cat</span></code> 这样的操作需要特殊处理来确定输出量化参数。</p></li>
+<li><p>融合模块：将操作/模块组合成一个单一模块以获得更高的准确性和性能。这通过使用 <code class="xref py py-func docutils literal "><span class="pre">fuse_modules()</span></code> API 完成，该 API 接受要融合的模块列表。我们目前支持以下融合：[Conv, Relu]，[Conv, BatchNorm]，[Conv, BatchNorm, Relu]，[Linear, Relu]</p></li>
+</ol>
+</section>
+</section>
+<section id="prototype-maintenance-mode-fx-graph-mode-quantization">
+<h3>（原型 - 维护模式）FX 图模式量化</h3>
+<p>在训练后量化中存在多种量化类型（仅权重、动态和静态），配置通过 qconfig_mapping（prepare_fx 函数的参数）完成。</p>
+<p>FXPTQ API 示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torch.ao.quantization</span> <span class="kn">import</span> <span class="p">(</span>
+  <span class="n">get_default_qconfig_mapping</span><span class="p">,</span>
+  <span class="n">get_default_qat_qconfig_mapping</span><span class="p">,</span>
+  <span class="n">QConfigMapping</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">import</span> <span class="nn">torch.ao.quantization.quantize_fx</span> <span class="k">as</span> <span class="nn">quantize_fx</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+
+<span class="n">model_fp</span> <span class="o">=</span> <span class="n">UserModel</span><span class="p">()</span>
+
+<span class="c1">#</span>
+<span class="c1"># post training dynamic/weight_only quantization</span>
+<span class="c1">#</span>
+
+<span class="c1"># we need to deepcopy if we still want to keep model_fp unchanged after quantization since quantization apis change the input model</span>
+<span class="n">model_to_quantize</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">model_fp</span><span class="p">)</span>
+<span class="n">model_to_quantize</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+<span class="n">qconfig_mapping</span> <span class="o">=</span> <span class="n">QConfigMapping</span><span class="p">()</span><span class="o">.</span><span class="n">set_global</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ao</span><span class="o">.</span><span class="n">quantization</span><span class="o">.</span><span class="n">default_dynamic_qconfig</span><span class="p">)</span>
+<span class="c1"># a tuple of one or more example inputs are needed to trace the model</span>
+<span class="n">example_inputs</span> <span class="o">=</span> <span class="p">(</span><span class="n">input_fp32</span><span class="p">)</span>
+<span class="c1"># prepare</span>
+<span class="n">model_prepared</span> <span class="o">=</span> <span class="n">quantize_fx</span><span class="o">.</span><span class="n">prepare_fx</span><span class="p">(</span><span class="n">model_to_quantize</span><span class="p">,</span> <span class="n">qconfig_mapping</span><span class="p">,</span> <span class="n">example_inputs</span><span class="p">)</span>
+<span class="c1"># no calibration needed when we only have dynamic/weight_only quantization</span>
+<span class="c1"># quantize</span>
+<span class="n">model_quantized</span> <span class="o">=</span> <span class="n">quantize_fx</span><span class="o">.</span><span class="n">convert_fx</span><span class="p">(</span><span class="n">model_prepared</span><span class="p">)</span>
+
+<span class="c1">#</span>
+<span class="c1"># post training static quantization</span>
+<span class="c1">#</span>
+
+<span class="n">model_to_quantize</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">model_fp</span><span class="p">)</span>
+<span class="n">qconfig_mapping</span> <span class="o">=</span> <span class="n">get_default_qconfig_mapping</span><span class="p">(</span><span class="s2">"qnnpack"</span><span class="p">)</span>
+<span class="n">model_to_quantize</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+<span class="c1"># prepare</span>
+<span class="n">model_prepared</span> <span class="o">=</span> <span class="n">quantize_fx</span><span class="o">.</span><span class="n">prepare_fx</span><span class="p">(</span><span class="n">model_to_quantize</span><span class="p">,</span> <span class="n">qconfig_mapping</span><span class="p">,</span> <span class="n">example_inputs</span><span class="p">)</span>
+<span class="c1"># calibrate (not shown)</span>
+<span class="c1"># quantize</span>
+<span class="n">model_quantized</span> <span class="o">=</span> <span class="n">quantize_fx</span><span class="o">.</span><span class="n">convert_fx</span><span class="p">(</span><span class="n">model_prepared</span><span class="p">)</span>
+
+<span class="c1">#</span>
+<span class="c1"># quantization aware training for static quantization</span>
+<span class="c1">#</span>
+
+<span class="n">model_to_quantize</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">model_fp</span><span class="p">)</span>
+<span class="n">qconfig_mapping</span> <span class="o">=</span> <span class="n">get_default_qat_qconfig_mapping</span><span class="p">(</span><span class="s2">"qnnpack"</span><span class="p">)</span>
+<span class="n">model_to_quantize</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+<span class="c1"># prepare</span>
+<span class="n">model_prepared</span> <span class="o">=</span> <span class="n">quantize_fx</span><span class="o">.</span><span class="n">prepare_qat_fx</span><span class="p">(</span><span class="n">model_to_quantize</span><span class="p">,</span> <span class="n">qconfig_mapping</span><span class="p">,</span> <span class="n">example_inputs</span><span class="p">)</span>
+<span class="c1"># training loop (not shown)</span>
+<span class="c1"># quantize</span>
+<span class="n">model_quantized</span> <span class="o">=</span> <span class="n">quantize_fx</span><span class="o">.</span><span class="n">convert_fx</span><span class="p">(</span><span class="n">model_prepared</span><span class="p">)</span>
+
+<span class="c1">#</span>
+<span class="c1"># fusion</span>
+<span class="c1">#</span>
+<span class="n">model_to_quantize</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">model_fp</span><span class="p">)</span>
+<span class="n">model_fused</span> <span class="o">=</span> <span class="n">quantize_fx</span><span class="o">.</span><span class="n">fuse_fx</span><span class="p">(</span><span class="n">model_to_quantize</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>请按照以下教程了解 FX Graph 模式量化：</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://pytorch.org/tutorials/prototype/fx_graph_mode_quant_guide.html">使用 FX Graph 模式量化的用户指南</a></p></li>
+<li><p><a class="reference external" href="https://pytorch.org/tutorials/prototype/fx_graph_mode_ptq_static.html">FX Graph 模式后训练静态量化</a></p></li>
+<li><p><a class="reference external" href="https://pytorch.org/tutorials/prototype/fx_graph_mode_ptq_dynamic.html">FX Graph 模式后训练动态量化</a></p></li>
+</ul>
+</section>
+<section id="prototype-pytorch-2-export-quantization">
+<h3>(原型) PyTorch 2 导出量化 ¶</h3>
+<p>API 示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torch.ao.quantization.quantize_pt2e</span> <span class="kn">import</span> <span class="n">prepare_pt2e</span>
+<span class="kn">from</span> <span class="nn">torch.export</span> <span class="kn">import</span> <span class="n">export_for_training</span>
+<span class="kn">from</span> <span class="nn">torch.ao.quantization.quantizer</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">XNNPACKQuantizer</span><span class="p">,</span>
+    <span class="n">get_symmetric_quantization_config</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">M</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linear</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+
+   <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+       <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">linear</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+<span class="c1"># initialize a floating point model</span>
+<span class="n">float_model</span> <span class="o">=</span> <span class="n">M</span><span class="p">()</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+
+<span class="c1"># define calibration function</span>
+<span class="k">def</span> <span class="nf">calibrate</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">data_loader</span><span class="p">):</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+    <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">image</span><span class="p">,</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">data_loader</span><span class="p">:</span>
+            <span class="n">model</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+
+<span class="c1"># Step 1. program capture</span>
+<span class="c1"># NOTE: this API will be updated to torch.export API in the future, but the captured</span>
+<span class="c1"># result should mostly stay the same</span>
+<span class="n">m</span> <span class="o">=</span> <span class="n">export_for_training</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="o">*</span><span class="n">example_inputs</span><span class="p">)</span><span class="o">.</span><span class="n">module</span><span class="p">()</span>
+<span class="c1"># we get a model with aten ops</span>
+
+<span class="c1"># Step 2. quantization</span>
+<span class="c1"># backend developer will write their own Quantizer and expose methods to allow</span>
+<span class="c1"># users to express how they</span>
+<span class="c1"># want the model to be quantized</span>
+<span class="n">quantizer</span> <span class="o">=</span> <span class="n">XNNPACKQuantizer</span><span class="p">()</span><span class="o">.</span><span class="n">set_global</span><span class="p">(</span><span class="n">get_symmetric_quantization_config</span><span class="p">())</span>
+<span class="c1"># or prepare_qat_pt2e for Quantization Aware Training</span>
+<span class="n">m</span> <span class="o">=</span> <span class="n">prepare_pt2e</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">quantizer</span><span class="p">)</span>
+
+<span class="c1"># run calibration</span>
+<span class="c1"># calibrate(m, sample_inference_data)</span>
+<span class="n">m</span> <span class="o">=</span> <span class="n">convert_pt2e</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+
+<span class="c1"># Step 3. lowering</span>
+<span class="c1"># lower to target backend</span>
+</pre></div>
+</div>
+<p>请按照以下教程开始使用 PyTorch 2 导出量化：</p>
+<p>模型用户：</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://pytorch.org/tutorials/prototype/pt2e_quant_ptq.html">PyTorch 2 导出训练后量化</a></p></li>
+<li><p><a class="reference external" href="https://pytorch.org/tutorials/prototype/pt2e_quant_x86_inductor.html">PyTorch 2 导出后训练量化通过 Inductor 使用 X86 后端</a></p></li>
+<li><p><a class="reference external" href="https://pytorch.org/tutorials/prototype/pt2e_quant_qat.html">PyTorch 2 导出量化感知训练</a></p></li>
+</ul>
+<p>后端开发者（请查看所有建模用户文档）：</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://pytorch.org/tutorials/prototype/pt2e_quantizer.html">如何为 PyTorch 2 导出量化编写量化器</a></p></li>
+</ul>
+</section>
+</section>
+<section id="quantization-stack">
+<h2>量化栈 ¶</h2>
+<p>量化是将浮点模型转换为量化模型的过程。因此，从高层次来看，量化栈可以分为两个部分：1）量化模型的构建块或抽象 2）将浮点模型转换为量化模型的量化流程的构建块或抽象</p>
+<section id="quantized-model">
+<h3>量化模型 ¶</h3>
+<section id="quantized-tensor">
+<h4>量化张量 ¶</h4>
+<p>为了在 PyTorch 中进行量化，我们需要能够以张量的形式表示量化数据。量化张量允许存储量化数据（以 int8/uint8/int32 表示）以及量化参数，如缩放和零点。量化张量允许进行许多有用的操作，使得量化算术变得简单，同时还允许以量化格式序列化数据。</p>
+<p>PyTorch 支持张量级和通道级的对称与非对称量化。张量级表示张量内的所有值以相同的方式使用相同的量化参数进行量化。通道级表示对于每个维度，通常是张量的通道维度，张量内的值使用不同的量化参数进行量化。这允许在将张量转换为量化值时减少误差，因为异常值只会影响其所在的通道，而不是整个张量。</p>
+<p>通过将浮点张量转换为执行映射</p>
+<a class="reference internal image-reference" href="_images/math-quantizer-equation.png"><img alt="_images/math-quantizer-equation.png" src="_images/math-quantizer-equation.png" style="width: 40%;"></a>
+<p>注意，我们确保在量化后浮点数中的零不会产生错误，从而确保填充等操作不会引起额外的量化误差。</p>
+<p>下面是量化张量的一些关键属性：</p>
+<ul class="simple">
+<li><p>QScheme（torch.qscheme）：一个枚举，用于指定量化张量的方式</p>
+<ul>
+<li><p>torch.per_tensor_affine</p></li>
+<li><p>torch.per_tensor_symmetric</p></li>
+<li><p>torch.per_channel_affine</p></li>
+<li><p>torch.per_channel_symmetric</p></li>
+</ul>
+</li>
+<li><p>dtype (torch.dtype)：量化张量的数据类型</p>
+<ul>
+<li><p>torch.quint8</p></li>
+<li><p>torch.qint8</p></li>
+<li><p>torch.qint32</p></li>
+<li><p>torch.float16</p></li>
+</ul>
+</li>
+<li><p>量化参数（根据 QScheme 变化）：所选量化方式的参数</p>
+<ul>
+<li><p>torch.per_tensor_affine 将具有量化参数</p>
+<ul>
+<li><p>缩放（浮点数）</p></li>
+<li><p>零点（整数）</p></li>
+</ul>
+</li>
+<li><p>torch.per_channel_affine 将具有量化参数</p>
+<ul>
+<li><p>每通道尺度（浮点数列表）</p></li>
+<li><p>每通道零点（整数列表）</p></li>
+<li><p>轴（整数）</p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="quantize-and-dequantize">
+<h4>量化与反量化</h4>
+<p>模型的输入和输出是浮点张量，但量化模型的激活是经过量化的，因此我们需要操作符来在浮点张量和量化张量之间进行转换。</p>
+<ul class="simple">
+<li><p>量化（浮点 -&gt; 量化）</p>
+<ul>
+<li><p>torch.quantize_per_tensor(x, scale, zero_point, dtype)</p></li>
+<li><p>torch.quantize_per_channel(x, scales, zero_points, axis, dtype)</p></li>
+<li><p>torch.quantize_per_tensor_dynamic(x, dtype, reduce_range)</p></li>
+<li><p>to(torch.float16)</p></li>
+</ul>
+</li>
+<li><p>Dequantize (量化 -&gt; 浮点数)</p>
+<ul>
+<li><p>quantized_tensor.dequantize() - 调用 dequantize 对 torch.float16 Tensor 进行转换，将 Tensor 转回 torch.float</p></li>
+<li><p>torch.dequantize(x)</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="quantized-operators-modules">
+<h4>量化算子/模块</h4>
+<ul class="simple">
+<li><p>量化算子是接受量化 Tensor 作为输入，并输出量化 Tensor 的算子。</p></li>
+<li><p>量化模块是执行量化操作的 PyTorch 模块。它们通常用于定义加权操作，如线性操作和卷积操作。</p></li>
+</ul>
+</section>
+<section id="quantized-engine">
+<h4>量化引擎</h4>
+<p>当量化模型执行时，qengine（torch.backends.quantized.engine）指定了用于执行的底层后端。确保 qengine 与量化模型在量化激活和权重的值域方面兼容是很重要的。</p>
+</section>
+</section>
+<section id="quantization-flow">
+<h3>量化流程</h3>
+<section id="observer-and-fakequantize">
+<h4>观察器和 FakeQuantize</h4>
+<ul class="simple">
+<li><p>Observer 是 PyTorch 模块，用于：</p>
+<ul>
+<li><p>收集张量统计信息，如张量通过观察器的最小值和最大值</p></li>
+<li><p>并根据收集到的张量统计信息计算量化参数</p></li>
+</ul>
+</li>
+<li><p>FakeQuantize 是 PyTorch 模块，用于：</p>
+<ul>
+<li><p>模拟量化（执行量化/反量化）网络中的张量</p></li>
+<li><p>它可以根据从观察器收集的统计数据计算量化参数，也可以学习量化参数</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="qconfig">
+<h4>QConfig<a class="headerlink" href="#qconfig" title="Permalink to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>QConfig 是一个由 Observer 或 FakeQuantize 模块类组成的 namedtuple，可以配置 qscheme、dtype 等参数，用于配置操作符应该如何被观察</p>
+<ul>
+<li><p>操作符/模块的量化配置</p>
+<ul>
+<li><p>不同的 Observer/FakeQuantize 类型</p></li>
+<li><p>数据类型</p></li>
+<li><p>q 方案</p></li>
+<li><p>quant_min/quant_max：可用于模拟低精度张量</p></li>
+</ul>
+</li>
+<li><p>目前支持激活和权重配置</p></li>
+<li><p>根据为给定操作符或模块配置的 qconfig，插入输入/权重/输出观察者</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="general-quantization-flow">
+<h4>沉浸式量化流程</h4>
+<p>通常情况下，流程如下</p>
+<ul class="simple">
+<li><p>准备</p>
+<ul>
+<li><p>根据用户指定的 qconfig 插入 Observer/FakeQuantize 模块</p></li>
+</ul>
+</li>
+<li><p>校准/训练（根据后训练量化或量化感知训练）</p>
+<ul>
+<li><p>允许观察者收集统计信息或 FakeQuantize 模块学习量化参数</p></li>
+</ul>
+</li>
+<li><p>转换</p>
+<ul>
+<li><p>将校准/训练后的模型转换为量化模型</p></li>
+</ul>
+</li>
+</ul>
+<p>量化有不同的模式，可以分为两种：</p>
+<p>就量化流程的应用位置而言，我们有：</p>
+<ol class="arabic simple">
+<li><p>训练后量化（在训练后应用量化，量化参数基于样本校准数据计算）</p></li>
+<li><p>量化感知训练（在训练过程中模拟量化，以便量化参数可以与模型一起使用训练数据学习）</p></li>
+</ol>
+<p>关于如何量化算子，我们可以有：</p>
+<ul class="simple">
+<li><p>权重仅量化（只有权重是静态量化的）</p></li>
+<li><p>动态量化（权重是静态量化的，激活是动态量化的）</p></li>
+<li><p>静态量化（权重和激活都是静态量化的）</p></li>
+</ul>
+<p>我们可以在同一个量化流程中混合不同的算子量化方式。例如，我们可以有既包含静态量化又包含动态量化的训练后量化。</p>
+</section>
+</section>
+</section>
+<section id="quantization-support-matrix">
+<h2>量化支持矩阵 ¶</h2>
+<section id="quantization-mode-support">
+<h3>量化模式支持 ¶</h3>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td></td>
+<td colspan="2"><p>量化模式</p></td>
+<td><p>数据集要求</p></td>
+<td><p>最适用场景</p></td>
+<td><p>准确度</p></td>
+<td><p>笔记</p></td>
+</tr>
+<tr class="row-even"><td rowspan="2"><p>训练后量化</p></td>
+<td><p>动态/权重量化</p></td>
+<td><p>动态量化（fp16，int8）或未量化，权重静态量化（fp16，int8，in4）</p></td>
+<td><p>无</p></td>
+<td><p>LSTM，MLP，嵌入，Transformer</p></td>
+<td><p>好</p></td>
+<td><p>使用简单，当性能受计算或内存限制时，接近静态量化</p></td>
+</tr>
+<tr class="row-odd"><td><p>静态量化</p></td>
+<td><p>激活和权重静态量化（int8）</p></td>
+<td><p>校准数据集</p></td>
+<td><p>CNN</p></td>
+<td><p>良好</p></td>
+<td><p>提供最佳性能，可能对准确性有较大影响，适用于仅支持 int8 计算的硬件</p></td>
+</tr>
+<tr class="row-even"><td rowspan="2"><p>量化感知训练</p></td>
+<td><p>动态量化</p></td>
+<td><p>激活和权重进行了假量化</p></td>
+<td><p>微调数据集</p></td>
+<td><p>多层感知器，嵌入</p></td>
+<td><p>最好</p></td>
+<td><p>目前仅限部分支持</p></td>
+</tr>
+<tr class="row-odd"><td><p>静态量化</p></td>
+<td><p>激活和权重进行了假量化</p></td>
+<td><p>微调数据集</p></td>
+<td><p>卷积神经网络、多层感知器、嵌入</p></td>
+<td><p>最佳</p></td>
+<td><p>通常在静态量化导致精度不佳时使用，用于缩小精度差距</p></td>
+</tr>
+</tbody>
+</table>
+<p>请参阅我们关于 PyTorch 量化介绍的博客文章，以获得这些量化类型之间权衡的更全面概述。</p>
+</section>
+<section id="quantization-flow-support">
+<h3>量化流程支持</h3>
+<p>PyTorch 提供了两种量化模式：急切模式量化（Eager Mode Quantization）和 FX 图模式量化（FX Graph Mode Quantization）。</p>
+<p>急切模式量化是一个测试版功能。用户需要手动进行融合并指定量化和去量化发生的位置，而且它只支持模块，不支持函数式。</p>
+<p>FX Graph 模式量化是 PyTorch 中的一个自动化量化框架，目前它还是一个原型功能。它通过添加对函数的支持并自动化量化过程来改进 Eager 模式量化，尽管人们可能需要重构模型以使模型兼容 FX Graph 模式量化（可以通过 <code class="docutils literal "><span class="pre">torch.fx</span></code> 进行符号追踪）。请注意，FX Graph 模式量化可能无法在任意模型上工作，因为模型可能无法进行符号追踪。我们将将其集成到领域库如 torchvision 中，用户可以使用 FX Graph 模式量化对类似支持的领域库中的模型进行量化。对于任意模型，我们将提供一般性指南，但为了使其真正工作，用户可能需要熟悉 <code class="docutils literal "><span class="pre">torch.fx</span></code> ，特别是如何使模型可符号追踪。</p>
+<p>建议量化新用户首先尝试 FX Graph 模式量化，如果不起作用，用户可以尝试遵循使用 FX Graph 模式量化的指南或回退到急切模式量化。</p>
+<p>以下表格比较了急切模式量化与 FX 图模式量化的区别：</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td></td>
+<td><p>急切模式量化</p></td>
+<td><p>FX 图模式量化</p></td>
+</tr>
+<tr class="row-even"><td><p>发布状态</p></td>
+<td><p>测试版</p></td>
+<td><p>原型</p></td>
+</tr>
+<tr class="row-odd"><td><p>运算符融合</p></td>
+<td><p>手动</p></td>
+<td><p>自动</p></td>
+</tr>
+<tr class="row-even"><td><p>量化/反量化定位</p></td>
+<td><p>手动</p></td>
+<td><p>自动</p></td>
+</tr>
+<tr class="row-odd"><td><p>量化模块</p></td>
+<td><p>支持</p></td>
+<td><p>支持</p></td>
+</tr>
+<tr class="row-even"><td><p>函数量化/Torch 操作</p></td>
+<td><p>手册</p></td>
+<td><p>自动</p></td>
+</tr>
+<tr class="row-odd"><td><p>支持定制</p></td>
+<td><p>有限支持</p></td>
+<td><p>完全支持</p></td>
+</tr>
+<tr class="row-even"><td><p>量化模式支持</p></td>
+<td><p>训练后量化：静态、动态、权重仅</p>
+<p>量化感知训练：静态</p>
+</td>
+<td><p>训练后量化：静态、动态、权重仅</p>
+<p>量化感知训练：静态</p>
+</td>
+</tr>
+<tr class="row-odd"><td><p>输入/输出模型类型</p></td>
+<td><p><code class="docutils literal "><span class="pre">torch.nn.Module</span></code></p></td>
+<td><p>（可能需要一些重构以使模型兼容 FX 图模式量化）</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="backend-hardware-support">
+<h3>后端/硬件支持</h3>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>硬件</p></td>
+<td><p>内核库</p></td>
+<td><p>渴望模式量化</p></td>
+<td><p>FX 图模式量化</p></td>
+<td><p>量化模式支持</p></td>
+</tr>
+<tr class="row-even"><td><p>服务器 CPU</p></td>
+<td><p>fbgemm/onednn</p></td>
+<td colspan="2" rowspan="2"><p>支持</p></td>
+<td rowspan="2"><p>所有支持</p></td>
+</tr>
+<tr class="row-odd"><td><p>移动 CPU</p></td>
+<td><p>qnnpack/xnnpack</p></td>
+</tr>
+<tr class="row-even"><td><p>服务器 GPU</p></td>
+<td><p>TensorRT（早期原型）</p></td>
+<td><p>不支持此功能，需要图</p></td>
+<td><p>支持</p></td>
+<td><p>静态量化</p></td>
+</tr>
+</tbody>
+</table>
+<p>今天，PyTorch 支持以下后端以高效运行量化算子：</p>
+<ul class="simple">
+<li><p>支持 AVX2 或更高版本的 x86 CPU（没有 AVX2 的一些操作实现效率较低），通过 fbgemm 和 onednn 优化 x86（详细信息请参阅 RFC）</p></li>
+<li><p>ARM CPU（通常在移动/嵌入式设备中找到），通过 qnnpack</p></li>
+<li><p>（早期原型）通过 TensorRT 通过 fx2trt 支持 NVidia GPU（即将开源）</p></li>
+</ul>
+<section id="note-for-native-cpu-backends">
+<h4>原生 CPU 后端笔记</h4>
+<p>我们使用相同的原生 PyTorch 量化算子公开 x86 和 qnnpack，因此需要额外的标志来区分它们。根据 PyTorch 构建模式自动选择 x86 和 qnnpack 的对应实现，尽管用户可以通过设置 torch.backends.quantization.engine 为 x86 或 qnnpack 来覆盖此设置。</p>
+<p>在准备量化模型时，必须确保 qconfig 和用于量化计算的引擎与模型将要执行的底层相匹配。qconfig 控制量化过程中使用的观察者的类型。qengine 控制在为线性、卷积函数和模块打包权重时是否使用 x86 或 qnnpack 特定的打包函数。例如：</p>
+<p>x86 的默认设置：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="c1"># set the qconfig for PTQ</span>
+<span class="c1"># Note: the old 'fbgemm' is still available but 'x86' is the recommended default on x86 CPUs</span>
+<span class="n">qconfig</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ao</span><span class="o">.</span><span class="n">quantization</span><span class="o">.</span><span class="n">get_default_qconfig</span><span class="p">(</span><span class="s1">'x86'</span><span class="p">)</span>
+<span class="c1"># or, set the qconfig for QAT</span>
+<span class="n">qconfig</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ao</span><span class="o">.</span><span class="n">quantization</span><span class="o">.</span><span class="n">get_default_qat_qconfig</span><span class="p">(</span><span class="s1">'x86'</span><span class="p">)</span>
+<span class="c1"># set the qengine to control weight packing</span>
+<span class="n">torch</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">quantized</span><span class="o">.</span><span class="n">engine</span> <span class="o">=</span> <span class="s1">'x86'</span>
+</pre></div>
+</div>
+<p>qnnpack 的默认设置：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="c1"># set the qconfig for PTQ</span>
+<span class="n">qconfig</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ao</span><span class="o">.</span><span class="n">quantization</span><span class="o">.</span><span class="n">get_default_qconfig</span><span class="p">(</span><span class="s1">'qnnpack'</span><span class="p">)</span>
+<span class="c1"># or, set the qconfig for QAT</span>
+<span class="n">qconfig</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ao</span><span class="o">.</span><span class="n">quantization</span><span class="o">.</span><span class="n">get_default_qat_qconfig</span><span class="p">(</span><span class="s1">'qnnpack'</span><span class="p">)</span>
+<span class="c1"># set the qengine to control weight packing</span>
+<span class="n">torch</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">quantized</span><span class="o">.</span><span class="n">engine</span> <span class="o">=</span> <span class="s1">'qnnpack'</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="operator-support">
+<h3>操作符支持 §</h3>
+<p>操作符覆盖范围在动态和静态量化之间有所不同，并在下表中体现。注意，对于 FX 图模式量化，相应的功能也得到支持。</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td></td>
+<td><p>静态量化</p></td>
+<td><p>动态量化</p></td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">nn.Linear</div>
+<div class="line">nn.Conv1d/2d/3d</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">Y</div>
+<div class="line">Y</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">Y</div>
+<div class="line">N</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">nn.LSTM</div>
+<div class="line">nn.GRU</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">N</div>
+<div class="line">N</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">Y</div>
+<div class="line">Y</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">nn.RNNCell</div>
+<div class="line">nn.GRUCell</div>
+<div class="line">nn.LSTMCell</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">N</div>
+<div class="line">N</div>
+<div class="line">N</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">Y</div>
+<div class="line">Y</div>
+<div class="line">Y</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><p>nn.EmbeddingBag</p></td>
+<td><p>Y (激活为 fp32)</p></td>
+<td><p>Y</p></td>
+</tr>
+<tr class="row-even"><td><p>nn.Embedding</p></td>
+<td><p>Y</p></td>
+<td><p>Y</p></td>
+</tr>
+<tr class="row-odd"><td><p>nn.MultiheadAttention</p></td>
+<td><p>不支持</p></td>
+<td><p>不支持</p></td>
+</tr>
+<tr class="row-even"><td><p>激活</p></td>
+<td><p>广泛支持</p></td>
+<td><p>未更改，计算保持为 fp32</p></td>
+</tr>
+</tbody>
+</table>
+<p>注意：这将被很快更新为从 native backend_config_dict 生成的某些信息。</p>
+</section>
+</section>
+<section id="quantization-api-reference">
+<h2>量化 API 参考 ¶</h2>
+<p>量化 API 参考文档包含了量化 API 的文档，例如量化算子、量化张量操作以及支持的量化模块和函数。</p>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+<section id="quantization-backend-configuration">
+<h2>量化后端配置 ¶</h2>
+<p>量化后端配置文档包含了如何配置各种后端的量化工作流的文档。</p>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+<section id="quantization-accuracy-debugging">
+<h2>量化精度调试 ¶</h2>
+<p>量化精度调试文档包含了如何调试量化精度的文档。</p>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+<section id="quantization-customizations">
+<h2>量化自定义</h2>
+<p>虽然提供了基于观察到的张量数据的默认实现来选择缩放因子和偏差的观察者，但开发者可以提供自己的量化函数。量化可以针对模型的各个部分进行选择性应用，或针对模型的各个部分进行不同的配置。</p>
+<p>我们还提供了对 conv1d()、conv2d()、conv3d()和 linear()的通道量化支持。</p>
+<p>量化工作流程通过在模型的模块层次结构中添加（例如，添加观察者作为 <code class="docutils literal "><span class="pre">.observer</span></code> 子模块）或替换（例如，将 <code class="docutils literal "><span class="pre">nn.Conv2d</span></code> 转换为 <code class="docutils literal "><span class="pre">nn.quantized.Conv2d</span></code> ）子模块来实现。这意味着在整个过程中，模型保持为常规的 <code class="docutils literal "><span class="pre">nn.Module</span></code> -based 实例，因此可以与 PyTorch API 的其他部分一起工作。</p>
+<section id="quantization-custom-module-api">
+<h3>量化自定义模块 API ¶</h3>
+<p>Eager 模式与 FX 图模式量化 API 都为用户提供了一个钩子，允许用户以自定义方式指定模块的量化，并使用用户定义的逻辑进行观察和量化。用户需要指定：</p>
+<ol class="arabic simple">
+<li><p>源 fp32 模块的 Python 类型（存在于模型中）</p></li>
+<li><p>观察模块的 Python 类型（由用户提供）。此模块需要定义一个 from_float 函数，用于定义如何从原始 fp32 模块创建观察模块。</p></li>
+<li><p>量化模块的 Python 类型（由用户提供）。此模块需要定义一个 from_observed 函数，用于定义如何从观察模块创建量化模块。</p></li>
+<li><p>描述上述（1）、（2）、（3）的配置，传递给量化 API。</p></li>
+</ol>
+<p>框架随后将执行以下操作：</p>
+<ol class="arabic simple">
+<li><p>在准备模块交换过程中，它将（1）中指定的每个模块类型转换为（2）中指定的类型，使用（2）类中的 from_float 函数。</p></li>
+<li><p>在转换模块交换过程中，它将（2）中指定的每个模块类型转换为（3）中指定的类型，使用（3）类中的 from_observed 函数。</p></li>
+</ol>
+<p>目前，要求 ObservedCustomModule 只有一个 Tensor 输出，并且框架（而不是用户）将在这个输出上添加观察者。观察者将作为自定义模块实例的属性存储在 activation_post_process 键下。放松这些限制可能在未来进行。</p>
+<p>自定义 API 示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.ao.nn.quantized</span> <span class="k">as</span> <span class="nn">nnq</span>
+<span class="kn">from</span> <span class="nn">torch.ao.quantization</span> <span class="kn">import</span> <span class="n">QConfigMapping</span>
+<span class="kn">import</span> <span class="nn">torch.ao.quantization.quantize_fx</span>
+
+<span class="c1"># original fp32 module to replace</span>
+<span class="k">class</span> <span class="nc">CustomModule</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linear</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">linear</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+<span class="c1"># custom observed module, provided by user</span>
+<span class="k">class</span> <span class="nc">ObservedCustomModule</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">linear</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linear</span> <span class="o">=</span> <span class="n">linear</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">linear</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_float</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">float_module</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">float_module</span><span class="p">,</span> <span class="s1">'qconfig'</span><span class="p">)</span>
+        <span class="n">observed</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">float_module</span><span class="o">.</span><span class="n">linear</span><span class="p">)</span>
+        <span class="n">observed</span><span class="o">.</span><span class="n">qconfig</span> <span class="o">=</span> <span class="n">float_module</span><span class="o">.</span><span class="n">qconfig</span>
+        <span class="k">return</span> <span class="n">observed</span>
+
+<span class="c1"># custom quantized module, provided by user</span>
+<span class="k">class</span> <span class="nc">StaticQuantCustomModule</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">linear</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linear</span> <span class="o">=</span> <span class="n">linear</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">linear</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_observed</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">observed_module</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">observed_module</span><span class="p">,</span> <span class="s1">'qconfig'</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">observed_module</span><span class="p">,</span> <span class="s1">'activation_post_process'</span><span class="p">)</span>
+        <span class="n">observed_module</span><span class="o">.</span><span class="n">linear</span><span class="o">.</span><span class="n">activation_post_process</span> <span class="o">=</span> \
+            <span class="n">observed_module</span><span class="o">.</span><span class="n">activation_post_process</span>
+        <span class="n">quantized</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">nnq</span><span class="o">.</span><span class="n">Linear</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span><span class="n">observed_module</span><span class="o">.</span><span class="n">linear</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">quantized</span>
+
+<span class="c1">#</span>
+<span class="c1"># example API call (Eager mode quantization)</span>
+<span class="c1">#</span>
+
+<span class="n">m</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="n">CustomModule</span><span class="p">())</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+<span class="n">prepare_custom_config_dict</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"float_to_observed_custom_module_class"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="n">CustomModule</span><span class="p">:</span> <span class="n">ObservedCustomModule</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="n">convert_custom_config_dict</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"observed_to_quantized_custom_module_class"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="n">ObservedCustomModule</span><span class="p">:</span> <span class="n">StaticQuantCustomModule</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="n">m</span><span class="o">.</span><span class="n">qconfig</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ao</span><span class="o">.</span><span class="n">quantization</span><span class="o">.</span><span class="n">default_qconfig</span>
+<span class="n">mp</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ao</span><span class="o">.</span><span class="n">quantization</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span>
+    <span class="n">m</span><span class="p">,</span> <span class="n">prepare_custom_config_dict</span><span class="o">=</span><span class="n">prepare_custom_config_dict</span><span class="p">)</span>
+<span class="c1"># calibration (not shown)</span>
+<span class="n">mq</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ao</span><span class="o">.</span><span class="n">quantization</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span>
+    <span class="n">mp</span><span class="p">,</span> <span class="n">convert_custom_config_dict</span><span class="o">=</span><span class="n">convert_custom_config_dict</span><span class="p">)</span>
+<span class="c1">#</span>
+<span class="c1"># example API call (FX graph mode quantization)</span>
+<span class="c1">#</span>
+<span class="n">m</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="n">CustomModule</span><span class="p">())</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+<span class="n">qconfig_mapping</span> <span class="o">=</span> <span class="n">QConfigMapping</span><span class="p">()</span><span class="o">.</span><span class="n">set_global</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ao</span><span class="o">.</span><span class="n">quantization</span><span class="o">.</span><span class="n">default_qconfig</span><span class="p">)</span>
+<span class="n">prepare_custom_config_dict</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"float_to_observed_custom_module_class"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"static"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="n">CustomModule</span><span class="p">:</span> <span class="n">ObservedCustomModule</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="n">convert_custom_config_dict</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"observed_to_quantized_custom_module_class"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"static"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="n">ObservedCustomModule</span><span class="p">:</span> <span class="n">StaticQuantCustomModule</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="n">mp</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ao</span><span class="o">.</span><span class="n">quantization</span><span class="o">.</span><span class="n">quantize_fx</span><span class="o">.</span><span class="n">prepare_fx</span><span class="p">(</span>
+    <span class="n">m</span><span class="p">,</span> <span class="n">qconfig_mapping</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="n">prepare_custom_config</span><span class="o">=</span><span class="n">prepare_custom_config_dict</span><span class="p">)</span>
+<span class="c1"># calibration (not shown)</span>
+<span class="n">mq</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ao</span><span class="o">.</span><span class="n">quantization</span><span class="o">.</span><span class="n">quantize_fx</span><span class="o">.</span><span class="n">convert_fx</span><span class="p">(</span>
+    <span class="n">mp</span><span class="p">,</span> <span class="n">convert_custom_config</span><span class="o">=</span><span class="n">convert_custom_config_dict</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="best-practices">
+<h2>最佳实践 ¶</h2>
+<p>1. 如果您使用的是 <code class="docutils literal "><span class="pre">x86</span></code> 后端，我们需要使用 7 位而不是 8 位。请确保您减少 <code class="docutils literal "><span class="pre">quant\_min</span></code> 、 <code class="docutils literal "><span class="pre">quant\_max</span></code> 的范围，例如，如果 <code class="docutils literal "><span class="pre">dtype</span></code> 是 <code class="docutils literal "><span class="pre">torch.quint8</span></code> ，请确保设置自定义的 <code class="docutils literal "><span class="pre">quant_min</span></code> 为 <code class="docutils literal "><span class="pre">0</span></code> ， <code class="docutils literal "><span class="pre">quant_max</span></code> 为 <code class="docutils literal "><span class="pre">127</span></code> （ <code class="docutils literal "><span class="pre">255</span></code> / <code class="docutils literal "><span class="pre">2</span></code> ）。如果 <code class="docutils literal "><span class="pre">dtype</span></code> 是 <code class="docutils literal "><span class="pre">torch.qint8</span></code> ，请确保设置自定义的 <code class="docutils literal "><span class="pre">quant_min</span></code> 为 <code class="docutils literal "><span class="pre">-64</span></code> （ <code class="docutils literal "><span class="pre">-128</span></code> / <code class="docutils literal "><span class="pre">2</span></code> ）， <code class="docutils literal "><span class="pre">quant_max</span></code> 为 <code class="docutils literal "><span class="pre">63</span></code> （ <code class="docutils literal "><span class="pre">127</span></code> / <code class="docutils literal "><span class="pre">2</span></code> ），如果您调用 torch.ao.quantization.get_default_qconfig(backend)或 torch.ao.quantization.get_default_qat_qconfig(backend)函数来获取 <code class="docutils literal "><span class="pre">qconfig</span></code> 后端或 <code class="docutils literal "><span class="pre">x86</span></code> 后端的默认 <code class="docutils literal "><span class="pre">qnnpack</span></code> ，我们已经正确设置了这些。</p>
+<p>如果选择 <code class="docutils literal "><span class="pre">onednn</span></code> 后端，默认 qconfig 映射 <code class="docutils literal "><span class="pre">torch.ao.quantization.get_default_qconfig_mapping('onednn')</span></code> 和默认 qconfig <code class="docutils literal "><span class="pre">torch.ao.quantization.get_default_qconfig('onednn')</span></code> 将使用 8 位激活。建议在支持向量神经网络指令（VNNI）的 CPU 上使用。否则，将激活的观察者的 <code class="docutils literal "><span class="pre">reduce_range</span></code> 设置为 True，以在无 VNNI 支持的 CPU 上获得更好的精度。</p>
+</section>
+<section id="frequently-asked-questions">
+<h2>常见问题</h2>
+<ol class="arabic">
+<li><p>我如何在 GPU 上执行量化推理？</p>
+<p>目前我们还没有官方的 GPU 支持，但这是一个活跃的开发领域，您可以在此处找到更多信息。</p>
+</li>
+<li><p>我在哪里可以获得 ONNX 对量化模型的支持？</p>
+<p>如果你在导出模型时遇到错误（使用 <code class="docutils literal "><span class="pre">torch.onnx</span></code> 下的 API），你可以在 PyTorch 仓库中提交一个问题。在问题标题前加上 <code class="docutils literal "><span class="pre">[ONNX]</span></code> ，并将问题标记为 <code class="docutils literal "><span class="pre">module:</span> <span class="pre">onnx</span></code> 。</p>
+<p>如果你在 ONNX Runtime 中遇到问题，请在 GitHub - microsoft/onnxruntime 上提交一个问题。</p>
+</li>
+<li><p>我该如何使用 LSTM 的量化？</p>
+<p>LSTM 支持通过我们的自定义模块 API 在 eager mode 和 fx graph mode 量化。示例可以在 Eager Mode: pytorch/test_quantized_op.py TestQuantizedOps.test_custom_module_lstm FX Graph Mode: pytorch/test_quantize_fx.py TestQuantizeFx.test_static_lstm 找到</p>
+</li>
+</ol>
+</section>
+<section id="common-errors">
+<h2>常见错误 ¶</h2>
+<section id="passing-a-non-quantized-tensor-into-a-quantized-kernel">
+<h3>将未量化的 Tensor 传递给量化内核 ¶</h3>
+<p>如果您看到类似以下错误：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="ne">RuntimeError</span><span class="p">:</span> <span class="n">Could</span> <span class="ow">not</span> <span class="n">run</span> <span class="s1">'quantized::some_operator'</span> <span class="k">with</span> <span class="n">arguments</span> <span class="kn">from</span> <span class="nn">the</span> <span class="s1">'CPU'</span> <span class="n">backend</span><span class="o">...</span>
+</pre></div>
+</div>
+<p>这意味着您正在尝试将一个未量化的 Tensor 传递给一个量化的内核。一个常见的解决方案是使用 <code class="docutils literal "><span class="pre">torch.ao.quantization.QuantStub</span></code> 来量化 Tensor。在 Eager 模式量化中，这需要手动完成。一个端到端示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">M</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">quant</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ao</span><span class="o">.</span><span class="n">quantization</span><span class="o">.</span><span class="n">QuantStub</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conv</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="c1"># during the convert step, this will be replaced with a</span>
+        <span class="c1"># `quantize_per_tensor` call</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">quant</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conv</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span>
+</pre></div>
+</div>
+</section>
+<section id="passing-a-quantized-tensor-into-a-non-quantized-kernel">
+<h3>将量化的 Tensor 传递给非量化的内核</h3>
+<p>如果您看到类似以下错误：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="ne">RuntimeError</span><span class="p">:</span> <span class="n">Could</span> <span class="ow">not</span> <span class="n">run</span> <span class="s1">'aten::thnn_conv2d_forward'</span> <span class="k">with</span> <span class="n">arguments</span> <span class="kn">from</span> <span class="nn">the</span> <span class="s1">'QuantizedCPU'</span> <span class="n">backend</span><span class="o">.</span>
+</pre></div>
+</div>
+<p>这意味着您正在尝试将量化的 Tensor 传递给非量化的内核。一个常见的解决方案是使用 <code class="docutils literal "><span class="pre">torch.ao.quantization.DeQuantStub</span></code> 来反量化 Tensor。在 Eager 模式量化中，这需要手动完成。一个端到端示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">M</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">quant</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ao</span><span class="o">.</span><span class="n">quantization</span><span class="o">.</span><span class="n">QuantStub</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conv1</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># this module will not be quantized (see `qconfig = None` logic below)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conv2</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dequant</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ao</span><span class="o">.</span><span class="n">quantization</span><span class="o">.</span><span class="n">DeQuantStub</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="c1"># during the convert step, this will be replaced with a</span>
+        <span class="c1"># `quantize_per_tensor` call</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">quant</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conv1</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="c1"># during the convert step, this will be replaced with a</span>
+        <span class="c1"># `dequantize` call</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dequant</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conv2</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span>
+
+<span class="n">m</span> <span class="o">=</span> <span class="n">M</span><span class="p">()</span>
+<span class="n">m</span><span class="o">.</span><span class="n">qconfig</span> <span class="o">=</span> <span class="n">some_qconfig</span>
+<span class="c1"># turn off quantization for conv2</span>
+<span class="n">m</span><span class="o">.</span><span class="n">conv2</span><span class="o">.</span><span class="n">qconfig</span> <span class="o">=</span> <span class="kc">None</span>
+</pre></div>
+</div>
+</section>
+<section id="saving-and-loading-quantized-models">
+<h3>保存和加载量化模型</h3>
+<p>当在量化模型上调用 <code class="docutils literal "><span class="pre">torch.load</span></code> 时，如果您看到如下错误：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="ne">AttributeError</span><span class="p">:</span> <span class="s1">'LinearPackedParams'</span> <span class="nb">object</span> <span class="n">has</span> <span class="n">no</span> <span class="n">attribute</span> <span class="s1">'_modules'</span>
+</pre></div>
+</div>
+<p>这是因为直接使用 <code class="docutils literal "><span class="pre">torch.save</span></code> 和 <code class="docutils literal "><span class="pre">torch.load</span></code> 保存和加载量化模型是不支持的。要保存/加载量化模型，可以使用以下方法：</p>
+<ol class="arabic simple">
+<li><p>保存/加载量化模型的状态字典</p></li>
+</ol>
+<p>例子：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">M</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linear</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">relu</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">linear</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span>
+
+<span class="n">m</span> <span class="o">=</span> <span class="n">M</span><span class="p">()</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+<span class="n">prepare_orig</span> <span class="o">=</span> <span class="n">prepare_fx</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="p">{</span><span class="s1">''</span> <span class="p">:</span> <span class="n">default_qconfig</span><span class="p">})</span>
+<span class="n">prepare_orig</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="n">quantized_orig</span> <span class="o">=</span> <span class="n">convert_fx</span><span class="p">(</span><span class="n">prepare_orig</span><span class="p">)</span>
+
+<span class="c1"># Save/load using state_dict</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">()</span>
+<span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">quantized_orig</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span> <span class="n">b</span><span class="p">)</span>
+
+<span class="n">m2</span> <span class="o">=</span> <span class="n">M</span><span class="p">()</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+<span class="n">prepared</span> <span class="o">=</span> <span class="n">prepare_fx</span><span class="p">(</span><span class="n">m2</span><span class="p">,</span> <span class="p">{</span><span class="s1">''</span> <span class="p">:</span> <span class="n">default_qconfig</span><span class="p">})</span>
+<span class="n">quantized</span> <span class="o">=</span> <span class="n">convert_fx</span><span class="p">(</span><span class="n">prepared</span><span class="p">)</span>
+<span class="n">b</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">quantized</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">b</span><span class="p">))</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>使用 <code class="docutils literal "><span class="pre">torch.jit.save</span></code> 和 <code class="docutils literal "><span class="pre">torch.jit.load</span></code> 保存/加载脚本化量化模型</p></li>
+</ol>
+<p>例子：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="c1"># Note: using the same model M from previous example</span>
+<span class="n">m</span> <span class="o">=</span> <span class="n">M</span><span class="p">()</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+<span class="n">prepare_orig</span> <span class="o">=</span> <span class="n">prepare_fx</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="p">{</span><span class="s1">''</span> <span class="p">:</span> <span class="n">default_qconfig</span><span class="p">})</span>
+<span class="n">prepare_orig</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="n">quantized_orig</span> <span class="o">=</span> <span class="n">convert_fx</span><span class="p">(</span><span class="n">prepare_orig</span><span class="p">)</span>
+
+<span class="c1"># save/load using scripted model</span>
+<span class="n">scripted</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">script</span><span class="p">(</span><span class="n">quantized_orig</span><span class="p">)</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">()</span>
+<span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">scripted</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+<span class="n">b</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">scripted_quantized</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="symbolic-trace-error-when-using-fx-graph-mode-quantization">
+<h3>使用 FX 图模式量化时出现的符号跟踪错误</h3>
+<p>符号跟踪是（原型 - 维护模式）FX 图模式量化的要求，因此如果您传递一个无法通过 torch.ao.quantization.prepare_fx 或 torch.ao.quantization.prepare_qat_fx 进行符号跟踪的 PyTorch 模型，我们可能会看到以下错误：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">torch</span><span class="o">.</span><span class="n">fx</span><span class="o">.</span><span class="n">proxy</span><span class="o">.</span><span class="n">TraceError</span><span class="p">:</span> <span class="n">symbolically</span> <span class="n">traced</span> <span class="n">variables</span> <span class="n">cannot</span> <span class="n">be</span> <span class="n">used</span> <span class="k">as</span> <span class="n">inputs</span> <span class="n">to</span> <span class="n">control</span> <span class="n">flow</span>
+</pre></div>
+</div>
+<p>请参阅符号跟踪的限制和使用 FX 图模式量化的用户指南，以解决此问题。</p>
+<span class="target" id="module-torch.ao"></span><span class="target" id="module-torch.ao.nn"></span><span class="target" id="module-torch.ao.nn.quantizable"></span><span class="target" id="module-torch.ao.nn.quantizable.modules"></span><span class="target" id="module-torch.ao.nn.quantized"></span><span class="target" id="module-torch.ao.nn.quantized.reference"></span><span class="target" id="module-torch.ao.nn.quantized.reference.modules"></span><span class="target" id="module-torch.ao.nn.sparse"></span><span class="target" id="module-torch.ao.nn.sparse.quantized"></span><span class="target" id="module-torch.ao.nn.sparse.quantized.dynamic"></span><span class="target" id="module-torch.ao.ns"></span><span class="target" id="module-torch.ao.ns.fx"></span><span class="target" id="module-torch.ao.quantization.backend_config"></span><span class="target" id="module-torch.ao.pruning"></span><span class="target" id="module-torch.ao.pruning.scheduler"></span><span class="target" id="module-torch.ao.pruning.sparsifier"></span><span class="target" id="module-torch.ao.nn.intrinsic.modules.fused"></span><span class="target" id="module-torch.ao.nn.intrinsic.qat.modules.conv_fused"></span><span class="target" id="module-torch.ao.nn.intrinsic.qat.modules.linear_fused"></span><span class="target" id="module-torch.ao.nn.intrinsic.qat.modules.linear_relu"></span><span class="target" id="module-torch.ao.nn.intrinsic.quantized.dynamic.modules.linear_relu"></span><span class="target" id="module-torch.ao.nn.intrinsic.quantized.modules.bn_relu"></span><span class="target" id="module-torch.ao.nn.intrinsic.quantized.modules.conv_add"></span><span class="target" id="module-torch.ao.nn.intrinsic.quantized.modules.conv_relu"></span><span class="target" id="module-torch.ao.nn.intrinsic.quantized.modules.linear_relu"></span><span class="target" id="module-torch.ao.nn.qat.dynamic.modules.linear"></span><span class="target" id="module-torch.ao.nn.qat.modules.conv"></span><span class="target" id="module-torch.ao.nn.qat.modules.embedding_ops"></span><span class="target" id="module-torch.ao.nn.qat.modules.linear"></span><span class="target" id="module-torch.ao.nn.quantizable.modules.activation"></span><span class="target" id="module-torch.ao.nn.quantizable.modules.rnn"></span><span class="target" id="module-torch.ao.nn.quantized.dynamic.modules.conv"></span><span class="target" id="module-torch.ao.nn.quantized.dynamic.modules.linear"></span><span class="target" id="module-torch.ao.nn.quantized.dynamic.modules.rnn"></span><span class="target" id="module-torch.ao.nn.quantized.modules.activation"></span><span class="target" id="module-torch.ao.nn.quantized.modules.batchnorm"></span><span class="target" id="module-torch.ao.nn.quantized.modules.conv"></span><span class="target" id="module-torch.ao.nn.quantized.modules.dropout"></span><span class="target" id="module-torch.ao.nn.quantized.modules.embedding_ops"></span><span class="target" id="module-torch.ao.nn.quantized.modules.functional_modules"></span><span class="target" id="module-torch.ao.nn.quantized.modules.linear"></span><span class="target" id="module-torch.ao.nn.quantized.modules.normalization"></span><span class="target" id="module-torch.ao.nn.quantized.modules.rnn"></span><span class="target" id="module-torch.ao.nn.quantized.modules.utils"></span><span class="target" id="module-torch.ao.nn.quantized.reference.modules.conv"></span><span class="target" id="module-torch.ao.nn.quantized.reference.modules.linear"></span><span class="target" id="module-torch.ao.nn.quantized.reference.modules.rnn"></span><span class="target" id="module-torch.ao.nn.quantized.reference.modules.sparse"></span><span class="target" id="module-torch.ao.nn.quantized.reference.modules.utils"></span><span class="target" id="module-torch.ao.nn.sparse.quantized.dynamic.linear"></span><span class="target" id="module-torch.ao.nn.sparse.quantized.linear"></span><span class="target" id="module-torch.ao.nn.sparse.quantized.utils"></span><span class="target" id="module-torch.ao.ns.fx.graph_matcher"></span><span class="target" id="module-torch.ao.ns.fx.graph_passes"></span><span class="target" id="module-torch.ao.ns.fx.mappings"></span><span class="target" id="module-torch.ao.ns.fx.n_shadows_utils"></span><span class="target" id="module-torch.ao.ns.fx.ns_types"></span><span class="target" id="module-torch.ao.ns.fx.pattern_utils"></span><span class="target" id="module-torch.ao.ns.fx.qconfig_multi_mapping"></span><span class="target" id="module-torch.ao.ns.fx.utils"></span><span class="target" id="module-torch.ao.ns.fx.weight_utils"></span><span class="target" id="module-torch.ao.pruning.scheduler.base_scheduler"></span><span class="target" id="module-torch.ao.pruning.scheduler.cubic_scheduler"></span><span class="target" id="module-torch.ao.pruning.scheduler.lambda_scheduler"></span><span class="target" id="module-torch.ao.pruning.sparsifier.base_sparsifier"></span><span class="target" id="module-torch.ao.pruning.sparsifier.nearly_diagonal_sparsifier"></span><span class="target" id="module-torch.ao.pruning.sparsifier.utils"></span><span class="target" id="module-torch.ao.pruning.sparsifier.weight_norm_sparsifier"></span><span class="target" id="module-torch.ao.quantization.backend_config.backend_config"></span><span class="target" id="module-torch.ao.quantization.backend_config.executorch"></span><span class="target" id="module-torch.ao.quantization.backend_config.fbgemm"></span><span class="target" id="module-torch.ao.quantization.backend_config.native"></span><span class="target" id="module-torch.ao.quantization.backend_config.observation_type"></span><span class="target" id="module-torch.ao.quantization.backend_config.onednn"></span><span class="target" id="module-torch.ao.quantization.backend_config.qnnpack"></span><span class="target" id="module-torch.ao.quantization.backend_config.tensorrt"></span><span class="target" id="module-torch.ao.quantization.backend_config.utils"></span><span class="target" id="module-torch.ao.quantization.backend_config.x86"></span><span class="target" id="module-torch.ao.quantization.fake_quantize"></span><span class="target" id="module-torch.ao.quantization.fuser_method_mappings"></span><span class="target" id="module-torch.ao.quantization.fuse_modules"></span><span class="target" id="module-torch.ao.quantization.fx.convert"></span><span class="target" id="module-torch.ao.quantization.fx.custom_config"></span><span class="target" id="module-torch.ao.quantization.fx.fuse"></span><span class="target" id="module-torch.ao.quantization.fx.fuse_handler"></span><span class="target" id="module-torch.ao.quantization.fx.graph_module"></span><span class="target" id="module-torch.ao.quantization.fx.lower_to_fbgemm"></span><span class="target" id="module-torch.ao.quantization.fx.lower_to_qnnpack"></span><span class="target" id="module-torch.ao.quantization.fx.lstm_utils"></span><span class="target" id="module-torch.ao.quantization.fx.match_utils"></span><span class="target" id="module-torch.ao.quantization.fx.pattern_utils"></span><span class="target" id="module-torch.ao.quantization.fx.prepare"></span><span class="target" id="module-torch.ao.quantization.fx.qconfig_mapping_utils"></span><span class="target" id="module-torch.ao.quantization.fx.quantize_handler"></span><span class="target" id="module-torch.ao.quantization.fx.tracer"></span><span class="target" id="module-torch.ao.quantization.fx.utils"></span><span class="target" id="module-torch.ao.quantization.observer"></span><span class="target" id="module-torch.ao.quantization.pt2e.duplicate_dq_pass"></span><span class="target" id="module-torch.ao.quantization.pt2e.export_utils"></span><span class="target" id="module-torch.ao.quantization.pt2e.graph_utils"></span><span class="target" id="module-torch.ao.quantization.pt2e.port_metadata_pass"></span><span class="target" id="module-torch.ao.quantization.pt2e.prepare"></span><span class="target" id="module-torch.ao.quantization.pt2e.qat_utils"></span><span class="target" id="module-torch.ao.quantization.pt2e.representation.rewrite"></span><span class="target" id="module-torch.ao.quantization.pt2e.utils"></span><span class="target" id="module-torch.ao.quantization.qconfig"></span><span class="target" id="module-torch.ao.quantization.qconfig_mapping"></span><span class="target" id="module-torch.ao.quantization.quant_type"></span><span class="target" id="module-torch.ao.quantization.quantization_mappings"></span><span class="target" id="module-torch.ao.quantization.quantize_fx"></span><span class="target" id="module-torch.ao.quantization.quantize_jit"></span><span class="target" id="module-torch.ao.quantization.quantize_pt2e"></span><span class="target" id="module-torch.ao.quantization.quantizer.composable_quantizer"></span><span class="target" id="module-torch.ao.quantization.quantizer.embedding_quantizer"></span><span class="target" id="module-torch.ao.quantization.quantizer.quantizer"></span><span class="target" id="module-torch.ao.quantization.quantizer.utils"></span><span class="target" id="module-torch.ao.quantization.quantizer.x86_inductor_quantizer"></span><span class="target" id="module-torch.ao.quantization.quantizer.xpu_inductor_quantizer"></span><span class="target" id="module-torch.ao.quantization.quantizer.xnnpack_quantizer"></span><span class="target" id="module-torch.ao.quantization.quantizer.xnnpack_quantizer_utils"></span><span class="target" id="module-torch.ao.quantization.stubs"></span><span class="target" id="module-torch.ao.quantization.utils"></span><span class="target" id="module-torch.nn.intrinsic.modules.fused"></span><span class="target" id="module-torch.nn.intrinsic.qat.modules.conv_fused"></span><span class="target" id="module-torch.nn.intrinsic.qat.modules.linear_fused"></span><span class="target" id="module-torch.nn.intrinsic.qat.modules.linear_relu"></span><span class="target" id="module-torch.nn.intrinsic.quantized.dynamic.modules.linear_relu"></span><span class="target" id="module-torch.nn.intrinsic.quantized.modules.bn_relu"></span><span class="target" id="module-torch.nn.intrinsic.quantized.modules.conv_relu"></span><span class="target" id="module-torch.nn.intrinsic.quantized.modules.linear_relu"></span><span class="target" id="module-torch.nn.qat.dynamic.modules.linear"></span><span class="target" id="module-torch.nn.qat.modules.conv"></span><span class="target" id="module-torch.nn.qat.modules.embedding_ops"></span><span class="target" id="module-torch.nn.qat.modules.linear"></span><span class="target" id="module-torch.nn.quantizable.modules.activation"></span><span class="target" id="module-torch.nn.quantizable.modules.rnn"></span><span class="target" id="module-torch.nn.quantized.dynamic.modules.conv"></span><span class="target" id="module-torch.nn.quantized.dynamic.modules.linear"></span><span class="target" id="module-torch.nn.quantized.dynamic.modules.rnn"></span><span class="target" id="module-torch.nn.quantized.functional"></span><span class="target" id="module-torch.nn.quantized.modules.activation"></span><span class="target" id="module-torch.nn.quantized.modules.batchnorm"></span><span class="target" id="module-torch.nn.quantized.modules.conv"></span><span class="target" id="module-torch.nn.quantized.modules.dropout"></span><span class="target" id="module-torch.nn.quantized.modules.embedding_ops"></span><span class="target" id="module-torch.nn.quantized.modules.functional_modules"></span><span class="target" id="module-torch.nn.quantized.modules.linear"></span><span class="target" id="module-torch.nn.quantized.modules.normalization"></span><span class="target" id="module-torch.nn.quantized.modules.rnn"></span><span class="target" id="module-torch.nn.quantized.modules.utils"></span><span class="target" id="module-torch.quantization.fake_quantize"></span><span class="target" id="module-torch.quantization.fuse_modules"></span><span class="target" id="module-torch.quantization.fuser_method_mappings"></span><span class="target" id="module-torch.quantization.fx.convert"></span><span class="target" id="module-torch.quantization.fx.fuse"></span><span class="target" id="module-torch.quantization.fx.fusion_patterns"></span><span class="target" id="module-torch.quantization.fx.graph_module"></span><span class="target" id="module-torch.quantization.fx.match_utils"></span><span class="target" id="module-torch.quantization.fx.pattern_utils"></span><span class="target" id="module-torch.quantization.fx.prepare"></span><span class="target" id="module-torch.quantization.fx.quantization_patterns"></span><span class="target" id="module-torch.quantization.fx.quantization_types"></span><span class="target" id="module-torch.quantization.fx.utils"></span><span class="target" id="module-torch.quantization.observer"></span><span class="target" id="module-torch.quantization.qconfig"></span><span class="target" id="module-torch.quantization.quant_type"></span><span class="target" id="module-torch.quantization.quantization_mappings"></span><span class="target" id="module-torch.quantization.quantize"></span><span class="target" id="module-torch.quantization.quantize_fx"></span><span class="target" id="module-torch.quantization.quantize_jit"></span><span class="target" id="module-torch.quantization.stubs"></span><span class="target" id="module-torch.quantization.utils"></span></section>
+</section>
+</section>
+
+
+             </article>
+             
+            </div>
+            <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        下一个 <img height="16" width="16" class="next-page" src="_static/images/chevron-right-orange.svg"> <img height="16" width="16" class="previous-page" src="_static/images/chevron-right-orange.svg"> 上一个
+      
+    </div>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>© 版权所有 PyTorch 贡献者。</p>
+  </div>
+    
+      <div>使用 Sphinx 构建，主题由 Read the Docs 提供。</div>
+     
+
+</footer>
+
+          </div>
+<script>
+
+var match = window.location.href.match(/\/_[a-zA-Z0-9_]*.html|_dynamo/gi);
+var url = window.location.href.lastIndexOf(match[match.length-1]);
+
+if (url)
+  {
+    var div = '<div class="admonition note"><p class="admonition-title">Note</p><p><i class="fa fa-exclamation-circle" aria-hidden="true">&nbsp</i> This page describes an internal API which is not intended to be used outside of the PyTorch codebase and can be modified or removed without notice.</p></div>'
+    document.getElementById("pytorch-article").insertAdjacentHTML('afterBegin', div)
+  }
+</script>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">量化</a><ul>
+<li><a class="reference internal" href="#introduction-to-quantization">量化简介</a></li>
+<li><a class="reference internal" href="#quantization-api-summary">量化 API 摘要</a><ul>
+<li><a class="reference internal" href="#eager-mode-quantization">eager 模式量化</a><ul>
+<li><a class="reference internal" href="#post-training-dynamic-quantization">训练后动态量化</a></li>
+<li><a class="reference internal" href="#post-training-static-quantization">训练后静态量化</a></li>
+<li><a class="reference internal" href="#quantization-aware-training-for-static-quantization">量化感知训练用于静态量化</a></li>
+<li><a class="reference internal" href="#model-preparation-for-eager-mode-static-quantization">模型准备用于急切模式静态量化</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#prototype-maintenance-mode-fx-graph-mode-quantization">（原型 - 维护模式）FX 图模式量化</a></li>
+<li><a class="reference internal" href="#prototype-pytorch-2-export-quantization">（原型）PyTorch 2 导出量化</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#quantization-stack">量化栈</a><ul>
+<li><a class="reference internal" href="#quantized-model">量化模型</a><ul>
+<li><a class="reference internal" href="#quantized-tensor">量化张量</a></li>
+<li><a class="reference internal" href="#quantize-and-dequantize">量化与反量化</a></li>
+<li><a class="reference internal" href="#quantized-operators-modules">量化算子/模块</a></li>
+<li><a class="reference internal" href="#quantized-engine">量化引擎</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#quantization-flow">量化流程</a><ul>
+<li><a class="reference internal" href="#observer-and-fakequantize">观察器和伪量化</a></li>
+<li><a class="reference internal" href="#qconfig">Q 配置</a></li>
+<li><a class="reference internal" href="#general-quantization-flow">通用量化流程</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#quantization-support-matrix">量化支持矩阵</a><ul>
+<li><a class="reference internal" href="#quantization-mode-support">量化模式支持</a></li>
+<li><a class="reference internal" href="#quantization-flow-support">量化流程支持</a></li>
+<li><a class="reference internal" href="#backend-hardware-support">后端/硬件支持</a><ul>
+<li><a class="reference internal" href="#note-for-native-cpu-backends">原生 CPU 后端注意事项</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#operator-support">运营商支持</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#quantization-api-reference">量化 API 参考</a></li>
+<li><a class="reference internal" href="#quantization-backend-configuration">量化后端配置</a></li>
+<li><a class="reference internal" href="#quantization-accuracy-debugging">量化精度调试</a></li>
+<li><a class="reference internal" href="#quantization-customizations">量化自定义</a><ul>
+<li><a class="reference internal" href="#quantization-custom-module-api">量化自定义模块 API</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#best-practices">最佳实践</a></li>
+<li><a class="reference internal" href="#frequently-asked-questions">常见问题解答</a></li>
+<li><a class="reference internal" href="#common-errors">常见错误</a><ul>
+<li><a class="reference internal" href="#passing-a-non-quantized-tensor-into-a-quantized-kernel">将非量化张量传递给量化内核</a></li>
+<li><a class="reference internal" href="#passing-a-quantized-tensor-into-a-non-quantized-kernel">将量化张量传递给非量化内核</a></li>
+<li><a class="reference internal" href="#saving-and-loading-quantized-models">保存和加载量化模型</a></li>
+<li><a class="reference internal" href="#symbolic-trace-error-when-using-fx-graph-mode-quantization">使用 FX 图模式量化时出现符号跟踪错误</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+         <script src="_static/jquery.js"></script>
+         <script src="_static/underscore.js"></script>
+         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+         <script src="_static/doctools.js"></script>
+         <script src="_static/clipboard.min.js"></script>
+         <script src="_static/copybutton.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ 
+<script script="" type="text/javascript">
+  var collapsedSections = ['Developer Notes', 'Language Bindings', 'Libraries', 'Community'];
+</script>
+
+<img height="1" width="1" style="border-style:none;" alt="" src="https://www.googleadservices.com/pagead/conversion/795629140/?label=txkmCPmdtosBENSssfsC&amp;guid=ON&amp;script=0">
+
+
+  <!-- Begin Footer -->
+
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 text-center">
+          <h2>文档</h2>
+          <p>PyTorch 开发者文档全面访问</p>
+          <a class="with-right-arrow" href="https://pytorch.org/docs/stable/index.html">查看文档</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>教程</h2>
+          <p>获取初学者和高级开发者的深入教程</p>
+          <a class="with-right-arrow" href="https://pytorch.org/tutorials">查看教程</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>资源</h2>
+          <p>查找开发资源并获得您的疑问解答</p>
+          <a class="with-right-arrow" href="https://pytorch.org/resources">查看资源</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://pytorch.org/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/">PyTorch</a></li>
+            <li><a href="https://pytorch.org/get-started">开始使用</a></li>
+            <li><a href="https://pytorch.org/features">功能</a></li>
+            <li><a href="https://pytorch.org/ecosystem">生态系统</a></li>
+            <li><a href="https://pytorch.org/blog/">博客</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md">贡献</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/resources">资源</a></li>
+            <li><a href="https://pytorch.org/tutorials">教程</a></li>
+            <li><a href="https://pytorch.org/docs/stable/index.html">文档</a></li>
+            <li><a href="https://discuss.pytorch.org" target="_blank">讨论</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/issues" target="_blank">GitHub 问题和任务</a></li>
+            <li><a href="https://pytorch.org/assets/brand-guidelines/PyTorch-Brand-Guidelines.pdf" target="_blank">品牌指南</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">保持更新</li>
+            <li><a href="https://www.facebook.com/pytorch" target="_blank">Facebook</a></li>
+            <li><a href="https://twitter.com/pytorch" target="_blank">推特</a></li>
+            <li><a href="https://www.youtube.com/pytorch" target="_blank">YouTube</a></li>
+            <li><a href="https://www.linkedin.com/company/pytorch" target="_blank">领英</a></li>
+          </ul>  
+          </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">PyTorch 播客</li>
+            <li><a href="https://open.spotify.com/show/6UzHKeiy368jKfQMKKvJY5" target="_blank">Spotify</a></li>
+            <li><a href="https://podcasts.apple.com/us/podcast/pytorch-developer-podcast/id1566080008" target="_blank">苹果</a></li>
+            <li><a href="https://www.google.com/podcasts?feed=aHR0cHM6Ly9mZWVkcy5zaW1wbGVjYXN0LmNvbS9PQjVGa0lsOA%3D%3D" target="_blank">谷歌</a></li>
+            <li><a href="https://music.amazon.com/podcasts/7a4e6f0e-26c2-49e9-a478-41bd244197d0/PyTorch-Developer-Podcast?" target="_blank">亚马逊</a></li>
+          </ul>
+         </div>
+        </div>
+        
+        <div class="privacy-policy">
+          <ul>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/terms/" target="_blank">条款</a></li>
+            <li class="privacy-policy-links">|</li>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/privacy-policy/" target="_blank">隐私</a></li>
+          </ul>
+        </div>
+        <div class="copyright">
+        <p>© 版权所有 Linux 基金会。PyTorch 基金会是 Linux 基金会的一个项目。有关本网站的使用条款、商标政策以及其他适用于 PyTorch 基金会的政策，请参阅 www.linuxfoundation.org/policies/。PyTorch 基金会支持 PyTorch 开源项目，该项目已被确立为 LF Projects, LLC 的 PyTorch 项目系列。有关适用于 PyTorch 项目系列 LF Projects, LLC 的政策，请参阅 www.lfprojects.org/policies/。</p>
+      </div>
+     </div>
+
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">为分析流量并优化您的体验，我们在本网站上提供 cookies。通过点击或导航，您同意允许我们使用 cookies。作为本站点的当前维护者，Facebook 的 Cookies 政策适用。了解更多信息，包括可用的控制选项：Cookies 政策。</p>
+    <img class="close-button" src="_static/images/pytorch-x.svg" width="16" height="16">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+           <li class="resources-mobile-menu-title">
+             <a>学习</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/get-started">开始学习</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials">教程</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/basics/intro.html">学习基础知识</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/recipes/recipes_index.html">PyTorch 菜谱</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/introyt.html">PyTorch 入门 - YouTube 系列</a>
+             </li>
+           </ul>
+           <li class="resources-mobile-menu-title">
+             <a>生态系统</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/ecosystem">工具</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/#community-module">社区</a>
+             </li>
+             <li>
+               <a href="https://discuss.pytorch.org/">论坛</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/resources">开发者资源</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">贡献者奖项 - 2024</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>Edge</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/edge">关于 PyTorch Edge</a>
+             </li>
+             
+             <li>
+               <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch 文档</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>文档</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/docs/stable/index.html">PyTorch</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/pytorch-domains">PyTorch 领域</a>
+            </li>
+          </ul>
+
+          <li class="resources-mobile-menu-title">
+            <a>博客 &amp; 新闻</a>
+          </li>
+            
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/blog/">PyTorch 博客</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/community-blog">社区博客</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/videos">视频</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/community-stories">社区故事</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/events">活动</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">通讯</a>
+             </li>
+          </ul>
+          
+          <li class="resources-mobile-menu-title">
+            <a>关于</a>
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/foundation">PyTorch 基金会</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/governing-board">治理委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">云信用计划</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">技术顾问委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">员工</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">联系我们</a>
+            </li>
+          </ul>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body></html>

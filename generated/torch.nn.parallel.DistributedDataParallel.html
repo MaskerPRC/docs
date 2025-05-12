@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>DistributedDataParallel — PyTorch main documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pytorch.org/docs/stable/generated/torch.nn.parallel.DistributedDataParallel.html">
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css">
+  <!-- <link rel="stylesheet" href="../_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css">
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css">
+  <link rel="stylesheet" href="../_static/copybutton.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="../_static/katex-math.css" type="text/css">
+  <link rel="stylesheet" href="../_static/sphinx-dropdown.css" type="text/css">
+  <link rel="stylesheet" href="../_static/panels-bootstrap.min.css" type="text/css">
+  <link rel="stylesheet" href="../_static/css/jit.css" type="text/css">
+  <link rel="stylesheet" href="../_static/css/custom.css" type="text/css">
+    <link rel="index" title="Index" href="../genindex.html">
+    <link rel="search" title="Search" href="../search.html">
+    <link rel="next" title="torch.nn.utils.clip_grad_norm_" href="torch.nn.utils.clip_grad_norm_.html">
+    <link rel="prev" title="DataParallel" href="torch.nn.DataParallel.html">
+
+<!--
+  Search engines should not index the main version of documentation.
+  Stable documentation are built without release == 'main'.
+-->
+<meta name="robots" content="noindex">
+
+
+  <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T8XT4PS');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+  <!-- Preload the theme fonts -->
+
+<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<!-- Preload the katex fonts -->
+
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Math-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size1-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size2-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Caligraphic-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
+</head><body class="pytorch-body"><div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+
+          <li class="main-menu-item">
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">学习</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/get-started">
+                  <span class="dropdown-title">开始使用</span>
+                  <p>在本地运行 PyTorch 或快速开始使用支持的云平台之一</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials">
+                  <span class="dropdown-title">教程</span><p></p>
+                  <p>PyTorch 教程中的新内容</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/basics/intro.html">
+                  <span class="dropdown-title">学习基础知识</span><p></p>
+                  <p>熟悉 PyTorch 的概念和模块</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/recipes/recipes_index.html">
+                  <span class="dropdown-title">PyTorch 菜谱</span><p></p>
+                  <p>小巧玲珑、即用即部署的 PyTorch 代码示例</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/introyt.html">
+                  <span class="dropdown-title">PyTorch 入门 - YouTube 系列</span><p></p>
+                  <p>使用我们引人入胜的 YouTube 教程系列掌握 PyTorch 基础知识</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">生态系统</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem">
+                  <span class="dropdown-title">工具</span><p></p>
+                  <p>了解 PyTorch 生态系统中的工具和框架</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
+                  <span class="dropdown-title">社区</span>
+                  <p>加入 PyTorch 开发者社区，贡献、学习并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
+                  <span class="dropdown-title">论坛</span>
+                  <p>讨论 PyTorch 代码、问题、安装、研究的场所</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/resources">
+                  <span class="dropdown-title">开发者资源</span>
+                  <p>查找资源并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">2024 年贡献者奖项</span><p></p>
+                  <p>本届 PyTorch 会议揭晓获奖者</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">
+                Edge
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/edge">
+                  <span class="dropdown-title">关于 PyTorch Edge</span><p></p>
+                  <p>为边缘设备构建创新和隐私感知的 AI 体验</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
+                  <span class="dropdown-title">ExecuTorch</span><p></p>
+                  <p>针对移动和边缘设备实现设备端推理能力的端到端解决方案</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch 文档</span><p></p>
+                </a>
+              </div>
+            </div>  
+          </li>
+
+          <li class="main-menu-item">
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">文档</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/docs/stable/index.html">
+                  <span class="dropdown-title">PyTorch</span><p></p>
+                  <p>探索文档以获取如何使用 PyTorch 的全面指南</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/pytorch-domains">
+                  <span class="dropdown-title">PyTorch 领域</span><p></p>
+                  <p>阅读 PyTorch Domains 文档以了解更多关于特定领域库的信息</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">博客与新闻</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/blog/">
+                  <span class="dropdown-title">PyTorch 博客</span><p></p>
+                  <p>捕捉最新的技术新闻和动态</p>
+                </a>
+                 <a class="nav-dropdown-item" href="https://pytorch.org/community-blog">
+                  <span class="dropdown-title">社区博客</span><p></p>
+                  <p>PyTorch 生态系统中的故事</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/videos">
+                  <span class="dropdown-title">视频</span><p></p>
+                  <p>了解最新的 PyTorch 教程、新内容等</p>
+                </a><a class="nav-dropdown-item" href="https://pytorch.org/community-stories">
+                  <span class="dropdown-title">社区故事</span><p></p>
+                  <p>学习我们社区如何使用 PyTorch 解决真实、日常的机器学习问题</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/events">
+                  <span class="dropdown-title">活动</span><p></p>
+                  <p>查找活动、网络研讨会和播客</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">通讯</span><p></p>
+                  <p>保持最新更新</p>
+                </a>
+            </div>
+          </div></li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">关于</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/foundation">
+                  <span class="dropdown-title">PyTorch 基金会</span><p></p>
+                  <p>了解更多关于 PyTorch 基金会的信息</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
+                  <span class="dropdown-title">管理委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">云信用计划</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">技术顾问委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">员工</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">联系我们</span><p></p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li class="main-menu-item">
+            <div class="no-dropdown">
+              <a href="https://pytorch.org/join" data-cta="join">成为会员</a>
+            </div>
+          </li>
+          <li>
+           <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="github-icon">
+             </a>
+           </div>
+          </li>
+          <!--- TODO: This block adds the search icon to the nav bar. We will enable it later. 
+          <li>
+            <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="search-icon">
+             </a>
+            </div>
+          </li>
+          --->
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+  </div>
+</div>
+
+
+
+   
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>目录</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+    <div class="version">
+      <a href="https://pytorch.org/docs/versions.html">主（2.7.0+cpu ）▼</a>
+    </div>
+    <div id="searchBox">
+    <div class="searchbox" id="googleSearchBox">
+      <script async="" src="https://cse.google.com/cse.js?cx=e65585f8c3ea1440e"></script>
+      <div class="gcse-search"></div>
+    </div>
+    <div id="sphinxSearchBox" style="display: none;">
+      <div role="search">
+        <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+          <input type="text" name="q" placeholder="Search Docs">
+          <input type="hidden" name="check_keywords" value="yes">
+          <input type="hidden" name="area" value="default">
+        </form>
+      </div>
+    </div>
+  </div>
+  <form id="searchForm">
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="google" checked="">Google 搜索</label>
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="sphinx">经典搜索</label>
+  </form>
+
+  <script>
+     document.addEventListener('DOMContentLoaded', function() {
+      const searchForm = document.getElementById('searchForm');
+      const googleSearchBox = document.getElementById('googleSearchBox');
+      const sphinxSearchBox = document.getElementById('sphinxSearchBox');
+      // Function to toggle search box visibility
+      function toggleSearchBox(searchType) {
+        googleSearchBox.style.display = searchType === 'google' ? 'block' : 'none';
+        sphinxSearchBox.style.display = searchType === 'sphinx' ? 'block' : 'none';
+      }
+      // Determine the default search type
+      let defaultSearchType;
+      const currentUrl = window.location.href;
+      if (currentUrl.startsWith('https://pytorch.org/docs/stable')) {
+        // For the stable documentation, default to Google
+        defaultSearchType = localStorage.getItem('searchType') || 'google';
+      } else {
+        // For any other version, including docs-preview, default to Sphinx
+        defaultSearchType = 'sphinx';
+      }
+      // Set the default search type
+      document.querySelector(`input[name="searchType"][value="${defaultSearchType}"]`).checked = true;
+      toggleSearchBox(defaultSearchType);
+      // Event listener for changes in search type
+      searchForm.addEventListener('change', function(event) {
+        const selectedSearchType = event.target.value;
+        localStorage.setItem('searchType', selectedSearchType);
+        toggleSearchBox(selectedSearchType);
+      });
+      // Set placeholder text for Google search box
+      window.onload = function() {
+        var placeholderText = "Search Docs";
+        var googleSearchboxText = document.querySelector("#gsc-i-id1");
+        if (googleSearchboxText) {
+          googleSearchboxText.placeholder = placeholderText;
+          googleSearchboxText.style.fontFamily = 'FreightSans';
+          googleSearchboxText.style.fontSize = "1.2rem";
+          googleSearchboxText.style.color = '#262626';
+        }
+      };
+    });
+  </script>
+
+          </div>
+
+          
+
+<div>
+  <a style="color:#F05732" href="https://pytorch.org/docs/stable/generated/torch.nn.parallel.DistributedDataParallel.html">您正在查看不稳定开发者预览文档。请点击此处查看最新稳定版本的文档。</a>
+</div>
+
+
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">社区</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../community/build_ci_governance.html">PyTorch 治理 | 构建 + CI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community/contribution_guide.html">PyTorch 贡献指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community/design.html">PyTorch 设计哲学</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community/governance.html">PyTorch 治理 | 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community/persons_of_interest.html">PyTorch 治理 | 维护者</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发者笔记</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../notes/amp_examples.html">自动混合精度示例</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/autograd.html">Autograd 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/broadcasting.html">广播语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/cpu_threading_torchscript_inference.html">CPU 多线程和 TorchScript 推理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/cuda.html">CUDA 语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/custom_operators.html">PyTorch 自定义算子页面</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/ddp.html">分布式数据并行</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/extending.html">扩展 PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/extending.func.html">使用 autograd.Function 扩展 torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/faq.html">常见问题解答</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/fsdp.html">FSDP 笔记</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/get_start_xpu.html">Intel GPU 上入门指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/gradcheck.html">Gradcheck 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/hip.html">HIP (ROCm) 语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/large_scale_deployments.html">大规模部署功能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/libtorch_stable_abi.html">LibTorch 稳定 ABI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/modules.html">模块</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/mps.html">MPS 后端</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/multiprocessing.html">多进程最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/numerical_accuracy.html">数值精度</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/randomness.html">可重现性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/serialization.html">序列化语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes/windows.html">Windows 常见问题解答</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">语言绑定</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../cpp_index.html">C++</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/javadoc/">Javadoc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deploy.html">torch::deploy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../torch.html">torch</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../nn.html">torch.nn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../nn.functional.html">torch.nn.functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tensors.html">torch.Tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tensor_attributes.html">张量属性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tensor_view.html">索引视图</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../amp.html">torch.自动混合精度</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../autograd.html">torch.autograd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library.html">torch.library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../accelerator.html">torch 加速器</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cpu.html">torch.cpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cuda.html">torch.cuda</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch_cuda_memory.html">理解 CUDA 内存使用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch_cuda_memory.html#generating-a-snapshot">生成快照</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch_cuda_memory.html#using-the-visualizer">使用可视化器</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch_cuda_memory.html#snapshot-api-reference">快照 API 参考</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mps.html">torch.mps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../xpu.html">torch.xpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mtia.html">torch.mtia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mtia.memory.html">torch.mtia.memory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../meta.html">元设备</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../backends.html">火炬后端</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../export.html">torch.export</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.html">torch.distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.tensor.html">torch.distributed.tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.algorithms.join.html">torch.distributed.algorithms.join</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.elastic.html">torch.distributed.elastic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fsdp.html">torch.distributed.fsdp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.fsdp.fully_shard.html">torch.distributed.fsdp.fully_shard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.tensor.parallel.html">torch.distributed.tensor.parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.optim.html">torch.distributed.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.pipelining.html">torch.distributed.pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.checkpoint.html">torch.distributed.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributions.html">torch.distributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch.compiler.html">torch.compiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fft.html">torch.fft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../func.html">torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../futures.html">torch.futures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fx.html">torch.fx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fx.experimental.html">torch.fx.experimental</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hub.html">torch.hub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../jit.html">torch.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../linalg.html">torch.linalg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../monitor.html">torch.monitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../signal.html">torch.signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../special.html">torch.special</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch.overrides.html">torch.overrides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../package.html">torch.package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../profiler.html">torch.profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../nn.init.html">torch.nn.init</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../nn.attention.html">torch.nn 注意力机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../onnx.html">torch.onnx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../optim.html">torch.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../complex_numbers.html">复数</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ddp_comm_hooks.html">DDP 通信钩子</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quantization.html">量化</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rpc.html">分布式 RPC 框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../random.html">torch.random</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../masked.html">torch.masked</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../nested.html">torch.nested</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../size.html">torch.Size</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sparse.html">torch.sparse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../storage.html">torch.Storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../testing.html">torch.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils.html">torch.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../benchmark_utils.html">torch.utils.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bottleneck.html">torch.utils.bottleneck</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../checkpoint.html">torch.utils.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cpp_extension.html">torch.utils.cpp_extension</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data.html">torch.utils.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deterministic.html">torch.utils.deterministic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../jit_utils.html">torch.utils.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dlpack.html">torch.utils.dlpack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mobile_optimizer.html">torch.utils.mobile_optimizer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../model_zoo.html">torch.utils.model_zoo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tensorboard.html">torch.utils.tensorboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../module_tracker.html">torch.utils.module_tracker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../type_info.html">类型信息</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../named_tensor.html">命名张量</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../name_inference.html">命名张量操作覆盖率</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../config_mod.html">torch.__config__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../future_mod.html">torch.__future__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../logging.html">torch._logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch_environment_variables.html">火炬环境变量</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">库</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/audio/stable">torchaudio</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/data">TorchData</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/torchrec">TorchRec</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/serve">TorchServe</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/text/stable">torchtext</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/vision/stable">torchvision</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/xla/">PyTorch 在 XLA 设备上</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/ao">torchao</a></li>
+</ul>
+
+            
+          
+
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        文档 &gt;</li>
+
+        
+          <li><a href="../nn.html">torch.nn</a> &gt;</li>
+        
+      <li>分布式数据并行</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/generated/torch.nn.parallel.DistributedDataParallel.rst.txt" rel="nofollow"><img src="../_static/images/view-page-source-icon.svg" width="16" height="16"></a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">快捷键</div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+
+          <!-- Google Tag Manager (noscript) -->
+          <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T8XT4PS" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+          <!-- End Google Tag Manager (noscript) -->
+          
+          <div class="rst-content">
+          
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <section id="distributeddataparallel">
+<h1>分布式数据并行 ¶</h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.nn.parallel.DistributedDataParallel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.nn.parallel.</span></span><span class="sig-name descname"><span class="pre">DistributedDataParallel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">broadcast_buffers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_sync</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">process_group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bucket_cap_mb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">find_unused_parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_reduction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gradient_as_bucket_view</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">static_graph</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay_all_reduce_named_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_to_hook_all_reduce</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mixed_precision</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device_mesh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/nn/parallel/distributed.html#DistributedDataParallel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/nn/parallel/distributed.py#L326"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.nn.parallel.DistributedDataParallel" title="Permalink to this definition">¶</a></dt>
+<dd><p>基于模块级别实现基于 <code class="docutils literal "><span class="pre">torch.distributed</span></code> 的分布式数据并行性。</p>
+<p>此容器通过在每个模型副本之间同步梯度来提供数据并行性。要同步的设备由输入 <code class="docutils literal "><span class="pre">process_group</span></code> 指定，默认情况下为整个世界。请注意， <code class="docutils literal "><span class="pre">DistributedDataParallel</span></code> 不会将输入分块或以其他方式分片到参与 GPU 上；用户负责定义如何进行此操作，例如通过使用 <code class="xref py py-class docutils literal "><span class="pre">DistributedSampler</span></code> 。</p>
+<p>参见：基础知识和使用 nn.parallel.DistributedDataParallel 替代 multiprocessing 或 nn.DataParallel。输入约束与 <code class="xref py py-class docutils literal "><span class="pre">torch.nn.DataParallel</span></code> 相同。</p>
+<p>创建此类需要先通过调用 <code class="xref py py-func docutils literal "><span class="pre">torch.distributed.init_process_group()</span></code> 初始化 <code class="docutils literal "><span class="pre">torch.distributed</span></code> 。</p>
+<p> <code class="docutils literal "><span class="pre">DistributedDataParallel</span></code> 已被证明在单节点多 GPU 数据并行训练中比 <code class="xref py py-class docutils literal "><span class="pre">torch.nn.DataParallel</span></code> 快得多。</p>
+<p>要在具有 N 个 GPU 的主机上使用 <code class="docutils literal "><span class="pre">DistributedDataParallel</span></code> ，您应该启动 <code class="docutils literal "><span class="pre">N</span></code> 个进程，确保每个进程仅独占使用从 0 到 N-1 的单个 GPU。这可以通过为每个进程设置 <code class="docutils literal "><span class="pre">CUDA_VISIBLE_DEVICES</span></code> 或通过以下方式实现：</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">set_device</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>i 的取值范围从 0 到 N-1。在每个进程中，您应参考以下内容来构建此模块：</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">torch</span><span class="o">.</span><span class="n">distributed</span><span class="o">.</span><span class="n">init_process_group</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">backend</span><span class="o">=</span><span class="s1">'nccl'</span><span class="p">,</span> <span class="n">world_size</span><span class="o">=</span><span class="n">N</span><span class="p">,</span> <span class="n">init_method</span><span class="o">=</span><span class="s1">'...'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">DistributedDataParallel</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">device_ids</span><span class="o">=</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">output_device</span><span class="o">=</span><span class="n">i</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>为了在每个节点上启动多个进程，您可以使用 <code class="docutils literal "><span class="pre">torch.distributed.launch</span></code> 或 <code class="docutils literal "><span class="pre">torch.multiprocessing.spawn</span></code> 。</p>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>请参阅 PyTorch 分布式概述以了解有关分布式训练的所有相关功能的简要介绍。</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p> <code class="docutils literal "><span class="pre">DistributedDataParallel</span></code> 可以与 <code class="xref py py-class docutils literal "><span class="pre">torch.distributed.optim.ZeroRedundancyOptimizer</span></code> 结合使用，以减少每个 rank 的优化器状态内存占用。请参阅 ZeroRedundancyOptimizer 配方以获取更多详细信息。</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p> <code class="docutils literal "><span class="pre">nccl</span></code> 后端是目前使用 GPU 时最快且强烈推荐的后端。这适用于单节点和多节点分布式训练。</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>此模块还支持混合精度分布式训练。这意味着您的模型可以具有不同类型的参数，例如混合类型的 <code class="docutils literal "><span class="pre">fp16</span></code> 和 <code class="docutils literal "><span class="pre">fp32</span></code> ，对这些混合类型参数的梯度下降将正常工作。</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>如果您在一个进程中使用 <code class="docutils literal "><span class="pre">torch.save</span></code> 来检查点模块，而在其他进程中使用 <code class="docutils literal "><span class="pre">torch.load</span></code> 来恢复它，请确保为每个进程正确配置 <code class="docutils literal "><span class="pre">map_location</span></code> 。如果没有 <code class="docutils literal "><span class="pre">map_location</span></code> ， <code class="docutils literal "><span class="pre">torch.load</span></code> 将恢复到保存模块的设备上。</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>当在 <code class="docutils literal "><span class="pre">M</span></code> 节点上使用 <code class="docutils literal "><span class="pre">batch=N</span></code> 进行模型训练时，如果将批次的实例（不是通常的平均）的损失求和（而不是平均），与在单个节点上使用 <code class="docutils literal "><span class="pre">batch=M*N</span></code> 训练的相同模型相比，梯度将小 <code class="docutils literal "><span class="pre">M</span></code> 倍。当您想要获得与本地训练相对应的数学等效的训练过程时，应考虑这一点。但在大多数情况下，您可以将 DistributedDataParallel 包装的模型、DataParallel 包装的模型以及单个 GPU 上的普通模型视为相同（例如，使用等效批次的相同学习率）。</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>参数永远不会在进程之间广播。该模块对梯度执行全归约步骤，并假设它们将被优化器以相同的方式修改。缓冲区（例如 BatchNorm 统计信息）在每个迭代中从进程 0 的模块广播到系统中的所有其他副本。</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>如果您将 DistributedDataParallel 与 Distributed RPC 框架结合使用，您应该始终使用 <code class="xref py py-meth docutils literal "><span class="pre">torch.distributed.autograd.backward()</span></code> 来计算梯度，并使用 <code class="xref py py-class docutils literal "><span class="pre">torch.distributed.optim.DistributedOptimizer</span></code> 来优化参数。</p>
+<p>示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch.distributed.autograd</span> <span class="k">as</span> <span class="nn">dist_autograd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torch.nn.parallel</span> <span class="kn">import</span> <span class="n">DistributedDataParallel</span> <span class="k">as</span> <span class="n">DDP</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">optim</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torch.distributed.optim</span> <span class="kn">import</span> <span class="n">DistributedOptimizer</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch.distributed.rpc</span> <span class="k">as</span> <span class="nn">rpc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torch.distributed.rpc</span> <span class="kn">import</span> <span class="n">RRef</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t1</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t2</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rref</span> <span class="o">=</span> <span class="n">rpc</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="s2">"worker1"</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">add</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ddp_model</span> <span class="o">=</span> <span class="n">DDP</span><span class="p">(</span><span class="n">my_model</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Setup optimizer</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">optimizer_params</span> <span class="o">=</span> <span class="p">[</span><span class="n">rref</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">ddp_model</span><span class="o">.</span><span class="n">parameters</span><span class="p">():</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">optimizer_params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">RRef</span><span class="p">(</span><span class="n">param</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dist_optim</span> <span class="o">=</span> <span class="n">DistributedOptimizer</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">optimizer_params</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">lr</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">dist_autograd</span><span class="o">.</span><span class="n">context</span><span class="p">()</span> <span class="k">as</span> <span class="n">context_id</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">pred</span> <span class="o">=</span> <span class="n">ddp_model</span><span class="p">(</span><span class="n">rref</span><span class="o">.</span><span class="n">to_here</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">loss</span> <span class="o">=</span> <span class="n">loss_func</span><span class="p">(</span><span class="n">pred</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">dist_autograd</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="n">context_id</span><span class="p">,</span> <span class="p">[</span><span class="n">loss</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">dist_optim</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">context_id</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>DistributedDataParallel 目前对梯度检查点提供有限支持，使用 <code class="xref py py-meth docutils literal "><span class="pre">torch.utils.checkpoint()</span></code> 。如果使用 use_reentrant=False（推荐）进行检查点，DDP 将按预期工作，没有任何限制。然而，如果使用 use_reentrant=True（默认值）进行检查点，当模型中没有未使用的参数并且每个层最多检查点一次时（确保您没有将 find_unused_parameters=True 传递给 DDP），DDP 将按预期工作。我们目前不支持层被多次检查点的情况，或者当检查点模型中有未使用参数的情况。</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>要让非 DDP 模型加载 DDP 模型的状态字典，需要在加载前应用 <code class="xref py py-meth docutils literal "><span class="pre">consume_prefix_in_state_dict_if_present()</span></code> 来去除 DDP 状态字典中的前缀“module.”。</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>构造函数、前向方法和输出（或该模块输出的函数）的微分是分布式同步点。在可能存在不同进程执行不同代码的情况下，请考虑这一点。</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>此模块假设在创建模型时所有参数都已注册在模型中。之后不应添加或删除任何参数。同样适用于缓冲区。</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>此模块假设每个分布式进程的模型中的所有参数注册顺序相同。模块本身将按照模型注册参数的逆序执行梯度 <code class="docutils literal "><span class="pre">allreduce</span></code> 。换句话说，确保每个分布式进程具有完全相同的模型以及完全相同的参数注册顺序是用户的责任。</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>此模块允许具有非连续行主序步长的参数。例如，您的模型可能包含一些参数的 <code class="xref py py-class docutils literal "><span class="pre">torch.memory_format</span></code> 是 <code class="docutils literal "><span class="pre">torch.contiguous_format</span></code> ，而其他参数的格式是 <code class="docutils literal "><span class="pre">torch.channels_last</span></code> 。然而，不同进程中的对应参数必须具有相同的步长。</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>此模块不支持 <code class="xref py py-func docutils literal "><span class="pre">torch.autograd.grad()</span></code> （即，它仅在需要将梯度累积在参数的 <code class="docutils literal "><span class="pre">.grad</span></code> 属性中时才工作）。</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>如果您计划使用此模块与 <code class="docutils literal "><span class="pre">nccl</span></code> 后端或使用 Infiniband 的 <code class="docutils literal "><span class="pre">gloo</span></code> 后端（与使用多个工作进程的数据加载器一起使用），请将多进程启动方法更改为 <code class="docutils literal "><span class="pre">forkserver</span></code> （仅限 Python 3）或 <code class="docutils literal "><span class="pre">spawn</span></code> 。不幸的是，Gloo（使用 Infiniband）和 NCCL2 不是 Fork 安全的，如果您不更改此设置，可能会遇到死锁。</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>您永远不应该在用 <code class="docutils literal "><span class="pre">DistributedDataParallel</span></code> 包装您的模型后尝试更改模型的参数。因为，当用 <code class="docutils literal "><span class="pre">DistributedDataParallel</span></code> 包装模型时，构造函数将在构造时在模型的全部参数上注册额外的梯度减少函数。如果您之后更改模型的参数，梯度减少函数将不再与正确的参数集匹配。</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>使用 <code class="docutils literal "><span class="pre">DistributedDataParallel</span></code> 与分布式 RPC 框架结合是实验性的，可能会发生变化。</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>模块（Module）- 要并行化的模块</p></li>
+<li><p>device_ids（python:int 或 torch.device 列表） –</font></font></font></p><p><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">CUDA 设备。1）对于单设备模块， <code class="docutils literal "><span class="pre">device_ids</span></code> 可以包含一个设备 ID，代表对应此进程的输入模块所在的唯一 CUDA 设备。或者， <code class="docutils literal "><span class="pre">device_ids</span></code> 也可以是 <code class="docutils literal "><span class="pre">None</span></code> 。2）对于多设备模块和 CPU 模块， <code class="docutils literal "><span class="pre">device_ids</span></code> 必须是 <code class="docutils literal "><span class="pre">None</span></code> 。</p>
+<p>当两种情况下 <code class="docutils literal "><span class="pre">device_ids</span></code> 都是 <code class="docutils literal "><span class="pre">None</span></code> 时，前向传递的输入数据和实际模块都必须放置在正确的设备上。（默认： <code class="docutils literal "><span class="pre">None</span></code> ）</p>
+<p></p></li>
+<li><p>输出设备（int 或 torch.device）- 单设备 CUDA 模块的输出位置。对于多设备模块和 CPU 模块，必须是 <code class="docutils literal "><span class="pre">None</span></code> ，模块本身决定输出位置。（默认：单设备模块为 <code class="docutils literal "><span class="pre">device_ids[0]</span></code> ）</p></li>
+<li><p>broadcast_buffers（bool）- 标志，用于在 <code class="docutils literal "><span class="pre">forward</span></code> 函数开始时同步（广播）模块的缓冲区。默认： <code class="docutils literal "><span class="pre">True</span></code> </p></li>
+<li><p>init_sync（bool）- 是否在初始化时同步，以验证参数形状和广播参数及缓冲区。警告：如果设置为 False，则用户必须自行确保所有 rank 上的权重相同。（默认： <code class="docutils literal "><span class="pre">True</span></code> ）</p></li>
+<li><p>process_group – 用于分布式数据全归约的进程组。如果为 <code class="docutils literal "><span class="pre">None</span></code> ，将使用默认进程组，该进程组由 <code class="xref py py-func docutils literal "><span class="pre">torch.distributed.init_process_group()</span></code> 创建。（默认： <code class="docutils literal "><span class="pre">None</span></code> ）</p></li>
+<li><p>bucket_cap_mb – <code class="docutils literal "><span class="pre">DistributedDataParallel</span></code> 将参数分配到多个桶中，以便每个桶的梯度下降可以与反向计算重叠。 <code class="xref py py-attr docutils literal "><span class="pre">bucket_cap_mb</span></code> 控制桶的大小，单位为兆字节（MiB）。如果 <code class="docutils literal "><span class="pre">None</span></code> ，则使用默认大小 25 MiB。（默认： <code class="docutils literal "><span class="pre">None</span></code> ）</p></li>
+<li><p>find_unused_parameters (bool) – 从被包装模块的 <code class="docutils literal "><span class="pre">forward</span></code> 函数的返回值中包含的所有张量遍历 autograd 图。在此图中没有接收梯度的参数将被预先标记为准备减少。此外，可能被包装模块的 <code class="docutils literal "><span class="pre">forward</span></code> 函数使用但未包含在损失计算中且因此也不会接收梯度的参数也将被预先标记为准备减少。（默认： <code class="docutils literal "><span class="pre">False</span></code> ）</p></li>
+<li><p>check_reduction – 此参数已弃用。</p></li>
+<li><p>gradient_as_bucket_view (bool) – 当设置为 <code class="docutils literal "><span class="pre">True</span></code> 时，梯度将指向不同的 <code class="docutils literal "><span class="pre">allreduce</span></code> 通信桶的偏移量视图。这可以减少峰值内存使用，节省的内存大小将与总梯度大小相等。此外，它避免了梯度与 <code class="docutils literal "><span class="pre">allreduce</span></code> 通信桶之间复制的开销。当梯度是视图时， <code class="docutils literal "><span class="pre">detach_()</span></code> 不能在梯度上调用。如果遇到此类错误，请参考 <code class="docutils literal "><span class="pre">torch/optim/optimizer.py</span></code> 中的 <code class="xref py py-meth docutils literal "><span class="pre">zero_grad()</span></code> 函数作为解决方案。请注意，梯度在第一次迭代后将是视图，因此应在第一次迭代后检查峰值内存节省。</p></li>
+<li><p><strong>static_graph</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – </p><p>当设置为 <code class="docutils literal "><span class="pre">True</span></code> 时，DDP 知道训练图是静态的。静态图意味着 1）在整个训练循环中，使用的和未使用的参数集不会改变；在这种情况下，用户是否设置 <code class="docutils literal "><span class="pre">find_unused_parameters</span> <span class="pre">=</span> <span class="pre">True</span></code> 无关紧要。2）在整个训练循环中，图的训练方式不会改变（意味着没有依赖于迭代的控制流）。当 static_graph 设置为 <code class="docutils literal "><span class="pre">True</span></code> 时，DDP 将支持过去无法支持的案例：1）重入反向。2）多次激活检查点。3）在模型有未使用参数时进行激活检查点。4）存在位于前向函数之外的模型参数。5）当存在未使用参数时，可能提高性能，因为当 static_graph 设置为 <code class="docutils literal "><span class="pre">True</span></code> 时，DDP 将不会在每次迭代中搜索图以检测未使用参数。要检查您是否可以将 static_graph 设置为 <code class="docutils literal "><span class="pre">True</span></code> ，一种方法是在您之前模型训练结束时检查 ddp 日志数据，如果 <code class="docutils literal "><span class="pre">ddp_logging_data.get("can_set_static_graph")</span> <span class="pre">==</span> <span class="pre">True</span></code> ，通常您也可以设置 <code class="docutils literal "><span class="pre">static_graph</span> <span class="pre">=</span> <span class="pre">True</span></code> 。</p>
+<dl>
+<dt>示例::</dt><dd><div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">model_DDP</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">parallel</span><span class="o">.</span><span class="n">DistributedDataParallel</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Training loop</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="o">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ddp_logging_data</span> <span class="o">=</span> <span class="n">model_DDP</span><span class="o">.</span><span class="n">_get_ddp_logging_data</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">static_graph</span> <span class="o">=</span> <span class="n">ddp_logging_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"can_set_static_graph"</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+<p></p></li>
+<li><p>delay_all_reduce_named_params (list of tuple of str and torch.nn.Parameter) – 当指定在 <code class="docutils literal "><span class="pre">param_to_hook_all_reduce</span></code> 中的参数的梯度准备好时，将延迟所有 reduce 的命名参数列表。DDP 的其他参数不适用于此参数中指定的命名参数，因为这些命名参数将被 DDP reducer 忽略。</p></li>
+<li><p>param_to_hook_all_reduce (torch.nn.Parameter) – 用于钩子延迟所有 reduce 的参数。</p></li>
+</ul>
+</dd>
+<dt class="field-even">变量<span class="colon">:</span></dt>
+<dd class="field-even"><p>module (Module) – 要并行化的模块。</p>
+</dd>
+</dl>
+<p>示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">torch</span><span class="o">.</span><span class="n">distributed</span><span class="o">.</span><span class="n">init_process_group</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="s1">'nccl'</span><span class="p">,</span> <span class="n">world_size</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">init_method</span><span class="o">=</span><span class="s1">'...'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">net</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">parallel</span><span class="o">.</span><span class="n">DistributedDataParallel</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.nn.parallel.DistributedDataParallel.join">
+<span class="sig-name descname"><span class="pre">join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">divide_by_initial_world_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">throw_on_early_termination</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/nn/parallel/distributed.html#DistributedDataParallel.join"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/nn/parallel/distributed.py#L1736"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.nn.parallel.DistributedDataParallel.join" title="Permalink to this definition">¶</a></dt>
+<dd><p>DDP 训练中处理进程间输入不均匀的上下文管理器。</p>
+<p>此上下文管理器将跟踪已加入的 DDP 进程，并通过插入集体通信操作来“阴影”前向和反向传递，以匹配非加入的 DDP 进程创建的操作。这将确保每个集体调用都有已加入的 DDP 进程的相应调用，防止在进程间输入不均匀的情况下训练时出现挂起或错误。或者，如果指定标志 <code class="docutils literal "><span class="pre">throw_on_early_termination</span></code> 为 <code class="docutils literal "><span class="pre">True</span></code> ，则所有训练器一旦某个 rank 耗尽输入，就会抛出错误，允许根据应用程序逻辑捕获和处理这些错误。</p>
+<p>一旦所有 DDP 进程都已加入，上下文管理器将向所有进程广播对应于最后加入进程的模型，以确保所有进程中的模型相同（这是由 DDP 保证的）。</p>
+<p>要使用此上下文管理器启用进程间输入不均匀的训练，只需将其包装在您的训练循环中即可。无需对模型或数据加载进行任何其他修改。</p>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>如果这个上下文管理器包裹的模型或训练循环有额外的分布式集体操作，例如模型前向传递中的 <code class="docutils literal "><span class="pre">SyncBatchNorm</span></code> ，则必须启用 <code class="docutils literal "><span class="pre">throw_on_early_termination</span></code> 标志。这是因为此上下文管理器不了解非-DDP 集体通信。此标志将在任何一级耗尽输入时导致所有级别抛出异常，从而允许在所有级别捕获并恢复这些错误。</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>divide_by_initial_world_size (bool) – 如果 <code class="docutils literal "><span class="pre">True</span></code> ，将梯度除以初始的 <code class="docutils literal "><span class="pre">world_size</span></code> DDP 训练启动时的世界大小。如果 <code class="docutils literal "><span class="pre">False</span></code> ，将计算有效的世界大小（尚未耗尽输入的进程数）并在 allreduce 过程中将梯度除以该值。将 <code class="docutils literal "><span class="pre">divide_by_initial_world_size=True</span></code> 设置为确保每个输入样本（包括不均匀的输入）在贡献全局梯度方面的权重相等。这是通过始终将梯度除以初始的 <code class="docutils literal "><span class="pre">world_size</span></code> 来实现的，即使我们遇到不均匀的输入。如果您将其设置为 <code class="docutils literal "><span class="pre">False</span></code> ，我们将梯度除以剩余的节点数。这确保了与在较小的 <code class="docutils literal "><span class="pre">world_size</span></code> 上训练的等价性，尽管这也意味着不均匀的输入会对全局梯度贡献更多。通常，您会希望将其设置为 <code class="docutils literal "><span class="pre">True</span></code> ，以处理训练作业的最后几个输入不均匀的情况。在极端情况下，如果输入数量差异很大，将其设置为 <code class="docutils literal "><span class="pre">False</span></code> 可能会提供更好的结果。</p></li>
+<li><p>enable (bool) – 是否启用不均匀输入检测。在已知参与进程的输入都是偶数的情况下，传入 <code class="docutils literal "><span class="pre">enable=False</span></code> 以禁用。默认为 <code class="docutils literal "><span class="pre">True</span></code> 。</p></li>
+<li><p>抛出早期终止错误（布尔值）- 当至少一个 rank 耗尽输入时，是抛出错误还是继续训练。如果 <code class="docutils literal "><span class="pre">True</span></code> ，将在第一个 rank 到达数据末尾时抛出。如果 <code class="docutils literal "><span class="pre">False</span></code> ，将使用更小的有效 world size 继续训练，直到所有 rank 都加入。请注意，如果指定了此标志，则将忽略标志 <code class="docutils literal "><span class="pre">divide_by_initial_world_size</span></code> 。默认为 <code class="docutils literal "><span class="pre">False</span></code> 。</p></li>
+</ul>
+</dd>
+</dl>
+<p>示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch.distributed</span> <span class="k">as</span> <span class="nn">dist</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">os</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch.multiprocessing</span> <span class="k">as</span> <span class="nn">mp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># On each spawned worker</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">worker</span><span class="p">(</span><span class="n">rank</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">dist</span><span class="o">.</span><span class="n">init_process_group</span><span class="p">(</span><span class="s2">"nccl"</span><span class="p">,</span> <span class="n">rank</span><span class="o">=</span><span class="n">rank</span><span class="p">,</span> <span class="n">world_size</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">set_device</span><span class="p">(</span><span class="n">rank</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">model</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">rank</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">model</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">parallel</span><span class="o">.</span><span class="n">DistributedDataParallel</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">model</span><span class="p">,</span> <span class="n">device_ids</span><span class="o">=</span><span class="p">[</span><span class="n">rank</span><span class="p">],</span> <span class="n">output_device</span><span class="o">=</span><span class="n">rank</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="c1"># Rank 1 gets one more input than rank 0.</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">inputs</span> <span class="o">=</span> <span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">float</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span> <span class="o">+</span> <span class="n">rank</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">with</span> <span class="n">model</span><span class="o">.</span><span class="n">join</span><span class="p">():</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>            <span class="k">for</span> <span class="n">inp</span> <span class="ow">in</span> <span class="n">inputs</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>                <span class="n">loss</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">inp</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span>                <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="c1"># Without the join() API, the below synchronization will hang</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="c1"># blocking for rank 1's allreduce to complete.</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">synchronize</span><span class="p">(</span><span class="n">device</span><span class="o">=</span><span class="n">rank</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.nn.parallel.DistributedDataParallel.join_hook">
+<span class="sig-name descname"><span class="pre">join_hook</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/nn/parallel/distributed.html#DistributedDataParallel.join_hook"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/nn/parallel/distributed.py#L1842"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.nn.parallel.DistributedDataParallel.join_hook" title="Permalink to this definition">¶</a></dt>
+<dd><p>DDP 加入钩子通过镜像前向和反向过程中的通信，使训练能够在不均匀的输入上运行。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>kwargs (dict) – 一个 <code class="xref py py-class docutils literal "><span class="pre">dict</span></code> 包含任何关键字参数以修改运行时连接钩子的行为；所有共享相同连接上下文管理器的 <code class="xref py py-class docutils literal "><span class="pre">Joinable</span></code> 实例都转发相同的 <code class="docutils literal "><span class="pre">kwargs</span></code> 值。</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>该钩子支持以下关键字参数：</dt><dd><dl class="simple">
+<dt>divide_by_initial_world_size（布尔值，可选）：</font></font></font></dt><dd><p><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">如果 <code class="docutils literal "><span class="pre">True</span></code> ，则梯度将除以 DDP 启动时的初始世界大小。如果 <code class="docutils literal "><span class="pre">False</span></code> ，则梯度将除以有效世界大小（即非加入进程的数量），这意味着不均匀的输入对全局梯度的贡献更大。通常，如果不均匀程度较小，应设置为 <code class="docutils literal "><span class="pre">True</span></code> ，但在极端情况下，为了可能获得更好的结果，可以设置为 <code class="docutils literal "><span class="pre">False</span></code> 。默认为 <code class="docutils literal "><span class="pre">True</span></code> 。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.nn.parallel.DistributedDataParallel.no_sync">
+no_sync()[source][source]</dt>
+<dd><p>用于禁用 DDP 进程间梯度同步的上下文管理器。</p>
+<p>在此上下文中，梯度将累积在模块变量上，稍后将在退出上下文的第一个正向反向传递中进行同步。</p>
+<p>示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ddp</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">parallel</span><span class="o">.</span><span class="n">DistributedDataParallel</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">pg</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">ddp</span><span class="o">.</span><span class="n">no_sync</span><span class="p">():</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">for</span> <span class="nb">input</span> <span class="ow">in</span> <span class="n">inputs</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">ddp</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>  <span class="c1"># no synchronization, accumulate grads</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ddp</span><span class="p">(</span><span class="n">another_input</span><span class="p">)</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>  <span class="c1"># synchronize grads</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>正向传递应包含在上下文管理器内，否则梯度仍会进行同步。</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.nn.parallel.DistributedDataParallel.register_comm_hook">
+<span class="sig-name descname"><span class="pre">register_comm_hook</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hook</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/nn/parallel/distributed.html#DistributedDataParallel.register_comm_hook"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/nn/parallel/distributed.py#L1924"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.nn.parallel.DistributedDataParallel.register_comm_hook" title="Permalink to this definition">¶</a></dt>
+<dd><p>注册跨多个工作进程的用户定义 DDP 梯度聚合的通信钩子。</p>
+<p>此钩子对于研究人员尝试新想法非常有用。例如，此钩子可以用来实现 GossipGrad 和梯度压缩等算法，这些算法涉及在运行分布式数据并行训练时参数同步的不同通信策略。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>state (对象) –</font></font></font></p><p><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">传递给钩子以在训练过程中维护任何状态信息。例如，包括梯度压缩中的错误反馈、GossipGrad 中下一个要通信的节点等。</p>
+<p>它由每个工作进程本地存储并由该工作进程上的所有梯度张量共享。</p>
+<p></p></li>
+<li><p><strong>hook</strong> (<em>Callable</em>) – </p><p>具有以下签名的 Callable： <code class="docutils literal "><span class="pre">hook(state:</span> <span class="pre">object,</span> <span class="pre">bucket:</span> <span class="pre">dist.GradBucket)</span> <span class="pre">-&gt;</span> <span class="pre">torch.futures.Future[torch.Tensor]</span></code> :</p>
+<p>此函数在桶准备好后被调用。钩子可以执行所需的任何处理，并返回一个表示异步工作（例如 allreduce）完成的 Future。如果钩子不执行任何通信，它仍然必须返回一个完成的 Future。Future 应包含 grad bucket 张量的新值。一旦桶准备好，c10d reducer 会调用此钩子，并使用 Future 返回的张量将梯度复制到各个参数。请注意，future 的返回类型必须是一个单独的张量。</p>
+<p>我们还提供了一个名为 <code class="docutils literal "><span class="pre">get_future</span></code> 的 API，用于检索与 <code class="docutils literal "><span class="pre">c10d.ProcessGroup.Work</span></code> 完成相关的 Future。 <code class="docutils literal "><span class="pre">get_future</span></code> 目前支持 NCCL，也支持 GLOO 和 MPI 上的大多数操作，但不支持点对点操作（发送/接收）。</p>
+<p></p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>Grad bucket 的张量不会预先除以 world_size。用户在执行 allreduce 等操作时，需要自行除以 world_size。</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>DDP 通信钩子只能注册一次，并且应该在调用 backward 之前注册。</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>钩子返回的 Future 对象应包含一个与 grad bucket 内张量形状相同的单个张量。</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p> <code class="docutils literal "><span class="pre">get_future</span></code> API 支持 NCCL，部分支持 GLOO 和 MPI 后端（不支持像 send/recv 这样的对等操作）并将返回一个 <code class="docutils literal "><span class="pre">torch.futures.Future</span></code> 。</p>
+</div>
+<dl>
+<dt>示例::</font></font></font></dt><dd><p><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">下面是一个返回相同张量的空操作（noop）钩子的示例。</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">noop</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">bucket</span><span class="p">:</span> <span class="n">dist</span><span class="o">.</span><span class="n">GradBucket</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">futures</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">fut</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">futures</span><span class="o">.</span><span class="n">Future</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">fut</span><span class="o">.</span><span class="n">set_result</span><span class="p">(</span><span class="n">bucket</span><span class="o">.</span><span class="n">buffer</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">return</span> <span class="n">fut</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ddp</span><span class="o">.</span><span class="n">register_comm_hook</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hook</span><span class="o">=</span><span class="n">noop</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+<dt>示例::</font></font></font></dt><dd><p><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">以下是一个并行 SGD 算法的示例，其中梯度在 allreduce 之前进行编码，然后在 allreduce 之后进行解码。</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">encode_and_decode</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">bucket</span><span class="p">:</span> <span class="n">dist</span><span class="o">.</span><span class="n">GradBucket</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">futures</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">encoded_tensor</span> <span class="o">=</span> <span class="n">encode</span><span class="p">(</span><span class="n">bucket</span><span class="o">.</span><span class="n">buffer</span><span class="p">())</span>  <span class="c1"># encode gradients</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">fut</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">distributed</span><span class="o">.</span><span class="n">all_reduce</span><span class="p">(</span><span class="n">encoded_tensor</span><span class="p">)</span><span class="o">.</span><span class="n">get_future</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="c1"># Define the then callback to decode.</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="nf">decode</span><span class="p">(</span><span class="n">fut</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">decoded_tensor</span> <span class="o">=</span> <span class="n">decode</span><span class="p">(</span><span class="n">fut</span><span class="o">.</span><span class="n">value</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>  <span class="c1"># decode gradients</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="k">return</span> <span class="n">decoded_tensor</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">return</span> <span class="n">fut</span><span class="o">.</span><span class="n">then</span><span class="p">(</span><span class="n">decode</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ddp</span><span class="o">.</span><span class="n">register_comm_hook</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hook</span><span class="o">=</span><span class="n">encode_and_decode</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+             </article>
+             
+            </div>
+            <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        下一个 <img height="16" width="16" class="next-page" src="../_static/images/chevron-right-orange.svg"> <img height="16" width="16" class="previous-page" src="../_static/images/chevron-right-orange.svg"> 上一个
+      
+    </div>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>© 版权所有 PyTorch 贡献者。</p>
+  </div>
+    
+      <div>使用 Sphinx 构建，并使用 Read the Docs 提供的主题。</div>
+     
+
+</footer>
+
+          </div>
+<script>
+
+var match = window.location.href.match(/\/_[a-zA-Z0-9_]*.html|_dynamo/gi);
+var url = window.location.href.lastIndexOf(match[match.length-1]);
+
+if (url)
+  {
+    var div = '<div class="admonition note"><p class="admonition-title">Note</p><p><i class="fa fa-exclamation-circle" aria-hidden="true">&nbsp</i> This page describes an internal API which is not intended to be used outside of the PyTorch codebase and can be modified or removed without notice.</p></div>'
+    document.getElementById("pytorch-article").insertAdjacentHTML('afterBegin', div)
+  }
+</script>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">分布式数据并行</a></li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+         <script src="../_static/jquery.js"></script>
+         <script src="../_static/underscore.js"></script>
+         <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+         <script src="../_static/doctools.js"></script>
+         <script src="../_static/clipboard.min.js"></script>
+         <script src="../_static/copybutton.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="../_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="../_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ 
+<script script="" type="text/javascript">
+  var collapsedSections = ['Developer Notes', 'Language Bindings', 'Libraries', 'Community'];
+</script>
+
+<img height="1" width="1" style="border-style:none;" alt="" src="https://www.googleadservices.com/pagead/conversion/795629140/?label=txkmCPmdtosBENSssfsC&amp;guid=ON&amp;script=0">
+
+
+  <!-- Begin Footer -->
+
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 text-center">
+          <h2>文档</h2>
+          <p>PyTorch 的全面开发者文档</p>
+          <a class="with-right-arrow" href="https://pytorch.org/docs/stable/index.html">查看文档</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>教程</h2>
+          <p>深入了解初学者和高级开发者的教程</p>
+          <a class="with-right-arrow" href="https://pytorch.org/tutorials">查看教程</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>资源</h2>
+          <p>查找开发资源并获得您的疑问解答</p>
+          <a class="with-right-arrow" href="https://pytorch.org/resources">查看资源</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://pytorch.org/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/">PyTorch</a></li>
+            <li><a href="https://pytorch.org/get-started">开始使用</a></li>
+            <li><a href="https://pytorch.org/features">功能</a></li>
+            <li><a href="https://pytorch.org/ecosystem">生态系统</a></li>
+            <li><a href="https://pytorch.org/blog/">博客</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md">贡献</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/resources">资源</a></li>
+            <li><a href="https://pytorch.org/tutorials">教程</a></li>
+            <li><a href="https://pytorch.org/docs/stable/index.html">文档</a></li>
+            <li><a href="https://discuss.pytorch.org" target="_blank">讨论</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/issues" target="_blank">Github 问题</a></li>
+            <li><a href="https://pytorch.org/assets/brand-guidelines/PyTorch-Brand-Guidelines.pdf" target="_blank">品牌指南</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">保持更新</li>
+            <li><a href="https://www.facebook.com/pytorch" target="_blank">Facebook</a></li>
+            <li><a href="https://twitter.com/pytorch" target="_blank">推特</a></li>
+            <li><a href="https://www.youtube.com/pytorch" target="_blank">YouTube</a></li>
+            <li><a href="https://www.linkedin.com/company/pytorch" target="_blank">领英</a></li>
+          </ul>  
+          </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">PyTorch 播客</li>
+            <li><a href="https://open.spotify.com/show/6UzHKeiy368jKfQMKKvJY5" target="_blank">Spotify</a></li>
+            <li><a href="https://podcasts.apple.com/us/podcast/pytorch-developer-podcast/id1566080008" target="_blank">苹果</a></li>
+            <li><a href="https://www.google.com/podcasts?feed=aHR0cHM6Ly9mZWVkcy5zaW1wbGVjYXN0LmNvbS9PQjVGa0lsOA%3D%3D" target="_blank">谷歌</a></li>
+            <li><a href="https://music.amazon.com/podcasts/7a4e6f0e-26c2-49e9-a478-41bd244197d0/PyTorch-Developer-Podcast?" target="_blank">亚马逊</a></li>
+          </ul>
+         </div>
+        </div>
+        
+        <div class="privacy-policy">
+          <ul>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/terms/" target="_blank">条款</a></li>
+            <li class="privacy-policy-links">|</li>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/privacy-policy/" target="_blank">隐私</a></li>
+          </ul>
+        </div>
+        <div class="copyright">
+        <p>© 版权所有 Linux 基金会。PyTorch 基金会是 Linux 基金会的一个项目。有关 PyTorch 基金会的网站使用条款、商标政策以及其他适用政策，请参阅 www.linuxfoundation.org/policies/。PyTorch 基金会支持 PyTorch 开源项目，该项目已被确立为 LF Projects, LLC 的 PyTorch 项目系列。有关适用于 PyTorch 项目系列 LF Projects, LLC 的政策，请参阅 www.lfprojects.org/policies/。</p>
+      </div>
+     </div>
+
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">为了分析流量并优化您的体验，我们在本网站上使用 cookies。通过点击或导航，您同意允许我们使用 cookies。作为本网站的当前维护者，适用 Facebook 的 Cookies 政策。了解更多信息，包括关于可用控制的信息：Cookies 政策。</p>
+    <img class="close-button" src="../_static/images/pytorch-x.svg" width="16" height="16">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+           <li class="resources-mobile-menu-title">
+             <a>学习</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/get-started">开始使用</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials">教程</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/basics/intro.html">学习基础知识</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/recipes/recipes_index.html">PyTorch 菜谱</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/introyt.html">PyTorch 入门 - YouTube 系列</a>
+             </li>
+           </ul>
+           <li class="resources-mobile-menu-title">
+             <a>生态系统</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/ecosystem">工具</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/#community-module">社区</a>
+             </li>
+             <li>
+               <a href="https://discuss.pytorch.org/">论坛</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/resources">开发者资源</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">贡献者奖项 - 2024</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>Edge</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/edge">关于 PyTorch Edge</a>
+             </li>
+             
+             <li>
+               <a href="https://pytorch.org/executorch-overview">执行火炬</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch 文档</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>文档</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/docs/stable/index.html">PyTorch</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/pytorch-domains">PyTorch 领域</a>
+            </li>
+          </ul>
+
+          <li class="resources-mobile-menu-title">
+            <a>博客 &amp; 新闻</a>
+          </li>
+            
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/blog/">PyTorch 博客</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/community-blog">社区博客</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/videos">视频</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/community-stories">社区故事</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/events">活动</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">新闻简报</a>
+             </li>
+          </ul>
+          
+          <li class="resources-mobile-menu-title">
+            <a>关于</a>
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/foundation">PyTorch 基金会</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/governing-board">治理委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">云信用计划</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">技术顾问委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">员工</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">联系我们</a>
+            </li>
+          </ul>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="../_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body></html>

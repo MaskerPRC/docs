@@ -1,0 +1,1550 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Serialization semantics — PyTorch main documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pytorch.org/docs/stable/notes/serialization.html">
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css">
+  <!-- <link rel="stylesheet" href="../_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css">
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css">
+  <link rel="stylesheet" href="../_static/copybutton.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="../_static/katex-math.css" type="text/css">
+  <link rel="stylesheet" href="../_static/sphinx-dropdown.css" type="text/css">
+  <link rel="stylesheet" href="../_static/panels-bootstrap.min.css" type="text/css">
+  <link rel="stylesheet" href="../_static/css/jit.css" type="text/css">
+  <link rel="stylesheet" href="../_static/css/custom.css" type="text/css">
+    <link rel="index" title="Index" href="../genindex.html">
+    <link rel="search" title="Search" href="../search.html">
+    <link rel="next" title="Windows FAQ" href="windows.html">
+    <link rel="prev" title="Reproducibility" href="randomness.html">
+
+<!--
+  Search engines should not index the main version of documentation.
+  Stable documentation are built without release == 'main'.
+-->
+<meta name="robots" content="noindex">
+
+
+  <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T8XT4PS');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+  <!-- Preload the theme fonts -->
+
+<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<!-- Preload the katex fonts -->
+
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Math-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size1-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size2-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Caligraphic-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
+</head><body class="pytorch-body"><div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+
+          <li class="main-menu-item">
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">学习</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/get-started">
+                  <span class="dropdown-title">开始使用</span>
+                  <p>在本地运行 PyTorch 或快速开始使用支持的云平台之一</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials">
+                  <span class="dropdown-title">教程</span><p></p>
+                  <p>PyTorch 教程中的新内容</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/basics/intro.html">
+                  <span class="dropdown-title">学习基础知识</span><p></p>
+                  <p>熟悉 PyTorch 的概念和模块</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/recipes/recipes_index.html">
+                  <span class="dropdown-title">PyTorch 烹饪技巧</span><p></p>
+                  <p>精简型、可直接部署的 PyTorch 代码示例</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/introyt.html">
+                  <span class="dropdown-title">PyTorch 入门 - YouTube 系列</span><p></p>
+                  <p>通过我们引人入胜的 YouTube 教程系列掌握 PyTorch 基础知识</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">生态系统</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem">
+                  <span class="dropdown-title">工具</span><p></p>
+                  <p>了解 PyTorch 生态系统中的工具和框架</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
+                  <span class="dropdown-title">社区</span>
+                  <p>加入 PyTorch 开发者社区，贡献、学习并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
+                  <span class="dropdown-title">论坛</span>
+                  <p>讨论 PyTorch 代码、问题、安装、研究的地方</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/resources">
+                  <span class="dropdown-title">开发者资源</span>
+                  <p>查找资源并解答问题</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">2024 年度贡献者奖项</span><p></p>
+                  <p>本届 PyTorch 会议揭晓获奖者</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">
+                Edge
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/edge">
+                  <span class="dropdown-title">关于 PyTorch Edge</span><p></p>
+                  <p>为边缘设备构建创新和隐私感知的 AI 体验</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
+                  <span class="dropdown-title">ExecuTorch</span><p></p>
+                  <p>针对移动和边缘设备实现设备端推理能力的端到端解决方案</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch 文档</span><p></p>
+                </a>
+              </div>
+            </div>  
+          </li>
+
+          <li class="main-menu-item">
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">文档</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/docs/stable/index.html">
+                  <span class="dropdown-title">PyTorch</span><p></p>
+                  <p>探索文档以获取如何使用 PyTorch 的全面指南</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/pytorch-domains">
+                  <span class="dropdown-title">PyTorch 领域</span><p></p>
+                  <p>阅读 PyTorch 领域的文档以了解更多关于特定领域的库</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">博客与新闻</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/blog/">
+                  <span class="dropdown-title">PyTorch 博客</span><p></p>
+                  <p>跟上最新的技术新闻和动态</p>
+                </a>
+                 <a class="nav-dropdown-item" href="https://pytorch.org/community-blog">
+                  <span class="dropdown-title">社区博客</span><p></p>
+                  <p>PyTorch 生态系统故事</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/videos">
+                  <span class="dropdown-title">视频</span><p></p>
+                  <p>了解最新的 PyTorch 教程、新内容等</p>
+                </a><a class="nav-dropdown-item" href="https://pytorch.org/community-stories">
+                  <span class="dropdown-title">社区故事</span><p></p>
+                  <p>了解我们的社区如何使用 PyTorch 解决真实、日常的机器学习问题</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/events">
+                  <span class="dropdown-title">活动</span><p></p>
+                  <p>查找活动、网络研讨会和播客</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">通讯</span><p></p>
+                  <p>保持最新更新</p>
+                </a>
+            </div>
+          </div></li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">关于</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/foundation">
+                  <span class="dropdown-title">PyTorch 基金会</span><p></p>
+                  <p>了解更多关于 PyTorch 基金会的信息</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
+                  <span class="dropdown-title">管理委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">云信用计划</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">技术顾问委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">员工</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">联系我们</span><p></p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li class="main-menu-item">
+            <div class="no-dropdown">
+              <a href="https://pytorch.org/join" data-cta="join">成为会员</a>
+            </div>
+          </li>
+          <li>
+           <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="github-icon">
+             </a>
+           </div>
+          </li>
+          <!--- TODO: This block adds the search icon to the nav bar. We will enable it later. 
+          <li>
+            <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="search-icon">
+             </a>
+            </div>
+          </li>
+          --->
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+  </div>
+</div>
+
+
+
+   
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>目录</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+    <div class="version">
+      <a href="https://pytorch.org/docs/versions.html">主页 (2.7.0+cpu ) ▼</a>
+    </div>
+    <div id="searchBox">
+    <div class="searchbox" id="googleSearchBox">
+      <script async="" src="https://cse.google.com/cse.js?cx=e65585f8c3ea1440e"></script>
+      <div class="gcse-search"></div>
+    </div>
+    <div id="sphinxSearchBox" style="display: none;">
+      <div role="search">
+        <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+          <input type="text" name="q" placeholder="Search Docs">
+          <input type="hidden" name="check_keywords" value="yes">
+          <input type="hidden" name="area" value="default">
+        </form>
+      </div>
+    </div>
+  </div>
+  <form id="searchForm">
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="google" checked="">Google 搜索</label>
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="sphinx">经典搜索</label>
+  </form>
+
+  <script>
+     document.addEventListener('DOMContentLoaded', function() {
+      const searchForm = document.getElementById('searchForm');
+      const googleSearchBox = document.getElementById('googleSearchBox');
+      const sphinxSearchBox = document.getElementById('sphinxSearchBox');
+      // Function to toggle search box visibility
+      function toggleSearchBox(searchType) {
+        googleSearchBox.style.display = searchType === 'google' ? 'block' : 'none';
+        sphinxSearchBox.style.display = searchType === 'sphinx' ? 'block' : 'none';
+      }
+      // Determine the default search type
+      let defaultSearchType;
+      const currentUrl = window.location.href;
+      if (currentUrl.startsWith('https://pytorch.org/docs/stable')) {
+        // For the stable documentation, default to Google
+        defaultSearchType = localStorage.getItem('searchType') || 'google';
+      } else {
+        // For any other version, including docs-preview, default to Sphinx
+        defaultSearchType = 'sphinx';
+      }
+      // Set the default search type
+      document.querySelector(`input[name="searchType"][value="${defaultSearchType}"]`).checked = true;
+      toggleSearchBox(defaultSearchType);
+      // Event listener for changes in search type
+      searchForm.addEventListener('change', function(event) {
+        const selectedSearchType = event.target.value;
+        localStorage.setItem('searchType', selectedSearchType);
+        toggleSearchBox(selectedSearchType);
+      });
+      // Set placeholder text for Google search box
+      window.onload = function() {
+        var placeholderText = "Search Docs";
+        var googleSearchboxText = document.querySelector("#gsc-i-id1");
+        if (googleSearchboxText) {
+          googleSearchboxText.placeholder = placeholderText;
+          googleSearchboxText.style.fontFamily = 'FreightSans';
+          googleSearchboxText.style.fontSize = "1.2rem";
+          googleSearchboxText.style.color = '#262626';
+        }
+      };
+    });
+  </script>
+
+          </div>
+
+          
+
+<div>
+  <a style="color:#F05732" href="https://pytorch.org/docs/stable/notes/serialization.html">您正在查看不稳定开发者预览文档。请点击此处查看最新稳定版本的文档。</a>
+</div>
+
+
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">社区</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../community/build_ci_governance.html">PyTorch 治理 | 构建 + CI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community/contribution_guide.html">PyTorch 贡献指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community/design.html">PyTorch 设计哲学</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community/governance.html">PyTorch 治理 | 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community/persons_of_interest.html">PyTorch 治理 | 维护者</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发者笔记</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="amp_examples.html">自动混合精度示例</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autograd.html">Autograd 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="broadcasting.html">广播语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpu_threading_torchscript_inference.html">CPU 线程和 TorchScript 推理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">CUDA 语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_operators.html">PyTorch 自定义操作着陆页面</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ddp.html">分布式数据并行</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extending.html">扩展 PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extending.func.html">扩展 torch.func 与 autograd.Function</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">常见问题</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fsdp.html">FSDP 笔记</a></li>
+<li class="toctree-l1"><a class="reference internal" href="get_start_xpu.html">在英特尔 GPU 上入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gradcheck.html">毕业审核力学</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hip.html">HIP (ROCm) 语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="large_scale_deployments.html">大规模部署功能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="libtorch_stable_abi.html">LibTorch 稳定 ABI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">模块</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mps.html">MPS 后端</a></li>
+<li class="toctree-l1"><a class="reference internal" href="multiprocessing.html">多进程最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerical_accuracy.html">数值精度</a></li>
+<li class="toctree-l1"><a class="reference internal" href="randomness.html">可复现性</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">序列化语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="windows.html">Windows 常见问题解答</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">语言绑定</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../cpp_index.html">C++</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/javadoc/">Javadoc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deploy.html">torch::deploy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../torch.html">torch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../nn.html">torch.nn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../nn.functional.html">torch.nn.functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tensors.html">torch.Tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tensor_attributes.html">Tensor 属性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tensor_view.html">张量视图</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../amp.html">torch.amp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../autograd.html">torch.autograd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library.html">torch.library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../accelerator.html">torch 加速器</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cpu.html">torch.cpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cuda.html">torch.cuda</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch_cuda_memory.html">理解 CUDA 内存使用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch_cuda_memory.html#generating-a-snapshot">生成快照</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch_cuda_memory.html#using-the-visualizer">使用可视化器</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch_cuda_memory.html#snapshot-api-reference">快照 API 参考</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mps.html">torch.mps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../xpu.html">torch.xpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mtia.html">torch.mtia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mtia.memory.html">torch.mtia.memory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../meta.html">元设备</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../backends.html">torch.backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../export.html">torch.export</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.html">torch.distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.tensor.html">torch.distributed.tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.algorithms.join.html">torch.distributed.algorithms.join</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.elastic.html">torch.distributed.elastic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fsdp.html">torch.distributed.fsdp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.fsdp.fully_shard.html">torch.distributed.fsdp.fully_shard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.tensor.parallel.html">torch.distributed.tensor.parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.optim.html">torch.distributed.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.pipelining.html">torch.distributed.pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.checkpoint.html">torch.distributed.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributions.html">torch.distributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch.compiler.html">torch.compiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fft.html">torch.fft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../func.html">torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../futures.html">torch.futures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fx.html">torch.fx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fx.experimental.html">torch.fx.experimental</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hub.html">torch.hub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../jit.html">torch.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../linalg.html">torch.linalg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../monitor.html">torch.monitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../signal.html">torch.signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../special.html">torch.special</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch.overrides.html">torch.overrides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../package.html">torch.package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../profiler.html">torch.profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../nn.init.html">torch.nn.init</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../nn.attention.html">torch.nn.attention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../onnx.html">torch.onnx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../optim.html">torch.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../complex_numbers.html">复数</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ddp_comm_hooks.html">DDP 通信钩子</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quantization.html">量化</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rpc.html">分布式 RPC 框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../random.html">torch.random</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../masked.html">torch.masked</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../nested.html">torch.nested</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../size.html">torch.Size</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sparse.html">torch.sparse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../storage.html">torch 存储</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../testing.html">torch.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils.html">torch.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../benchmark_utils.html">torch.utils.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bottleneck.html">torch.utils.bottleneck</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../checkpoint.html">torch.utils.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cpp_extension.html">torch.utils.cpp_extension</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data.html">torch.utils.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deterministic.html">torch.utils.deterministic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../jit_utils.html">torch.utils.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dlpack.html">torch.utils.dlpack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mobile_optimizer.html">torch.utils.mobile_optimizer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../model_zoo.html">torch.utils.model_zoo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tensorboard.html">torch.utils.tensorboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../module_tracker.html">torch.utils.module_tracker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../type_info.html">类型信息</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../named_tensor.html">命名张量</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../name_inference.html">命名张量操作覆盖率</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../config_mod.html">torch.__config__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../future_mod.html">torch.__future__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../logging.html">torch._logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch_environment_variables.html">火炬环境变量</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">图书馆</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/audio/stable">torchaudio</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/data">TorchData</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/torchrec">火炬推荐</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/serve">TorchServe</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/text/stable">torchtext</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/vision/stable">torchvision</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/xla/">PyTorch 在 XLA 设备上</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/ao">torchao</a></li>
+</ul>
+
+            
+          
+
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        文档 &gt;</li>
+
+        
+      <li>序列化语义</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/notes/serialization.rst.txt" rel="nofollow"><img src="../_static/images/view-page-source-icon.svg" width="16" height="16"></a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">快捷键</div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+
+          <!-- Google Tag Manager (noscript) -->
+          <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T8XT4PS" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+          <!-- End Google Tag Manager (noscript) -->
+          
+          <div class="rst-content">
+          
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <section id="serialization-semantics">
+<h1>序列化语义 ¶</h1>
+<p>本笔记描述了如何在 Python 中保存和加载 PyTorch 张量和模块状态，以及如何序列化 Python 模块以便在 C++中加载。</p>
+<nav class="contents" id="table-of-contents">
+<p class="topic-title">目录</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#serialization-semantics" id="id2">序列化语义</a></p>
+<ul>
+<li><p><a class="reference internal" href="#saving-and-loading-tensors" id="id3">保存和加载张量</a></p></li>
+<li><p><a class="reference internal" href="#saving-and-loading-tensors-preserves-views" id="id4">张量保存和加载保留视图</a></p></li>
+<li><p><a class="reference internal" href="#saving-and-loading-torch-nn-modules" id="id5">保存和加载 torch.nn.Modules</a></p></li>
+<li><p><a class="reference internal" href="#serialized-file-format-for-torch-save" id="id6">序列化文件格式为 <code class="docutils literal "><span class="pre">torch.save</span></code> </a></p></li>
+<li><p><a class="reference internal" href="#torch-load-with-weights-only-true" id="id7">使用 <code class="docutils literal "><span class="pre">weights_only=True</span></code> </a></p>
+<ul>
+<li><p><a class="reference internal" href="#troubleshooting-weights-only" id="id8">排查 <code class="docutils literal "><span class="pre">weights_only</span></code> 问题</a></p>
+<ul>
+<li><p><a class="reference internal" href="#getting-unsafe-globals" id="id9">获取不安全的全局变量</a></p></li>
+<li><p><a class="reference internal" href="#environment-variables" id="id10">环境变量</a></p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#serializing-torch-nn-modules-and-loading-them-in-c" id="id11">序列化 torch.nn.Modules 并在 C++中加载它们</a></p></li>
+<li><p><a class="reference internal" href="#saving-and-loading-scriptmodules-across-pytorch-versions" id="id12">在 PyTorch 不同版本间保存和加载 ScriptModules</a></p>
+<ul>
+<li><p><a class="reference internal" href="#torch-div-performing-integer-division" id="id13">torch.div 执行整数除法</a></p></li>
+<li><p><a class="reference internal" href="#torch-full-always-inferring-a-float-dtype" id="id14">torch.full 总是推断为 float 类型</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#utility-functions" id="id15">工具函数</a></p></li>
+<li><p><a class="reference internal" href="#module-torch.utils.serialization" id="id16">配置</a></p></li>
+</ul>
+</li>
+</ul>
+</nav>
+<section id="saving-and-loading-tensors">
+<span id="saving-loading-tensors"></span><h2>保存和加载张量</h2>
+<p> <code class="xref py py-func docutils literal "><span class="pre">torch.save()</span></code> 和 <code class="xref py py-func docutils literal "><span class="pre">torch.load()</span></code> 让您轻松保存和加载张量：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">t</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="s1">'tensor.pt'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">'tensor.pt'</span><span class="p">)</span>
+<span class="go">tensor([1., 2.])</span>
+</pre></div>
+</div>
+<p>按照惯例，PyTorch 文件通常使用‘.pt’或‘.pth’扩展名。</p>
+<p> <code class="xref py py-func docutils literal "><span class="pre">torch.save()</span></code> 和 <code class="xref py py-func docutils literal "><span class="pre">torch.load()</span></code> 默认使用 Python 的 pickle，因此您也可以将多个张量作为 Python 对象（如元组、列表和字典）的一部分保存：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'a'</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">]),</span> <span class="s1">'b'</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mf">3.</span><span class="p">,</span> <span class="mf">4.</span><span class="p">])}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="s1">'tensor_dict.pt'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">'tensor_dict.pt'</span><span class="p">)</span>
+<span class="go">{'a': tensor([1., 2.]), 'b': tensor([3., 4.])}</span>
+</pre></div>
+</div>
+<p>如果数据结构是 pickle-able 的，包含 PyTorch 张量的自定义数据结构也可以保存。</p>
+</section>
+<section id="saving-and-loading-tensors-preserves-views">
+<span id="preserve-storage-sharing"></span><h2>保存和加载张量会保留视图</h2>
+<p>保存张量会保留它们的视图关系：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">numbers</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">evens</span> <span class="o">=</span> <span class="n">numbers</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">([</span><span class="n">numbers</span><span class="p">,</span> <span class="n">evens</span><span class="p">],</span> <span class="s1">'tensors.pt'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loaded_numbers</span><span class="p">,</span> <span class="n">loaded_evens</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">'tensors.pt'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loaded_evens</span> <span class="o">*=</span> <span class="mi">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loaded_numbers</span>
+<span class="go">tensor([ 1,  4,  3,  8,  5, 12,  7, 16,  9])</span>
+</pre></div>
+</div>
+<p>在幕后，这些张量共享相同的“存储”。有关视图和存储的更多信息，请参阅张量视图。</p>
+<p>当 PyTorch 保存张量时，它会分别保存它们的存储对象和张量元数据。这是一个可能在未来发生变化的实现细节，但它通常可以节省空间，并让 PyTorch 轻松重建加载的张量之间的视图关系。例如，在上面的代码片段中，只有一个存储被写入‘tensors.pt’文件。</p>
+<p>然而，在某些情况下，保存当前的存储对象可能是多余的，并创建过大而不切实际的文件。在下面的代码片段中，写入文件的存储比保存的张量大得多：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">large</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">small</span> <span class="o">=</span> <span class="n">large</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">small</span><span class="p">,</span> <span class="s1">'small.pt'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loaded_small</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">'small.pt'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loaded_small</span><span class="o">.</span><span class="n">storage</span><span class="p">()</span><span class="o">.</span><span class="n">size</span><span class="p">()</span>
+<span class="go">999</span>
+</pre></div>
+</div>
+<p>将小张量中仅有的五个值保存到‘small.pt’中，而是将与其共享存储的大张量中的 999 个值保存和加载。</p>
+<p>当保存元素数量少于其存储对象的张量时，可以通过首先克隆张量来减少保存的文件大小。克隆张量会产生一个新的张量，它包含一个新的存储对象，仅包含张量中的值：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">large</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">small</span> <span class="o">=</span> <span class="n">large</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">small</span><span class="o">.</span><span class="n">clone</span><span class="p">(),</span> <span class="s1">'small.pt'</span><span class="p">)</span>  <span class="c1"># saves a clone of small</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loaded_small</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">'small.pt'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loaded_small</span><span class="o">.</span><span class="n">storage</span><span class="p">()</span><span class="o">.</span><span class="n">size</span><span class="p">()</span>
+<span class="go">5</span>
+</pre></div>
+</div>
+<p>然而，由于克隆的张量彼此独立，它们没有原始张量所具有的任何视图关系。如果保存小于其存储对象大小的张量时文件大小和视图关系都很重要，那么在保存之前必须小心构建新的张量，以最大限度地减少其存储对象的大小，同时仍然具有所需的视图关系。</p>
+</section>
+<section id="saving-and-loading-torch-nn-modules">
+<span id="saving-loading-python-modules"></span><h2>保存和加载 torch.nn.Modules</h2>
+<p>参见：教程：保存和加载模块</p>
+<p>在 PyTorch 中，模块的状态通常使用“状态字典”进行序列化。模块的状态字典包含其所有参数和持久性缓冲区：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bn</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">BatchNorm1d</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">track_running_stats</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">bn</span><span class="o">.</span><span class="n">named_parameters</span><span class="p">())</span>
+<span class="go">[('weight', Parameter containing: tensor([1., 1., 1.], requires_grad=True)),</span>
+<span class="go"> ('bias', Parameter containing: tensor([0., 0., 0.], requires_grad=True))]</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">bn</span><span class="o">.</span><span class="n">named_buffers</span><span class="p">())</span>
+<span class="go">[('running_mean', tensor([0., 0., 0.])),</span>
+<span class="go"> ('running_var', tensor([1., 1., 1.])),</span>
+<span class="go"> ('num_batches_tracked', tensor(0))]</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bn</span><span class="o">.</span><span class="n">state_dict</span><span class="p">()</span>
+<span class="go">OrderedDict([('weight', tensor([1., 1., 1.])),</span>
+<span class="go">             ('bias', tensor([0., 0., 0.])),</span>
+<span class="go">             ('running_mean', tensor([0., 0., 0.])),</span>
+<span class="go">             ('running_var', tensor([1., 1., 1.])),</span>
+<span class="go">             ('num_batches_tracked', tensor(0))])</span>
+</pre></div>
+</div>
+<p>为了兼容性原因，建议不要直接保存模块，而是只保存其状态字典。Python 模块甚至有一个函数， <code class="xref py py-meth docutils literal "><span class="pre">load_state_dict()</span></code> ，可以从状态字典中恢复其状态：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">bn</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span> <span class="s1">'bn.pt'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bn_state_dict</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">'bn.pt'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">new_bn</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">BatchNorm1d</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">track_running_stats</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">new_bn</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">bn_state_dict</span><span class="p">)</span>
+<span class="go">&lt;All keys matched successfully&gt;</span>
+</pre></div>
+</div>
+<p>注意，首先使用 <code class="xref py py-func docutils literal "><span class="pre">torch.load()</span></code> 从文件中加载状态字典，然后使用 <code class="xref py py-meth docutils literal "><span class="pre">load_state_dict()</span></code> 恢复状态。</p>
+<p>即使是自定义模块和包含其他模块的模块也有状态字典，并且可以使用此模式：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="c1"># A module with two linear layers</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">class</span> <span class="nc">MyModule</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+      <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">l0</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">l1</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+      <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">):</span>
+        <span class="n">out0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">l0</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="n">out0_relu</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">functional</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">out0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">l1</span><span class="p">(</span><span class="n">out0_relu</span><span class="p">)</span>
+
+<span class="o">&gt;&gt;&gt;</span> <span class="n">m</span> <span class="o">=</span> <span class="n">MyModule</span><span class="p">()</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">m</span><span class="o">.</span><span class="n">state_dict</span><span class="p">()</span>
+<span class="n">OrderedDict</span><span class="p">([(</span><span class="s1">'l0.weight'</span><span class="p">,</span> <span class="n">tensor</span><span class="p">([[</span> <span class="mf">0.1400</span><span class="p">,</span> <span class="mf">0.4563</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.0271</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.4406</span><span class="p">],</span>
+                                   <span class="p">[</span><span class="o">-</span><span class="mf">0.3289</span><span class="p">,</span> <span class="mf">0.2827</span><span class="p">,</span> <span class="mf">0.4588</span><span class="p">,</span> <span class="mf">0.2031</span><span class="p">]])),</span>
+             <span class="p">(</span><span class="s1">'l0.bias'</span><span class="p">,</span> <span class="n">tensor</span><span class="p">([</span> <span class="mf">0.0300</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.1316</span><span class="p">])),</span>
+             <span class="p">(</span><span class="s1">'l1.weight'</span><span class="p">,</span> <span class="n">tensor</span><span class="p">([[</span><span class="mf">0.6533</span><span class="p">,</span> <span class="mf">0.3413</span><span class="p">]])),</span>
+             <span class="p">(</span><span class="s1">'l1.bias'</span><span class="p">,</span> <span class="n">tensor</span><span class="p">([</span><span class="o">-</span><span class="mf">0.1112</span><span class="p">]))])</span>
+
+<span class="o">&gt;&gt;&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span> <span class="s1">'mymodule.pt'</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">m_state_dict</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">'mymodule.pt'</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">new_m</span> <span class="o">=</span> <span class="n">MyModule</span><span class="p">()</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">new_m</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">m_state_dict</span><span class="p">)</span>
+<span class="o">&lt;</span><span class="n">All</span> <span class="n">keys</span> <span class="n">matched</span> <span class="n">successfully</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</section>
+<section id="serialized-file-format-for-torch-save">
+<span id="serialized-file-format"></span><h2>序列化文件格式为 <code class="docutils literal "><span class="pre">torch.save</span></code> ¶</h2>
+<p>自 PyTorch 1.6.0 版本起， <code class="docutils literal "><span class="pre">torch.save</span></code> 默认返回一个未压缩的 ZIP64 存档，除非用户设置 <code class="docutils literal "><span class="pre">_use_new_zipfile_serialization=False</span></code> 。</p>
+<p>在此存档中，文件按如下顺序排列</p>
+<div class="highlight-text "><div class="highlight"><pre><span></span>checkpoint.pth
+├── data.pkl
+├── byteorder  # added in PyTorch 2.1.0
+├── data/
+│   ├── 0
+│   ├── 1
+│   ├── 2
+│   └── …
+└── version
+</pre></div>
+</div>
+<dl class="simple">
+<dt>如下所示条目：</dt><dd><ul class="simple">
+<li><p> <code class="docutils literal "><span class="pre">data.pkl</span></code> 是传递给 <code class="docutils literal "><span class="pre">torch.save</span></code> 的对象经过序列化后的结果，排除了它包含的 <code class="docutils literal "><span class="pre">torch.Storage</span></code> 对象</p></li>
+<li><p> <code class="docutils literal "><span class="pre">byteorder</span></code> 在保存时包含一个带有 <code class="docutils literal "><span class="pre">sys.byteorder</span></code> 的字符串（“小”或“大”）</p></li>
+<li><p> <code class="docutils literal "><span class="pre">data/</span></code> 包含对象中的所有存储，每个存储都是一个单独的文件</p></li>
+<li><p>保存时包含一个版本号，该版本号可以在加载时使用</p></li>
+</ul>
+</dd>
+</dl>
+<p>当保存时，PyTorch 将确保每个文件的本地文件头填充到 64 字节的倍数偏移量，确保每个文件的偏移量是 64 字节对齐的。</p>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>某些设备上的张量（如 XLA）被序列化为 pickle 的 numpy 数组。因此，它们的存储不会序列化。在这些情况下， <code class="docutils literal "><span class="pre">data/</span></code> 可能不存在于检查点中。</p>
+</div>
+</section>
+<section id="torch-load-with-weights-only-true">
+<span id="weights-only"></span><h2> <code class="docutils literal "><span class="pre">torch.load</span></code> 与 <code class="docutils literal "><span class="pre">weights_only=True</span></code> ¶</h2>
+<p>从版本 2.6 开始，如果没有传递 <code class="docutils literal "><span class="pre">pickle_module</span></code> 参数， <code class="docutils literal "><span class="pre">torch.load</span></code> 将使用 <code class="docutils literal "><span class="pre">weights_only=True</span></code> 。</p>
+<p>如 <code class="xref py py-func docutils literal "><span class="pre">torch.load()</span></code> 文档所述， <code class="docutils literal "><span class="pre">weights_only=True</span></code> 将 <code class="docutils literal "><span class="pre">torch.load</span></code> 中使用的反序列化器限制为仅执行用于 <code class="docutils literal "><span class="pre">state_dicts</span></code> 的普通 <code class="docutils literal "><span class="pre">torch.Tensors</span></code> 以及一些其他原始类型的函数/构建类，此外，与 <code class="docutils literal "><span class="pre">pickle</span></code> 模块提供的默认 <code class="docutils literal "><span class="pre">Unpickler</span></code> 不同， <code class="docutils literal "><span class="pre">weights_only</span></code> Unpickler 不允许在反序列化过程中动态导入任何内容。</p>
+<p>如上所述，当使用 <code class="docutils literal "><span class="pre">torch.save</span></code> 时，保存模块的 <code class="docutils literal "><span class="pre">state_dict</span></code> 是一个最佳实践。如果加载包含 <code class="docutils literal "><span class="pre">nn.Module</span></code> 的老旧检查点，我们建议 <code class="docutils literal "><span class="pre">weights_only=False</span></code> 。当加载包含张量子类的检查点时，可能会出现需要允许列表的函数/类，下面将提供更多详细信息。</p>
+<p>如果 <code class="docutils literal "><span class="pre">weights_only</span></code> Unpickler 遇到在 pickle 文件中默认不允许列表的函数或类，您应该看到一个可操作的错误，如下所示。</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span>_pickle.UnpicklingError: Weights only load failed. This file can still be loaded,
+to do so you have two options, do those steps only if you trust the source of the checkpoint.
+    1. Re-running `torch.load` with `weights_only` set to `False` will likely succeed,
+        but it can result in arbitrary code execution. Do it only if you got the file from a trusted source.
+    2. Alternatively, to load with `weights_only=True` please check the recommended
+       steps in the following error message.
+       WeightsUnpickler error: Unsupported global: GLOBAL {__module__}.{__name__} was not an allowed global by
+       default. Please use `torch.serialization.add_safe_globals([{__name__}])` or the
+       `torch.serialization.safe_globals([{__name__}])` context manager to allowlist this global
+       if you trust this class/function.
+</pre></div>
+</div>
+<p>请按照错误信息中的步骤操作，并且只允许信任的函数或类。</p>
+<p>要获取检查点中尚未允许列表的所有全局（函数/类），可以使用 <code class="xref py py-func docutils literal "><span class="pre">torch.serialization.get_unsafe_globals_in_checkpoint()</span></code> ，它将返回形式为 <code class="docutils literal "><span class="pre">{__module__}.{__name__}</span></code> 的字符串列表。如果您信任这些函数/类，可以按照错误信息导入它们并允许列表，通过 <code class="xref py py-func docutils literal "><span class="pre">torch.serialization.add_safe_globals()</span></code> 或上下文管理器 <code class="xref py py-class docutils literal "><span class="pre">torch.serialization.safe_globals</span></code> 。</p>
+<p>要访问用户允许列表的函数/类列表，可以使用 <code class="xref py py-func docutils literal "><span class="pre">torch.serialization.get_safe_globals()</span></code> ，要清除当前列表请查看 <code class="xref py py-func docutils literal "><span class="pre">torch.serialization.clear_safe_globals()</span></code> 。</p>
+<section id="troubleshooting-weights-only">
+<h3>故障排除 <code class="docutils literal "><span class="pre">weights_only</span></code> ¶</h3>
+<section id="getting-unsafe-globals">
+<h4>获取不安全的全局变量</h4>
+<p>注意， <code class="xref py py-func docutils literal "><span class="pre">torch.serialization.get_unsafe_globals_in_checkpoint()</span></code> 会静态分析检查点，一些类型可能在反序列化过程中动态构建，因此不会被 <code class="xref py py-func docutils literal "><span class="pre">torch.serialization.get_unsafe_globals_in_checkpoint()</span></code> 报告。例如， <code class="docutils literal "><span class="pre">dtypes</span></code> 在 numpy 中就是这样。在 <code class="docutils literal "><span class="pre">numpy</span> <span class="pre">&lt;</span> <span class="pre">1.25</span></code> 允许列出 <code class="xref py py-func docutils literal "><span class="pre">torch.serialization.get_unsafe_globals_in_checkpoint()</span></code> 报告的所有函数/类之后，你可能会看到如下错误</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span>WeightsUnpickler error: Can only build Tensor, Parameter, OrderedDict or types allowlisted via `add_safe_globals`,
+but got &lt;class 'numpy.dtype[float32]'&gt;
+</pre></div>
+</div>
+<p>这可以通过 <code class="docutils literal "><span class="pre">{add_}safe_globals([type(np.dtype(np.float32))])</span></code> 允许列出</p>
+<p>在 <code class="docutils literal "><span class="pre">numpy</span> <span class="pre">&gt;=1.25</span></code> 你会看到</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span>WeightsUnpickler error: Can only build Tensor, Parameter, OrderedDict or types allowlisted via `add_safe_globals`,
+but got &lt;class 'numpy.dtypes.Float32DType'&gt;
+</pre></div>
+</div>
+<p>这可以通过 <code class="docutils literal "><span class="pre">{add_}safe_globals([np.dtypes.Float32DType])</span></code> . 允许列表。</p>
+</section>
+<section id="environment-variables">
+<h4>环境变量 ¶</h4>
+<p>有两个环境变量会影响 <code class="docutils literal "><span class="pre">torch.load</span></code> 的行为。如果没有访问 <code class="docutils literal "><span class="pre">torch.load</span></code> 调用点的权限，这些变量可能很有用。</p>
+<ul class="simple">
+<li><p> <code class="docutils literal "><span class="pre">TORCH_FORCE_WEIGHTS_ONLY_LOAD=1</span></code> 将覆盖所有 <code class="docutils literal "><span class="pre">torch.load</span></code> 调用点以使用 <code class="docutils literal "><span class="pre">weights_only=True</span></code> 。</p></li>
+<li><p> <code class="docutils literal "><span class="pre">TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD=1</span></code> 将使 <code class="docutils literal "><span class="pre">torch.load</span></code> 调用站点仅在 <code class="docutils literal "><span class="pre">weights_only=False</span></code> 未作为参数传递时使用 <code class="docutils literal "><span class="pre">weights_only</span></code> 。</p></li>
+</ul>
+</section>
+</section>
+</section>
+<section id="serializing-torch-nn-modules-and-loading-them-in-c">
+<span id="serializing-python-modules"></span><h2>序列化 torch.nn.Modules 并在 C++ 中加载它们</h2>
+<p>参见：教程：在 C++ 中加载 TorchScript 模型</p>
+<p>ScriptModules 可以序列化为 TorchScript 程序，并使用 <code class="xref py py-func docutils literal "><span class="pre">torch.jit.load()</span></code> 加载。这种序列化编码了所有模块的方法、子模块、参数和属性，并允许序列化的程序在 C++ 中（即不使用 Python）加载。</p>
+<p> <code class="xref py py-func docutils literal "><span class="pre">torch.jit.save()</span></code> 和 <code class="xref py py-func docutils literal "><span class="pre">torch.save()</span></code> 之间的区别可能并不立即明显。 <code class="xref py py-func docutils literal "><span class="pre">torch.save()</span></code> 用于保存 Python 对象，通过 pickle 实现。这在原型设计、研究和训练中特别有用。另一方面， <code class="xref py py-func docutils literal "><span class="pre">torch.jit.save()</span></code> 将 ScriptModules 序列化为可以在 Python 或 C++ 中加载的格式。当保存和加载 C++ 模块，或者使用 C++ 运行在 Python 中训练的模块时，这非常有用，这是部署 PyTorch 模型时的常见做法。</p>
+<p>在 Python 中脚本化、序列化和加载模块：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">scripted_module</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">script</span><span class="p">(</span><span class="n">MyModule</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">scripted_module</span><span class="p">,</span> <span class="s1">'mymodule.pt'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">'mymodule.pt'</span><span class="p">)</span>
+<span class="go">RecursiveScriptModule( original_name=MyModule</span>
+<span class="go">                      (l0): RecursiveScriptModule(original_name=Linear)</span>
+<span class="go">                      (l1): RecursiveScriptModule(original_name=Linear) )</span>
+</pre></div>
+</div>
+<p>跟踪的模块也可以使用 <code class="xref py py-func docutils literal "><span class="pre">torch.jit.save()</span></code> 保存，但有一个前提，即只有跟踪的代码路径被序列化。以下示例演示了这一点：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="c1"># A module with control flow</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">class</span> <span class="nc">ControlFlowModule</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+      <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">l0</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">l1</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+      <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">input</span><span class="o">.</span><span class="n">dim</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">out0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">l0</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="n">out0_relu</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">functional</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">out0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">l1</span><span class="p">(</span><span class="n">out0_relu</span><span class="p">)</span>
+
+<span class="o">&gt;&gt;&gt;</span> <span class="n">traced_module</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">ControlFlowModule</span><span class="p">(),</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">traced_module</span><span class="p">,</span> <span class="s1">'controlflowmodule_traced.pt'</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">loaded</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">'controlflowmodule_traced.pt'</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">loaded</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">)))</span>
+<span class="n">tensor</span><span class="p">([[</span><span class="o">-</span><span class="mf">0.1571</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.3793</span><span class="p">]],</span> <span class="n">grad_fn</span><span class="o">=&lt;</span><span class="n">AddBackward0</span><span class="o">&gt;</span><span class="p">)</span>
+
+<span class="o">&gt;&gt;&gt;</span> <span class="n">scripted_module</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">script</span><span class="p">(</span><span class="n">ControlFlowModule</span><span class="p">(),</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">scripted_module</span><span class="p">,</span> <span class="s1">'controlflowmodule_scripted.pt'</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">loaded</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">'controlflowmodule_scripted.pt'</span><span class="p">)</span>
+<span class="o">&gt;&gt;</span> <span class="n">loaded</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">tensor</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>如上模块中有一个不会被跟踪输入触发的 if 语句，因此它不属于跟踪模块，也没有与其一起序列化。然而，脚本化的模块包含这个 if 语句，并且与其一起序列化。有关脚本化和跟踪的更多信息，请参阅 TorchScript 文档。</p>
+<p>最后，在 C++中加载模块：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">torch</span><span class="p">::</span><span class="n">jit</span><span class="p">::</span><span class="n">script</span><span class="p">::</span><span class="n">Module</span> <span class="n">module</span><span class="p">;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">module</span> <span class="o">=</span> <span class="n">torch</span><span class="p">::</span><span class="n">jit</span><span class="p">::</span><span class="n">load</span><span class="p">(</span><span class="s1">'controlflowmodule_scripted.pt'</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>请参阅 PyTorch C++ API 文档，了解如何在 C++中使用 PyTorch 模块的详细信息。</p>
+</section>
+<section id="saving-and-loading-scriptmodules-across-pytorch-versions">
+<span id="saving-loading-across-versions"></span><h2>在 PyTorch 版本之间保存和加载 ScriptModules</h2>
+<p>PyTorch 团队建议使用相同版本的 PyTorch 保存和加载模块。较旧版本的 PyTorch 可能不支持较新的模块，而较新版本可能已删除或修改了旧行为。这些更改已在 PyTorch 的发布说明中明确描述，依赖于已更改的功能的模块可能需要更新才能继续正常工作。在以下有限情况下，PyTorch 将保留序列化 ScriptModules 的历史行为，因此它们不需要更新。</p>
+<section id="torch-div-performing-integer-division">
+<h3>torch.div 执行整数除法</h3>
+<p>在 PyTorch 1.5 及之前版本中，当给定两个整数输入时， <code class="xref py py-func docutils literal "><span class="pre">torch.div()</span></code> 会执行向下取整除法：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="c1"># PyTorch 1.5 (and earlier)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">a</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">b</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">a</span> <span class="o">/</span> <span class="n">b</span>
+<span class="n">tensor</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>然而，在 PyTorch 1.7 版本中， <code class="xref py py-func docutils literal "><span class="pre">torch.div()</span></code> 将始终对其输入执行真正的除法，就像 Python 3 中的除法一样：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="c1"># PyTorch 1.7</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">a</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">b</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">a</span> <span class="o">/</span> <span class="n">b</span>
+<span class="n">tensor</span><span class="p">(</span><span class="mf">1.6667</span><span class="p">)</span>
+</pre></div>
+</div>
+<p> <code class="xref py py-func docutils literal "><span class="pre">torch.div()</span></code> 的行为在序列化的 ScriptModules 中得以保留。也就是说，使用 PyTorch 1.6 之前版本序列化的 ScriptModules，即使在较新版本的 PyTorch 中加载，当给定两个整数输入时， <code class="xref py py-func docutils literal "><span class="pre">torch.div()</span></code> 仍会执行向下取整除法。然而，在 PyTorch 1.6 及以后版本序列化的 ScriptModules 使用 <code class="xref py py-func docutils literal "><span class="pre">torch.div()</span></code> ，在早期版本的 PyTorch 中无法加载，因为这些早期版本不理解新的行为。</p>
+</section>
+<section id="torch-full-always-inferring-a-float-dtype">
+<h3>torch.full 总是推断为 float 类型</h3>
+<p>在 PyTorch 1.5 及之前版本中， <code class="xref py py-func docutils literal "><span class="pre">torch.full()</span></code> 总是返回一个 float 矩阵，无论给定的填充值是什么：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="c1"># PyTorch 1.5 and earlier</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="mi">3</span><span class="p">,),</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># Note the integer fill value...</span>
+<span class="n">tensor</span><span class="p">([</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">])</span>     <span class="c1"># ...but float tensor!</span>
+</pre></div>
+</div>
+<p>然而，在 PyTorch 1.7 中， <code class="xref py py-func docutils literal "><span class="pre">torch.full()</span></code> 将从填充值推断返回矩阵的数据类型：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="c1"># PyTorch 1.7</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="mi">3</span><span class="p">,),</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">tensor</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+
+<span class="o">&gt;&gt;&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="mi">3</span><span class="p">,),</span> <span class="kc">True</span><span class="p">)</span>
+<span class="n">tensor</span><span class="p">([</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">])</span>
+
+<span class="o">&gt;&gt;&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="mi">3</span><span class="p">,),</span> <span class="mf">1.</span><span class="p">)</span>
+<span class="n">tensor</span><span class="p">([</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">])</span>
+
+<span class="o">&gt;&gt;&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="mi">3</span><span class="p">,),</span> <span class="mi">1</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span><span class="p">)</span>
+<span class="n">tensor</span><span class="p">([</span><span class="mf">1.</span><span class="o">+</span><span class="mf">1.</span><span class="n">j</span><span class="p">,</span> <span class="mf">1.</span><span class="o">+</span><span class="mf">1.</span><span class="n">j</span><span class="p">,</span> <span class="mf">1.</span><span class="o">+</span><span class="mf">1.</span><span class="n">j</span><span class="p">])</span>
+</pre></div>
+</div>
+<p> <code class="xref py py-func docutils literal "><span class="pre">torch.full()</span></code> 的行为在序列化的 ScriptModules 中得到保留。也就是说，使用 PyTorch 1.6 之前版本序列化的 ScriptModules 仍然默认返回 float 矩阵，即使给定的填充值是 bool 或整数。然而，使用 <code class="xref py py-func docutils literal "><span class="pre">torch.full()</span></code> 并在 PyTorch 1.6 及以后版本序列化的 ScriptModules 在早期版本中无法加载，因为这些早期版本不理解新的行为。</p>
+</section>
+</section>
+<section id="utility-functions">
+<span id="id1"></span><h2>实用函数 ¶</h2>
+<p>以下实用函数与序列化相关：</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.serialization.register_package">
+<span class="sig-prename descclassname"><span class="pre">torch.serialization.</span></span><span class="sig-name descname"><span class="pre">register_package</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">priority</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tagger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deserializer</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/serialization.html#register_package"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/serialization.py#L443"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.serialization.register_package" title="Permalink to this definition">¶</a></dt>
+<dd><p>注册用于标记和反序列化存储对象的调用函数，并关联优先级。标记在保存时将设备与存储对象关联，而在加载时将存储对象移动到适当的设备。 <code class="xref py py-attr docutils literal "><span class="pre">tagger</span></code> 和 <code class="xref py py-attr docutils literal "><span class="pre">deserializer</span></code> 将按照它们提供的 <code class="xref py py-attr docutils literal "><span class="pre">priority</span></code> 的顺序执行，直到标记器/反序列化器返回一个非 None 的值。</p>
+<p>要覆盖全局注册表中设备的反序列化行为，可以注册一个优先级高于现有标记器的标记器。</p>
+<p>此功能还可以用于为新设备注册标记器和反序列化器。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>优先级（int）- 表示标记器和反序列化器关联的优先级，其中值越小表示优先级越高。</p></li>
+<li><p>标记器（Callable[[Union[Storage, TypedStorage, UntypedStorage]], Optional[str]]) – 接收存储对象并返回其标记设备字符串或 None 的可调用对象。</p></li>
+<li><p>解析器（Callable[[Union[Storage, TypedStorage, UntypedStorage], str], Optional[Union[Storage, TypedStorage, UntypedStorage]]]) – 接收存储对象和设备字符串的函数，返回适当设备上的存储对象或 None。</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><p><cite>无</cite></p>
+</dd>
+</dl>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">ipu_tag</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">'ipu'</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="k">return</span> <span class="s1">'ipu'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">ipu_deserialize</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">location</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">if</span> <span class="n">location</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">'ipu'</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">ipu</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">torch</span><span class="p">,</span> <span class="s2">"ipu"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="k">assert</span> <span class="n">ipu</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"IPU device module is not loaded"</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="k">assert</span> <span class="n">torch</span><span class="o">.</span><span class="n">ipu</span><span class="o">.</span><span class="n">is_available</span><span class="p">(),</span> <span class="s2">"ipu is not available"</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">ipu</span><span class="p">(</span><span class="n">location</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">torch</span><span class="o">.</span><span class="n">serialization</span><span class="o">.</span><span class="n">register_package</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="n">ipu_tag</span><span class="p">,</span> <span class="n">ipu_deserialize</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.serialization.get_crc32_options">
+torch.serialization.get_crc32_options()[source][source]</dt>
+<dd><p>获取是否为每个记录计算并写入 crc32。</p>
+<p>默认为 <code class="docutils literal "><span class="pre">True</span></code> 。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">布尔型</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.serialization.set_crc32_options">
+<span class="sig-prename descclassname"><span class="pre">torch.serialization.</span></span><span class="sig-name descname"><span class="pre">set_crc32_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">compute_crc32</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/serialization.html#set_crc32_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/serialization.py#L182"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.serialization.set_crc32_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>设置是否计算并写入每条记录的 crc32。</p>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>将此设置为 <code class="docutils literal "><span class="pre">False</span></code> 可能会导致解压缩 <code class="docutils literal "><span class="pre">torch.save</span></code> 输出失败或警告，因为 CRC32 已损坏。然而 <code class="docutils literal "><span class="pre">torch.load</span></code> 仍然能够加载文件。</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>compute_crc32 (bool) – 设置 crc32 计算标志</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.serialization.get_default_load_endianness">
+<span class="sig-prename descclassname"><span class="pre">torch.serialization.</span></span><span class="sig-name descname"><span class="pre">get_default_load_endianness</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/serialization.html#get_default_load_endianness"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/serialization.py#L137"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.serialization.get_default_load_endianness" title="Permalink to this definition">¶</a></dt>
+<dd><p>获取加载文件的回退字节序</p>
+<p>如果保存的检查点中没有字节序标记，则使用此字节序作为回退。默认为“本地”字节序。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回值<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[LoadEndianness]</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>默认加载字节序</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.serialization.set_default_load_endianness">
+<span class="sig-prename descclassname"><span class="pre">torch.serialization.</span></span><span class="sig-name descname"><span class="pre">set_default_load_endianness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">endianness</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/serialization.html#set_default_load_endianness"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/serialization.py#L153"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.serialization.set_default_load_endianness" title="Permalink to this definition">¶</a></dt>
+<dd><p>设置加载文件时的默认字节顺序</p>
+<p>如果保存的检查点中没有字节顺序标记，则使用此字节顺序作为后备。默认情况下，它是“本地”字节顺序。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>端序 - 新的回退字节序</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.serialization.get_default_mmap_options">
+<span class="sig-prename descclassname"><span class="pre">torch.serialization.</span></span><span class="sig-name descname"><span class="pre">get_default_mmap_options</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/serialization.html#get_default_mmap_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/serialization.py#L199"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.serialization.get_default_mmap_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>获取 <code class="xref py py-func docutils literal "><span class="pre">torch.load()</span></code> 的默认 mmap 选项 <code class="docutils literal "><span class="pre">mmap=True</span></code> 。</p>
+<p>默认为 <code class="docutils literal "><span class="pre">mmap.MAP_PRIVATE</span></code> 。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回值<span class="colon">:</span></dt>
+<dd class="field-odd"><p>整型</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>默认的 mmap 选项</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.serialization.set_default_mmap_options">
+torch.serialization.set_default_mmap_options(flags)[来源][来源] ¶</dt>
+<dd><p>上下文管理器或函数，用于设置 <code class="xref py py-func docutils literal "><span class="pre">torch.load()</span></code> 的默认 mmap 选项为 <code class="docutils literal "><span class="pre">mmap=True</span></code> 到 flags。</p>
+<p>目前仅支持 <code class="docutils literal "><span class="pre">mmap.MAP_PRIVATE</span></code> 或 <code class="docutils literal "><span class="pre">mmap.MAP_SHARED</span></code> 。如需添加其他选项，请在此处提交问题。</p>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>此功能目前不支持 Windows 系统。</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>标志（整数）- <code class="docutils literal "><span class="pre">mmap.MAP_PRIVATE</span></code> 或 <code class="docutils literal "><span class="pre">mmap.MAP_SHARED</span></code> </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.serialization.add_safe_globals">
+torch.serialization.add_safe_globals(safe_globals)[source][source]</dt>
+<dd><p>标记给定的全局变量为 <code class="docutils literal "><span class="pre">weights_only</span></code> 安全加载。例如，添加到此列表中的函数可以在反序列化期间调用，类可以实例化并设置状态。</p>
+<p>列表中的每个项目可以是函数/类，也可以是形式为（函数/类，字符串）的元组，其中字符串是函数/类的完整路径。</p>
+<p>在序列化格式中，每个函数都通过其完整路径 <code class="docutils literal "><span class="pre">{__module__}.{__qualname__}</span></code> 进行标识。当调用此 API 时，您可以提供此完整路径，它应与检查点中的路径匹配，否则将使用默认的 <code class="docutils literal "><span class="pre">{fn.__module__}.{fn.__qualname__}</span></code> 。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>safe_globals (List[Union[Callable, Tuple[Callable, str]]]) – 标记为安全的全局变量列表</p>
+</dd>
+</dl>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">MyTensor</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">pass</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span> <span class="o">=</span> <span class="n">MyTensor</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">()</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+<span class="go"># Running `torch.load(f.name, weights_only=True)` will fail with</span>
+<span class="go"># Unsupported global: GLOBAL __main__.MyTensor was not an allowed global by default.</span>
+<span class="go"># Check the code and make sure MyTensor is safe to be used when loaded from an arbitrary checkpoint.</span>
+<span class="go">...     torch.serialization.add_safe_globals([MyTensor])</span>
+<span class="go">...     torch.load(f.name, weights_only=True)</span>
+<span class="go"># MyTensor([[-0.5024, -1.8152, -0.5455],</span>
+<span class="go">#          [-0.8234,  2.0500, -0.3657]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.serialization.clear_safe_globals">
+<span class="sig-prename descclassname"><span class="pre">torch.serialization.</span></span><span class="sig-name descname"><span class="pre">clear_safe_globals</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/serialization.html#clear_safe_globals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/serialization.py#L267"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.serialization.clear_safe_globals" title="Permalink to this definition">¶</a></dt>
+<dd><p>清除安全全局变量列表。</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.serialization.get_safe_globals">
+<span class="sig-prename descclassname"><span class="pre">torch.serialization.</span></span><span class="sig-name descname"><span class="pre">get_safe_globals</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/serialization.html#get_safe_globals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/serialization.py#L274"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.serialization.get_safe_globals" title="Permalink to this definition">¶</a></dt>
+<dd><p>返回用户添加的安全全局变量列表。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.13)"><em>Union</em></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.13)"><em>Callable</em></a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.13)"><em>Callable</em></a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>]]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.serialization.get_unsafe_globals_in_checkpoint">
+<span class="sig-prename descclassname"><span class="pre">torch.serialization.</span></span><span class="sig-name descname"><span class="pre">get_unsafe_globals_in_checkpoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/serialization.html#get_unsafe_globals_in_checkpoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/serialization.py#L342"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.serialization.get_unsafe_globals_in_checkpoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>返回一个字符串列表，表示在 <code class="docutils literal "><span class="pre">torch.save</span></code> 对象中不安全的函数/类的列表 <code class="docutils literal "><span class="pre">weights_only</span></code> 。</p>
+<p>对于给定的函数或类 <code class="docutils literal "><span class="pre">f</span></code> ，相应的字符串形式为 <code class="docutils literal "><span class="pre">{f.__module__}.{f.__name__}</span></code> 。</p>
+<p>此函数将返回检查点中任何标记为安全的 <code class="docutils literal "><span class="pre">weights_only</span></code> （通过 <code class="xref py py-func docutils literal "><span class="pre">add_safe_globals()</span></code> 或 <code class="xref py py-class docutils literal "><span class="pre">safe_globals</span></code> 上下文或默认情况下通过 <code class="docutils literal "><span class="pre">torch</span></code> 允许列表）之外的 GLOBALs。</p>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>此函数将静态反汇编检查点中的 pickle 文件。这意味着在反序列化过程中动态推送到栈上的任何类将不会包含在输出中。</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>f (Union[str, PathLike[str], IO[bytes]]) – 文件对象或包含通过 <code class="docutils literal "><span class="pre">torch.save</span></code> 保存的检查点对象的字符串。</p>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><p>检查点中 pickle GLOBALs 的字符串列表，这些 GLOBALs 未允许列表 <code class="docutils literal "><span class="pre">weights_only</span></code> 。</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.serialization.safe_globals">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.serialization.</span></span><span class="sig-name descname"><span class="pre">safe_globals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">safe_globals</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/serialization.html#safe_globals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/serialization.py#L317"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.serialization.safe_globals" title="Permalink to this definition">¶</a></dt>
+<dd><p>上下文管理器，将某些全局变量添加为 <code class="docutils literal "><span class="pre">weights_only</span></code> 加载时的安全变量。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>safe_globals (列表[Union[Callable, tuple[Callable, str]]]) – 仅加载权重时的全局变量列表。</p>
+</dd>
+</dl>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">MyTensor</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">pass</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span> <span class="o">=</span> <span class="n">MyTensor</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">()</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+<span class="go"># Running `torch.load(f.name, weights_only=True)` will fail with</span>
+<span class="go"># Unsupported global: GLOBAL __main__.MyTensor was not an allowed global by default.</span>
+<span class="go"># Check the code and make sure MyTensor is safe to be used when loaded from an arbitrary checkpoint.</span>
+<span class="go">...     with torch.serialization.safe_globals([MyTensor]):</span>
+<span class="go">...         torch.load(f.name, weights_only=True)</span>
+<span class="go"># MyTensor([[-0.5024, -1.8152, -0.5455],</span>
+<span class="go">#          [-0.8234,  2.0500, -0.3657]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">torch</span><span class="o">.</span><span class="n">serialization</span><span class="o">.</span><span class="n">get_safe_globals</span><span class="p">()</span> <span class="o">==</span> <span class="p">[]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.serialization.skip_data">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.serialization.</span></span><span class="sig-name descname"><span class="pre">skip_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">materialize_fake_tensors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torch/serialization.html#skip_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/serialization.py#L384"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.serialization.skip_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>跳过为 <code class="docutils literal "><span class="pre">torch.save</span></code> / <code class="docutils literal "><span class="pre">torch.load</span></code> 调用写入/读取存储字节的上下文管理器。</p>
+<p>对于保存路径，存储仍然会被保存，但它们通常写入的空间将是空白空间。存储字节可以在单独的步骤中填充。</p>
+<p>对于加载路径，张量将按照检查点进行加载，但它们的存储不会填充数据。</p>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p> <code class="docutils literal "><span class="pre">skip_data</span></code> 上下文管理器是一个早期原型，可能会发生变化。</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>materialize_fake_tensors (bool) – 是否在保存时实例化 FakeTensors。在加载路径中不执行任何操作。</p>
+</dd>
+</dl>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">()</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">serialization</span><span class="o">.</span><span class="n">skip_data</span><span class="p">():</span>
+<span class="gp">... </span>        <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">weights_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">tensor([[0., 0., 0.],</span>
+<span class="go">        [0., 0., 0.]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+<section id="module-torch.utils.serialization">
+<span id="config"></span><span id="serialization-config"></span><h2>配置 ¶</h2>
+<span class="target" id="module-torch.utils.serialization.config"></span><p> <code class="docutils literal "><span class="pre">torch.utils.serialization.config</span></code> 提供一个全局配置，可以控制 <code class="docutils literal "><span class="pre">torch.save</span></code> 和 <code class="docutils literal "><span class="pre">torch.load</span></code> 的行为。</p>
+<p> <code class="docutils literal "><span class="pre">torch.utils.serialization.config.save</span></code> 包含控制 <code class="docutils literal "><span class="pre">torch.save</span></code> 行为的选项。</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>是否计算并写入 zip 文件的校验和（默认： <code class="docutils literal "><span class="pre">True</span></code> ）。见 <code class="xref py py-func docutils literal "><span class="pre">set_crc32_options()</span></code> 。</p></li>
+<li><p> <code class="docutils literal "><span class="pre">use_pinned_memory_for_d2h</span></code> : 当传递给 <code class="docutils literal "><span class="pre">torch.save</span></code> 时，对于位于加速器上的存储，是否将存储移动到 <code class="docutils literal "><span class="pre">torch.save</span></code> 内的固定内存或可分页内存（默认： <code class="docutils literal "><span class="pre">False</span></code> （即可分页））。</p></li>
+<li><p> <code class="docutils literal "><span class="pre">storage_alignment</span></code> : 检查点期间存储的对齐方式，以字节为单位。（默认 <code class="docutils literal "><span class="pre">64</span></code> ）</p></li>
+</ul>
+</div></blockquote>
+<p> <code class="docutils literal "><span class="pre">torch.utils.serialization.config.load</span></code> 包含控制 <code class="docutils literal "><span class="pre">torch.load</span></code> 行为的选项。</p>
+<blockquote>
+<div><ul class="simple">
+<li><p> <code class="docutils literal "><span class="pre">mmap</span></code> : 请参阅 <code class="docutils literal "><span class="pre">mmap</span></code> 参数的文档。此配置将设置 <code class="xref py py-func docutils literal "><span class="pre">torch.load()</span></code> 的行为，如果它尚未显式传递给 <code class="docutils literal "><span class="pre">torch.load</span></code> 调用（默认值： <code class="docutils literal "><span class="pre">False</span></code> ）。</p></li>
+<li><p> <code class="docutils literal "><span class="pre">endianness</span></code> : 请参阅 <code class="xref py py-func docutils literal "><span class="pre">set_default_load_endianness()</span></code> 。(默认值： <code class="docutils literal "><span class="pre">torch.serialization.LoadEndianness.NATIVE</span></code> )</p></li>
+<li><p> <code class="docutils literal "><span class="pre">mmap_flags</span></code> : 请参阅 <code class="xref py py-class docutils literal "><span class="pre">set_default_mmap_options</span></code> 。(默认值： <code class="docutils literal "><span class="pre">MAP_PRIVATE</span></code> )</p></li>
+<li><p> <code class="docutils literal "><span class="pre">calculate_storage_offsets</span></code> : 如果此配置设置为 <code class="docutils literal "><span class="pre">True</span></code> ，则在使用 <code class="docutils literal "><span class="pre">torch.load(mmap=True)</span></code> 时将计算存储的偏移量，而不是通过随机读取读取。这可以最小化随机读取，当文件通过网络加载时可能很有帮助。（默认值： <code class="docutils literal "><span class="pre">False</span></code> ）</p></li>
+</ul>
+</div></blockquote>
+</section>
+</section>
+
+
+             </article>
+             
+            </div>
+            <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        下一个 <img height="16" width="16" class="next-page" src="../_static/images/chevron-right-orange.svg"> <img height="16" width="16" class="previous-page" src="../_static/images/chevron-right-orange.svg"> 上一个
+      
+    </div>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>© 版权所有 PyTorch 贡献者。</p>
+  </div>
+    
+      <div>使用 Sphinx 构建，并使用 Read the Docs 提供的主题。</div>
+     
+
+</footer>
+
+          </div>
+<script>
+
+var match = window.location.href.match(/\/_[a-zA-Z0-9_]*.html|_dynamo/gi);
+var url = window.location.href.lastIndexOf(match[match.length-1]);
+
+if (url)
+  {
+    var div = '<div class="admonition note"><p class="admonition-title">Note</p><p><i class="fa fa-exclamation-circle" aria-hidden="true">&nbsp</i> This page describes an internal API which is not intended to be used outside of the PyTorch codebase and can be modified or removed without notice.</p></div>'
+    document.getElementById("pytorch-article").insertAdjacentHTML('afterBegin', div)
+  }
+</script>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">序列化语义</a><ul>
+<li><a class="reference internal" href="#saving-and-loading-tensors">保存和加载张量</a></li>
+<li><a class="reference internal" href="#saving-and-loading-tensors-preserves-views">保存和加载张量保留视图</a></li>
+<li><a class="reference internal" href="#saving-and-loading-torch-nn-modules">保存和加载 torch.nn.Modules</a></li>
+<li><a class="reference internal" href="#serialized-file-format-for-torch-save"> <code class="docutils literal "><span class="pre">torch.save</span></code> 的序列化文件格式</a></li>
+<li><a class="reference internal" href="#torch-load-with-weights-only-true">使用 <code class="docutils literal "><span class="pre">weights_only=True</span></code> </a><ul>
+<li><a class="reference internal" href="#troubleshooting-weights-only"> <code class="docutils literal "><span class="pre">weights_only</span></code> 故障排除</a><ul>
+<li><a class="reference internal" href="#getting-unsafe-globals">获取不安全的全局变量</a></li>
+<li><a class="reference internal" href="#environment-variables">环境变量</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#serializing-torch-nn-modules-and-loading-them-in-c">序列化 torch.nn.Modules 并在 C++中加载它们</a></li>
+<li><a class="reference internal" href="#saving-and-loading-scriptmodules-across-pytorch-versions">PyTorch 版本间保存和加载 ScriptModules</a><ul>
+<li><a class="reference internal" href="#torch-div-performing-integer-division">torch.div 执行整数除法</a></li>
+<li><a class="reference internal" href="#torch-full-always-inferring-a-float-dtype">torch.full 总是推断为 float 数据类型</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#utility-functions">工具函数</a></li>
+<li><a class="reference internal" href="#module-torch.utils.serialization">配置</a></li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+         <script src="../_static/jquery.js"></script>
+         <script src="../_static/underscore.js"></script>
+         <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+         <script src="../_static/doctools.js"></script>
+         <script src="../_static/clipboard.min.js"></script>
+         <script src="../_static/copybutton.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="../_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="../_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ 
+<script script="" type="text/javascript">
+  var collapsedSections = ['Developer Notes', 'Language Bindings', 'Libraries', 'Community'];
+</script>
+
+<img height="1" width="1" style="border-style:none;" alt="" src="https://www.googleadservices.com/pagead/conversion/795629140/?label=txkmCPmdtosBENSssfsC&amp;guid=ON&amp;script=0">
+
+
+  <!-- Begin Footer -->
+
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 text-center">
+          <h2>文档</h2>
+          <p>PyTorch 的全面开发者文档</p>
+          <a class="with-right-arrow" href="https://pytorch.org/docs/stable/index.html">查看文档</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>教程</h2>
+          <p>深入了解初学者和高级开发者的教程</p>
+          <a class="with-right-arrow" href="https://pytorch.org/tutorials">查看教程</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>资源</h2>
+          <p>查找开发资源并获得您的疑问解答</p>
+          <a class="with-right-arrow" href="https://pytorch.org/resources">查看资源</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://pytorch.org/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/">PyTorch</a></li>
+            <li><a href="https://pytorch.org/get-started">开始使用</a></li>
+            <li><a href="https://pytorch.org/features">功能</a></li>
+            <li><a href="https://pytorch.org/ecosystem">生态系统</a></li>
+            <li><a href="https://pytorch.org/blog/">博客</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md">贡献</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/resources">资源</a></li>
+            <li><a href="https://pytorch.org/tutorials">教程</a></li>
+            <li><a href="https://pytorch.org/docs/stable/index.html">文档</a></li>
+            <li><a href="https://discuss.pytorch.org" target="_blank">讨论</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/issues" target="_blank">Github 问题</a></li>
+            <li><a href="https://pytorch.org/assets/brand-guidelines/PyTorch-Brand-Guidelines.pdf" target="_blank">品牌指南</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">保持更新</li>
+            <li><a href="https://www.facebook.com/pytorch" target="_blank">脸书</a></li>
+            <li><a href="https://twitter.com/pytorch" target="_blank">推特</a></li>
+            <li><a href="https://www.youtube.com/pytorch" target="_blank">YouTube</a></li>
+            <li><a href="https://www.linkedin.com/company/pytorch" target="_blank">领英</a></li>
+          </ul>  
+          </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">PyTorch 播客</li>
+            <li><a href="https://open.spotify.com/show/6UzHKeiy368jKfQMKKvJY5" target="_blank">Spotify</a></li>
+            <li><a href="https://podcasts.apple.com/us/podcast/pytorch-developer-podcast/id1566080008" target="_blank">苹果</a></li>
+            <li><a href="https://www.google.com/podcasts?feed=aHR0cHM6Ly9mZWVkcy5zaW1wbGVjYXN0LmNvbS9PQjVGa0lsOA%3D%3D" target="_blank">谷歌</a></li>
+            <li><a href="https://music.amazon.com/podcasts/7a4e6f0e-26c2-49e9-a478-41bd244197d0/PyTorch-Developer-Podcast?" target="_blank">亚马逊</a></li>
+          </ul>
+         </div>
+        </div>
+        
+        <div class="privacy-policy">
+          <ul>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/terms/" target="_blank">条款</a></li>
+            <li class="privacy-policy-links">|</li>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/privacy-policy/" target="_blank">隐私</a></li>
+          </ul>
+        </div>
+        <div class="copyright">
+        <p>© 版权所有 Linux 基金会。PyTorch 基金会是 Linux 基金会的一个项目。有关 PyTorch 基金会的网站使用条款、商标政策以及其他适用政策，请参阅 www.linuxfoundation.org/policies/。PyTorch 基金会支持 PyTorch 开源项目，该项目已被确立为 LF Projects, LLC 的 PyTorch 项目系列。有关适用于 PyTorch 项目系列 LF Projects, LLC 的政策，请参阅 www.lfprojects.org/policies/。</p>
+      </div>
+     </div>
+
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">为了分析流量并优化您的体验，我们在本网站上使用 cookies。通过点击或导航，您同意允许我们使用 cookies。作为本网站的当前维护者，适用 Facebook 的 Cookies 政策。了解更多信息，包括关于可用控制的信息：Cookies 政策。</p>
+    <img class="close-button" src="../_static/images/pytorch-x.svg" width="16" height="16">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+           <li class="resources-mobile-menu-title">
+             <a>学习</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/get-started">开始使用</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials">教程</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/basics/intro.html">学习基础知识</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/recipes/recipes_index.html">PyTorch 食谱</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/introyt.html">PyTorch 入门 - YouTube 系列</a>
+             </li>
+           </ul>
+           <li class="resources-mobile-menu-title">
+             <a>生态系统</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/ecosystem">工具</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/#community-module">社区</a>
+             </li>
+             <li>
+               <a href="https://discuss.pytorch.org/">论坛</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/resources">开发者资源</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">贡献者奖项 - 2024</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>Edge</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/edge">关于 PyTorch Edge</a>
+             </li>
+             
+             <li>
+               <a href="https://pytorch.org/executorch-overview">执行火炬</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch 文档</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>文档</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/docs/stable/index.html">PyTorch</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/pytorch-domains">PyTorch 领域</a>
+            </li>
+          </ul>
+
+          <li class="resources-mobile-menu-title">
+            <a>博客 &amp; 新闻</a>
+          </li>
+            
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/blog/">PyTorch 博客</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/community-blog">社区博客</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/videos">视频</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/community-stories">社区故事</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/events">活动</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">新闻简报</a>
+             </li>
+          </ul>
+          
+          <li class="resources-mobile-menu-title">
+            <a>关于</a>
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/foundation">PyTorch 基金会</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/governing-board">治理委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">云信用计划</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">技术咨询委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">员工</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">联系我们</a>
+            </li>
+          </ul>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="../_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body></html>

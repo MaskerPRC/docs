@@ -1,0 +1,1488 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>torch.masked — PyTorch main documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pytorch.org/docs/stable/masked.html">
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css">
+  <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css">
+  <link rel="stylesheet" href="_static/copybutton.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="_static/katex-math.css" type="text/css">
+  <link rel="stylesheet" href="_static/sphinx-dropdown.css" type="text/css">
+  <link rel="stylesheet" href="_static/panels-bootstrap.min.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/jit.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css">
+    <link rel="index" title="Index" href="genindex.html">
+    <link rel="search" title="Search" href="search.html">
+    <link rel="next" title="torch.nested" href="nested.html">
+    <link rel="prev" title="torch.random" href="random.html">
+
+<!--
+  Search engines should not index the main version of documentation.
+  Stable documentation are built without release == 'main'.
+-->
+<meta name="robots" content="noindex">
+
+
+  <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T8XT4PS');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+  <!-- Preload the theme fonts -->
+
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<!-- Preload the katex fonts -->
+
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Math-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size1-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size2-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Caligraphic-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
+</head><body class="pytorch-body"><div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+
+          <li class="main-menu-item">
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">学习</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/get-started">
+                  <span class="dropdown-title">开始使用</span>
+                  <p>在本地运行 PyTorch 或快速开始使用支持的云平台之一</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials">
+                  <span class="dropdown-title">教程</span><p></p>
+                  <p>PyTorch 教程中的新内容</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/basics/intro.html">
+                  <span class="dropdown-title">学习基础知识</span><p></p>
+                  <p>熟悉 PyTorch 的概念和模块</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/recipes/recipes_index.html">
+                  <span class="dropdown-title">PyTorch 食谱</span><p></p>
+                  <p>精简版、可直接部署的 PyTorch 代码示例</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/introyt.html">
+                  <span class="dropdown-title">PyTorch 入门 - YouTube 系列</span><p></p>
+                  <p>通过我们引人入胜的 YouTube 教程系列掌握 PyTorch 基础知识</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">生态系统</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem">
+                  <span class="dropdown-title">工具</span><p></p>
+                  <p>了解 PyTorch 生态系统中的工具和框架</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
+                  <span class="dropdown-title">社区</span>
+                  <p>加入 PyTorch 开发者社区，贡献、学习并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
+                  <span class="dropdown-title">论坛</span>
+                  <p>讨论 PyTorch 代码、问题、安装、研究的地方</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/resources">
+                  <span class="dropdown-title">开发者资源</span>
+                  <p>查找资源并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">贡献者奖项 - 2024</span><p></p>
+                  <p>本届 PyTorch 会议揭晓获奖者</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">
+                Edge
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/edge">
+                  <span class="dropdown-title">关于 PyTorch Edge</span><p></p>
+                  <p>为边缘设备构建创新和隐私感知的 AI 体验</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
+                  <span class="dropdown-title">ExecuTorch</span><p></p>
+                  <p>基于移动和边缘设备的端到端推理能力解决方案</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch 文档</span><p></p>
+                </a>
+              </div>
+            </div>  
+          </li>
+
+          <li class="main-menu-item">
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">文档</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/docs/stable/index.html">
+                  <span class="dropdown-title">PyTorch</span><p></p>
+                  <p>探索文档以获取全面指导，了解如何使用 PyTorch</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/pytorch-domains">
+                  <span class="dropdown-title">PyTorch 领域</span><p></p>
+                  <p>阅读 PyTorch 领域的文档，了解更多关于特定领域库的信息</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">博客与新闻</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/blog/">
+                  <span class="dropdown-title">PyTorch 博客</span><p></p>
+                  <p>捕捉最新的技术新闻和事件</p>
+                </a>
+                 <a class="nav-dropdown-item" href="https://pytorch.org/community-blog">
+                  <span class="dropdown-title">社区博客</span><p></p>
+                  <p>PyTorch 生态系统故事</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/videos">
+                  <span class="dropdown-title">视频</span><p></p>
+                  <p>了解最新的 PyTorch 教程、新内容等</p>
+                </a><a class="nav-dropdown-item" href="https://pytorch.org/community-stories">
+                  <span class="dropdown-title">社区故事</span><p></p>
+                  <p>学习如何我们的社区使用 PyTorch 解决真实、日常的机器学习问题</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/events">
+                  <span class="dropdown-title">活动</span><p></p>
+                  <p>查找活动、网络研讨会和播客</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">通讯</span><p></p>
+                  <p>跟踪最新更新</p>
+                </a>
+            </div>
+          </div></li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">关于</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/foundation">
+                  <span class="dropdown-title">PyTorch 基金会</span><p></p>
+                  <p>了解更多关于 PyTorch 基金会的信息</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
+                  <span class="dropdown-title">管理委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">云信用计划</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">技术顾问委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">员工</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">联系我们</span><p></p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li class="main-menu-item">
+            <div class="no-dropdown">
+              <a href="https://pytorch.org/join" data-cta="join">成为会员</a>
+            </div>
+          </li>
+          <li>
+           <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="github-icon">
+             </a>
+           </div>
+          </li>
+          <!--- TODO: This block adds the search icon to the nav bar. We will enable it later. 
+          <li>
+            <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="search-icon">
+             </a>
+            </div>
+          </li>
+          --->
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+  </div>
+</div>
+
+
+
+   
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>目录</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+    <div class="version">
+      <a href="https://pytorch.org/docs/versions.html">主程序 (2.7.0+cpu ) ▼</a>
+    </div>
+    <div id="searchBox">
+    <div class="searchbox" id="googleSearchBox">
+      <script async="" src="https://cse.google.com/cse.js?cx=e65585f8c3ea1440e"></script>
+      <div class="gcse-search"></div>
+    </div>
+    <div id="sphinxSearchBox" style="display: none;">
+      <div role="search">
+        <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+          <input type="text" name="q" placeholder="Search Docs">
+          <input type="hidden" name="check_keywords" value="yes">
+          <input type="hidden" name="area" value="default">
+        </form>
+      </div>
+    </div>
+  </div>
+  <form id="searchForm">
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="google" checked="">谷歌搜索</label>
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="sphinx">经典搜索</label>
+  </form>
+
+  <script>
+     document.addEventListener('DOMContentLoaded', function() {
+      const searchForm = document.getElementById('searchForm');
+      const googleSearchBox = document.getElementById('googleSearchBox');
+      const sphinxSearchBox = document.getElementById('sphinxSearchBox');
+      // Function to toggle search box visibility
+      function toggleSearchBox(searchType) {
+        googleSearchBox.style.display = searchType === 'google' ? 'block' : 'none';
+        sphinxSearchBox.style.display = searchType === 'sphinx' ? 'block' : 'none';
+      }
+      // Determine the default search type
+      let defaultSearchType;
+      const currentUrl = window.location.href;
+      if (currentUrl.startsWith('https://pytorch.org/docs/stable')) {
+        // For the stable documentation, default to Google
+        defaultSearchType = localStorage.getItem('searchType') || 'google';
+      } else {
+        // For any other version, including docs-preview, default to Sphinx
+        defaultSearchType = 'sphinx';
+      }
+      // Set the default search type
+      document.querySelector(`input[name="searchType"][value="${defaultSearchType}"]`).checked = true;
+      toggleSearchBox(defaultSearchType);
+      // Event listener for changes in search type
+      searchForm.addEventListener('change', function(event) {
+        const selectedSearchType = event.target.value;
+        localStorage.setItem('searchType', selectedSearchType);
+        toggleSearchBox(selectedSearchType);
+      });
+      // Set placeholder text for Google search box
+      window.onload = function() {
+        var placeholderText = "Search Docs";
+        var googleSearchboxText = document.querySelector("#gsc-i-id1");
+        if (googleSearchboxText) {
+          googleSearchboxText.placeholder = placeholderText;
+          googleSearchboxText.style.fontFamily = 'FreightSans';
+          googleSearchboxText.style.fontSize = "1.2rem";
+          googleSearchboxText.style.color = '#262626';
+        }
+      };
+    });
+  </script>
+
+          </div>
+
+          
+
+<div>
+  <a style="color:#F05732" href="https://pytorch.org/docs/stable/masked.html">您正在查看不稳定开发者预览文档。请点击此处查看最新稳定版本的文档。</a>
+</div>
+
+
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">社区</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="community/build_ci_governance.html">PyTorch 治理 | 构建 + CI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/contribution_guide.html">PyTorch 贡献指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/design.html">PyTorch 设计哲学</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/governance.html">PyTorch 治理 | 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/persons_of_interest.html">PyTorch 治理 | 维护者</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发者笔记</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="notes/amp_examples.html">自动混合精度示例</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/autograd.html">Autograd 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/broadcasting.html">广播语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/cpu_threading_torchscript_inference.html">CPU 多线程和 TorchScript 推理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/cuda.html">CUDA 语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/custom_operators.html">PyTorch 自定义算子页面</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/ddp.html">分布式数据并行</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/extending.html">扩展 PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/extending.func.html">使用 autograd.Function 扩展 torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/faq.html">常见问题解答</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/fsdp.html">FSDP 笔记</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/get_start_xpu.html">在 Intel GPU 上入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/gradcheck.html">Gradcheck 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/hip.html">HIP (ROCm)语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/large_scale_deployments.html">大规模部署功能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/libtorch_stable_abi.html">LibTorch 稳定 ABI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/modules.html">模块</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/mps.html">MPS 后端</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/multiprocessing.html">多进程最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/numerical_accuracy.html">数值精度</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/randomness.html">可重现性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/serialization.html">序列化语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/windows.html">Windows 常见问题解答</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">语言绑定</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cpp_index.html">C++</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/javadoc/">Javadoc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deploy.html">torch::deploy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="torch.html">torch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.html">torch.nn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.functional.html">torch.nn.functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensors.html">torch.Tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensor_attributes.html">张量属性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensor_view.html">张量视图</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amp.html">torch.amp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autograd.html">torch.autograd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="library.html">torch.library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accelerator.html">torch.accelerator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpu.html">torch.cpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">torch.cuda</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html">理解 CUDA 内存使用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#generating-a-snapshot">生成快照</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#using-the-visualizer">使用可视化工具</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#snapshot-api-reference">快照 API 参考</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mps.html">torch.mps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="xpu.html">torch.xpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mtia.html">torch.mtia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mtia.memory.html">torch.mtia.memory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="meta.html">元设备</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backends.html">torch.backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="export.html">torch.export</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.html">torch.distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.tensor.html">torch.distributed.tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.algorithms.join.html">torch.distributed.algorithms.join</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.elastic.html">torch.distributed.elastic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fsdp.html">torch.distributed.fsdp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.fsdp.fully_shard.html">torch.distributed.fsdp.fully_shard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.tensor.parallel.html">torch.distributed.tensor.parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.optim.html">torch.distributed.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.pipelining.html">torch.distributed.pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.checkpoint.html">torch.distributed.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributions.html">torch.distributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch.compiler.html">torch.compiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fft.html">torch.fft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="func.html">torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="futures.html">torch.futures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fx.html">torch.fx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fx.experimental.html">torch.fx.experimental</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hub.html">torch.hub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jit.html">torch.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="linalg.html">torch.linalg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitor.html">torch.monitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="signal.html">torch.signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="special.html">torch.special</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch.overrides.html">torch.overrides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="package.html">torch.package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="profiler.html">torch.profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.init.html">torch.nn.init</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.attention.html">torch.nn.attention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="onnx.html">torch.onnx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="optim.html">torch.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="complex_numbers.html">复数</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ddp_comm_hooks.html">DDP 通信钩子</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quantization.html">量化</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rpc.html">分布式 RPC 框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="random.html">torch.random</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">torch.masked</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nested.html">torch.nested</a></li>
+<li class="toctree-l1"><a class="reference internal" href="size.html">torch.Size</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sparse.html">torch.sparse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="storage.html">torch.Storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">torch.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">torch.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmark_utils.html">torch.utils.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bottleneck.html">torch.utils.bottleneck</a></li>
+<li class="toctree-l1"><a class="reference internal" href="checkpoint.html">torch.utils.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp_extension.html">torch.utils.cpp_extension</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data.html">torch.utils.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deterministic.html">torch.utils.deterministic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jit_utils.html">torch.utils.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dlpack.html">torch.utils.dlpack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mobile_optimizer.html">torch.utils.mobile_optimizer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_zoo.html">torch.utils.model_zoo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensorboard.html">torch.utils.tensorboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_tracker.html">torch.utils.module_tracker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="type_info.html">类型信息</a></li>
+<li class="toctree-l1"><a class="reference internal" href="named_tensor.html">命名张量</a></li>
+<li class="toctree-l1"><a class="reference internal" href="name_inference.html">命名张量操作覆盖率</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config_mod.html">torch.__config__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="future_mod.html">torch.__future__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">torch._logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_environment_variables.html">火炬环境变量</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">库</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/audio/stable">torchaudio</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/data">TorchData</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/torchrec">火炬推荐</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/serve">TorchServe</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/text/stable">torchtext</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/vision/stable">torchvision</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/xla/">PyTorch 在 XLA 设备上</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/ao">torchao</a></li>
+</ul>
+
+            
+          
+
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        文档 &gt;</li>
+
+        
+      <li>torch.masked</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+            
+            <a href="_sources/masked.rst.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg" width="16" height="16"></a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">快捷键</div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+
+          <!-- Google Tag Manager (noscript) -->
+          <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T8XT4PS" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+          <!-- End Google Tag Manager (noscript) -->
+          
+          <div class="rst-content">
+          
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <span class="target" id="module-torch.masked"></span><span class="target" id="module-torch.masked.maskedtensor"></span><section id="torch-masked">
+<span id="masked-docs"></span><h1>torch.masked<a class="headerlink" href="#torch-masked" title="Permalink to this heading">¶</a></h1>
+<section id="introduction">
+<h2>简介</h2>
+<section id="motivation">
+<h3>动机 ¶</h3>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>PyTorch 的掩码张量 API 处于原型阶段，未来可能会也可能不会发生变化。</p>
+</div>
+<p>MaskedTensor 作为对 <code class="xref py py-class docutils literal "><span class="pre">torch.Tensor</span></code> 的扩展，为用户提供以下功能：</p>
+<ul class="simple">
+<li><p>使用任何掩码语义（例如可变长度张量、nan*运算符等）</p></li>
+<li><p>区分 0 和 NaN 梯度</p></li>
+<li><p>不同的稀疏应用（请参阅下面的教程）</p></li>
+</ul>
+<p>“指定”和“未指定”在 PyTorch 中有着悠久的历史，但没有正式的语义，当然也没有一致性；事实上，MaskedTensor 的诞生源于一系列问题，原始的 <code class="xref py py-class docutils literal "><span class="pre">torch.Tensor</span></code> 类无法正确解决。因此，MaskedTensor 的主要目标是成为 PyTorch 中“指定”和“未指定”值的真相来源，在这些值中，它们是第一公民而不是事后考虑。反过来，这应该进一步释放稀疏性的潜力，使操作更安全、更一致，并为用户和开发者提供更流畅、更直观的体验。</p>
+</section>
+<section id="what-is-a-maskedtensor">
+<h3>什么是 MaskedTensor？</h3>
+<p>MaskedTensor 是一个张量子类，由以下两部分组成：1）输入（数据），2）掩码。掩码告诉我们哪些输入条目应该被包含或忽略。</p>
+<p>例如，假设我们想要屏蔽所有等于 0 的值（用灰色表示）并取最大值：</p>
+<a class="reference internal image-reference" href="_images/tensor_comparison.jpg"><img alt="_images/tensor_comparison.jpg" src="_images/tensor_comparison.jpg" style="width: 762.0px; height: 540.0px;"></a>
+<p>顶部是普通的张量示例，底部是屏蔽张量，其中所有 0 都被屏蔽。这清楚地表明，根据是否有屏蔽，结果会有所不同。这种灵活的结构允许用户在计算过程中系统地忽略他们想要的任何元素。</p>
+<p>我们已经编写了大量的教程来帮助用户入门，例如：</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://pytorch.org/tutorials/prototype/maskedtensor_overview">概述 - 新用户开始的地方，讨论如何使用屏蔽张量以及它们为什么有用</a></p></li>
+<li><p><a class="reference external" href="https://pytorch.org/tutorials/prototype/maskedtensor_sparsity">稀疏性 - MaskedTensor 支持稀疏 COO 和 CSR 数据以及掩码 Tensor</a></p></li>
+<li><p><a class="reference external" href="https://pytorch.org/tutorials/prototype/maskedtensor_adagrad">Adagrad 稀疏语义 - MaskedTensor 如何简化稀疏语义和实现的实际示例</a></p></li>
+<li><p><a class="reference external" href="https://pytorch.org/tutorials/prototype/maskedtensor_advanced_semantics">高级语义 - 讨论为何做出某些决策（例如，要求掩码在二进制/缩减操作中匹配），与 NumPy 的 MaskedArray 的差异以及缩减语义</a></p></li>
+</ul>
+</section>
+</section>
+<section id="supported-operators">
+<h2>支持的操作 §</h2>
+<section id="unary-operators">
+<h3>一元运算符 ¶</h3>
+<p>一元运算符是只包含单个输入的运算符。将它们应用于掩码张量相对简单：如果数据在给定索引处被掩码，则应用运算符，否则我们将继续掩码数据。</p>
+<p>可用的单运算符有：</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p></p><p id="torch.abs"><a class="reference internal" href="generated/torch.abs.html#torch.abs" title="torch.abs"><code class="xref py py-obj docutils literal "><span class="pre">abs</span></code></a></p></td>
+<td><p>计算每个元素在 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 中的绝对值。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.absolute"><a class="reference internal" href="generated/torch.absolute.html#torch.absolute" title="torch.absolute"><code class="xref py py-obj docutils literal "><span class="pre">absolute</span></code></a></p></td>
+<td><p> <code class="xref py py-func docutils literal "><span class="pre">torch.abs()</span></code> 的别名。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.acos"><a class="reference internal" href="generated/torch.acos.html#torch.acos" title="torch.acos"><code class="xref py py-obj docutils literal "><span class="pre">acos</span></code></a></p></td>
+<td><p>计算每个元素在 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 中的反余弦值。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.arccos"><a class="reference internal" href="generated/torch.arccos.html#torch.arccos" title="torch.arccos"><code class="xref py py-obj docutils literal "><span class="pre">arccos</span></code></a></p></td>
+<td><p> <code class="xref py py-func docutils literal "><span class="pre">torch.acos()</span></code> 的别名。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.acosh"><a class="reference internal" href="generated/torch.acosh.html#torch.acosh" title="torch.acosh"><code class="xref py py-obj docutils literal "><span class="pre">acosh</span></code></a></p></td>
+<td><p>返回一个新张量，包含 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 元素的反双曲余弦值。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.arccosh"><a class="reference internal" href="generated/torch.arccosh.html#torch.arccosh" title="torch.arccosh"><code class="xref py py-obj docutils literal "><span class="pre">arccosh</span></code></a></p></td>
+<td><p> <code class="xref py py-func docutils literal "><span class="pre">torch.acosh()</span></code> 的别名。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.angle"><a class="reference internal" href="generated/torch.angle.html#torch.angle" title="torch.angle"><code class="xref py py-obj docutils literal "><span class="pre">angle</span></code></a></p></td>
+<td><p>计算给定 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 张量的元素角度（以弧度为单位）。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.asin"><a class="reference internal" href="generated/torch.asin.html#torch.asin" title="torch.asin"><code class="xref py py-obj docutils literal "><span class="pre">asin</span></code></a></p></td>
+<td><p>返回一个新张量，包含 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 的元素的反正弦值。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.arcsin"><a class="reference internal" href="generated/torch.arcsin.html#torch.arcsin" title="torch.arcsin"><code class="xref py py-obj docutils literal "><span class="pre">arcsin</span></code></a></p></td>
+<td><p> <code class="xref py py-func docutils literal "><span class="pre">torch.asin()</span></code> 的别名。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.asinh"><a class="reference internal" href="generated/torch.asinh.html#torch.asinh" title="torch.asinh"><code class="xref py py-obj docutils literal "><span class="pre">asinh</span></code></a></p></td>
+<td><p>返回一个新张量，包含 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 的元素的逆双曲正弦值。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.arcsinh"><a class="reference internal" href="generated/torch.arcsinh.html#torch.arcsinh" title="torch.arcsinh"><code class="xref py py-obj docutils literal "><span class="pre">arcsinh</span></code></a></p></td>
+<td><p> <code class="xref py py-func docutils literal "><span class="pre">torch.asinh()</span></code> 的别名。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.atan"><a class="reference internal" href="generated/torch.atan.html#torch.atan" title="torch.atan"><code class="xref py py-obj docutils literal "><span class="pre">atan</span></code></a></p></td>
+<td><p>返回一个新张量，包含 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 的元素的反正切。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.arctan"><a class="reference internal" href="generated/torch.arctan.html#torch.arctan" title="torch.arctan"><code class="xref py py-obj docutils literal "><span class="pre">arctan</span></code></a></p></td>
+<td><p> <code class="xref py py-func docutils literal "><span class="pre">torch.atan()</span></code> 的别名。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.atanh"><a class="reference internal" href="generated/torch.atanh.html#torch.atanh" title="torch.atanh"><code class="xref py py-obj docutils literal "><span class="pre">atanh</span></code></a></p></td>
+<td><p>返回一个新张量，包含 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 的元素的双曲反正切。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.arctanh"><a class="reference internal" href="generated/torch.arctanh.html#torch.arctanh" title="torch.arctanh"><code class="xref py py-obj docutils literal "><span class="pre">arctanh</span></code></a></p></td>
+<td><p> <code class="xref py py-func docutils literal "><span class="pre">torch.atanh()</span></code> 的别名。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.bitwise_not"><a class="reference internal" href="generated/torch.bitwise_not.html#torch.bitwise_not" title="torch.bitwise_not"><code class="xref py py-obj docutils literal "><span class="pre">bitwise_not</span></code></a></p></td>
+<td><p>计算给定输入张量的按位非。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.ceil"><a class="reference internal" href="generated/torch.ceil.html#torch.ceil" title="torch.ceil"><code class="xref py py-obj docutils literal "><span class="pre">ceil</span></code></a></p></td>
+<td><p>返回一个新张量，其中包含 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 元素的 ceil 值，即大于或等于每个元素的最小整数。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.clamp"><a class="reference internal" href="generated/torch.clamp.html#torch.clamp" title="torch.clamp"><code class="xref py py-obj docutils literal "><span class="pre">clamp</span></code></a></p></td>
+<td><p>将 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 中的所有元素夹在 [ <code class="xref py py-attr docutils literal "><span class="pre">min</span></code> , <code class="xref py py-attr docutils literal "><span class="pre">max</span></code> ] 范围内。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.clip"><a class="reference internal" href="generated/torch.clip.html#torch.clip" title="torch.clip"><code class="xref py py-obj docutils literal "><span class="pre">clip</span></code></a></p></td>
+<td><p> <code class="xref py py-func docutils literal "><span class="pre">torch.clamp()</span></code> 的别名。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.conj_physical"><a class="reference internal" href="generated/torch.conj_physical.html#torch.conj_physical" title="torch.conj_physical"><code class="xref py py-obj docutils literal "><span class="pre">conj_physical</span></code></a></p></td>
+<td><p>计算给定 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 张量的逐元素共轭。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.cos"><a class="reference internal" href="generated/torch.cos.html#torch.cos" title="torch.cos"><code class="xref py py-obj docutils literal "><span class="pre">cos</span></code></a></p></td>
+<td><p>返回一个新张量，其中包含 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 元素的余弦值。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.cosh"><a class="reference internal" href="generated/torch.cosh.html#torch.cosh" title="torch.cosh"><code class="xref py py-obj docutils literal "><span class="pre">cosh</span></code></a></p></td>
+<td><p>返回一个新张量，其中包含 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 元素的双曲余弦值。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.deg2rad"><a class="reference internal" href="generated/torch.deg2rad.html#torch.deg2rad" title="torch.deg2rad"><code class="xref py py-obj docutils literal "><span class="pre">deg2rad</span></code></a></p></td>
+<td><p>将 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 中的每个元素从角度（度）转换为弧度的新张量。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.digamma"><a class="reference internal" href="generated/torch.digamma.html#torch.digamma" title="torch.digamma"><code class="xref py py-obj docutils literal "><span class="pre">digamma</span></code></a></p></td>
+<td><p> <code class="xref py py-func docutils literal "><span class="pre">torch.special.digamma()</span></code> 的别名。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.erf"><a class="reference internal" href="generated/torch.erf.html#torch.erf" title="torch.erf"><code class="xref py py-obj docutils literal "><span class="pre">erf</span></code></a></p></td>
+<td><p> <code class="xref py py-func docutils literal "><span class="pre">torch.special.erf()</span></code> 的别名。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.erfc"><a class="reference internal" href="generated/torch.erfc.html#torch.erfc" title="torch.erfc"><code class="xref py py-obj docutils literal "><span class="pre">erfc</span></code></a></p></td>
+<td><p> <code class="xref py py-func docutils literal "><span class="pre">torch.special.erfc()</span></code> 的别名。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.erfinv"><a class="reference internal" href="generated/torch.erfinv.html#torch.erfinv" title="torch.erfinv"><code class="xref py py-obj docutils literal "><span class="pre">erfinv</span></code></a></p></td>
+<td><p> <code class="xref py py-func docutils literal "><span class="pre">torch.special.erfinv()</span></code> 的别名。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.exp"><a class="reference internal" href="generated/torch.exp.html#torch.exp" title="torch.exp"><code class="xref py py-obj docutils literal "><span class="pre">exp</span></code></a></p></td>
+<td><p>返回一个新张量，其元素为输入张量 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 的指数。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.exp2"><a class="reference internal" href="generated/torch.exp2.html#torch.exp2" title="torch.exp2"><code class="xref py py-obj docutils literal "><span class="pre">exp2</span></code></a></p></td>
+<td><p> <code class="xref py py-func docutils literal "><span class="pre">torch.special.exp2()</span></code> 的别名。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.expm1"><a class="reference internal" href="generated/torch.expm1.html#torch.expm1" title="torch.expm1"><code class="xref py py-obj docutils literal "><span class="pre">expm1</span></code></a></p></td>
+<td><p> <code class="xref py py-func docutils literal "><span class="pre">torch.special.expm1()</span></code> 的别名。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.fix"><a class="reference internal" href="generated/torch.fix.html#torch.fix" title="torch.fix"><code class="xref py py-obj docutils literal "><span class="pre">fix</span></code></a></p></td>
+<td><p> <code class="xref py py-func docutils literal "><span class="pre">torch.trunc()</span></code> 的别名。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.floor"><a class="reference internal" href="generated/torch.floor.html#torch.floor" title="torch.floor"><code class="xref py py-obj docutils literal "><span class="pre">floor</span></code></a></p></td>
+<td><p>返回一个新张量，包含 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 中元素的向下取整，即每个元素的最大整数。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.frac"><a class="reference internal" href="generated/torch.frac.html#torch.frac" title="torch.frac"><code class="xref py py-obj docutils literal "><span class="pre">frac</span></code></a></p></td>
+<td><p>计算每个元素的分数部分。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.lgamma"><a class="reference internal" href="generated/torch.lgamma.html#torch.lgamma" title="torch.lgamma"><code class="xref py py-obj docutils literal "><span class="pre">lgamma</span></code></a></p></td>
+<td><p>计算伽玛函数在 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 上的自然对数。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.log"><a class="reference internal" href="generated/torch.log.html#torch.log" title="torch.log"><code class="xref py py-obj docutils literal "><span class="pre">log</span></code></a></p></td>
+<td><p>返回一个新张量，包含 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 中元素的自然对数。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.log10"><a class="reference internal" href="generated/torch.log10.html#torch.log10" title="torch.log10"><code class="xref py py-obj docutils literal "><span class="pre">log10</span></code></a></p></td>
+<td><p>返回一个新张量，其元素为 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 的以 10 为底的对数。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.log1p"><a class="reference internal" href="generated/torch.log1p.html#torch.log1p" title="torch.log1p"><code class="xref py py-obj docutils literal "><span class="pre">log1p</span></code></a></p></td>
+<td><p>返回一个新张量，其元素为(1 + <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> )的自然对数。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.log2"><a class="reference internal" href="generated/torch.log2.html#torch.log2" title="torch.log2"><code class="xref py py-obj docutils literal "><span class="pre">log2</span></code></a></p></td>
+<td><p>返回一个新张量，其元素为 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 的以 2 为底的对数。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.logit"><a class="reference internal" href="generated/torch.logit.html#torch.logit" title="torch.logit"><code class="xref py py-obj docutils literal "><span class="pre">logit</span></code></a></p></td>
+<td><p> <code class="xref py py-func docutils literal "><span class="pre">torch.special.logit()</span></code> 的别名。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.i0"><a class="reference internal" href="generated/torch.i0.html#torch.i0" title="torch.i0"><code class="xref py py-obj docutils literal "><span class="pre">i0</span></code></a></p></td>
+<td><p> <code class="xref py py-func docutils literal "><span class="pre">torch.special.i0()</span></code> 的别名。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.isnan"><a class="reference internal" href="generated/torch.isnan.html#torch.isnan" title="torch.isnan"><code class="xref py py-obj docutils literal "><span class="pre">isnan</span></code></a></p></td>
+<td><p>返回一个新张量，其中的布尔元素表示 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 的每个元素是否为 NaN。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.nan_to_num"><a class="reference internal" href="generated/torch.nan_to_num.html#torch.nan_to_num" title="torch.nan_to_num"><code class="xref py py-obj docutils literal "><span class="pre">nan_to_num</span></code></a></p></td>
+<td><p>将 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 中的 <code class="docutils literal "><span class="pre">NaN</span></code> 、正无穷和负无穷值分别替换为 <code class="xref py py-attr docutils literal "><span class="pre">nan</span></code> 、 <code class="xref py py-attr docutils literal "><span class="pre">posinf</span></code> 和 <code class="xref py py-attr docutils literal "><span class="pre">neginf</span></code> 中指定的值。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.neg"><a class="reference internal" href="generated/torch.neg.html#torch.neg" title="torch.neg"><code class="xref py py-obj docutils literal "><span class="pre">neg</span></code></a></p></td>
+<td><p>返回一个新张量，其元素为 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 元素的相反数。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.negative"><a class="reference internal" href="generated/torch.negative.html#torch.negative" title="torch.negative"><code class="xref py py-obj docutils literal "><span class="pre">negative</span></code></a></p></td>
+<td><p> <code class="xref py py-func docutils literal "><span class="pre">torch.neg()</span></code> 的别名。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.positive"><a class="reference internal" href="generated/torch.positive.html#torch.positive" title="torch.positive"><code class="xref py py-obj docutils literal "><span class="pre">positive</span></code></a></p></td>
+<td><p>返回 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.pow"><a class="reference internal" href="generated/torch.pow.html#torch.pow" title="torch.pow"><code class="xref py py-obj docutils literal "><span class="pre">pow</span></code></a></p></td>
+<td><p>将 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 中每个元素的幂与 <code class="xref py py-attr docutils literal "><span class="pre">exponent</span></code> 相乘，并返回结果张量。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.rad2deg"><a class="reference internal" href="generated/torch.rad2deg.html#torch.rad2deg" title="torch.rad2deg"><code class="xref py py-obj docutils literal "><span class="pre">rad2deg</span></code></a></p></td>
+<td><p>将 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 中的每个元素从弧度转换为度，并返回新的张量。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.reciprocal"><a class="reference internal" href="generated/torch.reciprocal.html#torch.reciprocal" title="torch.reciprocal"><code class="xref py py-obj docutils literal "><span class="pre">reciprocal</span></code></a></p></td>
+<td><p>返回 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 中每个元素倒数的新张量。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.round"><a class="reference internal" href="generated/torch.round.html#torch.round" title="torch.round"><code class="xref py py-obj docutils literal "><span class="pre">round</span></code></a></p></td>
+<td><p>将 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 的元素四舍五入到最接近的整数。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.rsqrt"><a class="reference internal" href="generated/torch.rsqrt.html#torch.rsqrt" title="torch.rsqrt"><code class="xref py py-obj docutils literal "><span class="pre">rsqrt</span></code></a></p></td>
+<td><p>返回一个新张量，其中包含 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 中每个元素的平方根的倒数。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.sigmoid"><a class="reference internal" href="generated/torch.sigmoid.html#torch.sigmoid" title="torch.sigmoid"><code class="xref py py-obj docutils literal "><span class="pre">sigmoid</span></code></a></p></td>
+<td><p> <code class="xref py py-func docutils literal "><span class="pre">torch.special.expit()</span></code> 的别名。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.sign"><a class="reference internal" href="generated/torch.sign.html#torch.sign" title="torch.sign"><code class="xref py py-obj docutils literal "><span class="pre">sign</span></code></a></p></td>
+<td><p>返回一个新张量，其中包含 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 中每个元素的符号。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.sgn"><a class="reference internal" href="generated/torch.sgn.html#torch.sgn" title="torch.sgn"><code class="xref py py-obj docutils literal "><span class="pre">sgn</span></code></a></p></td>
+<td><p>这个函数是 torch.sign()对复数张量的扩展。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.signbit"><a class="reference internal" href="generated/torch.signbit.html#torch.signbit" title="torch.signbit"><code class="xref py py-obj docutils literal "><span class="pre">signbit</span></code></a></p></td>
+<td><p>测试 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 中的每个元素是否设置了符号位。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.sin"><a class="reference internal" href="generated/torch.sin.html#torch.sin" title="torch.sin"><code class="xref py py-obj docutils literal "><span class="pre">sin</span></code></a></p></td>
+<td><p>返回一个新张量，其中包含 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 元素的正弦值。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.sinc"><a class="reference internal" href="generated/torch.sinc.html#torch.sinc" title="torch.sinc"><code class="xref py py-obj docutils literal "><span class="pre">sinc</span></code></a></p></td>
+<td><p> <code class="xref py py-func docutils literal "><span class="pre">torch.special.sinc()</span></code> 的别名。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.sinh"><a class="reference internal" href="generated/torch.sinh.html#torch.sinh" title="torch.sinh"><code class="xref py py-obj docutils literal "><span class="pre">sinh</span></code></a></p></td>
+<td><p>返回一个新张量，其元素为 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 的双曲正弦。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.sqrt"><a class="reference internal" href="generated/torch.sqrt.html#torch.sqrt" title="torch.sqrt"><code class="xref py py-obj docutils literal "><span class="pre">sqrt</span></code></a></p></td>
+<td><p>返回一个新张量，其元素为 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 的平方根。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.square"><a class="reference internal" href="generated/torch.square.html#torch.square" title="torch.square"><code class="xref py py-obj docutils literal "><span class="pre">square</span></code></a></p></td>
+<td><p>返回一个新张量，其元素为 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 的平方。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.tan"><a class="reference internal" href="generated/torch.tan.html#torch.tan" title="torch.tan"><code class="xref py py-obj docutils literal "><span class="pre">tan</span></code></a></p></td>
+<td><p>返回一个新张量，其元素为 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 的正切。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.tanh"><a class="reference internal" href="generated/torch.tanh.html#torch.tanh" title="torch.tanh"><code class="xref py py-obj docutils literal "><span class="pre">tanh</span></code></a></p></td>
+<td><p>返回一个新张量，其元素为 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 的双曲正切值。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.trunc"><a class="reference internal" href="generated/torch.trunc.html#torch.trunc" title="torch.trunc"><code class="xref py py-obj docutils literal "><span class="pre">trunc</span></code></a></p></td>
+<td><p>返回一个新张量，其元素为 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 的截断整数值。</p></td>
+</tr>
+</tbody>
+</table>
+<p>可用的就地一元运算符都是上述所有，除了：</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p></p><p id="torch.angle"><a class="reference internal" href="generated/torch.angle.html#torch.angle" title="torch.angle"><code class="xref py py-obj docutils literal "><span class="pre">angle</span></code></a></p></td>
+<td><p>计算给定 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 张量的元素角度（以弧度为单位）。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.positive"><a class="reference internal" href="generated/torch.positive.html#torch.positive" title="torch.positive"><code class="xref py py-obj docutils literal "><span class="pre">positive</span></code></a></p></td>
+<td><p>返回 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.signbit"><a class="reference internal" href="generated/torch.signbit.html#torch.signbit" title="torch.signbit"><code class="xref py py-obj docutils literal "><span class="pre">signbit</span></code></a></p></td>
+<td><p>测试 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 中每个元素是否设置了符号位。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.isnan"><a class="reference internal" href="generated/torch.isnan.html#torch.isnan" title="torch.isnan"><code class="xref py py-obj docutils literal "><span class="pre">isnan</span></code></a></p></td>
+<td><p>返回一个新张量，其中的布尔元素表示 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 中每个元素是否为 NaN。</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="binary-operators">
+<h3>二元运算符 §</h3>
+<p>如您在教程中看到的， <code class="xref py py-class docutils literal "><span class="pre">MaskedTensor</span></code> 还实现了二进制运算，但前提是两个 MaskedTensors 中的掩码必须匹配，否则会引发错误。正如错误信息中提到的，如果您需要支持特定的运算符或已提出关于它们应该如何行为的语义，请打开 GitHub 上的问题。目前，我们已决定采用最保守的实现方式，以确保用户确切了解正在发生的情况，并且在使用掩码语义时做出有意的决策。</p>
+<p>可用的二进制运算符有：</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p></p><p id="torch.add"><a class="reference internal" href="generated/torch.add.html#torch.add" title="torch.add"><code class="xref py py-obj docutils literal "><span class="pre">add</span></code></a></p></td>
+<td><p>将 <code class="xref py py-attr docutils literal "><span class="pre">other</span></code> 加上 <code class="xref py py-attr docutils literal "><span class="pre">alpha</span></code> 缩放的结果加到 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 上。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.atan2"><a class="reference internal" href="generated/torch.atan2.html#torch.atan2" title="torch.atan2"><code class="xref py py-obj docutils literal "><span class="pre">atan2</span></code></a></p></td>
+<td><p>考虑象限的 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mtext>input</mtext><mi>i</mi></msub><mi mathvariant="normal">/</mi><msub><mtext>other</mtext><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">\text{input}_{i} / \text{other}_{i}</annotation></semantics></math></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:1em;vertical-align:-0.25em;" class="strut"></span><span class="mord"><span class="mord text"><span class="mord">input</span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span style="height:0.21752399999999997em;" class="vlist"><span style="top:-2.4558600000000004em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span style="height:0.24414em;" class="vlist"><span></span></span></span></span></span></span><span class="mord">/</span><span class="mord"><span class="mord text"><span class="mord">other</span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span style="height:0.31166399999999994em;" class="vlist"><span style="top:-2.5500000000000003em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span style="height:0.15em;" class="vlist"><span></span></span></span></span></span></span></span></span></span> 的逐元素反正切。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.arctan2"><a class="reference internal" href="generated/torch.arctan2.html#torch.arctan2" title="torch.arctan2"><code class="xref py py-obj docutils literal "><span class="pre">arctan2</span></code></a></p></td>
+<td><p> <code class="xref py py-func docutils literal "><span class="pre">torch.atan2()</span></code> 的别名。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.bitwise_and"><a class="reference internal" href="generated/torch.bitwise_and.html#torch.bitwise_and" title="torch.bitwise_and"><code class="xref py py-obj docutils literal "><span class="pre">bitwise_and</span></code></a></p></td>
+<td><p>计算 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 和 <code class="xref py py-attr docutils literal "><span class="pre">other</span></code> 的按位与。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.bitwise_or"><a class="reference internal" href="generated/torch.bitwise_or.html#torch.bitwise_or" title="torch.bitwise_or"><code class="xref py py-obj docutils literal "><span class="pre">bitwise_or</span></code></a></p></td>
+<td><p>计算 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 和 <code class="xref py py-attr docutils literal "><span class="pre">other</span></code> 的按位或。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.bitwise_xor"><a class="reference internal" href="generated/torch.bitwise_xor.html#torch.bitwise_xor" title="torch.bitwise_xor"><code class="xref py py-obj docutils literal "><span class="pre">bitwise_xor</span></code></a></p></td>
+<td><p>计算 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 和 <code class="xref py py-attr docutils literal "><span class="pre">other</span></code> 的按位异或。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.bitwise_left_shift"><a class="reference internal" href="generated/torch.bitwise_left_shift.html#torch.bitwise_left_shift" title="torch.bitwise_left_shift"><code class="xref py py-obj docutils literal "><span class="pre">bitwise_left_shift</span></code></a></p></td>
+<td><p>计算对 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 进行 <code class="xref py py-attr docutils literal "><span class="pre">other</span></code> 位左算术移位。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.bitwise_right_shift"><a class="reference internal" href="generated/torch.bitwise_right_shift.html#torch.bitwise_right_shift" title="torch.bitwise_right_shift"><code class="xref py py-obj docutils literal "><span class="pre">bitwise_right_shift</span></code></a></p></td>
+<td><p>计算对 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 进行 <code class="xref py py-attr docutils literal "><span class="pre">other</span></code> 位右算术移位。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.div"><a class="reference internal" href="generated/torch.div.html#torch.div" title="torch.div"><code class="xref py py-obj docutils literal "><span class="pre">div</span></code></a></p></td>
+<td><p>将输入 <code class="docutils literal "><span class="pre">input</span></code> 的每个元素除以对应的 <code class="xref py py-attr docutils literal "><span class="pre">other</span></code> 元素。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.divide"><a class="reference internal" href="generated/torch.divide.html#torch.divide" title="torch.divide"><code class="xref py py-obj docutils literal "><span class="pre">divide</span></code></a></p></td>
+<td><p> <code class="xref py py-func docutils literal "><span class="pre">torch.div()</span></code> 的别名。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.floor_divide"><a class="reference internal" href="generated/torch.floor_divide.html#torch.floor_divide" title="torch.floor_divide"><code class="xref py py-obj docutils literal "><span class="pre">floor_divide</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.fmod"><a class="reference internal" href="generated/torch.fmod.html#torch.fmod" title="torch.fmod"><code class="xref py py-obj docutils literal "><span class="pre">fmod</span></code></a></p></td>
+<td><p>应用 C++的 std::fmod 逐元素操作。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.logaddexp"><a class="reference internal" href="generated/torch.logaddexp.html#torch.logaddexp" title="torch.logaddexp"><code class="xref py py-obj docutils literal "><span class="pre">logaddexp</span></code></a></p></td>
+<td><p>输入指数幂之和的对数。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.logaddexp2"><a class="reference internal" href="generated/torch.logaddexp2.html#torch.logaddexp2" title="torch.logaddexp2"><code class="xref py py-obj docutils literal "><span class="pre">logaddexp2</span></code></a></p></td>
+<td><p>输入在 2 为底下的指数幂之和的对数。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.mul"><a class="reference internal" href="generated/torch.mul.html#torch.mul" title="torch.mul"><code class="xref py py-obj docutils literal "><span class="pre">mul</span></code></a></p></td>
+<td><p>将 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 乘以 <code class="xref py py-attr docutils literal "><span class="pre">other</span></code> 。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.multiply"><a class="reference internal" href="generated/torch.multiply.html#torch.multiply" title="torch.multiply"><code class="xref py py-obj docutils literal "><span class="pre">multiply</span></code></a></p></td>
+<td><p> <code class="xref py py-func docutils literal "><span class="pre">torch.mul()</span></code> 的别名。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.nextafter"><a class="reference internal" href="generated/torch.nextafter.html#torch.nextafter" title="torch.nextafter"><code class="xref py py-obj docutils literal "><span class="pre">nextafter</span></code></a></p></td>
+<td><p>按元素方式返回 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 之后相对于 <code class="xref py py-attr docutils literal "><span class="pre">other</span></code> 的下一个浮点数值。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.remainder"><a class="reference internal" href="generated/torch.remainder.html#torch.remainder" title="torch.remainder"><code class="xref py py-obj docutils literal "><span class="pre">remainder</span></code></a></p></td>
+<td><p>计算 Python 的逐元素取模运算。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.sub"><a class="reference internal" href="generated/torch.sub.html#torch.sub" title="torch.sub"><code class="xref py py-obj docutils literal "><span class="pre">sub</span></code></a></p></td>
+<td><p>从 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 中减去 <code class="xref py py-attr docutils literal "><span class="pre">other</span></code> ，并按 <code class="xref py py-attr docutils literal "><span class="pre">alpha</span></code> 缩放。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.subtract"><a class="reference internal" href="generated/torch.subtract.html#torch.subtract" title="torch.subtract"><code class="xref py py-obj docutils literal "><span class="pre">subtract</span></code></a></p></td>
+<td><p> <code class="xref py py-func docutils literal "><span class="pre">torch.sub()</span></code> 的别名。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.true_divide"><a class="reference internal" href="generated/torch.true_divide.html#torch.true_divide" title="torch.true_divide"><code class="xref py py-obj docutils literal "><span class="pre">true_divide</span></code></a></p></td>
+<td><p> <code class="xref py py-func docutils literal "><span class="pre">torch.div()</span></code> 和 <code class="docutils literal "><span class="pre">rounding_mode=None</span></code> 的别名。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.eq"><a class="reference internal" href="generated/torch.eq.html#torch.eq" title="torch.eq"><code class="xref py py-obj docutils literal "><span class="pre">eq</span></code></a></p></td>
+<td><p>计算逐元素相等性。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.ne"><a class="reference internal" href="generated/torch.ne.html#torch.ne" title="torch.ne"><code class="xref py py-obj docutils literal "><span class="pre">ne</span></code></a></p></td>
+<td><p>计算逐元素 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext>input</mtext><mo mathvariant="normal">≠</mo><mtext>other</mtext></mrow><annotation encoding="application/x-tex">\text{input} \neq \text{other}</annotation></semantics></math></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:0.8888799999999999em;vertical-align:-0.19444em;" class="strut"></span><span class="mord text"><span class="mord">input</span></span><span style="margin-right:0.2777777777777778em;" class="mspace"></span><span class="mrel"><span class="mrel"><span class="mord vbox"><span class="thinbox"><span class="rlap"><span style="height:0.8888799999999999em;vertical-align:-0.19444em;" class="strut"></span><span class="inner"><span class="mord"><span class="mrel"></span></span></span><span class="fix"></span></span></span></span></span><span class="mrel">=</span></span><span style="margin-right:0.2777777777777778em;" class="mspace"></span></span><span class="base"><span style="height:0.69444em;vertical-align:0em;" class="strut"></span><span class="mord text"><span class="mord">other</span></span></span></span></span> 。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.le"><a class="reference internal" href="generated/torch.le.html#torch.le" title="torch.le"><code class="xref py py-obj docutils literal "><span class="pre">le</span></code></a></p></td>
+<td><p>计算第 0#元素级。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.ge"><a class="reference internal" href="generated/torch.ge.html#torch.ge" title="torch.ge"><code class="xref py py-obj docutils literal "><span class="pre">ge</span></code></a></p></td>
+<td><p>计算第 0#元素级。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.greater"><a class="reference internal" href="generated/torch.greater.html#torch.greater" title="torch.greater"><code class="xref py py-obj docutils literal "><span class="pre">greater</span></code></a></p></td>
+<td><p> <code class="xref py py-func docutils literal "><span class="pre">torch.gt()</span></code> 的别名。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.greater_equal"><a class="reference internal" href="generated/torch.greater_equal.html#torch.greater_equal" title="torch.greater_equal"><code class="xref py py-obj docutils literal "><span class="pre">greater_equal</span></code></a></p></td>
+<td><p> <code class="xref py py-func docutils literal "><span class="pre">torch.ge()</span></code> 的别名。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.gt"><a class="reference internal" href="generated/torch.gt.html#torch.gt" title="torch.gt"><code class="xref py py-obj docutils literal "><span class="pre">gt</span></code></a></p></td>
+<td><p>计算元素级 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext>input</mtext><mo>&gt;</mo><mtext>other</mtext></mrow><annotation encoding="application/x-tex">\text{input} &gt; \text{other}</annotation></semantics></math></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:0.8623000000000001em;vertical-align:-0.19444em;" class="strut"></span><span class="mord text"><span class="mord">input</span></span><span style="margin-right:0.2777777777777778em;" class="mspace"></span><span class="mrel">&gt;</span><span style="margin-right:0.2777777777777778em;" class="mspace"></span></span><span class="base"><span style="height:0.69444em;vertical-align:0em;" class="strut"></span><span class="mord text"><span class="mord">other</span></span></span></span></span> </p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.less_equal"><a class="reference internal" href="generated/torch.less_equal.html#torch.less_equal" title="torch.less_equal"><code class="xref py py-obj docutils literal "><span class="pre">less_equal</span></code></a></p></td>
+<td><p> <code class="xref py py-func docutils literal "><span class="pre">torch.le()</span></code> 的别名</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.lt"><a class="reference internal" href="generated/torch.lt.html#torch.lt" title="torch.lt"><code class="xref py py-obj docutils literal "><span class="pre">lt</span></code></a></p></td>
+<td><p>计算元素级 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext>input</mtext><mo>&lt;</mo><mtext>other</mtext></mrow><annotation encoding="application/x-tex">\text{input} &lt; \text{other}</annotation></semantics></math></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:0.8623000000000001em;vertical-align:-0.19444em;" class="strut"></span><span class="mord text"><span class="mord">input</span></span><span style="margin-right:0.2777777777777778em;" class="mspace"></span><span class="mrel">&lt;</span><span style="margin-right:0.2777777777777778em;" class="mspace"></span></span><span class="base"><span style="height:0.69444em;vertical-align:0em;" class="strut"></span><span class="mord text"><span class="mord">other</span></span></span></span></span> </p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.less"><a class="reference internal" href="generated/torch.less.html#torch.less" title="torch.less"><code class="xref py py-obj docutils literal "><span class="pre">less</span></code></a></p></td>
+<td><p> <code class="xref py py-func docutils literal "><span class="pre">torch.lt()</span></code> 的别名</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.maximum"><a class="reference internal" href="generated/torch.maximum.html#torch.maximum" title="torch.maximum"><code class="xref py py-obj docutils literal "><span class="pre">maximum</span></code></a></p></td>
+<td><p>计算元素-wise <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 和 <code class="xref py py-attr docutils literal "><span class="pre">other</span></code> 的最大值。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.minimum"><a class="reference internal" href="generated/torch.minimum.html#torch.minimum" title="torch.minimum"><code class="xref py py-obj docutils literal "><span class="pre">minimum</span></code></a></p></td>
+<td><p>计算元素-wise <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 和 <code class="xref py py-attr docutils literal "><span class="pre">other</span></code> 的最小值。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.fmax"><a class="reference internal" href="generated/torch.fmax.html#torch.fmax" title="torch.fmax"><code class="xref py py-obj docutils literal "><span class="pre">fmax</span></code></a></p></td>
+<td><p>计算元素-wise <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 和 <code class="xref py py-attr docutils literal "><span class="pre">other</span></code> 的最大值。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.fmin"><a class="reference internal" href="generated/torch.fmin.html#torch.fmin" title="torch.fmin"><code class="xref py py-obj docutils literal "><span class="pre">fmin</span></code></a></p></td>
+<td><p>计算元素-wise <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 和 <code class="xref py py-attr docutils literal "><span class="pre">other</span></code> 的最小值。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.not_equal"><a class="reference internal" href="generated/torch.not_equal.html#torch.not_equal" title="torch.not_equal"><code class="xref py py-obj docutils literal "><span class="pre">not_equal</span></code></a></p></td>
+<td><p>别名： <code class="xref py py-func docutils literal "><span class="pre">torch.ne()</span></code> 。</p></td>
+</tr>
+</tbody>
+</table>
+<p>可用的就地二进制运算符都是上述所有，除了：</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p></p><p id="torch.logaddexp"><a class="reference internal" href="generated/torch.logaddexp.html#torch.logaddexp" title="torch.logaddexp"><code class="xref py py-obj docutils literal "><span class="pre">logaddexp</span></code></a></p></td>
+<td><p>输入指数和的对数的对数。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.logaddexp2"><a class="reference internal" href="generated/torch.logaddexp2.html#torch.logaddexp2" title="torch.logaddexp2"><code class="xref py py-obj docutils literal "><span class="pre">logaddexp2</span></code></a></p></td>
+<td><p>输入指数和的以 2 为底的对数。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.equal"><a class="reference internal" href="generated/torch.equal.html#torch.equal" title="torch.equal"><code class="xref py py-obj docutils literal "><span class="pre">equal</span></code></a></p></td>
+<td><p> <code class="docutils literal "><span class="pre">True</span></code> 如果两个张量具有相同的大小和元素， <code class="docutils literal "><span class="pre">False</span></code> 否则。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.fmin"><a class="reference internal" href="generated/torch.fmin.html#torch.fmin" title="torch.fmin"><code class="xref py py-obj docutils literal "><span class="pre">fmin</span></code></a></p></td>
+<td><p>计算元素级的 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 和 <code class="xref py py-attr docutils literal "><span class="pre">other</span></code> 的最小值。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.minimum"><a class="reference internal" href="generated/torch.minimum.html#torch.minimum" title="torch.minimum"><code class="xref py py-obj docutils literal "><span class="pre">minimum</span></code></a></p></td>
+<td><p>计算元素级的 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 和 <code class="xref py py-attr docutils literal "><span class="pre">other</span></code> 的最小值。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.fmax"><a class="reference internal" href="generated/torch.fmax.html#torch.fmax" title="torch.fmax"><code class="xref py py-obj docutils literal "><span class="pre">fmax</span></code></a></p></td>
+<td><p>计算元素级的 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 和 <code class="xref py py-attr docutils literal "><span class="pre">other</span></code> 的最大值。</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="reductions">
+<h3>减少</h3>
+<p>以下为可用的归约操作（具有自动微分支持）。有关更多信息，概述教程详细介绍了归约的一些示例，而高级语义教程则对某些归约语义的决策进行了更深入的讨论。</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p></p><p id="torch.sum"><a class="reference internal" href="generated/torch.sum.html#torch.sum" title="torch.sum"><code class="xref py py-obj docutils literal "><span class="pre">sum</span></code></a></p></td>
+<td><p>返回 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 张量中所有元素的总和。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.mean"><a class="reference internal" href="generated/torch.mean.html#torch.mean" title="torch.mean"><code class="xref py py-obj docutils literal "><span class="pre">mean</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.amin"><a class="reference internal" href="generated/torch.amin.html#torch.amin" title="torch.amin"><code class="xref py py-obj docutils literal "><span class="pre">amin</span></code></a></p></td>
+<td><p>返回 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 张量在给定维度 <code class="xref py py-attr docutils literal "><span class="pre">dim</span></code> 上的每个切片的最小值。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.amax"><a class="reference internal" href="generated/torch.amax.html#torch.amax" title="torch.amax"><code class="xref py py-obj docutils literal "><span class="pre">amax</span></code></a></p></td>
+<td><p>返回 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 张量在给定维度 <code class="xref py py-attr docutils literal "><span class="pre">dim</span></code> 上的每个切片的最大值。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.argmin"><a class="reference internal" href="generated/torch.argmin.html#torch.argmin" title="torch.argmin"><code class="xref py py-obj docutils literal "><span class="pre">argmin</span></code></a></p></td>
+<td><p>返回展平张量或沿维度的最小值索引。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.argmax"><a class="reference internal" href="generated/torch.argmax.html#torch.argmax" title="torch.argmax"><code class="xref py py-obj docutils literal "><span class="pre">argmax</span></code></a></p></td>
+<td><p>返回 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 张量中所有元素的最大值的索引。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.prod"><a class="reference internal" href="generated/torch.prod.html#torch.prod" title="torch.prod"><code class="xref py py-obj docutils literal "><span class="pre">prod</span></code></a></p></td>
+<td><p>返回 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 张量中所有元素的乘积。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.all"><a class="reference internal" href="generated/torch.all.html#torch.all" title="torch.all"><code class="xref py py-obj docutils literal "><span class="pre">all</span></code></a></p></td>
+<td><p>测试 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 张量中所有元素是否都评估为 True。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.norm"><a class="reference internal" href="generated/torch.norm.html#torch.norm" title="torch.norm"><code class="xref py py-obj docutils literal "><span class="pre">norm</span></code></a></p></td>
+<td><p>返回给定张量的矩阵范数或向量范数。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.var"><a class="reference internal" href="generated/torch.var.html#torch.var" title="torch.var"><code class="xref py py-obj docutils literal "><span class="pre">var</span></code></a></p></td>
+<td><p>计算由 <code class="xref py py-attr docutils literal "><span class="pre">dim</span></code> 指定的维度上的方差。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.std"><a class="reference internal" href="generated/torch.std.html#torch.std" title="torch.std"><code class="xref py py-obj docutils literal "><span class="pre">std</span></code></a></p></td>
+<td><p>计算由 <code class="xref py py-attr docutils literal "><span class="pre">dim</span></code> 指定的维度上的标准差。</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="view-and-select-functions">
+<h3>查看和选择功能</h3>
+<p>我们包括了多个视图和选择功能；直观上，这些操作符将应用于数据和掩码，然后将结果包装在 <code class="xref py py-class docutils literal "><span class="pre">MaskedTensor</span></code> 中。为了快速示例，考虑 <code class="xref py py-func docutils literal "><span class="pre">select()</span></code> ：</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span>
+<span class="go">tensor([[ 0.,  1.,  2.,  3.],</span>
+<span class="go">        [ 4.,  5.,  6.,  7.],</span>
+<span class="go">        [ 8.,  9., 10., 11.]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mask</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">],</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span> <span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mt</span> <span class="o">=</span> <span class="n">masked_tensor</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">mask</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="go">tensor([4., 5., 6., 7.])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mask</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="go">tensor([False,  True, False, False])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mt</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="go">MaskedTensor(</span>
+<span class="go">  [      --,   5.0000,       --,       --]</span>
+<span class="go">)</span>
+</pre></div>
+</div>
+<p>当前支持以下操作：</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p></p><p id="torch.atleast_1d"><a class="reference internal" href="generated/torch.atleast_1d.html#torch.atleast_1d" title="torch.atleast_1d"><code class="xref py py-obj docutils literal "><span class="pre">atleast_1d</span></code></a></p></td>
+<td><p>返回每个输入张量的 1 维视图，其中没有零维。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.broadcast_tensors"><a class="reference internal" href="generated/torch.broadcast_tensors.html#torch.broadcast_tensors" title="torch.broadcast_tensors"><code class="xref py py-obj docutils literal "><span class="pre">broadcast_tensors</span></code></a></p></td>
+<td><p>根据广播语义广播给定的张量。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.broadcast_to"><a class="reference internal" href="generated/torch.broadcast_to.html#torch.broadcast_to" title="torch.broadcast_to"><code class="xref py py-obj docutils literal "><span class="pre">broadcast_to</span></code></a></p></td>
+<td><p>将 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 广播到 <code class="xref py py-attr docutils literal "><span class="pre">shape</span></code> 的形状。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.cat"><a class="reference internal" href="generated/torch.cat.html#torch.cat" title="torch.cat"><code class="xref py py-obj docutils literal "><span class="pre">cat</span></code></a></p></td>
+<td><p>在指定维度上连接给定的张量序列 <code class="xref py py-attr docutils literal "><span class="pre">tensors</span></code> 。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.chunk"><a class="reference internal" href="generated/torch.chunk.html#torch.chunk" title="torch.chunk"><code class="xref py py-obj docutils literal "><span class="pre">chunk</span></code></a></p></td>
+<td><p>尝试将张量分割成指定的块数。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.column_stack"><a class="reference internal" href="generated/torch.column_stack.html#torch.column_stack" title="torch.column_stack"><code class="xref py py-obj docutils literal "><span class="pre">column_stack</span></code></a></p></td>
+<td><p>通过水平堆叠张量 <code class="xref py py-attr docutils literal "><span class="pre">tensors</span></code> 创建一个新的张量。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.dsplit"><a class="reference internal" href="generated/torch.dsplit.html#torch.dsplit" title="torch.dsplit"><code class="xref py py-obj docutils literal "><span class="pre">dsplit</span></code></a></p></td>
+<td><p>将具有三个或更多维度的张量 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 深度分割成多个张量，根据 <code class="xref py py-attr docutils literal "><span class="pre">indices_or_sections</span></code> 。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.flatten"><a class="reference internal" href="generated/torch.flatten.html#torch.flatten" title="torch.flatten"><code class="xref py py-obj docutils literal "><span class="pre">flatten</span></code></a></p></td>
+<td><p>将 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 通过重塑成一维张量来展平。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.hsplit"><a class="reference internal" href="generated/torch.hsplit.html#torch.hsplit" title="torch.hsplit"><code class="xref py py-obj docutils literal "><span class="pre">hsplit</span></code></a></p></td>
+<td><p>将具有一个或多个维度的张量 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 根据 <code class="xref py py-attr docutils literal "><span class="pre">indices_or_sections</span></code> 水平分割成多个张量。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.hstack"><a class="reference internal" href="generated/torch.hstack.html#torch.hstack" title="torch.hstack"><code class="xref py py-obj docutils literal "><span class="pre">hstack</span></code></a></p></td>
+<td><p>水平（按列）顺序堆叠张量。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.kron"><a class="reference internal" href="generated/torch.kron.html#torch.kron" title="torch.kron"><code class="xref py py-obj docutils literal "><span class="pre">kron</span></code></a></p></td>
+<td><p>计算由 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 和 <code class="xref py py-attr docutils literal "><span class="pre">other</span></code> 表示的克罗内克积，记作 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>⊗</mo></mrow><annotation encoding="application/x-tex">\otimes</annotation></semantics></math></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:0.66666em;vertical-align:-0.08333em;" class="strut"></span><span class="mord">⊗</span></span></span></span> 。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.meshgrid"><a class="reference internal" href="generated/torch.meshgrid.html#torch.meshgrid" title="torch.meshgrid"><code class="xref py py-obj docutils literal "><span class="pre">meshgrid</span></code></a></p></td>
+<td><p>根据 attr:tensors 中的 1D 输入创建坐标网格。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.narrow"><a class="reference internal" href="generated/torch.narrow.html#torch.narrow" title="torch.narrow"><code class="xref py py-obj docutils literal "><span class="pre">narrow</span></code></a></p></td>
+<td><p>返回一个新的张量，它是 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 张量的缩小版本。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/torch.nn.functional.unfold.html#torch.nn.functional.unfold" title="torch.nn.functional.unfold"><code class="xref py py-obj docutils literal "><span class="pre">nn.functional.unfold</span></code></a></p></td>
+<td><p>从批处理的输入张量中提取滑动局部块。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.ravel"><a class="reference internal" href="generated/torch.ravel.html#torch.ravel" title="torch.ravel"><code class="xref py py-obj docutils literal "><span class="pre">ravel</span></code></a></p></td>
+<td><p>返回一个连续的展平张量。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.select"><a class="reference internal" href="generated/torch.select.html#torch.select" title="torch.select"><code class="xref py py-obj docutils literal "><span class="pre">select</span></code></a></p></td>
+<td><p>沿选定维度在给定索引处切割 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 张量。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.split"><a class="reference internal" href="generated/torch.split.html#torch.split" title="torch.split"><code class="xref py py-obj docutils literal "><span class="pre">split</span></code></a></p></td>
+<td><p>将张量分割成块。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.stack"><a class="reference internal" href="generated/torch.stack.html#torch.stack" title="torch.stack"><code class="xref py py-obj docutils literal "><span class="pre">stack</span></code></a></p></td>
+<td><p>沿新维度连接一系列张量。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.t"><a class="reference internal" href="generated/torch.t.html#torch.t" title="torch.t"><code class="xref py py-obj docutils literal "><span class="pre">t</span></code></a></p></td>
+<td><p>预期 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 为&lt;=2 维张量，并交换维度 0 和 1。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.transpose"><a class="reference internal" href="generated/torch.transpose.html#torch.transpose" title="torch.transpose"><code class="xref py py-obj docutils literal "><span class="pre">transpose</span></code></a></p></td>
+<td><p>返回一个张量，它是 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 的转置版本。</p></td>
+</tr>
+<tr class="row-odd"><td><p></p><p id="torch.vsplit"><a class="reference internal" href="generated/torch.vsplit.html#torch.vsplit" title="torch.vsplit"><code class="xref py py-obj docutils literal "><span class="pre">vsplit</span></code></a></p></td>
+<td><p>将具有两个或更多维度的张量 <code class="xref py py-attr docutils literal "><span class="pre">input</span></code> 垂直分割成多个张量。</p></td>
+</tr>
+<tr class="row-even"><td><p></p><p id="torch.vstack"><a class="reference internal" href="generated/torch.vstack.html#torch.vstack" title="torch.vstack"><code class="xref py py-obj docutils literal "><span class="pre">vstack</span></code></a></p></td>
+<td><p>将张量按顺序垂直堆叠（按行）。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/torch.Tensor.expand.html#torch.Tensor.expand" title="torch.Tensor.expand"><code class="xref py py-obj docutils literal "><span class="pre">Tensor.expand</span></code></a></p></td>
+<td><p>返回 <code class="xref py py-attr docutils literal "><span class="pre">self</span></code> 张量的新视图，将单例维度扩展到更大的大小。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/torch.Tensor.expand_as.html#torch.Tensor.expand_as" title="torch.Tensor.expand_as"><code class="xref py py-obj docutils literal "><span class="pre">Tensor.expand_as</span></code></a></p></td>
+<td><p>将此张量扩展到与 <code class="xref py py-attr docutils literal "><span class="pre">other</span></code> 相同的大小。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/torch.Tensor.reshape.html#torch.Tensor.reshape" title="torch.Tensor.reshape"><code class="xref py py-obj docutils literal "><span class="pre">Tensor.reshape</span></code></a></p></td>
+<td><p>返回一个具有与 <code class="xref py py-attr docutils literal "><span class="pre">self</span></code> 相同数据和元素数量的张量，但具有指定的形状。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/torch.Tensor.reshape_as.html#torch.Tensor.reshape_as" title="torch.Tensor.reshape_as"><code class="xref py py-obj docutils literal "><span class="pre">Tensor.reshape_as</span></code></a></p></td>
+<td><p>以与 <code class="xref py py-attr docutils literal "><span class="pre">other</span></code> 相同的形状返回此张量。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/torch.Tensor.unfold.html#torch.Tensor.unfold" title="torch.Tensor.unfold"><code class="xref py py-obj docutils literal "><span class="pre">Tensor.unfold</span></code></a></p></td>
+<td><p>返回原始张量的一个视图，该视图包含从 <code class="xref py py-attr docutils literal "><span class="pre">self</span></code> 张量在 <code class="xref py py-attr docutils literal "><span class="pre">dimension</span></code> 维度上的所有大小为 <code class="xref py py-attr docutils literal "><span class="pre">size</span></code> 的切片。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/torch.Tensor.view.html#torch.Tensor.view" title="torch.Tensor.view"><code class="xref py py-obj docutils literal "><span class="pre">Tensor.view</span></code></a></p></td>
+<td><p>返回一个新张量，其数据与 <code class="xref py py-attr docutils literal "><span class="pre">self</span></code> 张量相同，但类型不同 <code class="xref py py-attr docutils literal "><span class="pre">shape</span></code> 。</p></td>
+</tr>
+</tbody>
+</table>
+<span class="target" id="module-torch.masked.maskedtensor.binary"></span><span class="target" id="module-torch.masked.maskedtensor.core"></span><span class="target" id="module-torch.masked.maskedtensor.creation"></span><span class="target" id="module-torch.masked.maskedtensor.passthrough"></span><span class="target" id="module-torch.masked.maskedtensor.reductions"></span><span class="target" id="module-torch.masked.maskedtensor.unary"></span></section>
+</section>
+</section>
+
+
+             </article>
+             
+            </div>
+            <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        下一个 <img height="16" width="16" class="next-page" src="_static/images/chevron-right-orange.svg"> <img height="16" width="16" class="previous-page" src="_static/images/chevron-right-orange.svg"> 上一个
+      
+    </div>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>© 版权所有 PyTorch 贡献者。</p>
+  </div>
+    
+      <div>使用 Sphinx 构建，主题由 Read the Docs 提供。</div>
+     
+
+</footer>
+
+          </div>
+<script>
+
+var match = window.location.href.match(/\/_[a-zA-Z0-9_]*.html|_dynamo/gi);
+var url = window.location.href.lastIndexOf(match[match.length-1]);
+
+if (url)
+  {
+    var div = '<div class="admonition note"><p class="admonition-title">Note</p><p><i class="fa fa-exclamation-circle" aria-hidden="true">&nbsp</i> This page describes an internal API which is not intended to be used outside of the PyTorch codebase and can be modified or removed without notice.</p></div>'
+    document.getElementById("pytorch-article").insertAdjacentHTML('afterBegin', div)
+  }
+</script>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">torch.masked</a><ul>
+<li><a class="reference internal" href="#introduction">简介</a><ul>
+<li><a class="reference internal" href="#motivation">动机</a></li>
+<li><a class="reference internal" href="#what-is-a-maskedtensor">什么是 MaskedTensor？</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#supported-operators">支持的操作符</a><ul>
+<li><a class="reference internal" href="#unary-operators">一元操作符</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#binary-operators">二元运算符</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#reductions">抽象化</a></li>
+<li><a class="reference internal" href="#view-and-select-functions">查看并选择函数</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+         <script src="_static/jquery.js"></script>
+         <script src="_static/underscore.js"></script>
+         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+         <script src="_static/doctools.js"></script>
+         <script src="_static/clipboard.min.js"></script>
+         <script src="_static/copybutton.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ 
+<script script="" type="text/javascript">
+  var collapsedSections = ['Developer Notes', 'Language Bindings', 'Libraries', 'Community'];
+</script>
+
+<img height="1" width="1" style="border-style:none;" alt="" src="https://www.googleadservices.com/pagead/conversion/795629140/?label=txkmCPmdtosBENSssfsC&amp;guid=ON&amp;script=0">
+
+
+  <!-- Begin Footer -->
+
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 text-center">
+          <h2>文档</h2>
+          <p>PyTorch 开发者文档全面访问</p>
+          <a class="with-right-arrow" href="https://pytorch.org/docs/stable/index.html">查看文档</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>教程</h2>
+          <p>获取初学者和高级开发者的深入教程</p>
+          <a class="with-right-arrow" href="https://pytorch.org/tutorials">查看教程</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>资源</h2>
+          <p>查找开发资源并获得您的疑问解答</p>
+          <a class="with-right-arrow" href="https://pytorch.org/resources">查看资源</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://pytorch.org/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/">PyTorch</a></li>
+            <li><a href="https://pytorch.org/get-started">开始使用</a></li>
+            <li><a href="https://pytorch.org/features">功能</a></li>
+            <li><a href="https://pytorch.org/ecosystem">生态系统</a></li>
+            <li><a href="https://pytorch.org/blog/">博客</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md">贡献</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/resources">资源</a></li>
+            <li><a href="https://pytorch.org/tutorials">教程</a></li>
+            <li><a href="https://pytorch.org/docs/stable/index.html">文档</a></li>
+            <li><a href="https://discuss.pytorch.org" target="_blank">讨论</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/issues" target="_blank">GitHub 问题和任务</a></li>
+            <li><a href="https://pytorch.org/assets/brand-guidelines/PyTorch-Brand-Guidelines.pdf" target="_blank">品牌指南</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">保持更新</li>
+            <li><a href="https://www.facebook.com/pytorch" target="_blank">Facebook</a></li>
+            <li><a href="https://twitter.com/pytorch" target="_blank">推特</a></li>
+            <li><a href="https://www.youtube.com/pytorch" target="_blank">YouTube</a></li>
+            <li><a href="https://www.linkedin.com/company/pytorch" target="_blank">领英</a></li>
+          </ul>  
+          </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">PyTorch 播客</li>
+            <li><a href="https://open.spotify.com/show/6UzHKeiy368jKfQMKKvJY5" target="_blank">Spotify</a></li>
+            <li><a href="https://podcasts.apple.com/us/podcast/pytorch-developer-podcast/id1566080008" target="_blank">苹果</a></li>
+            <li><a href="https://www.google.com/podcasts?feed=aHR0cHM6Ly9mZWVkcy5zaW1wbGVjYXN0LmNvbS9PQjVGa0lsOA%3D%3D" target="_blank">谷歌</a></li>
+            <li><a href="https://music.amazon.com/podcasts/7a4e6f0e-26c2-49e9-a478-41bd244197d0/PyTorch-Developer-Podcast?" target="_blank">亚马逊</a></li>
+          </ul>
+         </div>
+        </div>
+        
+        <div class="privacy-policy">
+          <ul>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/terms/" target="_blank">条款</a></li>
+            <li class="privacy-policy-links">|</li>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/privacy-policy/" target="_blank">隐私</a></li>
+          </ul>
+        </div>
+        <div class="copyright">
+        <p>© 版权所有 Linux 基金会。PyTorch 基金会是 Linux 基金会的一个项目。有关本网站的使用条款、商标政策以及其他适用于 PyTorch 基金会的政策，请参阅 www.linuxfoundation.org/policies/。PyTorch 基金会支持 PyTorch 开源项目，该项目已被确立为 LF Projects, LLC 的 PyTorch 项目系列。有关适用于 PyTorch 项目系列 LF Projects, LLC 的政策，请参阅 www.lfprojects.org/policies/。</p>
+      </div>
+     </div>
+
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">为分析流量并优化您的体验，我们在本网站上提供 cookies。通过点击或导航，您同意允许我们使用 cookies。作为本站点的当前维护者，Facebook 的 Cookies 政策适用。了解更多信息，包括可用的控制选项：Cookies 政策。</p>
+    <img class="close-button" src="_static/images/pytorch-x.svg" width="16" height="16">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+           <li class="resources-mobile-menu-title">
+             <a>学习</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/get-started">开始学习</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials">教程</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/basics/intro.html">学习基础知识</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/recipes/recipes_index.html">PyTorch 菜谱</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/introyt.html">PyTorch 入门 - YouTube 系列</a>
+             </li>
+           </ul>
+           <li class="resources-mobile-menu-title">
+             <a>生态系统</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/ecosystem">工具</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/#community-module">社区</a>
+             </li>
+             <li>
+               <a href="https://discuss.pytorch.org/">论坛</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/resources">开发者资源</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">贡献者奖项 - 2024</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>Edge</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/edge">关于 PyTorch Edge</a>
+             </li>
+             
+             <li>
+               <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch 文档</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>文档</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/docs/stable/index.html">PyTorch</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/pytorch-domains">PyTorch 领域</a>
+            </li>
+          </ul>
+
+          <li class="resources-mobile-menu-title">
+            <a>博客 &amp; 新闻</a>
+          </li>
+            
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/blog/">PyTorch 博客</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/community-blog">社区博客</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/videos">视频</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/community-stories">社区故事</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/events">活动</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">通讯</a>
+             </li>
+          </ul>
+          
+          <li class="resources-mobile-menu-title">
+            <a>关于</a>
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/foundation">PyTorch 基金会</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/governing-board">治理委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">云信用计划</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">技术顾问委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">员工</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">联系我们</a>
+            </li>
+          </ul>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body></html>

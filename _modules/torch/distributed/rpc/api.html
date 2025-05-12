@@ -1,0 +1,1885 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+  <meta charset="UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>torch.distributed.rpc.api — PyTorch main documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pytorch.org/docs/stable/_modules/torch/distributed/rpc/api.html">
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css">
+  <!-- <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css">
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css">
+  <link rel="stylesheet" href="../../../../_static/copybutton.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="../../../../_static/katex-math.css" type="text/css">
+  <link rel="stylesheet" href="../../../../_static/sphinx-dropdown.css" type="text/css">
+  <link rel="stylesheet" href="../../../../_static/panels-bootstrap.min.css" type="text/css">
+  <link rel="stylesheet" href="../../../../_static/css/jit.css" type="text/css">
+  <link rel="stylesheet" href="../../../../_static/css/custom.css" type="text/css">
+    <link rel="index" title="Index" href="../../../../genindex.html">
+    <link rel="search" title="Search" href="../../../../search.html">
+
+<!--
+  Search engines should not index the main version of documentation.
+  Stable documentation are built without release == 'main'.
+-->
+<meta name="robots" content="noindex">
+
+
+  <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T8XT4PS');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  
+  <script src="../../../../_static/js/modernizr.min.js"></script>
+
+  <!-- Preload the theme fonts -->
+
+<link rel="preload" href="../../../../_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../../_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../../_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../../_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../../_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../../_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<!-- Preload the katex fonts -->
+
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Math-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size1-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size2-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Caligraphic-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
+</head><body class="pytorch-body"><div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+
+          <li class="main-menu-item">
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">学习</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/get-started">
+                  <span class="dropdown-title">开始使用</span>
+                  <p>在本地运行 PyTorch 或快速开始使用支持的云平台之一</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials">
+                  <span class="dropdown-title">教程</span><p></p>
+                  <p>PyTorch 教程中有什么新内容</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/basics/intro.html">
+                  <span class="dropdown-title">学习基础知识</span><p></p>
+                  <p>熟悉 PyTorch 的概念和模块</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/recipes/recipes_index.html">
+                  <span class="dropdown-title">PyTorch 食谱</span><p></p>
+                  <p>精简型、即用型 PyTorch 代码示例</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/introyt.html">
+                  <span class="dropdown-title">PyTorch 入门 - YouTube 系列教程</span><p></p>
+                  <p>通过我们引人入胜的 YouTube 教程系列掌握 PyTorch 基础知识</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">生态系统</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem">
+                  <span class="dropdown-title">工具</span><p></p>
+                  <p>了解 PyTorch 生态系统中的工具和框架</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
+                  <span class="dropdown-title">社区</span>
+                  <p>加入 PyTorch 开发者社区，贡献、学习并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
+                  <span class="dropdown-title">论坛</span>
+                  <p>讨论 PyTorch 代码、问题、安装、研究的地方</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/resources">
+                  <span class="dropdown-title">开发者资源</span>
+                  <p>查找资源并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">贡献者奖项 - 2024</span><p></p>
+                  <p>本年 PyTorch 会议揭晓获奖者</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">边缘</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/edge">
+                  <span class="dropdown-title">关于 PyTorch Edge</span><p></p>
+                  <p>为边缘设备构建创新且注重隐私的 AI 体验</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
+                  <span class="dropdown-title">ExecuTorch</span><p></p>
+                  <p>针对移动和边缘设备实现端到端推理能力的解决方案</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch 文档</span><p></p>
+                </a>
+              </div>
+            </div>  
+          </li>
+
+          <li class="main-menu-item">
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">文档</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/docs/stable/index.html">
+                  <span class="dropdown-title">PyTorch</span><p></p>
+                  <p>查阅文档以获取全面指导，了解如何使用 PyTorch</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/pytorch-domains">
+                  <span class="dropdown-title">PyTorch 领域</span><p></p>
+                  <p>阅读 PyTorch 领域文档，了解更多关于特定领域库的信息</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">博客与新闻</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/blog/">
+                  <span class="dropdown-title">PyTorch 博客</span><p></p>
+                  <p>跟上最新的技术新闻和动态</p>
+                </a>
+                 <a class="nav-dropdown-item" href="https://pytorch.org/community-blog">
+                  <span class="dropdown-title">社区博客</span><p></p>
+                  <p>PyTorch 生态系统中的故事</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/videos">
+                  <span class="dropdown-title">视频</span><p></p>
+                  <p>了解最新的 PyTorch 教程、新内容等</p>
+                </a><a class="nav-dropdown-item" href="https://pytorch.org/community-stories">
+                  <span class="dropdown-title">社区故事</span><p></p>
+                  <p>了解我们的社区如何使用 PyTorch 解决真实、日常的机器学习问题</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/events">
+                  <span class="dropdown-title">活动</span><p></p>
+                  <p>查找活动、网络研讨会和播客</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">通讯</span><p></p>
+                  <p>跟踪最新更新</p>
+                </a>
+            </div>
+          </div></li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">关于</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/foundation">
+                  <span class="dropdown-title">PyTorch 基金会</span><p></p>
+                  <p>了解更多关于 PyTorch 基金会的信息</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
+                  <span class="dropdown-title">管理委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">云信用计划</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">技术顾问委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">员工</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">联系我们</span><p></p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li class="main-menu-item">
+            <div class="no-dropdown">
+              <a href="https://pytorch.org/join" data-cta="join">成为会员</a>
+            </div>
+          </li>
+          <li>
+           <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="github-icon">
+             </a>
+           </div>
+          </li>
+          <!--- TODO: This block adds the search icon to the nav bar. We will enable it later. 
+          <li>
+            <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="search-icon">
+             </a>
+            </div>
+          </li>
+          --->
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+  </div>
+</div>
+
+
+
+   
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>目录</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+    <div class="version">
+      <a href="https://pytorch.org/docs/versions.html">主页 (2.7.0+cpu ) ▼</a>
+    </div>
+    <div id="searchBox">
+    <div class="searchbox" id="googleSearchBox">
+      <script async="" src="https://cse.google.com/cse.js?cx=e65585f8c3ea1440e"></script>
+      <div class="gcse-search"></div>
+    </div>
+    <div id="sphinxSearchBox" style="display: none;">
+      <div role="search">
+        <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+          <input type="text" name="q" placeholder="Search Docs">
+          <input type="hidden" name="check_keywords" value="yes">
+          <input type="hidden" name="area" value="default">
+        </form>
+      </div>
+    </div>
+  </div>
+  <form id="searchForm">
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="google" checked="">Google 搜索</label>
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="sphinx">经典搜索</label>
+  </form>
+
+  <script>
+     document.addEventListener('DOMContentLoaded', function() {
+      const searchForm = document.getElementById('searchForm');
+      const googleSearchBox = document.getElementById('googleSearchBox');
+      const sphinxSearchBox = document.getElementById('sphinxSearchBox');
+      // Function to toggle search box visibility
+      function toggleSearchBox(searchType) {
+        googleSearchBox.style.display = searchType === 'google' ? 'block' : 'none';
+        sphinxSearchBox.style.display = searchType === 'sphinx' ? 'block' : 'none';
+      }
+      // Determine the default search type
+      let defaultSearchType;
+      const currentUrl = window.location.href;
+      if (currentUrl.startsWith('https://pytorch.org/docs/stable')) {
+        // For the stable documentation, default to Google
+        defaultSearchType = localStorage.getItem('searchType') || 'google';
+      } else {
+        // For any other version, including docs-preview, default to Sphinx
+        defaultSearchType = 'sphinx';
+      }
+      // Set the default search type
+      document.querySelector(`input[name="searchType"][value="${defaultSearchType}"]`).checked = true;
+      toggleSearchBox(defaultSearchType);
+      // Event listener for changes in search type
+      searchForm.addEventListener('change', function(event) {
+        const selectedSearchType = event.target.value;
+        localStorage.setItem('searchType', selectedSearchType);
+        toggleSearchBox(selectedSearchType);
+      });
+      // Set placeholder text for Google search box
+      window.onload = function() {
+        var placeholderText = "Search Docs";
+        var googleSearchboxText = document.querySelector("#gsc-i-id1");
+        if (googleSearchboxText) {
+          googleSearchboxText.placeholder = placeholderText;
+          googleSearchboxText.style.fontFamily = 'FreightSans';
+          googleSearchboxText.style.fontSize = "1.2rem";
+          googleSearchboxText.style.color = '#262626';
+        }
+      };
+    });
+  </script>
+
+          </div>
+
+          
+
+<div>
+  <a style="color:#F05732" href="https://pytorch.org/docs/stable/_modules/torch/distributed/rpc/api.html">您正在查看不稳定开发者预览文档。请点击此处查看最新稳定版本的文档。</a>
+</div>
+
+
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">社区</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../community/build_ci_governance.html">PyTorch 治理 | 构建 + CI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../community/contribution_guide.html">PyTorch 贡献指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../community/design.html">PyTorch 设计哲学</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../community/governance.html">PyTorch 治理 | 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../community/persons_of_interest.html">PyTorch 治理 | 维护者</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发者笔记</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/amp_examples.html">自动混合精度示例</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/autograd.html">Autograd 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/broadcasting.html">广播语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/cpu_threading_torchscript_inference.html">CPU 多线程和 TorchScript 推理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/cuda.html">CUDA 语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/custom_operators.html">PyTorch 自定义算子页面</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/ddp.html">分布式数据并行</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/extending.html">扩展 PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/extending.func.html">使用 autograd.Function 扩展 torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/faq.html">常见问题解答</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/fsdp.html">FSDP 笔记</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/get_start_xpu.html">在 Intel GPU 上入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/gradcheck.html">Gradcheck 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/hip.html">HIP (ROCm)语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/large_scale_deployments.html">大规模部署功能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/libtorch_stable_abi.html">LibTorch 稳定 ABI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/modules.html">模块</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/mps.html">MPS 后端</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/multiprocessing.html">多进程最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/numerical_accuracy.html">数值精度</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/randomness.html">可重复性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/serialization.html">序列化语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/windows.html">Windows 常见问题解答</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">语言绑定</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cpp_index.html">C++</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/javadoc/">Javadoc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../deploy.html">torch::deploy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torch.html">torch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../nn.html">torch.nn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../nn.functional.html">torch.nn.functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tensors.html">torch.Tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tensor_attributes.html">Tensor 属性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tensor_view.html">张量视图</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../amp.html">torch.amp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../autograd.html">torch.autograd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../library.html">torch.library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../accelerator.html">torch.accelerator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cpu.html">torch.cpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cuda.html">torch.cuda</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torch_cuda_memory.html">理解 CUDA 内存使用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torch_cuda_memory.html#generating-a-snapshot">生成快照</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torch_cuda_memory.html#using-the-visualizer">使用可视化器</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torch_cuda_memory.html#snapshot-api-reference">快照 API 参考</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../mps.html">torch.mps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../xpu.html">torch.xpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../mtia.html">torch.mtia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../mtia.memory.html">torch.mtia.memory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../meta.html">元设备</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../backends.html">torch.backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../export.html">torch.export</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../distributed.html">torch.distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../distributed.tensor.html">torch.distributed.tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../distributed.algorithms.join.html">torch.distributed.algorithms.join</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../distributed.elastic.html">torch.distributed.elastic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../fsdp.html">torch.distributed.fsdp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../distributed.fsdp.fully_shard.html">torch.distributed.fsdp.fully_shard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../distributed.tensor.parallel.html">torch.distributed.tensor.parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../distributed.optim.html">torch.distributed.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../distributed.pipelining.html">torch.distributed.pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../distributed.checkpoint.html">torch.distributed.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../distributions.html">torch.distributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torch.compiler.html">torch.compiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../fft.html">torch.fft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../func.html">torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../futures.html">torch.futures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../fx.html">torch.fx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../fx.experimental.html">torch.fx.experimental</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../hub.html">torch.hub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../jit.html">torch.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../linalg.html">torch.linalg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../monitor.html">torch.monitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../signal.html">torch.signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../special.html">torch.special</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torch.overrides.html">torch.overrides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../package.html">torch.package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../profiler.html">torch.profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../nn.init.html">torch.nn.init</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../nn.attention.html">torch.nn.attention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../onnx.html">torch.onnx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../optim.html">torch.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../complex_numbers.html">复数</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ddp_comm_hooks.html">DDP 通信钩子</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quantization.html">量化</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../rpc.html">分布式 RPC 框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../random.html">torch.random</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../masked.html">torch.masked</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../nested.html">torch.nested</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../size.html">torch.Size</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sparse.html">torch.sparse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../storage.html">torch.Storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../testing.html">torch.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../utils.html">torch.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../benchmark_utils.html">torch.utils.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../bottleneck.html">torch.utils.bottleneck</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../checkpoint.html">torch.utils.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cpp_extension.html">torch.utils.cpp_extension</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../data.html">torch.utils.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../deterministic.html">torch.utils.deterministic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../jit_utils.html">torch.utils.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../dlpack.html">torch.utils.dlpack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../mobile_optimizer.html">torch.utils.mobile_optimizer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../model_zoo.html">torch.utils.model_zoo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tensorboard.html">torch.utils.tensorboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../module_tracker.html">torch.utils.module_tracker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../type_info.html">类型信息</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../named_tensor.html">命名张量</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../name_inference.html">命名张量操作覆盖率</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../config_mod.html">torch.__config__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../future_mod.html">torch.__future__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../logging.html">torch._logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torch_environment_variables.html">Torch 环境变量</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">库</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/audio/stable">torchaudio</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/data">TorchData</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/torchrec">火炬推荐</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/serve">TorchServe</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/text/stable">torchtext</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/vision/stable">torchvision</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/xla/">PyTorch on XLA Devices</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/ao">torchao</a></li>
+</ul>
+
+            
+          
+
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        文档 &gt;</li>
+
+        
+          <li>模块代码 &gt;</li>
+        
+          <li><a href="../../../torch.html">torch</a> &gt;</li>
+        
+          <li><a href="../../distributed.html">torch.distributed</a> &gt;</li>
+        
+          <li><a href="../rpc.html">torch.distributed.rpc</a> &gt;</li>
+        
+      <li>torch.distributed.rpc.api</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">快捷键</div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+
+          <!-- Google Tag Manager (noscript) -->
+          <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T8XT4PS" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+          <!-- End Google Tag Manager (noscript) -->
+          
+          <div class="rst-content">
+          
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <h1>torch.distributed.rpc.api 源代码</font></font></font></h1><div class="highlight"><pre><span></span><span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># mypy: 允许未类型化装饰器</span>
+<span class="c1"># mypy: 允许未类型化定义</span>
+
+<span class="kn">导入</font></font></font></span> <span class="nn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">集合</span>
+<span class="kn">导入</span> <span class="nn">contextlib</span>
+<span class="kn">导入</span> <span class="nn">functools</span>
+<span class="kn">导入</font></font></font></span> <span class="nn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">检查</span>
+<span class="kn">导入</font></font></font></span> <span class="nn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">记录日志</span>
+<span class="kn">导入</font></font></font></span> <span class="nn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">线程</span>
+<span class="kn">来自</font></font></font></span> <span class="nn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">打字</font></font></font></span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">任何</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">通用</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类型检查</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类型变量</span>
+
+<span class="kn">导入</font></font></font></span> <span class="nn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</span>
+<span class="kn">来自</font></font></font></span> <span class="nn">torch._C._distributed_rpc</span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</span> <span class="p">(</span>
+    <span class="n">清理 Python RPC 处理器</span><span class="p">,</span>
+    <span class="n">删除所有用户和未分叉所有者 rrefs</span><span class="p">,</span>
+    <span class="n">销毁 rref 上下文</span><span class="p">,</span>
+    <span class="n">获取当前 RPC 代理</span><span class="p">,</span>
+    <span class="n">远程调用内置函数</span><span class="p">,</span>
+    <span class="n">远程调用 Python UDF</span><span class="p">,</span>
+    <span class="n">远程调用 TorchScript</span><span class="p">,</span>
+    <span class="n">远程调用 RPC 内置函数</span><span class="p">,</span>
+    <span class="n">_调用 Python UDF RPC</span><span class="p">,</span>
+    <span class="n">_调用 TorchScript RPC</span><span class="p">,</span>
+    <span class="n">当前 RPC 代理是否已设置</span><span class="p">,</span>
+    <span class="n">_重置当前 RPC 代理</span><span class="p">,</span>
+    <span class="n">设置并启动 RPC 代理</span><span class="p">,</span>
+    <span class="n">获取 RPC 超时时间</span><span class="p">,</span>
+    <span class="n">PyRRef</span><span class="p">,</span>
+    <span class="n">远程性能分析管理器</span><span class="p">,</span>
+    <span class="n">TensorPipe 代理</span><span class="p">,</span>
+    <span class="n">工作信息</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">来自</font></font></font></span> <span class="nn">torch.futures</span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">未来</span>
+
+<span class="kn">来自</font></font></font></span> <span class="nn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_utils</font></font></font></span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_组成员管理</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">更新群组成员资格</span>
+<span class="kn">来自</font></font></font></span> <span class="nn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">.常量</font></font></font></span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">默认关机超时</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">未设置 RPC 超时</span>
+<span class="kn">来自</font></font></font></span> <span class="nn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">.内部</font></font></font></span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</span> <span class="p">(</span>
+    <span class="n">构建 RPC 性能分析键</span><span class="p">,</span>
+    <span class="n">内部 RPC 序列化器</span><span class="p">,</span>
+    <span class="n">Python 用户定义函数</span><span class="p">,</span>
+    <span class="n">RPC 执行模式</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="n">全部</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">关闭</span><span class="p">,</span>
+    <span class="s2">获取工作信息</span><span class="p">,</span>
+    <span class="s2">远程</span><span class="p">,</span>
+    <span class="s2">RPC 同步</span><span class="p">,</span>
+    <span class="s2">"rpc 异步"</span><span class="p">,</span>
+    <span class="s2">"RRef"</span><span class="p">,</span>
+    <span class="s2">"AllGatherStates"</span><span class="p">,</span>
+    <span class="s2">"method_factory"</span><span class="p">,</span>
+    <span class="s2">"新方法"</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<span class="n">记录器</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">记录</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">获取日志记录器</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1"># NB: 在关闭期间忽略 RRef 泄漏。如果不这样做，应用程序必须</span>
+<span class="c1"># 确保应用程序代码中没有对任何 RRef 的引用，并且</span>
+<span class="c1"># Python GC 已经完成了其工作，删除了这些 RRef。这可能会导致不良</span>
+<span class="c1">调试经验，尤其是在大型应用程序中。因此，通过</span>
+<span class="c1">默认情况下，我们在关闭时将忽略 RRef 泄漏。这通常</span>
+<span class="c1"># 关闭表示应用程序已完成训练且不再关心</span>
+<span class="c1">关于状态。</span>
+<span class="c1">#</span>
+<span class="c1">启用 RRef 泄露检查，请将此_ignore_rref_leak 设置为 False</span>
+<span class="n">_ignore_rref_leak</span> <span class="o">=</span> <span class="kc">真实</span>
+<span class="n">_default_pickler</span> <span class="o">=</span> <span class="n">_internal_rpc_pickler</span>
+
+
+<span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
+<span class="k">定义</font></font></font></span> <span class="nf"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">使用 RPC Pickler</span><span class="p">(</span><span class="n">rpc_pickler</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">""</span>
+<span class="sd">rpc_pickler: (.internal._InternalRPCPickler) 覆盖默认的 RPC Pickler</span>
+<span class="sd">"文档"</span>
+    <span class="k">全局</span> <span class="n">_default_pickler</span>
+    <span class="n">_default_pickler</span> <span class="o">=</span> <span class="n">rpc_pickler</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">产生</span>
+    <span class="k">最后</span><span class="p">:</span>
+        <span class="n">_default_pickler</span> <span class="o">=</span> <span class="n">_internal_rpc_pickler</span>
+
+
+<span class="k">定义</font></font></font></span> <span class="nf"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">需要初始化</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">函数</span><span class="p">):</span>
+    <span class="nd">@functools</span><span class="o">.</span><span class="n">包装</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">函数</span><span class="p">)</span>
+    <span class="k">定义</font></font></font></span> <span class="nf"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">包装器</font></font></font></span><span class="p">(</span><span class="o">*</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">如果</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">非</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">当前 RPC 代理是否已设置</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">运行时错误</span><span class="p">(</span>
+                <span class="s2">"RPC 尚未初始化。请调用"</span>
+                <span class="s2">"torch.distributed.rpc.init_rpc 首先。"</span>
+            <span class="p">)</span>
+        <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">函数</font></font></font></span><span class="p">(</span><span class="o">*</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">包装器</span>
+
+
+<span class="k">类</span> <span class="nc">AllGatherStates</span><span class="p">:</span>
+    <span class="k">定义</font></font></font></span> <span class="fm"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">初始化</font></font></font></span><span class="p">(</span><span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">我</span><span class="p">):</span>
+        <span class="c1">初始时，每个`gathered_objects`都是一个空的字典。</span>
+        <span class="c1">领导者工作员被选为排序后的第一个工作员。</span>
+        <span class="c1">名称列表。每当有工作员进入`_all_gather()`时，它会在领导者上运行`_gather_to_leader()`以添加其自己的名称。</span>
+        <span class="c1">然后将其自己的名称添加到领导者的名称列表中。</span>
+        <span class="c1"># 数据对象添加到字典中。领导者还将自己的名字添加到字典中</span>
+        <span class="c1"># 在调用 `_all_gather()` 时。</span>
+        <span class="c1"># 一旦 `set(gathered_objects.keys()) == _ALL_WORKER_NAMES`，领导者</span>
+        <span class="c1"># 将收集到的字典广播到所有跟随者工作者并设置它们的</span>
+        <span class="c1"># `收集对象`字段和`进行信号`字段。</span>
+        <span class="bp">我</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">收集对象</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># 所有工人都在等待这个信号，直到它收到所有收集到的</span>
+        <span class="c1"># 对象。</span>
+        <span class="bp">我</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">进程信号</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">线程</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">活动</span><span class="p">()</span>
+
+
+<span class="c1">`def _all_gather()` 使用的状态。</span>
+<span class="c1">`_ALL_WORKER_NAMES` 在初始化 RPC 层时初始化。</span>
+<span class="n">_ALL_WORKER_NAMES</span><span class="p">:</span> <span class="nb">集合</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">任何</font></font></font></span><span class="p">]</span> <span class="o">=</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">集合</span><span class="p">()</span>
+<span class="n">全局收集字典锁</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">线程</span><span class="o">.</span><span class="n">RLock</span><span class="p">()</span>
+<span class="n">全局收集序列 ID</font></font></font></span><span class="p">:</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">字典</font></font></font></span><span class="p">[</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">字符串</font></font></font></span><span class="p">,</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">整数</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">全局收集序列 ID 到状态映射</font></font></font></span><span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">集合</font></font></font></span><span class="o">.</span><span class="n">defaultdict</span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">集合</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">默认字典</span><span class="p">(</span>
+    <span class="n">全局收集状态</span>
+<span class="p">)</span>
+
+
+<span class="k">定义</font></font></font></span> <span class="nf"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">初始化 RPC 状态</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">代理</span><span class="p">):</span>
+    <span class="n">工作信息</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">代理</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">获取工作信息</span><span class="p">()</span>
+    <span class="k">全局</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">所有工人名称</span>
+    <span class="n">所有工人名称</font></font></font></span> <span class="o">=</span> <span class="p">{</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">工人信息</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</font></font></font></span> <span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">为</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">工人信息</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">工人信息列表</span><span class="p">}</span>
+
+    <span class="c1"># 注意：后端实现可能已经设置了 rpc_agent。</span>
+    <span class="k">如果</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">非</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">当前 RPC 代理是否已设置</span><span class="p">():</span>
+        <span class="n">设置并启动 RPC 代理</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">代理</span><span class="p">)</span>
+
+
+<span class="k">定义</font></font></font></span> <span class="nf"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">聚集到领导者</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">序列 ID</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">工作者名称</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">工作者名称列表</font></font></font></span><span class="o">=</span><span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">):</span>
+    <span class="k">与</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">全局收集字典锁</span><span class="p">:</span>
+        <span class="k">如果</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">非</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">工作者名称</span><span class="p">:</span>
+            <span class="n">工作者名称</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_所有工作者名称_</span>
+            <span class="k">断言</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">工人名称</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">工人名称列表</span><span class="p">,</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">工人名称</font></font></font></span><span class="si">}</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">这不是领导者所期望的。</span>
+            <span class="p">)</span>
+        <span class="n">州</span> <span class="o">=</span> <span class="n">_all_gather_sequence_id_to_states</span><span class="p">[</span><span class="n">sequence_id</span><span class="p">]</span>
+        <span class="k">断言</font></font></font></span> <span class="n">worker_name</span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">非</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">州</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">收集的对象</span><span class="p">,</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">工人姓名</font></font></font></span><span class="si">}</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">报告的意图序列 ID</font></font></font></span><span class="si">{</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">序列 ID</font></font></font></span><span class="si">}</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">两次。</span>
+        <span class="p">)</span>
+        <span class="n">状态</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">收集的对象</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">工人名称</font></font></font></span><span class="p">]</span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</span>
+        <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">工人名称列表</font></font></font></span> <span class="o">==</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">集合</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">州</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">收集到的物品</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">键</span><span class="p">()):</span>
+            <span class="n">州</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">进行信号</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">集合</span><span class="p">()</span>
+
+
+<span class="k">定义</font></font></font></span> <span class="nf"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">向关注者广播</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">序列 ID</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象映射</span><span class="p">):</span>
+    <span class="k">与</span> <span class="n">_all_gather_dict_lock</span><span class="p">:</span>
+        <span class="n">状态</font></font></font></span> <span class="o">=</span> <span class="n">_all_gather_sequence_id_to_states</span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">序列 ID</span><span class="p">]</span>
+
+    <span class="k">断言</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">非</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">状态</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">进行信号</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">已设置</span><span class="p">(),</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"终止信号序列 ID"</font></font></font></span><span class="si">{</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">序列 ID</font></font></font></span><span class="si">}</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">被设置过两次。</span>
+    <span class="p">)</span>
+    <span class="n">状态</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">收集的物品</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">物品地图</span>
+    <span class="n">状态</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">进行信号</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">集合</span><span class="p">()</span>
+
+
+<span class="n">_thread_local_var</span> <span class="o">=</span> <span class="n">线程</span><span class="o">.</span><span class="n">local</span><span class="p">()</span>
+
+
+<span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
+<span class="k">定义</span> <span class="nf">_wait_all</span><span class="p">():</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">""</span>
+<span class="sd">一个收集由 `rpc_async` 返回的所有 futures 的上下文管理器，</span>
+<span class="sd">在上下文管理器退出时等待它们；减轻用户需要</span>
+<span class="sd">明确调用 wait。</span>
+
+
+<span class="sd">示例::</span>
+<span class="sd">        &gt;&gt;&gt; # xdoctest: +SKIP("distributed")</span>
+<span class="sd">&gt;&gt;&gt; # 在工作进程 0 上：</span>
+<span class="sd">&gt;&gt;&gt; 导入 torch</span>
+<span class="sd">&gt;&gt;&gt; 导入 torch.distributed.rpc 作为 rpc</span>
+<span class="sd">        &gt;&gt;&gt; rpc.init_rpc("worker0", rank=0, world_size=2)</span>
+<span class="sd">        &gt;&gt;&gt; with rpc._wait_all():</span>
+<span class="sd">        &gt;&gt;&gt;    fut_1 = rpc.rpc_async(dst, torch.add, (torch.ones(2, 2), 1))</span>
+<span class="sd">        &gt;&gt;&gt;    fut_2 = rpc.rpc_async(dst, torch.add, (torch.ones(2, 2), 1))</span>
+<span class="sd">&gt;&gt;&gt; #fut_1 和 fut_2 等待</span>
+<span class="sd">"文档"</span>
+    <span class="n">_thread_local_var</span><span class="o">.</span><span class="n">未来列表</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">产生</span>
+    <span class="k">最后</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">期货</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">等待全部</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_线程局部变量</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">未来列表</span><span class="p">)</span>
+        <span class="k">最后</span><span class="p">:</span>
+            <span class="k">删除</span> <span class="n">_thread_local_var</span><span class="o">.</span><span class="n">future_list</span>
+
+
+<span class="nd">@_require_initialized</span>
+<span class="k">定义</font></font></font></span> <span class="nf">_all_gather</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</font></font></font></span><span class="p">,</span> <span class="n">worker_names</span><span class="o">=</span><span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">超时</font></font></font></span><span class="p">:</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">浮点数</span> <span class="o">=</span> <span class="n">UNSET_RPC_TIMEOUT</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">""</span>
+<span class="sd">这与 torch.distributed.all_gather()类似，但使用 RPC。它</span>
+<span class="sd">选择名字最小的 worker（按字母顺序）作为领导者。</span>
+<span class="sd">然后所有追随者将他们的数据 ``obj`` 发送到领导者。领导者</span>
+<span class="sd">已接收全部，将结果广播给所有关注者。</span>
+<span class="sd">函数会阻塞，直到所有工作者都接收到了收集到的结果。</span>
+<span class="sd">"文档"</span>
+    <span class="k">如果</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">非</span> <span class="n">worker_names</span><span class="p">:</span>
+        <span class="k">断言</font></font></font></span> <span class="n">_ALL_WORKER_NAMES</span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">非</font></font></font></span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">,</span> <span class="p">(</span>
+            <span class="s2">`_ALL_WORKER_NAMES` 未初始化，无法用于 `def _all_gather`。</span>
+        <span class="p">)</span>
+        <span class="n">worker_names</span> <span class="o">=</span> <span class="n">_ALL_WORKER_NAMES</span>
+    <span class="n">leader_name</span> <span class="o">=</span> <span class="nb">最小</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">工人名称</span><span class="p">)</span>
+
+    <span class="n">自身名称</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">获取当前 RPC 代理</font></font></font></span><span class="p">()</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">获取工人信息</font></font></font></span><span class="p">()</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</span>
+
+    <span class="k">与</span> <span class="n">_all_gather_dict_lock</span><span class="p">:</span>
+        <span class="n">连接名称</font></font></font></span> <span class="o">=</span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入文本翻译为简体中文为：""</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">连接</font></font></font></span><span class="p">(</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">排序</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">工作人员名称</span><span class="p">))</span>
+        <span class="n">序列号</font></font></font></span> <span class="o">=</span> <span class="n">_all_gather_sequence_id</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">获取</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">连接名称</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">_all_gather_sequence_id</span><span class="p">[</span><span class="n">连接名称</font></font></font></span><span class="p">]</span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">序列号</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">序列 ID</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">连接名称</font></font></font></span> <span class="o">+</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">字符串</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">序列号</span><span class="p">)</span>
+
+    <span class="n">是否是领导者</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">领导者姓名</font></font></font></span> <span class="o">==</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">自称</span>
+
+    <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">超时</span> <span class="o">==</span> <span class="n">UNSET_RPC_TIMEOUT</span><span class="p">:</span>
+        <span class="c1"># 超时由代理为 RPC 调用指定</span>
+        <span class="n">rpc 超时</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">获取 RPC 超时时间</span><span class="p">()</span>
+        <span class="c1">信号无超时</span>
+        <span class="n">信号超时</font></font></font></span> <span class="o">=</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span>
+    <span class="k">elif</span> <span class="n">超时</font></font></font></span> <span class="o">==</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">默认关闭超时</span><span class="p">:</span>
+        <span class="c1">RPC 无超时</span>
+        <span class="n">rpc_timeout</span> <span class="o">=</span> <span class="n">超时</span>
+        <span class="c1">信号无超时</span>
+        <span class="n">信号超时</font></font></font></span> <span class="o">=</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1">信号和 RPC 超时使用相同的超时</span>
+        <span class="n">信号超时</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">RPC 超时</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">超时</span>
+
+    <span class="c1"># 第一阶段：追随者将其对象发送给领导者</span>
+    <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">领导者</span><span class="p">:</span>
+        <span class="n">_聚集到领导者处</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">序列号</font></font></font></span><span class="p">,</span> <span class="n">self_name</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">工人名称</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">RPC 同步</span><span class="p">(</span>
+            <span class="n">领导者名称</span><span class="p">,</span>
+            <span class="n">聚集到领导者</span><span class="p">,</span>
+            <span class="n">参数</font></font></font></span><span class="o">=</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">序列 ID</font></font></font></span><span class="p">,</span> <span class="n">self_name</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对象</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">工作者名称</span><span class="p">),</span>
+            <span class="n">超时</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">RPC 超时</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">与</span> <span class="n">_all_gather_dict_lock</span><span class="p">:</span>
+        <span class="n">状态</span> <span class="o">=</span> <span class="n">_all_gather_sequence_id_to_states</span><span class="p">[</span><span class="n">sequence_id</span><span class="p">]</span>
+
+    <span class="c1"># 超时时间由函数参数设置或为 None（表示无限期）</span>
+    <span class="n">states</span><span class="o">.</span><span class="n">进行信号</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">等待</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">超时</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">信号超时</span><span class="p">)</span>
+
+    <span class="c1"># 第二阶段：领导者将结果广播给所有跟随者</span>
+    <span class="c1"># 领导者的信号是第一个被解除阻塞的，在收到所有</span>
+    <span class="c1"># 跟随者的数据对象后。</span>
+    <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">领导</span><span class="p">:</span>
+        <span class="n">worker_name_to_response_future_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">为</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">追随者名称</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">工人名称</font></font></font></span> <span class="o">-</span> <span class="p">{</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">领导者名称</span><span class="p">}:</span>
+            <span class="n">fut</span> <span class="o">=</span> <span class="n">rpc 异步</span><span class="p">(</span>
+                <span class="n">追随者名称</span><span class="p">,</span>
+                <span class="n">向关注者广播</span><span class="p">,</span>
+                <span class="n">参数</font></font></font></span><span class="o">=</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">序列 ID</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">状态</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">收集到的对象</span><span class="p">),</span>
+                <span class="n">超时</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">RPC 超时</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">worker_name_to_response_future_dict</span><span class="p">[</span><span class="n">follower_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">fut</span>
+
+        <span class="n">错误</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">为</font></font></font></span> <span class="n">follower_name</span><span class="p">,</span> <span class="n">fut</span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在</font></font></font></span> <span class="n">worker_name_to_response_future_dict</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">项目</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">fut</span><span class="o">.</span><span class="n">等待</span><span class="p">()</span>
+            <span class="k">除了</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">运行时错误</font></font></font></span> <span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">ext: ex</span><span class="p">:</span>
+                <span class="n">错误</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">追加</font></font></font></span><span class="p">((</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">粉丝名称</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">ext: ex</span><span class="p">))</span>
+
+        <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">错误</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">运行时错误</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">粉丝</font></font></font></span><span class="si">{</span><span class="p">[</span><span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">为</font></font></font></span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在</font></font></font></span><span class="w"> </span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">错误</font></font></font></span><span class="p">]</span><span class="si">}</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在_all_gather 中超时</span>
+                <span class="sa">f</span><span class="s2">之后</font></font></font></span><span class="si">{</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">RPC 超时</font></font></font></span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">秒后。第一个异常是</font></font></font></span><span class="si">{</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">错误</span><span class="p">[</span><span class="mi">0</span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">]
+[</font></font></font></span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span>
+
+    <span class="c1">使用 sequence_id 清理状态</span>
+    <span class="k">与</span> <span class="n">_all_gather_dict_lock</span><span class="p">:</span>
+        <span class="n">states</span> <span class="o">=</span> <span class="n">_all_gather_sequence_id_to_states</span><span class="o">.</span><span class="n">流行</span><span class="p">(</span><span class="n">sequence_id</span><span class="p">)</span>
+    <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">州</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">收集的物体</span>
+
+
+<span class="nd">@_require_initialized</span>
+<span class="k">定义</font></font></font></span> <span class="nf"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_障碍</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">工人姓名</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">""</span>
+<span class="sd">同步本地和远程 RPC 进程。</span>
+
+<span class="sd">这将阻塞，直到所有在 worker_names 下指定的本地和远程 RPC 进程</span>
+<span class="sd">调用此方法以等待所有待处理工作完成。</span>
+
+<span class="sd">参数：</span>
+<span class="sd">worker_names (List[str]): 要同步的工作者集合。</span>
+
+<span class="sd">"文档"</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">全局收集</font></font></font></span><span class="p">(</span><span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</font></font></font></span><span class="p">,</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">集合</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">工作节点名称</span><span class="p">))</span>
+    <span class="k">除了</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">运行时错误</font></font></font></span> <span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">ext: ex</span><span class="p">:</span>
+        <span class="n">日志记录器</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">错误</font></font></font></span><span class="p">(</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">"完成屏障失败，发生错误"</font></font></font></span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">ext: ex</span><span class="p">)</span>
+
+
+<span class="nd">@_require_initialized</span>
+<span class="k">定义</font></font></font></span> <span class="nf"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">等待所有工作进程</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">超时</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">默认关闭超时</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">""</span>
+<span class="sd">阻塞，直到所有本地和远程 RPC 进程达到此方法并等待</span>
+<span class="sd">所有未完成的工作完成。每个 RPC 进程都必须调用此方法</span>
+<span class="sd">在退出前执行方法以进行优雅关闭。这应该被用来</span>
+<span class="sd">终止 RPC 框架，无法保证 RPC</span>
+<span class="sd">框架将在此方法返回后工作。</span>
+<span class="sd">"文档"</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">_all_gather</span><span class="p">(</span><span class="kc">无</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">超时</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">超时</span><span class="p">)</span>
+    <span class="k">除了</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">运行时错误</font></font></font></span> <span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">ext: ex</span><span class="p">:</span>
+        <span class="n">日志记录器</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">错误</span><span class="p">(</span>
+            <span class="s2">"未能及时响应 '关机进行'，出现错误"</font></font></font></span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">示例</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="n">示例</span>
+
+
+<div class="viewcode-block" id="shutdown"><a class="viewcode-back" href="../../../../rpc.html#torch.distributed.rpc.shutdown">[文档]</a><span class="nd">@_require_initialized</span>
+<span class="k">定义</font></font></font></span> <span class="nf"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">关闭</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">平滑的</font></font></font></span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">超时</span><span class="o">=</span><span class="n">DEFAULT_SHUTDOWN_TIMEOUT</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">""</span>
+<span class="sd">执行 RPC 代理的关机操作，然后销毁 RPC 代理。</span>
+<span class="sd">停止本地代理接受未完成的请求，并关闭</span>
+<span class="sd">关闭 RPC 框架，通过终止所有 RPC 线程。如果 `graceful=True`，</span>
+<span class="sd">这将阻塞，直到所有本地和远程 RPC 进程都达到此方法</span>
+<span class="sd">等待所有未完成的工作完成。否则，如果</span>
+<span class="sd">``graceful=False``，这是一个本地关闭操作，它不会等待其他</span>
+<span class="sd">RPC 进程达到此方法。</span>
+
+<span class="sd">.. 警告::</span>
+<span class="sd">对于由 :class:`~torch.futures.Future` 对象返回的</span>
+<span class="sd">`torch.distributed.rpc.rpc_async`，`future.wait()` 不应</span>
+<span class="sd">在调用 `shutdown()` 之后被调用。</span>
+
+<span class="sd">参数：</span>
+<span class="sd">优雅（布尔值）：是否进行优雅关闭。如果为 True，</span>
+<span class="sd">这将等待直到没有挂起的系统消息，针对“UserRRefs”删除它们；2）阻塞，直到所有本地和远程 RPC 进程都达到此方法并等待所有待处理工作完成</span>
+<span class="sd">消息；2）阻塞，直到所有本地和远程 RPC 进程都达到此方法并等待所有待处理工作完成</span>
+<span class="sd">此方法并等待所有待处理工作完成</span>
+<span class="sd">此方法并等待所有待处理工作完成</span>
+<span class="sd">完成。</span>
+
+<span class="sd">示例::</span>
+<span class="sd">确保正确设置了 ``MASTER_ADDR`` 和 ``MASTER_PORT``。</span>
+<span class="sd">在所有工作节点上。请参阅 :meth:`~torch.distributed.init_process_group` API 获取更多详细信息。</span>
+<span class="sd">例如，</span>
+
+<span class="sd">        export MASTER_ADDR=localhost</span>
+<span class="sd">        export MASTER_PORT=5678</span>
+
+<span class="sd">然后在两个不同的进程中运行以下代码：</span>
+
+<span class="sd">        &gt;&gt;&gt; # xdoctest: +SKIP</span>
+<span class="sd">&gt;&gt;&gt; # 在工作进程 0 上：</span>
+<span class="sd">&gt;&gt;&gt; 导入 torch</span>
+<span class="sd">&gt;&gt;&gt; 导入 torch.distributed.rpc 作为 rpc</span>
+<span class="sd">        &gt;&gt;&gt; rpc.init_rpc("worker0", rank=0, world_size=2)</span>
+<span class="sd">        &gt;&gt;&gt; # do some work</span>
+<span class="sd">        &gt;&gt;&gt; result = rpc.rpc_sync("worker1", torch.add, args=(torch.ones(1), 1))</span>
+<span class="sd">        &gt;&gt;&gt; # ready to shutdown</span>
+<span class="sd">        &gt;&gt;&gt; rpc.shutdown()</span>
+
+<span class="sd">&gt;&gt;&gt; # 在工作器 1 上：</span>
+<span class="sd">&gt;&gt;&gt; 导入 torch.distributed.rpc 作为 rpc</span>
+<span class="sd">        &gt;&gt;&gt; rpc.init_rpc("worker1", rank=1, world_size=2)</span>
+<span class="sd">&gt;&gt;&gt; # 等待工作器 0 完成工作后关闭。</span>
+<span class="sd">        &gt;&gt;&gt; rpc.shutdown()</span>
+<span class="sd">"文档"</span>
+    <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">平滑</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">代理</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">获取当前 RPC 代理</span><span class="p">()</span>
+            <span class="k">如果</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">非</font></font></font></span> <span class="nb">isinstance</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">代理</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">TensorPipe 代理</font></font></font></span><span class="p">)</span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">或者</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">代理</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">静态组</span><span class="p">:</span>
+                <span class="n">_等待所有工作者</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">超时</span><span class="p">)</span>
+                <span class="n">删除所有用户和未分叉所有者 rrefs</span><span class="p">()</span>
+                <span class="n">代理</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">连接</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">关闭</font></font></font></span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">超时</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">超时</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># 这是一个动态组，因此我们需要获取操作令牌</span>
+                <span class="n">我的工人信息</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">代理</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">获取工人信息</span><span class="p">()</span>
+                <span class="n">我的名字</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">我的工种信息</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</span>
+                <span class="k">与</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_群组管理</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">代理</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">店铺</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">我的名字</font></font></font></span><span class="p">,</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">错误</span><span class="p">):</span>
+                    <span class="n">所有工人信息</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">代理</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">获取工作者信息</span><span class="p">()</span>
+                    <span class="k">为</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">工作者</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">所有工人信息</span><span class="p">:</span>
+                        <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">工人</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</font></font></font></span> <span class="o">!=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">我的名字</span><span class="p">:</span>
+                            <span class="n">RPC 同步</span><span class="p">(</span>
+                                <span class="n">工人</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</span><span class="p">,</span>
+                                <span class="n">更新群组成员资格</span><span class="p">,</span>
+                                <span class="n">参数</font></font></font></span><span class="o">=</span><span class="p">(</span><span class="n">my_worker_info</span><span class="p">,</span> <span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">[]</font></font></font></span> <span class="p">{},</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">错误</span><span class="p">),</span>
+                            <span class="p">)</span>
+                    <span class="n">代理</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">连接</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">关闭</font></font></font></span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">超时</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">超时</span><span class="p">)</span>
+        <span class="k">最后</span><span class="p">:</span>
+            <span class="c1">如果发生错误，继续完成本地关闭。</span>
+            <span class="n">_完成关闭</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">_完成关机</span><span class="p">()</span></div>
+
+
+<span class="k">定义</font></font></font></span> <span class="nf"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_完成关机</span><span class="p">():</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># 当检测到 RRef 泄漏时引发`TORCH_CHECK()`异常。</span>
+        <span class="n">销毁 rref 上下文</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_忽略 rref 泄漏</span><span class="p">)</span>
+    <span class="k">最后</span><span class="p">:</span>
+        <span class="n">获取当前 RPC 代理</font></font></font></span><span class="p">()</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">关闭</span><span class="p">()</span>
+        <span class="c1"># 在 shutdown()中清理 Python RPC 处理器，请参阅注释</span>
+        <span class="c1"># 在 Python API 中调用 PythonRpcHandler::cleanup()，因为 cleanup()函数有 Python 依赖，它假设存在 Python 解释器</span>
+        <span class="c1"># cleanup()函数有 Python 依赖，它假设存在 Python 解释器</span>
+        <span class="c1"># 解释器</span>
+        <span class="c1">无论是否引发 RRef 泄漏异常，此清理代码都必须运行，以避免在 Python 3.5 中发生破坏性段错误。</span>
+        <span class="c1">必须运行以避免在 Python 3.5 中发生破坏性段错误。</span>
+        <span class="c1">#</span>
+        <span class="c1"># future.wait() 不应在关闭后调用。</span>
+        <span class="c1"># pythonRpcHandler 在关闭()后清理。</span>
+        <span class="c1"># 关闭()后，从 rpc python 调用返回的 python 对象无法解析。</span>
+        <span class="c1"># resolved.</span>
+        <span class="n">清理 Python RPC 处理器</span><span class="p">()</span>
+        <span class="n">_重置当前 RPC 代理</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="get_worker_info"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]@_require_initialized
+def get_worker_info(worker_name=None):
+r"""
+获取指定工作名称的 :class:`~torch.distributed.rpc.WorkerInfo`。
+使用此 :class:`~torch.distributed.rpc.WorkerInfo` 以避免在每次调用时传递昂贵的字符串。
+每次调用时避免传递昂贵的字符串。
+
+参数：
+worker_name (str)：工作者的字符串名称。如果 ``None``，则返回。
+当前工作者的 ID。（默认为 ``None``）
+
+返回：
+给定 ``worker_name`` 或 :class:`~torch.distributed.rpc.WorkerInfo` 实例
+的 :class:`~torch.distributed.rpc.WorkerInfo`
+当前工作进程，如果 `worker_name` 为 `None`。
+"""
+如果 worker_name 不为 None：
+返回 `_get_current_rpc_agent().get_worker_info(worker_name)`。
+else:
+返回 _get_current_rpc_agent().get_worker_info()</font></font></font></div>
+
+
+<span class="k">定义</font></font></font></span> <span class="nf">_to_worker_info</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">到</span><span class="p">):</span>
+    <span class="k">如果</font></font></font></span> <span class="nb">isinstance</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">到</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">工作信息</span><span class="p">):</span>
+        <span class="k">返回</span> <span class="n">to</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">到</font></font></font></span><span class="p">,</span> <span class="p">(</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">字符串</font></font></font></span><span class="p">,</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">整数</span><span class="p">)):</span>
+        <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">获取工作者信息</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">到</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"无法从名称获取 WorkerInfo"</font></font></font></span><span class="si">{</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">到</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+
+<span class="k">定义</font></font></font></span> <span class="nf">_rref_typeof_on_owner</span><span class="p">(</span><span class="n">rref</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">阻塞</font></font></font></span><span class="p">:</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">布尔类型</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+    <span class="n">rref 类型</font></font></font></span> <span class="o">=</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类型</font></font></font></span><span class="p">(</span><span class="n">rref</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">本地值</span><span class="p">())</span>
+    <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">阻塞</span><span class="p">:</span>
+        <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">rref 类型</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1">将结果包装成完成的 Future。这是为了确保如果 blocking=`False`</span>
+        <span class="c1">如果 # 被指定，无论此调用是否在用户端，我们都返回一个未来对象</span>
+        <span class="c1"># 或所有者。</span>
+        <span class="n">未来</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">未来</font></font></font></span><span class="p">[</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类型</font></font></font></span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">]</span>
+        <span class="n">未来</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">设置结果</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">rref 类型</span><span class="p">)</span>
+        <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">未来</span>
+
+
+<span class="k">定义</span> <span class="nf">_rref_typeof_on_user</span><span class="p">(</span>
+    <span class="n">rref</span><span class="p">,</span> <span class="n">超时</font></font></font></span><span class="p">:</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">浮点数</font></font></font></span> <span class="o">=</span> <span class="n">UNSET_RPC_TIMEOUT</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">阻塞</font></font></font></span><span class="p">:</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">布尔类型</font></font></font></span> <span class="o">=</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">真实</span>
+<span class="p">):</span>
+    <span class="n">fut</span> <span class="o">=</span> <span class="n">rpc 异步</font></font></font></span><span class="p">(</span><span class="n">rref</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">拥有者</font></font></font></span><span class="p">(),</span> <span class="n">_rref_typeof_on_owner</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</font></font></font></span><span class="o">=</span><span class="p">(</span><span class="n">rref</span><span class="p">,),</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">超时</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">超时</span><span class="p">)</span>
+    <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">阻塞</span><span class="p">:</span>
+        <span class="k">返回</font></font></font></span> <span class="n">fut</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">等待</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">返回</span> <span class="n">fut</span>
+
+
+<span class="n">T</span> <span class="o">=</span> <span class="n">类型变量</font></font></font></span><span class="p">(</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">T</span><span class="p">)</span>
+<span class="n">泛型含有一个类型变量</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">通用</span><span class="p">[</span><span class="n">T</span><span class="p">]</span>
+
+
+<span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类型检查</span><span class="p">:</span>
+
+    <span class="k">类</font></font></font></span> <span class="nc">RRef</span><span class="p">(</span><span class="n">PyRRef</span><span class="p">[</span><span class="n">T</span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">]，</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">通用</font></font></font></span><span class="p">[</span><span class="n">T</span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">)]</span>
+        <span class="k">通过</span>
+
+<span class="k">else</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1">将实现类和类型类合并。</span>
+        <span class="k">类</font></font></font></span> <span class="nc">RRef</span><span class="p">(</span><span class="n">PyRRef</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">通用</font></font></font></span><span class="p">[</span><span class="n">T</span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">)]</span>
+            <span class="k">通过</span>
+
+    <span class="k">除了</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类型错误</span><span class="p">:</span>
+        <span class="c1">类型错误：派生类的元类冲突。</span>
+        <span class="c1">必须是所有基类的元类的（非严格）子类。</span>
+        <span class="c1">Mypy 不理解 __class__（mypy 错误 #4177）。</span>
+        <span class="k">类</font></font></font></span> <span class="nc">RRefMeta</span><span class="p">(</span><span class="n">PyRRef</span><span class="o">.</span><span class="vm"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">具有一型变量的通用</font></font></font></span><span class="o">.</span><span class="vm"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类</span><span class="p">):</span>  <span class="c1"># type: ignore[name-defined, misc, valid-type]</span>
+            <span class="k">通过</span>
+
+        <span class="c1">将实现类和类型类合并。</span>
+        <span class="c1"># 类期望特定泛型参数的类型（mypy 错误#7791）</span>
+        <span class="k">类</font></font></font></span> <span class="nc">RRef</span><span class="p">(</span><span class="n">PyRRef</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">带有一个类型变量的泛型</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">元类</font></font></font></span><span class="o">=</span><span class="n">RRefMeta</span><span class="p">):</span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># 类型：忽略[misc, no-redef, valid-type]</span>
+            <span class="k">通过</span>
+
+
+<span class="c1">从 `PyRRef` 到 `RRef` 安装文档字符串。</span>
+<span class="c1">#</span>
+<span class="c1">这是因为 pybind11 生成了参数 `self` 的类型为 `rpc.PyRRef`，所以 `:inherited-members:` 下的 `.. autoclass:: RRef` 不起作用。</span>
+<span class="c1">`self` 作为类型 `rpc.PyRRef`，所以 `.. autoclass:: RRef` 下的 `:inherited-members:` 不起作用。</span>
+<span class="c1">在 `.. autoclass:: RRef` 下的 `:inherited-members:` 不起作用。</span>
+<span class="c1">我们需要执行以下过程以将`rpc.PyRRef`替换为`rpc.RRef`。</span>
+<span class="c1">#</span>
+<span class="k">定义</font></font></font></span> <span class="nf"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">方法工厂</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">方法名称</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">文档字符串</span><span class="p">):</span>
+    <span class="k">定义</font></font></font></span> <span class="nf"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">方法</font></font></font></span><span class="p">(</span><span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">我</font></font></font></span><span class="p">,</span> <span class="o">*</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">返回</font></font></font></span> <span class="nb">getattr</span><span class="p">(</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">超级</font></font></font></span><span class="p">(</span><span class="n">RRef</span><span class="p">,</span> <span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">我</font></font></font></span><span class="p">),</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">方法名称</font></font></font></span><span class="p">)(</span><span class="o">*</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">方法</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">:</span>
+        <span class="n">方法</font></font></font></span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">文档字符串</span>
+    <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">方法</span>
+
+
+<span class="k">为</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">方法名称</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">方法</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">检查</span><span class="o">.</span><span class="n">getmembers</span><span class="p">(</span><span class="n">PyRRef</span><span class="p">):</span>
+    <span class="c1">忽略魔法方法，除了 "__str__"。</span>
+    <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">方法名称</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">以...开头</font></font></font></span><span class="p">(</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">“_”</font></font></font></span><span class="p">)</span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">和</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">方法名</span> <span class="o">!=</span> <span class="s2">"__str__"</span><span class="p">:</span>
+        <span class="k">continue</span>
+
+    <span class="c1">获取 pybind11 生成的文档字符串。</span>
+    <span class="c1">就像，</span>
+<span class="w">    </span><span class="sd">""</span>
+<span class="sd">    to_here(self: torch.distributed.rpc.PyRRef, timeout: float=-1.0) -&gt; object</span>
+
+<span class="sd">阻塞调用，从所有者复制 RRef 的值</span>
+<span class="sd">将本地节点返回。如果当前节点是</span>
+<span class="sd">owner, 返回对局部值的引用。</span>
+<span class="sd">"文档"</span>
+    <span class="n">文档字符串</font></font></font></span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">方法</font></font></font></span><span class="p">,</span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">__doc__</font></font></font></span><span class="p">,</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">)</span>
+    <span class="k">断言</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">文档字符串</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">非</font></font></font></span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</font></font></font></span><span class="p">,</span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">"所有面向用户的方法都应该有文档字符串。"</span>
+
+    <span class="c1">对 pybind11 生成的文档字符串进行手术。</span>
+    <span class="n">文档字符串</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">文档字符串</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">替换</span><span class="p">(</span>
+        <span class="s2">"torch.distributed.rpc.PyRRef"</span><span class="p">,</span> <span class="s2">"torch.distributed.rpc.RRef"</span>
+    <span class="p">)</span>
+
+    <span class="c1">将用户界面 RRef 方法与修改后的文档字符串关联。</span>
+    <span class="n">新方法</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">方法工厂</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">方法名称</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">文档字符串</span><span class="p">)</span>
+    <span class="nb">setattr</span><span class="p">(</span><span class="n">RRef</span><span class="p">,</span> <span class="n">方法名称</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">新方法</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="remote"><a class="viewcode-back" href="../../../../rpc.html#torch.distributed.rpc.remote">[文档]</a><span class="nd">@_require_initialized</span>
+<span class="k">定义</font></font></font></span> <span class="nf"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">远程</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">到</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">函数</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</font></font></font></span><span class="o">=</span><span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</font></font></font></span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">超时</span><span class="o">=</span><span class="n">UNSET_RPC_TIMEOUT</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">""</span>
+<span class="sd">向工作器“to”远程调用“func”并立即返回结果值的引用。</span>
+<span class="sd">class:`~torch.distributed.rpc.RRef` 到结果值。</span>
+<span class="sd">工作器“to”将是返回的</span>
+<span class="sd">class:`~torch.distributed.rpc.RRef` 的所有者，调用“remote”的工作器是</span>
+<span class="sd">一个用户。所有者管理其全局引用计数。</span>
+<span class="sd">`:class:`~torch.distributed.rpc.RRef`，及其所有者</span>
+<span class="sd">`:class:`~torch.distributed.rpc.RRef` 仅在全局范围内被销毁时</span>
+<span class="sd">没有关于它的生活参考。</span>
+
+<span class="sd">参数：</span>
+<span class="sd">目标工作者的名称/等级/``WorkerInfo``（str 或 WorkerInfo 或 int）</span>
+<span class="sd">可调用函数（Callable），例如 Python 可调用函数、内置函数</span>
+<span class="sd">操作符（例如：:meth:`~torch.add`）和注解</span>
+<span class="sd">TorchScript 函数</span>
+<span class="sd">args（元组）：调用`func`的参数元组。</span>
+<span class="sd">kwargs（字典）：是`func`调用时的关键字参数字典。</span>
+<span class="sd">调用。</span>
+
+<span class="sd">timeout（浮点数，可选）：此远程调用的超时时间（秒）。如果未指定，则默认为 None。</span>
+<span class="sd">这个的创建</span>
+<span class="sd">在工作器上的 :class:`~torch.distributed.rpc.RRef`</span>
+<span class="sd">``to`` 在这个工作器上未能成功处理</span>
+<span class="sd">如果在这个超时时间内未能处理，那么下一次</span>
+<span class="sd">尝试使用 RRef（例如</span>
+<span class="sd">``to_here()``），将引发超时</span>
+<span class="sd">表示此失败。0 表示</span>
+<span class="sd">无限超时，即超时错误将</span>
+<span class="sd">永远不会被提升。如果没有提供，则使用默认值</span>
+<span class="sd">在初始化期间或使用 ``_set_rpc_timeout`` 设置的值</span>
+<span class="sd">``_set_rpc_timeout`` 被使用。</span>
+
+<span class="sd">返回：</span>
+<span class="sd">一个指向结果的 :class:`~torch.distributed.rpc.RRef` 实例</span>
+<span class="sd">使用阻塞 API：:meth:`torch.distributed.rpc.RRef.to_here` 获取结果值。</span>
+<span class="sd">在本地检索结果值。</span>
+
+<span class="sd">..警告::</span>
+<span class="sd">``remote`` API 在通过网络发送之前不会复制参数张量的存储，这可能会由不同的线程完成。</span>
+<span class="sd">这可能导致在发送参数张量之前，存储它们的 API 不会复制。</span>
+<span class="sd">根据 RPC 后端类型而定。调用者应确保那些张量的内容在返回 RRef 被所有者确认之前保持不变。</span>
+<span class="sd">这些张量的内容在返回 RRef 被所有者确认之前保持不变。</span>
+<span class="sd">可以使用：meth:`torch.distributed.rpc.RRef.confirmed_by_owner` API 来检查。</span>
+<span class="sd">meth:`torch.distributed.rpc.RRef.confirmed_by_owner` API 进行确认。</span>
+
+<span class="sd">..警告::</span>
+<span class="sd">远程 API 的“超时”等错误以尽力而为的方式处理。</span>
+<span class="sd">这意味着当由“远程”发起的远程调用失败，例如出现超时错误时，我们采取尽力而为的错误处理方式。</span>
+<span class="sd">这意味着当“远程”调用失败，例如出现超时错误时，我们采取尽力而为的错误处理方法。</span>
+<span class="sd">这意味着错误会被处理并设置为</span>
+<span class="sd">在异步基础上对结果 RRef 进行操作。如果在此处理之前应用程序尚未使用该 RRef（例如“to_here”或 fork 调用），则未来对“RRef”的使用将适当地引发错误。</span>
+<span class="sd">但是，用户应用程序可能会使用该 RRef。</span>
+<span class="sd">如果在此处理之前应用程序尚未使用该 RRef（例如“to_here”或 fork 调用），则未来对“RRef”的使用将适当地引发错误。</span>
+<span class="sd">然而，用户应用程序可能会使用该 RRef。</span>
+<span class="sd">在处理错误之前，先处理 `RRef`。在这种情况下，错误可能不会被</span>
+<span class="sd">尚未处理，因此被提升。</span>
+
+<span class="sd">示例::</span>
+
+<span class="sd">确保 ``MASTER_ADDR`` 和 ``MASTER_PORT`` 设置正确</span>
+<span class="sd">在两个工作者上。参考：:meth:`~torch.distributed.init_process_group`</span>
+<span class="sd">查看更多详情的 API。例如，</span>
+
+<span class="sd">导出 MASTER_ADDR=localhost</span>
+<span class="sd">导出 MASTER_PORT=5678</span>
+
+<span class="sd">然后在两个不同的进程中运行以下代码：</span>
+
+<span class="sd">        &gt;&gt;&gt; # xdoctest: +SKIP</span>
+<span class="sd">&gt;&gt;&gt; # 在工作节点 0 上：</span>
+<span class="sd">&gt;&gt;&gt; 导入 torch</span>
+<span class="sd">&gt;&gt;&gt; 导入 torch.distributed.rpc 作为 rpc</span>
+<span class="sd">        &gt;&gt;&gt; rpc.init_rpc("worker0", rank=0, world_size=2)</span>
+<span class="sd">        &gt;&gt;&gt; rref1 = rpc.remote("worker1", torch.add, args=(torch.ones(2), 3))</span>
+<span class="sd">        &gt;&gt;&gt; rref2 = rpc.remote("worker1", torch.add, args=(torch.ones(2), 1))</span>
+<span class="sd">        &gt;&gt;&gt; x = rref1.to_here() + rref2.to_here()</span>
+<span class="sd">        &gt;&gt;&gt; rpc.shutdown()</span>
+
+<span class="sd">&gt;&gt;&gt; # 在工作器 1 上：</span>
+<span class="sd">&gt;&gt;&gt; 导入 torch.distributed.rpc 作为 rpc</span>
+<span class="sd">        &gt;&gt;&gt; rpc.init_rpc("worker1", rank=1, world_size=2)</span>
+<span class="sd">        &gt;&gt;&gt; rpc.shutdown()</span>
+
+<span class="sd">下面是一个使用 RPC 运行 TorchScript 函数的示例。</span>
+
+<span class="sd">&gt;&gt;&gt; # 在两个工作者上：</span>
+<span class="sd">        &gt;&gt;&gt; @torch.jit.script</span>
+<span class="sd">        &gt;&gt;&gt; def my_script_add(tensor: torch.Tensor, scalar: int):</span>
+<span class="sd">        &gt;&gt;&gt;    return torch.add(tensor, scalar)</span>
+
+<span class="sd">&gt;&gt;&gt; # 在工作节点 0 上:</span>
+<span class="sd">&gt;&gt;&gt; 导入 torch.distributed.rpc 作为 rpc</span>
+<span class="sd">        &gt;&gt;&gt; rpc.init_rpc("worker0", rank=0, world_size=2)</span>
+<span class="sd">        &gt;&gt;&gt; rref = rpc.remote("worker1", my_script_add, args=(torch.ones(2), 3))</span>
+<span class="sd">        &gt;&gt;&gt; rref.to_here()</span>
+<span class="sd">        &gt;&gt;&gt; rpc.shutdown()</span>
+
+<span class="sd">&gt;&gt;&gt; # 在 worker 1 上：</span>
+<span class="sd">&gt;&gt;&gt; 导入 torch.distributed.rpc 作为 rpc</span>
+<span class="sd">        &gt;&gt;&gt; rpc.init_rpc("worker1", rank=1, world_size=2)</span>
+<span class="sd">        &gt;&gt;&gt; rpc.shutdown()</span>
+<span class="sd">"文档"</span>
+    <span class="n">火炬</font></font></font></span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n">_log_api_usage_once</span><span class="p">(</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">torch.distributed.rpc_remote</span><span class="p">)</span>
+    <span class="n">qualified_name</span> <span class="o">=</span> <span class="n">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">算子</font></font></font></span><span class="o">.</span><span class="n">_builtins</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">内置查找</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">函数</span><span class="p">)</span>
+    <span class="n">目标工作器信息</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">转换为工作器信息</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">到</span><span class="p">)</span>
+    <span class="n">是否应该进行性能分析</span> <span class="o">=</span> <span class="n">_get_should_profile</span><span class="p">()</span>
+
+    <span class="n">ctx_manager</span> <span class="o">=</span> <span class="n">_enable_rpc_profiler</span><span class="p">(</span>
+        <span class="n">should_profile</span><span class="p">,</span> <span class="n">合法名称</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">函数</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">RPC 执行模式</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">远程</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">目标工作信息</span>
+    <span class="p">)</span>
+
+    <span class="k">与</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">上下文管理器</font></font></font></span> <span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是</span> <span class="n">rf</span><span class="p">:</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">args</span> <span class="k">如果</font></font></font></span> <span class="n">args</span> <span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">否则</span> <span class="p">()</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span> <span class="k">如果</font></font></font></span> <span class="n">kwargs</span> <span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">否则</span> <span class="p">{}</span>
+
+        <span class="n">is_async_exec</span> <span class="o">=</span> <span class="nb">有属性</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">函数</font></font></font></span><span class="p">,</span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_wrapped_async_rpc_function</span><span class="p">)</span>
+
+        <span class="k">如果</span> <span class="n">is_async_exec</span><span class="p">:</span>
+            <span class="n">包装</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">函数</span><span class="o">.</span><span class="n">_wrapped_async_rpc_function</span>
+            <span class="k">如果</font></font></font></span> <span class="nb">isinstance</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">包装</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">算子</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">脚本函数</span><span class="p">):</span>
+                <span class="n">函数</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">包装</span>
+
+        <span class="k">如果</font></font></font></span> <span class="n">qualified_name</span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">非</font></font></font></span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">:</span>
+            <span class="n">rref</span> <span class="o">=</span> <span class="n">远程调用内置函数</span><span class="p">(</span>
+                <span class="n">目标工作信息</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">合法名称</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">超时</font></font></font></span><span class="p">,</span> <span class="o">*</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">函数</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">算子</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">脚本函数</span><span class="p">):</span>
+            <span class="n">rref</span> <span class="o">=</span> <span class="n">远程调用 TorchScript</span><span class="p">(</span>
+                <span class="n">目标工作信息</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</span><span class="p">,</span>
+                <span class="n">火炬</font></font></font></span><span class="o">.</span><span class="n">_jit_internal</span><span class="o">.</span><span class="n">_qualified_name</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">函数</span><span class="p">),</span>
+                <span class="n">超时</span><span class="p">,</span>
+                <span class="n">是否异步执行</span><span class="p">,</span>
+                <span class="o">*</span><span class="n">参数</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="p">(</span><span class="n">序列化的 Python UDF</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</font></font></font></span><span class="p">)</span> <span class="o">=</span> <span class="n">_default_pickler</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">序列化</span><span class="p">(</span>
+                <span class="n">PythonUDF</span><span class="p">(</span><span class="n">函数</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">rref</span> <span class="o">=</span> <span class="n">远程调用 Python UDF</span><span class="p">(</span>
+                <span class="n">dst_worker_info</span><span class="p">,</span> <span class="n">pickled_python_udf</span><span class="p">,</span> <span class="n">张量</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">超时</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">异步执行</span>
+            <span class="p">)</span>
+        <span class="c1">#附加性能分析信息</span>
+        <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">应该进行性能分析</span><span class="p">:</span>
+            <span class="k">断言</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">自动微分</span><span class="o">.</span><span class="n">_profiler_enabled</span><span class="p">()</span>
+            <span class="k">断言</font></font></font></span> <span class="n">rf</span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">非</font></font></font></span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span>
+            <span class="n">fut</span> <span class="o">=</span> <span class="n">rf</span><span class="o">.</span><span class="n">在 future 上调用结束回调</font></font></font></span><span class="p">(</span><span class="n">rref</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">获取未来</span><span class="p">())</span>
+            <span class="n">rref</span><span class="o">.</span><span class="n">设置未来分析</span><span class="p">(</span><span class="n">fut</span><span class="p">)</span>
+
+    <span class="k">返回</span> <span class="n">rref</span></div>
+
+
+<span class="k">定义</font></font></font></span> <span class="nf"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">调用 RPC</span><span class="p">(</span>
+    <span class="n">到</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">函数</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">RPC 类型</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</font></font></font></span><span class="o">=</span><span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</font></font></font></span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">RPC 超时</font></font></font></span><span class="p">:</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">浮点数</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">设置 RPC 超时</span>
+<span class="p">):</span>
+    <span class="k">如果</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">非</font></font></font></span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">可调用</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">函数</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">类型错误</font></font></font></span><span class="p">(</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">函数应该是可调用的。</span><span class="p">)</span>
+
+    <span class="n">qualified_name</span> <span class="o">=</span> <span class="n">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">算子</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">内置模块</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">查找内置函数</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">函数</span><span class="p">)</span>
+    <span class="n">目标工作器信息</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">转换为工作器信息</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">到</span><span class="p">)</span>
+
+    <span class="n">应该配置文件</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_获取应该配置文件</span><span class="p">()</span>
+
+    <span class="n">ctx 管理器</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_启用 RPC 性能分析器</span><span class="p">(</span>
+        <span class="n">应该配置</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">合法名称</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">函数</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">RPC 类型</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">目标工作者信息</span>
+    <span class="p">)</span>
+
+    <span class="k">与</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">上下文管理器</font></font></font></span> <span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是</span> <span class="n">rf</span><span class="p">:</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">args</span> <span class="k">如果</font></font></font></span> <span class="n">args</span> <span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">否则</span> <span class="p">()</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span> <span class="k">如果</font></font></font></span> <span class="n">kwargs</span> <span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">否则</span> <span class="p">{}</span>
+
+        <span class="n">is_async_exec</span> <span class="o">=</span> <span class="nb">有属性</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">函数</font></font></font></span><span class="p">,</span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_wrapped_async_rpc_function</span><span class="p">)</span>
+
+        <span class="k">如果</span> <span class="n">is_async_exec</span><span class="p">:</span>
+            <span class="n">包装</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">函数</span><span class="o">.</span><span class="n">_wrapped_async_rpc_function</span>
+            <span class="k">如果</font></font></font></span> <span class="nb">isinstance</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">包装</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">算子</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">脚本函数</span><span class="p">):</span>
+                <span class="n">函数</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">包装</span>
+
+        <span class="k">如果</font></font></font></span> <span class="n">qualified_name</span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">非</font></font></font></span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">:</span>
+            <span class="n">fut</span> <span class="o">=</span> <span class="n">远程调用 RPC 内置函数</span><span class="p">(</span>
+                <span class="n">目标工作信息</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">合法名称</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">RPC 超时</font></font></font></span><span class="p">,</span> <span class="o">*</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">函数</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">算子</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">脚本函数</span><span class="p">):</span>
+            <span class="n">fut</span> <span class="o">=</span> <span class="n">_调用 TorchScript RPC</span><span class="p">(</span>
+                <span class="n">目标工作信息</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</span><span class="p">,</span>
+                <span class="n">火炬</font></font></font></span><span class="o">.</span><span class="n">_jit_internal</span><span class="o">.</span><span class="n">_qualified_name</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">函数</span><span class="p">),</span>
+                <span class="n">参数</span><span class="p">,</span>
+                <span class="n">kwargs</span><span class="p">,</span>
+                <span class="n">RPC 超时</span><span class="p">,</span>
+                <span class="n">是否异步执行</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="p">(</span><span class="n">序列化的 Python UDF</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量</font></font></font></span><span class="p">)</span> <span class="o">=</span> <span class="n">_default_pickler</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">序列化</span><span class="p">(</span>
+                <span class="n">PythonUDF</span><span class="p">(</span><span class="n">函数</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">fut</span> <span class="o">=</span> <span class="n">_调用 Python UDF RPC</span><span class="p">(</span>
+                <span class="n">dst_worker_info</span><span class="p">,</span> <span class="n">pickled_python_udf</span><span class="p">,</span> <span class="n">张量</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">RPC 超时</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">异步执行</span>
+            <span class="p">)</span>
+        <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">应该进行性能分析</span><span class="p">:</span>
+            <span class="k">断言</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">自动微分</span><span class="o">.</span><span class="n">_profiler_enabled</span><span class="p">()</span>
+            <span class="k">断言</font></font></font></span> <span class="n">rf</span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">非</font></font></font></span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span>
+            <span class="c1"># 将性能分析回调计划在 future 完成时运行。</span>
+            <span class="c1"># 这将返回一个当原始 future 完成时以及配置文件回调也完成时的 future</span>
+            <span class="c1"># 完成并确保 fut.wait()完成配置文件。这个新的 future 将包含与原始 future 相同的值。</span>
+            <span class="c1"># 以保证 fut.wait()完成配置文件。这个新的 future 将包含与原始 future 相同的值。</span>
+            <span class="c1"># 这个新的 future 将包含与原始 future 相同的值。</span>
+            <span class="n">fut</span> <span class="o">=</span> <span class="n">rf</span><span class="o">.</span><span class="n">在 future 上调用结束回调</span><span class="p">(</span><span class="n">fut</span><span class="p">)</span>
+    <span class="k">返回</span> <span class="n">fut</span>
+
+
+<div class="viewcode-block" id="rpc_sync"><a class="viewcode-back" href="../../../../rpc.html#torch.distributed.rpc.rpc_sync">[文档]</a><span class="nd">@_require_initialized</span>
+<span class="k">定义</font></font></font></span> <span class="nf"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">rpc 同步</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">到</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">函数</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</font></font></font></span><span class="o">=</span><span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</font></font></font></span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">超时</font></font></font></span><span class="p">:</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">浮点数</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">未设置 RPC 超时</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">""</span>
+<span class="sd">向工作器“to”运行函数“func”的阻塞 RPC 调用。</span>
+<span class="sd">消息在 Python 代码执行过程中并行发送和接收。</span>
+<span class="sd">此方法线程安全。</span>
+
+<span class="sd">参数：</span>
+<span class="sd">to（str 或 WorkerInfo 或 int）：目标工作器的名称/排名/WorkerInfo。</span>
+<span class="sd">可调用对象（Callable）：一个可调用的函数，例如 Python 可调用对象、内置函数</span>
+<span class="sd">操作符（例如：:meth:`~torch.add`）和注解的</span>
+<span class="sd">TorchScript 函数。</span>
+<span class="sd">args（元组）：`func`调用的参数元组。</span>
+<span class="sd">kwargs（dict）：是调用 ``func`` 的关键字参数字典。</span>
+<span class="sd">调用。</span>
+<span class="sd">timeout（浮点数，可选）：用于此 RPC 的秒数超时。如果</span>
+<span class="sd">RPC 在此时间内未完成。</span>
+<span class="sd">时间，表示发生异常的时间</span>
+<span class="sd">超时将被触发。值为 0</span>
+<span class="sd">表示无限超时，即超时</span>
+<span class="sd">错误永远不会引发。如果未提供，</span>
+<span class="sd">初始化时设置的默认值</span>
+<span class="sd">或者使用 `__set_rpc_timeout` 进行设置。</span>
+
+<span class="sd">返回：</span>
+<span class="sd">返回使用 `func`、`args` 和 `kwargs` 运行的结果。</span>
+
+<span class="sd">示例::</span>
+<span class="sd">确保已正确设置 `MASTER_ADDR` 和 `MASTER_PORT`。</span>
+<span class="sd">在两个工作器上。请参阅 :meth:`~torch.distributed.init_process_group` 相关 API 获取更多详细信息。</span>
+<span class="sd">例如，</span>
+
+<span class="sd">导出 MASTER_ADDR=localhost</span>
+<span class="sd">导出 MASTER_PORT=5678</span>
+
+<span class="sd">然后在两个不同的进程中运行以下代码：</span>
+
+<span class="sd">        &gt;&gt;&gt; # xdoctest: +SKIP</span>
+<span class="sd">&gt;&gt;&gt; # 在 worker 0 上：</span>
+<span class="sd">&gt;&gt;&gt; 导入 torch</span>
+<span class="sd">&gt;&gt;&gt; 导入 torch.distributed.rpc 作为 rpc</span>
+<span class="sd">        &gt;&gt;&gt; rpc.init_rpc("worker0", rank=0, world_size=2)</span>
+<span class="sd">        &gt;&gt;&gt; ret = rpc.rpc_sync("worker1", torch.add, args=(torch.ones(2), 3))</span>
+<span class="sd">        &gt;&gt;&gt; rpc.shutdown()</span>
+
+<span class="sd">&gt;&gt;&gt; # 在工作进程 1：</span>
+<span class="sd">&gt;&gt;&gt; 导入 torch.distributed.rpc 作为 rpc</span>
+<span class="sd">        &gt;&gt;&gt; rpc.init_rpc("worker1", rank=1, world_size=2)</span>
+<span class="sd">        &gt;&gt;&gt; rpc.shutdown()</span>
+
+<span class="sd">下面是一个使用 RPC 运行 TorchScript 函数的示例。</span>
+
+<span class="sd">&gt;&gt;&gt; # 在两个工作者上：</span>
+<span class="sd">        &gt;&gt;&gt; @torch.jit.script</span>
+<span class="sd">        &gt;&gt;&gt; def my_script_add(tensor: torch.Tensor, scalar: int):</span>
+<span class="sd">        &gt;&gt;&gt;    return torch.add(tensor, scalar)</span>
+
+<span class="sd">&gt;&gt;&gt; # 在 worker 0 上：</span>
+<span class="sd">&gt;&gt;&gt; 导入 torch.distributed.rpc 作为 rpc</span>
+<span class="sd">        &gt;&gt;&gt; rpc.init_rpc("worker0", rank=0, world_size=2)</span>
+<span class="sd">        &gt;&gt;&gt; ret = rpc.rpc_sync("worker1", my_script_add, args=(torch.ones(2), 3))</span>
+<span class="sd">        &gt;&gt;&gt; rpc.shutdown()</span>
+
+<span class="sd">&gt;&gt;&gt; # 在工作进程 1：</span>
+<span class="sd">&gt;&gt;&gt; 导入 torch.distributed.rpc 作为 rpc</span>
+<span class="sd">        &gt;&gt;&gt; rpc.init_rpc("worker1", rank=1, world_size=2)</span>
+<span class="sd">        &gt;&gt;&gt; rpc.shutdown()</span>
+
+<span class="sd">"文档"</span>
+    <span class="n">火炬</font></font></font></span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n">_log_api_usage_once</span><span class="p">(</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">torch.distributed.rpc_sync</span><span class="p">)</span>
+    <span class="n">fut</span> <span class="o">=</span> <span class="n">_invoke_rpc</span><span class="p">(</span><span class="n">到</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">函数</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">RPC 执行模式</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">同步</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</font></font></font></span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">超时</span><span class="p">)</span>
+    <span class="k">返回</font></font></font></span> <span class="n">fut</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">等待</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="rpc_async"><a class="viewcode-back" href="../../../../rpc.html#torch.distributed.rpc.rpc_async">[文档]</a><span class="nd">@_require_initialized</span>
+<span class="k">定义</font></font></font></span> <span class="nf"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">rpc 异步</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">到</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">函数</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</font></font></font></span><span class="o">=</span><span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</font></font></font></span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">超时</span><span class="o">=</span><span class="n">UNSET_RPC_TIMEOUT</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">""</span>
+<span class="sd">向工作器“to”的非阻塞 RPC 调用运行函数“func”。消息在 Python 代码执行过程中并行发送和接收。</span>
+<span class="sd">此方法线程安全。此方法将立即返回。</span>
+<span class="sd">（此处原文为空，故不进行翻译）</span>
+<span class="sd">可等待的 :class:`~torch.futures.Future` 对象。</span>
+
+<span class="sd">参数：</span>
+<span class="sd">目标工作者的名称/排名/``WorkerInfo``，类型为 (str 或 WorkerInfo 或 int)。</span>
+<span class="sd">func (Callable)：一个可调用的函数，例如 Python 可调用函数或内置函数。</span>
+<span class="sd">操作符（例如 :meth:`~torch.add`）和注解。</span>
+<span class="sd">TorchScript 函数。</span>
+<span class="sd">args（元组）：`func`调用的参数元组。</span>
+<span class="sd">kwargs（字典）：`func`调用时的关键字参数字典。</span>
+<span class="sd">调用。</span>
+<span class="sd">超时（浮点数，可选）：用于此 RPC 的超时时间（秒）。如果</span>
+<span class="sd">RPC 在此时间内未完成，将引发表示已超时的异常。</span>
+<span class="sd">超时的异常将被抛出。0 表示不设置超时。</span>
+<span class="sd">超时（浮点数，可选）：用于此 RPC 的超时时间（秒）。如果</span>
+<span class="sd">表示无限超时，即超时</span>
+<span class="sd">错误永远不会被抛出。如果没有提供，</span>
+<span class="sd">则使用初始化期间设置的默认值。</span>
+<span class="sd">或者使用 ``_set_rpc_timeout`` 设置。</span>
+
+
+<span class="sd">返回：</span>
+<span class="sd">返回一个 :class:`~torch.futures.Future` 对象，可以等待</span>
+<span class="sd">在. 完成后，`func` 在 `args` 上的返回值</span>
+<span class="sd">``kwargs`` 可以从 :class:`~torch.futures.Future` 中获取</span>
+<span class="sd">对象</span>
+
+<span class="sd">..警告::</span>
+<span class="sd">使用 GPU 张量作为`func`的参数或返回值是不支持的，因为我们不支持通过网络发送 GPU 张量。您需要在使用`func`的参数或返回值之前，显式地将 GPU 张量复制到 CPU。</span>
+<span class="sd">您需要在使用`func`的参数或返回值之前，显式地将 GPU 张量复制到 CPU。您需要在使用`func`的参数或返回值之前，显式地将 GPU 张量复制到 CPU。</span>
+<span class="sd">您需要在使用`func`的参数或返回值之前，显式地将 GPU 张量复制到 CPU。您需要在使用`func`的参数或返回值之前，显式地将 GPU 张量复制到 CPU。</span>
+<span class="sd">您需要在使用`func`的参数或返回值之前，显式地将 GPU 张量复制到 CPU。您需要在使用`func`的参数或返回值之前，显式地将 GPU 张量复制到 CPU。</span>
+
+<span class="sd">..警告::</span>
+<span class="sd">``rpc_async`` API 不会复制参数张量的存储直到</span>
+<span class="sd">将它们发送到线上，这可以通过不同的线程完成</span>
+<span class="sd">根据 RPC 后端类型。调用者应确保</span>
+<span class="sd">那些张量的内容保持不变，直到返回</span>
+<span class="sd">`torch.futures.Future` 完成。</span>
+
+<span class="sd">示例::</span>
+<span class="sd">确保正确设置了 `MASTER_ADDR` 和 `MASTER_PORT`。</span>
+<span class="sd">在所有工作节点上。请参阅 :meth:`~torch.distributed.init_process_group` API 获取更多详细信息。</span>
+<span class="sd">例如，</span>
+
+<span class="sd">        export MASTER_ADDR=localhost</span>
+<span class="sd">        export MASTER_PORT=5678</span>
+
+<span class="sd">然后在两个不同的进程中运行以下代码：</span>
+
+<span class="sd">        &gt;&gt;&gt; # xdoctest: +SKIP</span>
+<span class="sd">&gt;&gt;&gt; # 在工作进程 0 上：</span>
+<span class="sd">&gt;&gt;&gt; 导入 torch</span>
+<span class="sd">&gt;&gt;&gt; 导入 torch.distributed.rpc 作为 rpc</span>
+<span class="sd">        &gt;&gt;&gt; rpc.init_rpc("worker0", rank=0, world_size=2)</span>
+<span class="sd">        &gt;&gt;&gt; fut1 = rpc.rpc_async("worker1", torch.add, args=(torch.ones(2), 3))</span>
+<span class="sd">        &gt;&gt;&gt; fut2 = rpc.rpc_async("worker1", min, args=(1, 2))</span>
+<span class="sd">        &gt;&gt;&gt; result = fut1.wait() + fut2.wait()</span>
+<span class="sd">        &gt;&gt;&gt; rpc.shutdown()</span>
+
+<span class="sd">&gt;&gt;&gt; # 在工作进程 1：</span>
+<span class="sd">&gt;&gt;&gt; 导入 torch.distributed.rpc 作为 rpc</span>
+<span class="sd">        &gt;&gt;&gt; rpc.init_rpc("worker1", rank=1, world_size=2)</span>
+<span class="sd">        &gt;&gt;&gt; rpc.shutdown()</span>
+
+<span class="sd">下面是一个使用 RPC 运行 TorchScript 函数的示例。</span>
+
+<span class="sd">&gt;&gt;&gt; # 在两个工作者上：</span>
+<span class="sd">        &gt;&gt;&gt; @torch.jit.script</span>
+<span class="sd">        &gt;&gt;&gt; def my_script_add(tensor: torch.Tensor, scalar: int):</span>
+<span class="sd">        &gt;&gt;&gt;    return torch.add(tensor, scalar)</span>
+
+<span class="sd">&gt;&gt;&gt; # 在 worker 0 上：</span>
+<span class="sd">&gt;&gt;&gt; 导入 torch.distributed.rpc 作为 rpc</span>
+<span class="sd">        &gt;&gt;&gt; rpc.init_rpc("worker0", rank=0, world_size=2)</span>
+<span class="sd">        &gt;&gt;&gt; fut = rpc.rpc_async("worker1", my_script_add, args=(torch.ones(2), 3))</span>
+<span class="sd">        &gt;&gt;&gt; ret = fut.wait()</span>
+<span class="sd">        &gt;&gt;&gt; rpc.shutdown()</span>
+
+<span class="sd">&gt;&gt;&gt; # 在工作器 1 上：</span>
+<span class="sd">&gt;&gt;&gt; 导入 torch.distributed.rpc 作为 rpc</span>
+<span class="sd">        &gt;&gt;&gt; rpc.init_rpc("worker1", rank=1, world_size=2)</span>
+<span class="sd">        &gt;&gt;&gt; rpc.shutdown()</span>
+<span class="sd">"文档"</span>
+    <span class="n">火炬</font></font></font></span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n">_log_api_usage_once</span><span class="p">(</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">torch.distributed.rpc_async</span><span class="p">)</span>
+    <span class="n">fut</span> <span class="o">=</span> <span class="n">_invoke_rpc</span><span class="p">(</span><span class="n">到</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">函数</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">RPC 执行模式</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">异步</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</font></font></font></span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">超时</span><span class="p">)</span>
+    <span class="k">如果</font></font></font></span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">有属性</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_线程局部变量</font></font></font></span><span class="p">,</span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">future 列表</span><span class="p">):</span>
+        <span class="n">_thread_local_var</span><span class="o">.</span><span class="n">future_list</span><span class="o">.</span><span class="n">追加</span><span class="p">(</span><span class="n">fut</span><span class="p">)</span>
+    <span class="k">返回</span> <span class="n">fut</span></div>
+
+
+<span class="k">定义</span> <span class="nf">_get_should_profile</span><span class="p">():</span>
+    <span class="c1"># 旧版分析器应启用。不支持与 RPC 分析一起使用</span>
+    <span class="c1">动态分析器</span>
+    <span class="n">活动分析器类型</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_分析器</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">活动分析器类型</span>
+    <span class="k">返回</span> <span class="p">(</span>
+        <span class="n">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">自动微分</span><span class="o">.</span><span class="n">_profiler_enabled</span><span class="p">()</span>
+        <span class="ow">和</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_自动微分</font></font></font></span><span class="o">.</span><span class="n">_profiler_type</span><span class="p">()</span> <span class="o">==</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">活动分析器类型</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">旧版</font></font></font></span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># 类型: 忽略[attr-defined]</span>
+    <span class="p">)</span>
+
+
+<span class="k">定义</font></font></font></span> <span class="nf"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">启用 RPC 分析器</span><span class="p">(</span>
+    <span class="n">应该配置</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">合法名称</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">函数</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">RPC 类型</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">目标工作者信息</span>
+<span class="p">):</span>
+    <span class="n">上下文管理器</font></font></font></span> <span class="o">=</span> <span class="n">contextlib</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无上下文</span><span class="p">()</span>
+
+    <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">应该配置</span><span class="p">:</span>
+        <span class="c1"># 创建基于函数类型的适当字符串表示</span>
+        <span class="c1"># (内置，脚本，Python)</span>
+        <span class="k">如果</font></font></font></span> <span class="n">qualified_name</span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是</font></font></font></span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">:</span>
+            <span class="n">函数名</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">火炬</font></font></font></span><span class="o">.</span><span class="n">_jit_internal</span><span class="o">.</span><span class="n">_qualified_name</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">函数</span><span class="p">)</span>
+                <span class="k">如果</font></font></font></span> <span class="nb">isinstance</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">函数</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">算子</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">脚本函数</span><span class="p">)</span>
+                <span class="k">否则</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">函数</span><span class="o">.</span><span class="vm">__qualname__</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">函数名</span> <span class="o">=</span> <span class="n">qualified_name</span>
+        <span class="c1"># 构建 RPC 性能分析键。</span>
+        <span class="n">rpc 性能键</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">构建 rpc 性能键</span><span class="p">(</span>
+            <span class="n">rpc 类型</span><span class="p">,</span>
+            <span class="n">函数名</span><span class="p">,</span>
+            <span class="n">获取工作者信息</font></font></font></span><span class="p">()</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</span><span class="p">,</span>
+            <span class="n">目标工作者信息</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">远程性能分析管理器</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">设置当前性能分析键</span><span class="p">(</span><span class="n">rpc_profiling_key</span><span class="p">)</span>
+        <span class="c1"># Mypy 不支持在同一块中重新定义不在同一块中的变量（#1174）</span>
+        <span class="n">ctx_manager</span> <span class="o">=</span> <span class="n">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">自动微分</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">分析器</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">记录功能</font></font></font></span><span class="p">(</span><span class="n">rpc_profiling_key</span><span class="p">)</span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># 类型：忽略[赋值]</span>
+
+    <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">上下文管理器</span>
+</pre></div>
+
+             </article>
+             
+            </div>
+            <footer>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>© 版权所有 PyTorch 贡献者。</p>
+  </div>
+    
+      <div>使用 Sphinx 构建，并使用 Read the Docs 提供的主题。</div>
+     
+
+</footer>
+
+          </div>
+<script>
+
+var match = window.location.href.match(/\/_[a-zA-Z0-9_]*.html|_dynamo/gi);
+var url = window.location.href.lastIndexOf(match[match.length-1]);
+
+if (url)
+  {
+    var div = '<div class="admonition note"><p class="admonition-title">Note</p><p><i class="fa fa-exclamation-circle" aria-hidden="true">&nbsp</i> This page describes an internal API which is not intended to be used outside of the PyTorch codebase and can be modified or removed without notice.</p></div>'
+    document.getElementById("pytorch-article").insertAdjacentHTML('afterBegin', div)
+  }
+</script>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+         <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+         <script src="../../../../_static/jquery.js"></script>
+         <script src="../../../../_static/underscore.js"></script>
+         <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+         <script src="../../../../_static/doctools.js"></script>
+         <script src="../../../../_static/clipboard.min.js"></script>
+         <script src="../../../../_static/copybutton.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="../../../../_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="../../../../_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ 
+<script script="" type="text/javascript">
+  var collapsedSections = ['Developer Notes', 'Language Bindings', 'Libraries', 'Community'];
+</script>
+
+<img height="1" width="1" style="border-style:none;" alt="" src="https://www.googleadservices.com/pagead/conversion/795629140/?label=txkmCPmdtosBENSssfsC&amp;guid=ON&amp;script=0">
+
+
+  <!-- Begin Footer -->
+
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 text-center">
+          <h2>文档</h2>
+          <p>查看 PyTorch 的全面开发者文档</p>
+          <a class="with-right-arrow" href="https://pytorch.org/docs/stable/index.html">查看文档</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>教程</h2>
+          <p>深入了解初学者和高级开发者的教程</p>
+          <a class="with-right-arrow" href="https://pytorch.org/tutorials">查看教程</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>资源</h2>
+          <p>查找开发资源，获取您的疑问解答</p>
+          <a class="with-right-arrow" href="https://pytorch.org/resources">查看资源</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://pytorch.org/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/">PyTorch</a></li>
+            <li><a href="https://pytorch.org/get-started">开始使用</a></li>
+            <li><a href="https://pytorch.org/features">功能</a></li>
+            <li><a href="https://pytorch.org/ecosystem">生态系统</a></li>
+            <li><a href="https://pytorch.org/blog/">博客</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md">贡献</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/resources">资源</a></li>
+            <li><a href="https://pytorch.org/tutorials">教程</a></li>
+            <li><a href="https://pytorch.org/docs/stable/index.html">文档</a></li>
+            <li><a href="https://discuss.pytorch.org" target="_blank">讨论</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/issues" target="_blank">Github 问题</a></li>
+            <li><a href="https://pytorch.org/assets/brand-guidelines/PyTorch-Brand-Guidelines.pdf" target="_blank">品牌指南</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">保持更新</li>
+            <li><a href="https://www.facebook.com/pytorch" target="_blank">Facebook</a></li>
+            <li><a href="https://twitter.com/pytorch" target="_blank">推特</a></li>
+            <li><a href="https://www.youtube.com/pytorch" target="_blank">YouTube</a></li>
+            <li><a href="https://www.linkedin.com/company/pytorch" target="_blank">领英</a></li>
+          </ul>  
+          </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">PyTorch 播客</li>
+            <li><a href="https://open.spotify.com/show/6UzHKeiy368jKfQMKKvJY5" target="_blank">Spotify</a></li>
+            <li><a href="https://podcasts.apple.com/us/podcast/pytorch-developer-podcast/id1566080008" target="_blank">苹果</a></li>
+            <li><a href="https://www.google.com/podcasts?feed=aHR0cHM6Ly9mZWVkcy5zaW1wbGVjYXN0LmNvbS9PQjVGa0lsOA%3D%3D" target="_blank">谷歌</a></li>
+            <li><a href="https://music.amazon.com/podcasts/7a4e6f0e-26c2-49e9-a478-41bd244197d0/PyTorch-Developer-Podcast?" target="_blank">亚马逊</a></li>
+          </ul>
+         </div>
+        </div>
+        
+        <div class="privacy-policy">
+          <ul>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/terms/" target="_blank">条款</a></li>
+            <li class="privacy-policy-links">|</li>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/privacy-policy/" target="_blank">隐私</a></li>
+          </ul>
+        </div>
+        <div class="copyright">
+        <p>© 版权所有 Linux 基金会。PyTorch 基金会是 Linux 基金会的一个项目。有关 PyTorch 基金会的网站使用条款、商标政策以及其他适用政策，请参阅 www.linuxfoundation.org/policies/。PyTorch 基金会支持 PyTorch 开源项目，该项目已被确立为 LF Projects, LLC 的 PyTorch 项目系列。有关适用于 PyTorch 项目系列 LF Projects, LLC 的政策，请参阅 www.lfprojects.org/policies/。</p>
+      </div>
+     </div>
+
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">为了分析流量并优化您的体验，我们在本网站上使用 cookies。通过点击或导航，您同意允许我们使用 cookies。作为本网站的当前维护者，适用 Facebook 的 Cookies 政策。了解更多信息，包括关于可用控制的信息：Cookies 政策。</p>
+    <img class="close-button" src="../../../../_static/images/pytorch-x.svg" width="16" height="16">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+           <li class="resources-mobile-menu-title">
+             <a>学习</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/get-started">开始使用</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials">教程</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/basics/intro.html">学习基础知识</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/recipes/recipes_index.html">PyTorch 食谱</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/introyt.html">PyTorch 入门 - YouTube 系列</a>
+             </li>
+           </ul>
+           <li class="resources-mobile-menu-title">
+             <a>生态系统</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/ecosystem">工具</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/#community-module">社区</a>
+             </li>
+             <li>
+               <a href="https://discuss.pytorch.org/">论坛</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/resources">开发者资源</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">贡献者奖项 - 2024</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>边缘</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/edge">关于 PyTorch Edge</a>
+             </li>
+             
+             <li>
+               <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch 文档</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>文档</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/docs/stable/index.html">PyTorch</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/pytorch-domains">PyTorch 领域</a>
+            </li>
+          </ul>
+
+          <li class="resources-mobile-menu-title">
+            <a>博客 &amp; 新闻</a>
+          </li>
+            
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/blog/">PyTorch 博客</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/community-blog">社区博客</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/videos">视频</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/community-stories">社区故事</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/events">活动</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">通讯</a>
+             </li>
+          </ul>
+          
+          <li class="resources-mobile-menu-title">
+            <a>关于</a>
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/foundation">PyTorch 基金会</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/governing-board">管理委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">云信用计划</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">技术咨询委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">员工</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">联系我们</a>
+            </li>
+          </ul>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="../../../../_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body></html>

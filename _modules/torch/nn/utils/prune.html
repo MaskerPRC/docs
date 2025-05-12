@@ -1,0 +1,2565 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+  <meta charset="UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>torch.nn.utils.prune — PyTorch main documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pytorch.org/docs/stable/_modules/torch/nn/utils/prune.html">
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css">
+  <!-- <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css">
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css">
+  <link rel="stylesheet" href="../../../../_static/copybutton.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="../../../../_static/katex-math.css" type="text/css">
+  <link rel="stylesheet" href="../../../../_static/sphinx-dropdown.css" type="text/css">
+  <link rel="stylesheet" href="../../../../_static/panels-bootstrap.min.css" type="text/css">
+  <link rel="stylesheet" href="../../../../_static/css/jit.css" type="text/css">
+  <link rel="stylesheet" href="../../../../_static/css/custom.css" type="text/css">
+    <link rel="index" title="Index" href="../../../../genindex.html">
+    <link rel="search" title="Search" href="../../../../search.html">
+
+<!--
+  Search engines should not index the main version of documentation.
+  Stable documentation are built without release == 'main'.
+-->
+<meta name="robots" content="noindex">
+
+
+  <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T8XT4PS');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  
+  <script src="../../../../_static/js/modernizr.min.js"></script>
+
+  <!-- Preload the theme fonts -->
+
+<link rel="preload" href="../../../../_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../../_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../../_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../../_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../../_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../../_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<!-- Preload the katex fonts -->
+
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Math-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size1-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size2-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Caligraphic-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
+</head><body class="pytorch-body"><div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+
+          <li class="main-menu-item">
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">学习</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/get-started">
+                  <span class="dropdown-title">开始使用</span>
+                  <p>在本地运行 PyTorch 或快速开始使用支持的云平台之一</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials">
+                  <span class="dropdown-title">教程</span><p></p>
+                  <p>PyTorch 教程中的新内容是什么</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/basics/intro.html">
+                  <span class="dropdown-title">学习基础知识</span><p></p>
+                  <p>熟悉 PyTorch 的概念和模块</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/recipes/recipes_index.html">
+                  <span class="dropdown-title">PyTorch 食谱</span><p></p>
+                  <p>小而全，即用即部署的 PyTorch 代码示例</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/introyt.html">
+                  <span class="dropdown-title">PyTorch 入门 - YouTube 系列教程</span><p></p>
+                  <p>通过我们引人入胜的 YouTube 教程系列掌握 PyTorch 基础知识</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">生态系统</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem">
+                  <span class="dropdown-title">工具</span><p></p>
+                  <p>了解 PyTorch 生态系统中的工具和框架</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
+                  <span class="dropdown-title">社区</span>
+                  <p>加入 PyTorch 开发者社区，贡献、学习并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
+                  <span class="dropdown-title">论坛</span>
+                  <p>讨论 PyTorch 代码、问题、安装、研究的地方</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/resources">
+                  <span class="dropdown-title">开发者资源</span>
+                  <p>查找资源并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">贡献者奖项 - 2024</span><p></p>
+                  <p>本年 PyTorch 会议揭晓获奖者</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">边缘</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/edge">
+                  <span class="dropdown-title">关于 PyTorch Edge</span><p></p>
+                  <p>为边缘设备构建创新且注重隐私的 AI 体验</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
+                  <span class="dropdown-title">ExecuTorch</span><p></p>
+                  <p>针对移动和边缘设备实现端到端推理能力的解决方案</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch 文档</span><p></p>
+                </a>
+              </div>
+            </div>  
+          </li>
+
+          <li class="main-menu-item">
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">文档</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/docs/stable/index.html">
+                  <span class="dropdown-title">PyTorch</span><p></p>
+                  <p>查阅文档以获取全面指导，了解如何使用 PyTorch</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/pytorch-domains">
+                  <span class="dropdown-title">PyTorch 领域</span><p></p>
+                  <p>阅读 PyTorch 领域文档，了解更多关于特定领域库的信息</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">博客与新闻</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/blog/">
+                  <span class="dropdown-title">PyTorch 博客</span><p></p>
+                  <p>跟上最新的技术新闻和动态</p>
+                </a>
+                 <a class="nav-dropdown-item" href="https://pytorch.org/community-blog">
+                  <span class="dropdown-title">社区博客</span><p></p>
+                  <p>PyTorch 生态系统中的故事</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/videos">
+                  <span class="dropdown-title">视频</span><p></p>
+                  <p>了解最新的 PyTorch 教程、新内容等</p>
+                </a><a class="nav-dropdown-item" href="https://pytorch.org/community-stories">
+                  <span class="dropdown-title">社区故事</span><p></p>
+                  <p>了解我们的社区如何使用 PyTorch 解决真实、日常的机器学习问题</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/events">
+                  <span class="dropdown-title">活动</span><p></p>
+                  <p>查找活动、网络研讨会和播客</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">通讯</span><p></p>
+                  <p>跟踪最新更新</p>
+                </a>
+            </div>
+          </div></li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">关于</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/foundation">
+                  <span class="dropdown-title">PyTorch 基金会</span><p></p>
+                  <p>了解更多关于 PyTorch 基金会的信息</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
+                  <span class="dropdown-title">管理委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">云信用计划</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">技术顾问委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">员工</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">联系我们</span><p></p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li class="main-menu-item">
+            <div class="no-dropdown">
+              <a href="https://pytorch.org/join" data-cta="join">成为会员</a>
+            </div>
+          </li>
+          <li>
+           <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="github-icon">
+             </a>
+           </div>
+          </li>
+          <!--- TODO: This block adds the search icon to the nav bar. We will enable it later. 
+          <li>
+            <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="search-icon">
+             </a>
+            </div>
+          </li>
+          --->
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+  </div>
+</div>
+
+
+
+   
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>目录</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+    <div class="version">
+      <a href="https://pytorch.org/docs/versions.html">主页 (2.7.0+cpu ) ▼</a>
+    </div>
+    <div id="searchBox">
+    <div class="searchbox" id="googleSearchBox">
+      <script async="" src="https://cse.google.com/cse.js?cx=e65585f8c3ea1440e"></script>
+      <div class="gcse-search"></div>
+    </div>
+    <div id="sphinxSearchBox" style="display: none;">
+      <div role="search">
+        <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+          <input type="text" name="q" placeholder="Search Docs">
+          <input type="hidden" name="check_keywords" value="yes">
+          <input type="hidden" name="area" value="default">
+        </form>
+      </div>
+    </div>
+  </div>
+  <form id="searchForm">
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="google" checked="">Google 搜索</label>
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="sphinx">经典搜索</label>
+  </form>
+
+  <script>
+     document.addEventListener('DOMContentLoaded', function() {
+      const searchForm = document.getElementById('searchForm');
+      const googleSearchBox = document.getElementById('googleSearchBox');
+      const sphinxSearchBox = document.getElementById('sphinxSearchBox');
+      // Function to toggle search box visibility
+      function toggleSearchBox(searchType) {
+        googleSearchBox.style.display = searchType === 'google' ? 'block' : 'none';
+        sphinxSearchBox.style.display = searchType === 'sphinx' ? 'block' : 'none';
+      }
+      // Determine the default search type
+      let defaultSearchType;
+      const currentUrl = window.location.href;
+      if (currentUrl.startsWith('https://pytorch.org/docs/stable')) {
+        // For the stable documentation, default to Google
+        defaultSearchType = localStorage.getItem('searchType') || 'google';
+      } else {
+        // For any other version, including docs-preview, default to Sphinx
+        defaultSearchType = 'sphinx';
+      }
+      // Set the default search type
+      document.querySelector(`input[name="searchType"][value="${defaultSearchType}"]`).checked = true;
+      toggleSearchBox(defaultSearchType);
+      // Event listener for changes in search type
+      searchForm.addEventListener('change', function(event) {
+        const selectedSearchType = event.target.value;
+        localStorage.setItem('searchType', selectedSearchType);
+        toggleSearchBox(selectedSearchType);
+      });
+      // Set placeholder text for Google search box
+      window.onload = function() {
+        var placeholderText = "Search Docs";
+        var googleSearchboxText = document.querySelector("#gsc-i-id1");
+        if (googleSearchboxText) {
+          googleSearchboxText.placeholder = placeholderText;
+          googleSearchboxText.style.fontFamily = 'FreightSans';
+          googleSearchboxText.style.fontSize = "1.2rem";
+          googleSearchboxText.style.color = '#262626';
+        }
+      };
+    });
+  </script>
+
+          </div>
+
+          
+
+<div>
+  <a style="color:#F05732" href="https://pytorch.org/docs/stable/_modules/torch/nn/utils/prune.html">您正在查看不稳定开发者预览文档。请点击此处查看最新稳定版本的文档。</a>
+</div>
+
+
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">社区</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../community/build_ci_governance.html">PyTorch 治理 | 构建 + CI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../community/contribution_guide.html">PyTorch 贡献指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../community/design.html">PyTorch 设计哲学</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../community/governance.html">PyTorch 治理 | 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../community/persons_of_interest.html">PyTorch 治理 | 维护者</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发者笔记</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/amp_examples.html">自动混合精度示例</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/autograd.html">Autograd 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/broadcasting.html">广播语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/cpu_threading_torchscript_inference.html">CPU 多线程和 TorchScript 推理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/cuda.html">CUDA 语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/custom_operators.html">PyTorch 自定义算子页面</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/ddp.html">分布式数据并行</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/extending.html">扩展 PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/extending.func.html">使用 autograd.Function 扩展 torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/faq.html">常见问题解答</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/fsdp.html">FSDP 笔记</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/get_start_xpu.html">在 Intel GPU 上入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/gradcheck.html">Gradcheck 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/hip.html">HIP (ROCm)语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/large_scale_deployments.html">大规模部署功能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/libtorch_stable_abi.html">LibTorch 稳定 ABI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/modules.html">模块</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/mps.html">MPS 后端</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/multiprocessing.html">多进程最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/numerical_accuracy.html">数值精度</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/randomness.html">可重复性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/serialization.html">序列化语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/windows.html">Windows 常见问题解答</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">语言绑定</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cpp_index.html">C++</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/javadoc/">Javadoc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../deploy.html">torch::deploy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torch.html">torch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../nn.html">torch.nn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../nn.functional.html">torch.nn.functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tensors.html">torch.Tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tensor_attributes.html">索引属性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tensor_view.html">张量视图</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../amp.html">torch.amp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../autograd.html">torch.autograd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../library.html">torch.library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../accelerator.html">torch.accelerator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cpu.html">torch.cpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cuda.html">torch.cuda</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torch_cuda_memory.html">理解 CUDA 内存使用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torch_cuda_memory.html#generating-a-snapshot">生成快照</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torch_cuda_memory.html#using-the-visualizer">使用可视化工具</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torch_cuda_memory.html#snapshot-api-reference">摄像头 API 参考</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../mps.html">torch.mps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../xpu.html">torch.xpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../mtia.html">torch.mtia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../mtia.memory.html">torch.mtia.memory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../meta.html">元设备</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../backends.html">torch.backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../export.html">torch.export</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../distributed.html">torch.distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../distributed.tensor.html">torch.distributed.tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../distributed.algorithms.join.html">torch.distributed.algorithms.join</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../distributed.elastic.html">torch.distributed.elastic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../fsdp.html">torch.distributed.fsdp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../distributed.fsdp.fully_shard.html">torch.distributed.fsdp.fully_shard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../distributed.tensor.parallel.html">torch.distributed.tensor.parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../distributed.optim.html">torch.distributed.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../distributed.pipelining.html">torch.distributed.pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../distributed.checkpoint.html">torch.distributed.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../distributions.html">torch.distributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torch.compiler.html">torch.compiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../fft.html">torch.fft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../func.html">torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../futures.html">torch.futures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../fx.html">torch.fx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../fx.experimental.html">torch.fx.experimental</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../hub.html">torch.hub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../jit.html">torch.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../linalg.html">torch.linalg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../monitor.html">torch.monitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../signal.html">torch.signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../special.html">torch.special</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torch.overrides.html">torch.overrides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../package.html">torch.package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../profiler.html">torch.profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../nn.init.html">torch.nn.init</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../nn.attention.html">torch.nn.attention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../onnx.html">torch.onnx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../optim.html">torch.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../complex_numbers.html">复数</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ddp_comm_hooks.html">DDP 通信钩子</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quantization.html">量化</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../rpc.html">分布式 RPC 框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../random.html">torch.random</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../masked.html">torch.masked</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../nested.html">torch.nested</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../size.html">torch.Size</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sparse.html">torch.sparse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../storage.html">torch.Storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../testing.html">torch.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../utils.html">torch.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../benchmark_utils.html">torch.utils.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../bottleneck.html">torch.utils.bottleneck</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../checkpoint.html">torch.utils.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cpp_extension.html">torch.utils.cpp_extension</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../data.html">torch.utils.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../deterministic.html">torch.utils.deterministic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../jit_utils.html">torch.utils.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../dlpack.html">torch.utils.dlpack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../mobile_optimizer.html">torch.utils.mobile_optimizer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../model_zoo.html">torch.utils.model_zoo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tensorboard.html">torch.utils.tensorboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../module_tracker.html">torch.utils.module_tracker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../type_info.html">类型信息</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../named_tensor.html">命名张量</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../name_inference.html">命名张量操作覆盖率</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../config_mod.html">torch.__config__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../future_mod.html">torch.__future__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../logging.html">torch._logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torch_environment_variables.html">Torch 环境变量</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">库</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/audio/stable">torchaudio</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/data">TorchData</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/torchrec">火炬推荐</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/serve">TorchServe</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/text/stable">torchtext</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/vision/stable">torchvision</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/xla/">PyTorch on XLA Devices</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/ao">torchao</a></li>
+</ul>
+
+            
+          
+
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        文档 &gt;</li>
+
+        
+          <li>模块代码 &gt;</li>
+        
+          <li><a href="../../../torch.html">torch</a> &gt;</li>
+        
+      <li>torch.nn.utils.prune</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">快捷键</div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+
+          <!-- Google Tag Manager (noscript) -->
+          <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T8XT4PS" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+          <!-- End Google Tag Manager (noscript) -->
+          
+          <div class="rst-content">
+          
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <h1>torch.nn.utils.prune 源代码</font></font></font></h1><div class="highlight"><pre><span></span><span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># mypy: 允许未类型化定义</span>
+<span class="sa">r</span><span class="sd">剪枝方法。</span>
+<span class="kn">导入</font></font></font></span> <span class="nn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数字</span>
+<span class="kn">来自</font></font></font></span> <span class="nn">abc</span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n">ABC</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">抽象方法</span>
+<span class="kn">来自</font></font></font></span> <span class="nn">collections.abc</span> <span class="kn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">导入</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">迭代器</span>
+
+<span class="kn">导入</font></font></font></span> <span class="nn"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</span>
+
+
+<div class="viewcode-block" id="BasePruningMethod"><a class="viewcode-back" href="../../../../generated/torch.nn.utils.prune.BasePruningMethod.html#torch.nn.utils.prune.BasePruningMethod">[文档]</font></font></font></a><span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类</font></font></font></span> <span class="nc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">基础剪枝方法</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">抽象基类，用于创建新的剪枝技术。</span>
+
+<span class="sd">提供定制所需的骨架，需要覆盖方法</span>
+<span class="sd">例如：:meth:`compute_mask` 和 :meth:`apply`。</span>
+<span class="sd"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">```python
+# 假设输入文本为：
+input_text = '"""'
+
+# 翻译函数（此处仅为示例，实际翻译功能需要调用真实的翻译 API）
+def translate_to_simplified_chinese(text):
+    # 这里应该调用真实的翻译 API 进行翻译
+    # 由于示例中不使用真实的 API，以下为模拟翻译结果
+    return text
+
+# 输出翻译结果
+translated_text = translate_to_simplified_chinese(input_text)
+print(translated_text)
+```</font></font></font></span>
+
+    <span class="n">_tensor_name</span><span class="p">:</span> <span class="nb">字符串</span>
+
+    <span class="k">def</span> <span class="fm">__调用__</font></font></font></span><span class="p">(</span><span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">自身</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">输入</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">将掩码乘入原始张量并存储结果。</span>
+
+<span class="sd">将掩码（存储在 `module[name + '_mask']`）乘入</span>
+<span class="sd">原始张量（存储在 `module[name + '_orig']`）</span>
+<span class="sd">使用 :meth:`apply_mask` 将结果存储到 `module[name]` 中。</span>
+
+<span class="sd">参数：</span>
+<span class="sd">模块（nn.Module）：包含要剪枝张量的模块</span>
+<span class="sd">输入：未使用。</span>
+<span class="sd"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">```python
+# 假设输入文本为：
+input_text = '"""'
+
+# 翻译函数（此处仅为示例，实际翻译功能需要调用真实的翻译 API）
+def translate_to_simplified_chinese(text):
+    # 这里应该调用真实的翻译 API 进行翻译
+    # 由于示例中不使用真实的 API，以下为模拟翻译结果
+    return text
+
+# 输出翻译结果
+translated_text = translate_to_simplified_chinese(input_text)
+print(translated_text)
+```</font></font></font></span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">模块</font></font></font></span><span class="p">,</span> <span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">自身</font></font></font></span><span class="o">.</span><span class="n">_tensor_name</span><span class="p">,</span> <span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">自身</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">应用掩码</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</span><span class="p">))</span>
+
+<div class="viewcode-block" id="BasePruningMethod.compute_mask"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]    @abstractmethod
+def compute_mask(self, t, default_mask):
+r"""计算并返回输入张量 ``t`` 的掩码。"""
+
+从一个基本的 `default_mask`（如果张量尚未被剪枝的话）开始，生成一个随机掩码
+应用到 `default_mask` 上，具体方法根据剪枝方法配方
+生成一个随机掩码，根据特定的剪枝方法
+配方来应用。
+
+Args:
+t (torch.Tensor): 表示剪枝参数重要性的张量。
+default_mask (torch.Tensor): 基于之前剪枝的基掩码。
+previous_pruning (torch.Tensor): 上次剪枝的掩码。
+在应用新掩码后需要遵守的迭代次数。
+与`t`相同的维度。
+
+返回：
+mask (torch.Tensor)：应用于`t`的掩码，与`t`具有相同的维度。
+"""</font></font></font></div>
+
+<div class="viewcode-block" id="BasePruningMethod.apply_mask"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]    def apply_mask(self, module):
+简单处理被剪枝的参数与生成的掩码之间的乘法。
+
+从模块中获取掩码和原始张量。
+返回张量的修剪版本。
+
+参数:
+模块（nn.Module）：包含要剪枝张量的模块
+
+返回：
+pruned_tensor (torch.Tensor): 输入张量的剪枝版本
+"""
+# 执行乘法之前，需要计算掩码，
+# 因此，剪枝方法必须知道它正在操作哪个张量
+assert (
+self._tensor_name 不为 None
+), f"模块 {module} 需要被剪枝"  # 这在 apply() 中设置
+mask = getattr(module, self._tensor_name + "_mask")
+orig = getattr(module, self._tensor_name + "_orig")
+pruned_tensor = mask.to(dtype=orig.dtype) * orig
+return pruned_tensor</font></font></font></div>
+
+<div class="viewcode-block" id="BasePruningMethod.apply"><a class="viewcode-back" href="../../../../generated/torch.nn.utils.prune.BasePruningMethod.html#torch.nn.utils.prune.BasePruningMethod.apply">[文档]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">应用</font></font></font></span><span class="p">(</span><span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</font></font></font></span><span class="p">,</span> <span class="o">*</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">重要性得分</font></font></font></span><span class="o">=</span><span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">动态添加剪枝和张量的重新参数化。</span>
+
+<span class="sd">添加了前置钩子，允许动态剪枝</span>
+<span class="sd">张量在原始张量意义上的重新参数化</span>
+<span class="sd">并且剪枝掩码。</span>
+
+<span class="sd">参数：</span>
+<span class="sd">模块（nn.Module）：包含要剪枝张量的模块</span>
+<span class="sd">name（字符串）：在 ``module`` 中作为剪枝参数的参数名称</span>
+<span class="sd">将起作用。</span>
+<span class="sd">args：传递给子类的参数</span>
+<span class="sd">class:`BasePruningMethod`</span>
+<span class="sd">importance_scores (torch.Tensor)：重要性分数张量（用于计算剪枝掩码）</span>
+<span class="sd">其形状与模块参数相同，用于计算剪枝掩码。</span>
+<span class="sd">该张量中的值表示该参数的重要性。</span>
+<span class="sd">被修剪参数中的对应元素。</span>
+<span class="sd">如果未指定或为 None，将使用该参数。</span>
+<span class="sd">kwargs：传递给子类的关键字参数。</span>
+<span class="sd">class:`BasePruningMethod`</span>
+<span class="sd"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">```python
+# 假设输入文本为：
+input_text = '"""'
+
+# 翻译函数（此处仅为示例，实际翻译功能需要调用真实的翻译 API）
+def translate_to_simplified_chinese(text):
+    # 这里应该调用真实的翻译 API 进行翻译
+    # 由于示例中不使用真实的 API，以下为模拟翻译结果
+    return text
+
+# 输出翻译结果
+translated_text = translate_to_simplified_chinese(input_text)
+print(translated_text)
+```</font></font></font></span>
+
+        <span class="k">def</span> <span class="nf">_get_composite_method</span><span class="p">(</span><span class="bp">类</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</font></font></font></span><span class="p">,</span> <span class="o">*</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="c1"># 检查是否已经应用了剪枝方法</span>
+            <span class="c1"># 如果已经应用了 `module[name]`，则将其存储在 `old_method` 中。</span>
+            <span class="n">旧方法</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">找到</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="c1"># 实际上应该只有一个 hook.name == name 的钩子</span>
+            <span class="c1"># 使用 `found` 断言这一点</span>
+            <span class="n">要删除的钩子</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">为</font></font></font></span> <span class="n">k</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">钩子</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_前向预处理钩子</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">项目</span><span class="p">():</span>
+                <span class="c1"># 如果存在，取现有事物，移除钩子，然后</span>
+                <span class="c1"># 正常进行事物</span>
+                <span class="k">如果</font></font></font></span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">hook</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">基础剪枝方法</font></font></font></span><span class="p">)</span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">和</font></font></font></span> <span class="n">hook</span><span class="o">.</span><span class="n">_tensor_name</span> <span class="o">==</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</span><span class="p">:</span>
+                    <span class="n">旧方法</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">钩子</span>
+                    <span class="n">移除钩子</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">追加</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+                    <span class="n">找到</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">断言</span> <span class="p">(</span>
+                <span class="n">找到</font></font></font></span> <span class="o"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">≤</span> <span class="mi">1</span>
+            <span class="p">),</span> <span class="sa">f</span><span class="s2">"避免向同一模块的 tensor 添加多个剪枝钩"</span><span class="se">\</span>
+<span class="s2">同一 tensor</font></font></font></span><span class="si">{</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</font></font></font></span><span class="si">}</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">的模块</font></font></font></span><span class="si">{</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="si">}</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">。使用剪枝容器。</span>
+
+            <span class="k">为</font></font></font></span> <span class="n">k</span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">移除钩子</span><span class="p">:</span>
+                <span class="k">删除</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_前向预处理钩子</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+
+            <span class="c1"># 从头开始应用新的剪枝方法，或者基于上一个方法。</span>
+            <span class="c1"># 或者新的剪枝。</span>
+            <span class="n">方法</font></font></font></span> <span class="o">=</span> <span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类</font></font></font></span><span class="p">(</span><span class="o">*</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</font></font></font></span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># 新的剪枝</span>
+            <span class="c1"># 剪枝方法要记住它被应用到哪个张量上</span>
+            <span class="n">方法</font></font></font></span><span class="o">.</span><span class="n">_tensor_name</span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</span>
+
+            <span class="c1"># 如果存在 old_method，则将 `methods` 与 `old_method` 结合</span>
+            <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">旧方法</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是</font></font></font></span> <span class="ow">not</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</font></font></font></span><span class="p">:</span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># 表示存在钩子</span>
+                <span class="c1"># 如果钩子已经是剪枝容器，只需将</span>
+                <span class="c1"># 新的剪枝方法添加到容器中</span>
+                <span class="k">如果</font></font></font></span> <span class="nb">isinstance</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">旧方法</span><span class="p">,</span> <span class="n">PruningContainer</span><span class="p">):</span>
+                    <span class="n">旧方法</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">添加剪枝方法</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">方法</span><span class="p">)</span>
+                    <span class="n">方法</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">旧方法</font></font></font></span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">将旧方法重命名为 method</span>
+
+                <span class="c1">如果钩子只是一个单一的剪枝方法，创建一个容器</span>
+                <span class="c1">将旧剪枝方法和新方法添加到容器中</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">旧方法</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">基础剪枝方法</span><span class="p">):</span>
+                    <span class="n">容器</font></font></font></span> <span class="o">=</span> <span class="n">PruningContainer</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">旧方法</span><span class="p">)</span>
+                    <span class="c1"># 让剪枝方法记住其张量的名称</span>
+                    <span class="c1"># setattr(container, '_tensor_name', name)</span>
+                    <span class="n">容器</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">添加剪枝方法</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">方法</span><span class="p">)</span>
+                    <span class="n">方法</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">容器</font></font></font></span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># 重命名 container --&gt; 方法</span>
+            <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">方法</span>
+
+        <span class="n">方法</font></font></font></span> <span class="o">=</span> <span class="n">_get_composite_method</span><span class="p">(</span><span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</font></font></font></span><span class="p">,</span> <span class="o">*</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="c1"># 在此阶段我们还没有前向钩子，但我们可能会有</span>
+        <span class="c1"># 如果应用了另一种剪枝方法（在这种情况下，`method` 将是剪枝容器</span>
+        <span class="c1"># 而不是简单的剪枝方法）。</span>
+        <span class="c1">#）。</span>
+
+        <span class="c1">对模块的名为 `name` 的张量进行剪枝，</span>
+        <span class="c1">从它在此迭代之前所处的状态开始，</span>
+        <span class="c1">基于重要性分数计算剪枝掩码。</span>
+
+        <span class="n">原始</font></font></font></span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</span><span class="p">)</span>
+        <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">重要性得分</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是</font></font></font></span> <span class="ow">not</span> <span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">:</span>
+            <span class="k">断言</span> <span class="p">(</span>
+                <span class="n">重要性得分</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">形状</font></font></font></span> <span class="o">==</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">原始</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">形状</span>
+            <span class="p">),</span> <span class="sa">f</span><span class="s2">"重要性得分应与参数具有相同的形状"</font></font></font></span><span class="si">{</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</font></font></font></span><span class="si">}</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">的</font></font></font></span><span class="si">{</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</span><span class="si">}</span><span class="s2">"</span>
+        <span class="k">否则</span><span class="p">:</span>
+            <span class="n">重要性得分</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">原始</span>
+
+        <span class="c1"># 如果这是第一次应用剪枝，请注意移动</span>
+        <span class="c1">将原始张量复制到一个名为 name + '_orig' 的新参数中</span>
+        <span class="c1">删除原始参数</span>
+        <span class="k">如果</font></font></font></span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">方法</span><span class="p">,</span> <span class="n">PruningContainer</span><span class="p">):</span>
+            <span class="c1">将 `module[name]` 复制到 `module[name + '_orig']`</span>
+            <span class="n">模块</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">注册参数</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</font></font></font></span> <span class="o">+</span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">"_原"</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">原始</span><span class="p">)</span>
+            <span class="c1"># 临时删除 `module[name]`</span>
+            <span class="k">删除</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</span><span class="p">]</span>
+            <span class="n">默认掩码</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">喜欢的</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">原始</font></font></font></span><span class="p">)</span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># 临时</span>
+        <span class="c1"># 如果这不是第一次进行剪枝，那么以上所有内容</span>
+        <span class="c1"># 在之前的剪枝迭代中已经执行过，所以没问题</span>
+        <span class="c1"># 可以继续</span>
+        <span class="k">否则</span><span class="p">:</span>
+            <span class="n">默认掩码</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="nb">getattr</span><span class="p">(</span><span class="n">模块</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</font></font></font></span> <span class="o">+</span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_mask</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">detach</span><span class="p">()</span>
+                <span class="o">.</span><span class="n">克隆</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">内存格式</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">连续格式</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="c1">因为如果对掩码有任何错误，请使用 try/except</span>
+        <span class="c1">等计算等，您可能需要回滚。</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1">获取最终掩码，根据特定方法计算得出</span>
+            <span class="n">遮罩</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">方法</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">计算掩码</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">重要性得分</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">默认掩码</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">默认掩码</span><span class="p">)</span>
+            <span class="c1">通过将掩码保存到 `module[name + '_mask']` 来重新参数化...</span>
+            <span class="n">模块</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">注册缓冲区</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</font></font></font></span> <span class="o">+</span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_mask</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">面具</span><span class="p">)</span>
+            <span class="c1"># ...并将新的剪枝张量赋值给`module[name]`</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">模块</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">方法</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">应用掩码</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</span><span class="p">))</span>
+            <span class="c1"># 通过钩子将剪枝方法关联到模块</span>
+            <span class="c1">在每次 forward()之前计算函数（通过运行编译）</span>
+            <span class="n">模块</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">注册前向钩子</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">方法</span><span class="p">)</span>
+
+        <span class="k">除了</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">异常</font></font></font></span> <span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">作为</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">如果</font></font></font></span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">方法</span><span class="p">,</span> <span class="n">PruningContainer</span><span class="p">):</span>
+                <span class="n">原始</font></font></font></span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</font></font></font></span> <span class="o">+</span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">"_原"</span><span class="p">)</span>
+                <span class="n">模块</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">注册参数</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">原始</span><span class="p">)</span>
+                <span class="k">删除</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</font></font></font></span> <span class="o">+</span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">"_原"</span><span class="p">]</span>
+            <span class="k">提升</span> <span class="n">e</span>
+
+        <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">方法</span></div>
+
+<div class="viewcode-block" id="BasePruningMethod.prune"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]    def prune(self, t, default_mask=None, importance_scores=None):
+计算并返回输入张量 ``t`` 的剪枝版本。
+
+根据在 :meth:`compute_mask` 中指定的剪枝规则。
+
+参数:
+t (torch.Tensor)：要剪枝的张量（与 ``default_mask`` 维度相同）
+``default_mask``）。
+importance_scores (torch.Tensor)：重要性得分张量（与 ``t`` 维度相同），用于计算剪枝 ``t`` 的掩码。
+importance_scores (torch.Tensor)：重要性得分张量（与 ``t`` 维度相同），用于计算剪枝 ``t`` 的掩码。
+这个张量中的值表示其重要性
+对应于正在剪枝的`t`中的元素。
+如果未指定或为 None，将使用张量`t`代替。
+默认掩码（torch.Tensor，可选）：来自先前剪枝的掩码
+迭代，如果有。在确定应该作用在张量哪一部分进行剪枝时需要考虑。
+指定剪枝应该作用在张量的哪一部分。如果为 None，则默认为全一的掩码。
+默认为全一的掩码。
+
+返回：
+张量 ``t`` 的修剪版本。
+"""
+如果 importance_scores 不为 None：
+断言 (
+importance_scores.shape == t.shape
+), "importance_scores 应该与张量 t 具有相同的形状"
+else:
+importance_scores = t
+default_mask = default_mask if default_mask is not None else torch.ones_like(t)
+return t * self.compute_mask(importance_scores, default_mask=default_mask)</font></font></font></div>
+
+<div class="viewcode-block" id="BasePruningMethod.remove"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]    def remove(self, module):
+r"""从模块中移除剪枝重新参数化。"""
+
+被修剪的参数名为 ``name`` 将永久被修剪，
+并且名为 ``name+'_orig'`` 的参数将从参数列表中移除。
+同样，名为 ``name+'_mask'`` 的缓冲区也将被移除。
+
+注意：
+自我修剪不可撤销或逆转！
+"""
+在从张量中移除修剪之前，它必须已经被应用
+断言（
+self._tensor_name 不为 None
+), f"模块 {module} 必须在移除剪枝之前进行剪枝"  # 这在 apply() 中设置
+
+# 更新 module[name] 到最新的训练权重
+weight = self.apply_mask(module)  # 带掩码的权重
+
+删除并重置
+如果 hasattr(module, self._tensor_name):
+删除 module 的 self._tensor_name 属性
+orig = module._parameters[self._tensor_name + "_orig"]
+原始数据 = 权重数据
+删除 module._parameters[self._tensor_name + "_orig"]
+删除 module._buffers[self._tensor_name + "_mask"]
+将 setattr(module, self._tensor_name, orig) 赋值给 module</font></font></font></div></div>
+
+
+<div class="viewcode-block" id="PruningContainer"><a class="viewcode-back" href="../../../../generated/torch.nn.utils.prune.PruningContainer.html#torch.nn.utils.prune.PruningContainer">[文档]</font></font></font></a><span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类</font></font></font></span> <span class="nc">PruningContainer</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">基础剪枝方法</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"包含一系列剪枝方法的容器，用于迭代剪枝。</span>
+
+<span class="sd">记录剪枝方法应用的顺序并处理</span>
+<span class="sd">结合连续的剪枝调用。</span>
+
+<span class="sd">接受一个 BasePruningMethod 的实例或一个 BasePruningMethod 的迭代器作为参数。</span>
+<span class="sd">它们。</span>
+<span class="sd"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">```python
+# 假设输入文本为：
+input_text = '"""'
+
+# 翻译函数（此处仅为示例，实际翻译功能需要调用真实的翻译 API）
+def translate_to_simplified_chinese(text):
+    # 这里应该调用真实的翻译 API 进行翻译
+    # 由于示例中不使用真实的 API，以下为模拟翻译结果
+    return text
+
+# 输出翻译结果
+translated_text = translate_to_simplified_chinese(input_text)
+print(translated_text)
+```</font></font></font></span>
+
+    <span class="k">def</span> <span class="fm">初始化</font></font></font></span><span class="p">(</span><span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">自身</font></font></font></span><span class="p">,</span> <span class="o">*</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="p">):</span>
+        <span class="bp">自身</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_剪枝方法</font></font></font></span><span class="p">:</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">元组</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">基础剪枝方法</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">()</span>
+        <span class="k">如果</font></font></font></span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">迭代器</font></font></font></span><span class="p">):</span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># 只有 1 项</span>
+            <span class="bp">自身</font></font></font></span><span class="o">.</span><span class="n">_tensor_name</span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="o">.</span><span class="n">_tensor_name</span>
+            <span class="bp">自身</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">添加剪枝方法</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">长度</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</font></font></font></span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># 元组中只有 1 个元素</span>
+            <span class="bp">自身</font></font></font></span><span class="o">.</span><span class="n">_tensor_name</span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">_tensor_name</span>
+            <span class="bp">自身</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">添加剪枝方法</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">否则</font></font></font></span><span class="p">:</span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># 从列表或其他可迭代对象手动构建（或无参数）</span>
+            <span class="k">为</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">方法</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="p">:</span>
+                <span class="bp">自身</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">添加剪枝方法</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">方法</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PruningContainer.add_pruning_method"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]    def 添加剪枝方法(self, 方法):
+r"""向容器添加子剪枝 ``方法``。
+
+参数:
+方法（BasePruningMethod 的子类）：子节点剪枝方法
+需要添加到容器中。
+"""
+# 检查是否已将剪枝方法添加到容器中
+如果不是 BasePruningMethod 的实例且 method 不是 None：
+则抛出 TypeError 异常(f"{type(method)}不是 BasePruningMethod 的子类")
+elif method 不是 None 且 self._tensor_name 不等于 method._tensor_name：
+则抛出 ValueError 异常(
+只能添加作用于 "
+该参数名为'{self._tensor_name}'的剪枝容器{self}。
+发现 '{method._tensor_name}'
+            )
+# 如果所有检查通过，则添加到_pruning_methods 元组中
+self._pruning_methods += (method,)  # 忽略操作符类型</font></font></font></div>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">自身</span><span class="p">):</span>
+        <span class="k">返回</font></font></font></span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">长度</font></font></font></span><span class="p">(</span><span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">自身</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_剪枝方法</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">自身</span><span class="p">):</span>
+        <span class="k">返回</font></font></font></span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">迭代</font></font></font></span><span class="p">(</span><span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">自身</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_剪枝方法</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">自身</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">索引</span><span class="p">):</span>
+        <span class="k">返回</font></font></font></span> <span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">自身</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_剪枝方法</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">索引</span><span class="p">]</span>
+
+<div class="viewcode-block" id="PruningContainer.compute_mask"><a class="viewcode-back" href="../../../../generated/torch.nn.utils.prune.PruningContainer.html#torch.nn.utils.prune.PruningContainer.compute_mask">[文档]</font></font></font></a>    <span class="k">def</span> <span class="nf"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">计算掩码</font></font></font></span><span class="p">(</span><span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">自身</font></font></font></span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">默认掩码</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">应用最新的 ``方法``，通过计算新的部分掩码，并将其与 ``default_mask`` 结合返回。</span>
+
+<span class="sd">新的局部掩码应计算在未被 `default_mask` 清零的条目或通道上</span>
+<span class="sd">的哪些部分。新掩码将从张量 `t` 的哪些部分计算取决于 `PRUNING_TYPE`（由类型处理器处理）：</span>
+<span class="sd">依赖于 `PRUNING_TYPE`（由类型处理器处理）：</span>
+<span class="sd">有关张量 `t` 的新掩码将计算哪些部分取决于 `PRUNING_TYPE`（由类型处理器处理）：</span>
+
+<span class="sd">* 对于 'unstructured'，掩码将从非掩码条目列表中计算得出</span>
+<span class="sd">* 对于 'structured'，掩码将从张量中的非掩码通道计算得出</span>
+
+<span class="sd">* 对于 'unstructured'，掩码将从非掩码条目列表中计算得出</span>
+<span class="sd">* 对于 'structured'，掩码将从张量中的非掩码通道计算得出</span>
+
+<span class="sd">* 对于 'global'，掩码将在所有条目上计算。</span>
+
+<span class="sd">参数：</span>
+<span class="sd">t (torch.Tensor)：表示剪枝参数的张量。</span>
+<span class="sd">（与 ``default_mask`` 维度相同）。</span>
+<span class="sd">default_mask (torch.Tensor)：来自先前剪枝迭代的掩码。</span>
+
+<span class="sd">返回：</span>
+<span class="sd">mask (torch.Tensor)：新的 mask，结合了效果</span>
+<span class="sd">的 `default_mask` 和当前的新掩码</span>
+<span class="sd">修剪 `method`（与 `default_mask` 维度相同）</span>
+<span class="sd">`t`。</span>
+<span class="sd"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">```python
+# 假设输入文本为：
+input_text = '"""'
+
+# 翻译函数（此处仅为示例，实际翻译功能需要调用真实的翻译 API）
+def translate_to_simplified_chinese(text):
+    # 这里应该调用真实的翻译 API 进行翻译
+    # 由于示例中不使用真实的 API，以下为模拟翻译结果
+    return text
+
+# 输出翻译结果
+translated_text = translate_to_simplified_chinese(input_text)
+print(translated_text)
+```</font></font></font></span>
+
+        <span class="k">def</span> <span class="nf">_合并掩码</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">方法</font></font></font></span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">面具</span><span class="p">):</span>
+<span class="w">            </span><span class="sa">r</span><span class="sd">将所有剪枝方法的掩码合并并返回一个新的掩码。</span>
+
+<span class="sd">参数：</span>
+<span class="sd">方法（BasePruningMethod 子类）：剪枝方法</span>
+<span class="sd">正在应用中。</span>
+<span class="sd">t (torch.Tensor)：表示剪枝参数的张量。</span>
+<span class="sd">（与 mask 维度相同）。</span>
+<span class="sd">mask (torch.Tensor)：来自前一次剪枝迭代的掩码</span>
+
+<span class="sd">返回：</span>
+<span class="sd">new_mask (torch.Tensor): 新的掩码（torch.Tensor）：结合旧掩码和当前剪枝方法的新掩码</span>
+<span class="sd">of the old mask and the new mask from the current pruning method (of same dimensions as mask and t).</span>
+<span class="sd">                    pruning method (of same dimensions as mask and t).</span>
+<span class="sd"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">```python
+# 假设输入文本为：
+input_text = '"""'
+
+# 翻译函数（此处仅为示例，实际翻译功能需要调用真实的翻译 API）
+def translate_to_simplified_chinese(text):
+    # 这里应该调用真实的翻译 API 进行翻译
+    # 由于示例中不使用真实的 API，以下为模拟翻译结果
+    return text
+
+# 输出翻译结果
+translated_text = translate_to_simplified_chinese(input_text)
+print(translated_text)
+```</font></font></font></span>
+            <span class="n">新口罩</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">遮罩</font></font></font></span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">从现有掩码开始</span>
+            <span class="n">新口罩</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">新口罩</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">到</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数据类型</font></font></font></span><span class="o">=</span><span class="n">t</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数据类型</span><span class="p">)</span>
+
+            <span class="c1"># 计算 t 的一个切片，新剪枝方法将在其上操作</span>
+            <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">方法</font></font></font></span><span class="o">.</span><span class="n">PRUNING_TYPE</span> <span class="o">==</span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无结构</span><span class="p">:</span>
+                <span class="c1"># 删除 t 中掩码为 1 的条目</span>
+                <span class="n">slc</span> <span class="o">=</span> <span class="n">遮罩</span> <span class="o">==</span> <span class="mi">1</span>
+
+            <span class="c1"># 为结构剪枝，排除已完全剪枝的通道</span>
+            <span class="c1"># 完全剪枝</span>
+            <span class="k">elif</span> <span class="n">方法</font></font></font></span><span class="o">.</span><span class="n">PRUNING_TYPE</span> <span class="o">==</span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">结构化</span><span class="p">:</span>
+                <span class="k">如果</font></font></font></span> <span class="ow">not</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">有属性</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">方法</font></font></font></span><span class="p">,</span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">dim</span><span class="p">):</span>
+                    <span class="k">提升</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">属性错误</span><span class="p">(</span>
+                        <span class="s2">"PRUNING_TYPE 的剪枝方法 "</span>
+                        <span class="s1">'"structured" 需要定义属性 `dim`。'</span>
+                    <span class="p">)</span>
+
+                <span class="c1"># 通过移除已经归零的通道来找到要保留的通道</span>
+                <span class="c1"># （即 sum(entries) == 0 的位置）</span>
+                <span class="n">n_dims</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">暗淡</font></font></font></span><span class="p">()</span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">这是一个 2D 张量吗？3D 的吗？...</span>
+                <span class="n">维度</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">方法</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">维度</span>
+                <span class="c1"># 转换负索引</span>
+                <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">维度</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">维度</font></font></font></span> <span class="o">=</span> <span class="n">n_dims</span> <span class="o">+</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">维度</span>
+                <span class="c1"># 如果从 n_dims 中减去 dim 之后 dim 仍然为负</span>
+                <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">维度</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">提升</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">索引错误</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">索引超出张量的维度范围</span><span class="si">{</span><span class="n">n_dims</span><span class="si">}</span><span class="s2">"</span>
+                    <span class="p">)</span>
+                <span class="c1">查找沿 dim = dim 维度尚未被完全过滤掉的频道</span>
+                <span class="n">keep_channel</span> <span class="o">=</span> <span class="n">面具</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">总和</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">暗淡</font></font></font></span><span class="o">=</span><span class="p">[</span><span class="n">d</span> <span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">为</font></font></font></span> <span class="n">d</span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在</font></font></font></span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">范围</font></font></font></span><span class="p">(</span><span class="n">n_dims</span><span class="p">)</span> <span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">如果</font></font></font></span> <span class="n">d</span> <span class="o">!=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">暗淡</span><span class="p">])</span> <span class="o">!=</span> <span class="mi">0</span>
+                <span class="c1"># 创建切片以识别要剪枝的内容</span>
+                <span class="n">slc</span> <span class="o">=</span> <span class="p">[</span><span class="nb">切片</font></font></font></span><span class="p">(</span><span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</font></font></font></span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">]</span> <span class="o">*</span> <span class="n">n_dims</span>
+                <span class="n">slc</span><span class="p">[</span><span class="n">暗淡</span><span class="p">]</span> <span class="o">=</span> <span class="n">keep_channel</span>
+
+            <span class="k">elif</span> <span class="n">方法</font></font></font></span><span class="o">.</span><span class="n">PRUNING_TYPE</span> <span class="o">==</span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">全局</span><span class="p">:</span>
+                <span class="n">n_dims</span> <span class="o">=</span> <span class="nb">长度</font></font></font></span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">这是一个 2D 张量吗？3D 的吗？...</span>
+                <span class="n">slc</span> <span class="o">=</span> <span class="p">[</span><span class="nb">切片</font></font></font></span><span class="p">(</span><span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</font></font></font></span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">]</span> <span class="o">*</span> <span class="n">n_dims</span>
+
+            <span class="k">否则</span><span class="p">:</span>
+                <span class="k">提升</font></font></font></span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">识别不到的 PRUNING_TYPE</font></font></font></span><span class="si">{</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">方法</span><span class="o">.</span><span class="n">PRUNING_TYPE</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+            <span class="c1"># 在张量 t 的非修剪切片上计算新的掩码</span>
+            <span class="n">部分掩码</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">方法</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">计算掩码</font></font></font></span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="n">slc</span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">]</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">默认掩码</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">面具</span><span class="p">[</span><span class="n">slc</span><span class="p">])</span>
+            <span class="n">新口罩</font></font></font></span><span class="p">[</span><span class="n">slc</span><span class="p">]</span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">部分口罩</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">到</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数据类型</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">新口罩</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数据类型</span><span class="p">)</span>
+
+            <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">新口罩</span>
+
+        <span class="n">方法</font></font></font></span> <span class="o">=</span> <span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">自身</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_剪枝方法</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">遮罩</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_合并掩码</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">方法</font></font></font></span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">默认掩码</span><span class="p">)</span>
+        <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">面具</span></div></div>
+
+
+<div class="viewcode-block" id="Identity"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]类 Identity(BasePruningMethod):
+r"""这是一个不剪枝任何单元但使用全 1 掩码生成剪枝参数化的实用剪枝方法。"""
+
+PRUNING_TYPE = "无结构"
+
+def compute_mask(self, t, default_mask):
+mask = default_mask
+return mask
+
+</font></font></font><div class="viewcode-block" id="Identity.apply"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]    @类方法
+def apply(cls, module, name):
+r"""动态添加剪枝和张量的重新参数化。
+
+添加前向预钩子，启用动态剪枝。
+张量在原始张量意义上的重新参数化
+以及修剪掩码。
+
+Args:
+要修剪的张量的模块（nn.Module）
+name (str): 在 ``module`` 中用于剪枝的参数名称
+将对其起作用。
+"""
+return super().apply(module, name)</font></font></font></div></div>
+
+
+<div class="viewcode-block" id="RandomUnstructured"><a class="viewcode-back" href="../../../../generated/torch.nn.utils.prune.RandomUnstructured.html#torch.nn.utils.prune.RandomUnstructured">[文档]</font></font></font></a><span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类</font></font></font></span> <span class="nc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">随机无结构</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">基础剪枝方法</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">随机剪枝（当前未剪枝）张量中的单元。</span>
+
+<span class="sd">参数：</span>
+<span class="sd">name（字符串）：在 ``module`` 中作为剪枝参数的参数名称</span>
+<span class="sd">将起作用。</span>
+<span class="sd">数量（整数或浮点数）：要修剪的参数数量。</span>
+<span class="sd">如果是浮点数，应在 0.0 和 1.0 之间，表示要修剪的参数比例。</span>
+<span class="sd">如果是整数，表示要修剪的参数数量。</span>
+<span class="sd">剪枝参数的绝对数量。</span>
+<span class="sd"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">```python
+# 假设输入文本为：
+input_text = '"""'
+
+# 翻译函数（此处仅为示例，实际翻译功能需要调用真实的翻译 API）
+def translate_to_simplified_chinese(text):
+    # 这里应该调用真实的翻译 API 进行翻译
+    # 由于示例中不使用真实的 API，以下为模拟翻译结果
+    return text
+
+# 输出翻译结果
+translated_text = translate_to_simplified_chinese(input_text)
+print(translated_text)
+```</font></font></font></span>
+
+    <span class="n">PRUNING_TYPE</span> <span class="o">=</span> <span class="s2">"无结构"</span>
+
+    <span class="k">def</span> <span class="fm">初始化</font></font></font></span><span class="p">(</span><span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">自身</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">金额</span><span class="p">):</span>
+        <span class="c1">检查剪枝量的有效性范围</span>
+        <span class="n">_初始化剪枝数量验证</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">金额</span><span class="p">)</span>
+        <span class="bp">自身</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数量</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数量</span>
+
+    <span class="k">def</span> <span class="nf">计算掩码</font></font></font></span><span class="p">(</span><span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">自身</font></font></font></span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">默认掩码</span><span class="p">):</span>
+        <span class="c1">检查修剪单元的数量是否不大于 t 参数的数量</span>
+        <span class="c1"># parameters in t</span>
+        <span class="n">张量大小</font></font></font></span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">元素个数</span><span class="p">()</span>
+        <span class="c1"># 计算要剪枝的单元数：如果为 int，则为数量</span>
+        <span class="c1">else 数量 * 张量大小</span>
+        <span class="n">nparams_toprune</span> <span class="o">=</span> <span class="n">_compute_nparams_toprune</span><span class="p">(</span><span class="bp">自身</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">金额</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量大小</span><span class="p">)</span>
+        <span class="c1">如果剪枝单元数量过大，则应引发错误</span>
+        <span class="c1"># 比 张量中的单元数多</span>
+        <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_validate_pruning_amount
+验证剪枝数量</font></font></font></span><span class="p">(</span><span class="n">nparams_toprune</span><span class="p">,</span> <span class="n">张量大小</span><span class="p">)</span>
+
+        <span class="n">遮罩</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">默认掩码</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">克隆</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">内存格式</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">连续格式</span><span class="p">)</span>
+
+        <span class="k">如果</font></font></font></span> <span class="n">nparams_toprune</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># k=0 不支持 torch.kthvalue</span>
+            <span class="n">概率</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">随机类似</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+            <span class="n">topk</span> <span class="o">=</span> <span class="n">火炬</font></font></font></span><span class="o">.</span><span class="n">topk</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">概率</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">视图</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">k</span><span class="o">=</span><span class="n">nparams_toprune</span><span class="p">)</span>
+            <span class="n">面具</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">视图</font></font></font></span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">)</font></font></font></span><span class="n">topk</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">索引</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">遮罩</span>
+
+<div class="viewcode-block" id="RandomUnstructured.apply"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]    @类方法
+def apply(cls, module, name, amount):
+r"""动态添加剪枝和张量的重新参数化。
+
+添加了前向预钩子，该钩子启用动态剪枝和
+张量的重新参数化，以原始张量为基础
+并且是修剪掩码。
+
+Args:
+模块（nn.Module）：包含要修剪张量的模块
+name（str）：在 ``module`` 中 ``module`` 的参数名称，用于修剪
+将执行。
+数量（整数或浮点数）：剪枝参数的数量。
+如果是 ``float``，则应在 0.0 和 1.0 之间，并代表
+如果是 ``int``，则代表
+绝对剪枝参数数量。
+```python
+# 输入文本
+input_text = '"""'
+
+# 翻译函数（此处为示例，实际翻译功能需调用真实的翻译 API）
+def translate_to_simplified_chinese(text):
+    # 假设的翻译结果
+    return text
+
+# 输出翻译结果
+translated_text = translate_to_simplified_chinese(input_text)
+print(translated_text)
+```
+返回 super().apply(module, name, amount=amount)</font></font></font></div></div>
+
+
+<div class="viewcode-block" id="L1Unstructured"><a class="viewcode-back" href="../../../../generated/torch.nn.utils.prune.L1Unstructured.html#torch.nn.utils.prune.L1Unstructured">[文档]</font></font></font></a><span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类</font></font></font></span> <span class="nc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">L1 非结构化</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">基础剪枝方法</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">通过将具有最低 L1 范数的单元置零来剪枝（当前未剪枝）张量中的单元。</span>
+
+<span class="sd">参数：</span>
+<span class="sd">数量（整数或浮点数）：要修剪的参数数量。</span>
+<span class="sd">如果是浮点数，应在 0.0 和 1.0 之间，表示要修剪的参数比例。</span>
+<span class="sd">如果是整数，表示要修剪的参数数量。</span>
+<span class="sd">剪枝参数的绝对数量。</span>
+<span class="sd"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">```python
+# 假设输入文本为：
+input_text = '"""'
+
+# 翻译函数（此处仅为示例，实际翻译功能需要调用真实的翻译 API）
+def translate_to_simplified_chinese(text):
+    # 这里应该调用真实的翻译 API 进行翻译
+    # 由于示例中不使用真实的 API，以下为模拟翻译结果
+    return text
+
+# 输出翻译结果
+translated_text = translate_to_simplified_chinese(input_text)
+print(translated_text)
+```</font></font></font></span>
+
+    <span class="n">PRUNING_TYPE</span> <span class="o">=</span> <span class="s2">"无结构"</span>
+
+    <span class="k">def</span> <span class="fm">初始化</font></font></font></span><span class="p">(</span><span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">自身</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">金额</span><span class="p">):</span>
+        <span class="c1">检查剪枝量的有效性范围</span>
+        <span class="n">_初始化剪枝数量验证</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">金额</span><span class="p">)</span>
+        <span class="bp">自身</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数量</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数量</span>
+
+    <span class="k">def</span> <span class="nf">计算掩码</font></font></font></span><span class="p">(</span><span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">自身</font></font></font></span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">默认掩码</span><span class="p">):</span>
+        <span class="c1">检查修剪单元的数量是否不大于 t 参数的数量</span>
+        <span class="c1"># parameters in t</span>
+        <span class="n">张量大小</font></font></font></span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">元素个数</span><span class="p">()</span>
+        <span class="c1"># 计算要剪枝的单元数：如果为 int，则为数量</span>
+        <span class="c1">else 数量 * 张量大小</span>
+        <span class="n">nparams_toprune</span> <span class="o">=</span> <span class="n">_compute_nparams_toprune</span><span class="p">(</span><span class="bp">自身</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">金额</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量大小</span><span class="p">)</span>
+        <span class="c1">如果剪枝单元数量过大，则应引发错误</span>
+        <span class="c1"># 比 张量中的单元数多</span>
+        <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_validate_pruning_amount
+验证剪枝数量</font></font></font></span><span class="p">(</span><span class="n">nparams_toprune</span><span class="p">,</span> <span class="n">张量大小</span><span class="p">)</span>
+
+        <span class="n">遮罩</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">默认掩码</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">克隆</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">内存格式</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">连续格式</span><span class="p">)</span>
+
+        <span class="k">如果</font></font></font></span> <span class="n">nparams_toprune</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># k=0 不支持 torch.kthvalue</span>
+            <span class="c1"># largest=True 表示取前 k 个；largest=False 表示取后 k 个</span>
+            <span class="c1"># 剪掉最小的 k 个</span>
+            <span class="n">topk</span> <span class="o">=</span> <span class="n">火炬</font></font></font></span><span class="o">.</span><span class="n">topk</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">绝对值</font></font></font></span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">视图</font></font></font></span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">k</span><span class="o">=</span><span class="n">nparams_toprune</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">最大的</font></font></font></span><span class="o">=</span><span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">错误</span><span class="p">)</span>
+            <span class="c1"># topk 将会有 .indices 和 .values</span>
+            <span class="n">面具</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">视图</font></font></font></span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">)</font></font></font></span><span class="n">topk</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">索引</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">遮罩</span>
+
+<div class="viewcode-block" id="L1Unstructured.apply"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]    @classmethod
+def apply(cls, module, name, amount, importance_scores=None):
+r"""动态添加剪枝和张量的重新参数化。
+
+添加了前向预钩子，使张量在动态剪枝和重新参数化方面成为可能，
+重新参数化张量，以原始张量的形式进行。
+并且是修剪掩码。
+
+Args:
+模块（nn.Module）：包含要修剪张量的模块
+name（str）：在 ``module`` 中 ``module`` 的参数名称，用于修剪
+将执行。
+数量（整数或浮点数）：剪枝参数的数量。
+如果是 ``float``，则应在 0.0 和 1.0 之间，并代表
+如果是 ``int``，则代表
+绝对剪枝参数数量。
+重要性得分（torch.Tensor）：重要性得分张量（相同）
+形状作为模块参数（用于计算剪枝掩码）。
+这个张量中的值表示相应元素的重要性
+参数中被剪枝的元素。
+如果未指定或为空，将使用模块参数代替。
+```python
+# 输入文本
+input_text = '"""'
+
+# 翻译函数（此处为示例，实际翻译功能需调用真实的翻译 API）
+def translate_to_simplified_chinese(text):
+    # 假设的翻译结果
+    return text
+
+# 输出翻译结果
+translated_text = translate_to_simplified_chinese(input_text)
+print(translated_text)
+```
+返回 super().apply()
+模块，名称，数量=amount，重要性得分=importance_scores
+        )</font></font></font></div></div>
+
+
+<div class="viewcode-block" id="RandomStructured"><a class="viewcode-back" href="../../../../generated/torch.nn.utils.prune.RandomStructured.html#torch.nn.utils.prune.RandomStructured">[文档]</font></font></font></a><span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类</font></font></font></span> <span class="nc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">随机结构化</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">基础剪枝方法</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">随机修剪张量中的所有（目前未修剪的）通道。</span>
+
+<span class="sd">参数：</span>
+<span class="sd">数量（整数或浮点数）：要修剪的参数数量。</span>
+<span class="sd">如果是浮点数，应在 0.0 和 1.0 之间，表示要修剪的参数比例。</span>
+<span class="sd">如果是整数，表示要修剪的参数数量。</span>
+<span class="sd">剪枝参数的绝对数量。</span>
+<span class="sd">dim（int，可选）：定义剪枝通道的 dim 索引。默认：-1。</span>
+<span class="sd">PRUNING_TYPE</span>
+<span class="sd"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">```python
+# 假设输入文本为：
+input_text = '"""'
+
+# 翻译函数（此处仅为示例，实际翻译功能需要调用真实的翻译 API）
+def translate_to_simplified_chinese(text):
+    # 这里应该调用真实的翻译 API 进行翻译
+    # 由于示例中不使用真实的 API，以下为模拟翻译结果
+    return text
+
+# 输出翻译结果
+translated_text = translate_to_simplified_chinese(input_text)
+print(translated_text)
+```</font></font></font></span>
+
+    <span class="n">PRUNING_TYPE</span> <span class="o">=</span> <span class="s2">结构化</span>
+
+    <span class="k">def</span> <span class="fm">初始化</font></font></font></span><span class="p">(</span><span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">自身</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">金额</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">暗淡</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="c1">检查数量有效范围</span>
+        <span class="n">_初始化剪枝数量验证</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">金额</span><span class="p">)</span>
+        <span class="bp">自身</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数量</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数量</span>
+        <span class="bp">自身</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">维度</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">维度</span>
+
+<div class="viewcode-block" id="RandomStructured.compute_mask"><a class="viewcode-back" href="../../../../generated/torch.nn.utils.prune.RandomStructured.html#torch.nn.utils.prune.RandomStructured.compute_mask">[文档]</font></font></font></a>    <span class="k">def</span> <span class="nf"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">计算掩码</font></font></font></span><span class="p">(</span><span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">自身</font></font></font></span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">默认掩码</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">计算并返回输入张量`t`的掩码。</span>
+
+<span class="sd">从基础 ``default_mask``（它应该是一个全一的掩码）开始</span>
+<span class="sd">如果张量尚未被剪枝)，生成一个随机掩码</span>
+<span class="sd">在 `default_mask` 上应用，通过随机置零通道</span>
+<span class="sd">沿着张量指定的维度。</span>
+
+<span class="sd">参数：</span>
+<span class="sd">t (torch.Tensor)：表示剪枝参数的张量。</span>
+<span class="sd">default_mask (torch.Tensor)：来自之前剪枝的基本掩码</span>
+<span class="sd">在应用新掩码后需要遵守的迭代次数。</span>
+<span class="sd">与`t`相同的维度。</span>
+
+<span class="sd">返回：</span>
+<span class="sd">掩码（torch.Tensor）：应用于`t`的掩码，与`t`具有相同的维度。</span>
+
+<span class="sd">抛出异常：</span>
+<span class="sd">索引错误：如果`self.dim &gt;= len(t.shape)`。</span>
+<span class="sd"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">```python
+# 假设输入文本为：
+input_text = '"""'
+
+# 翻译函数（此处仅为示例，实际翻译功能需要调用真实的翻译 API）
+def translate_to_simplified_chinese(text):
+    # 这里应该调用真实的翻译 API 进行翻译
+    # 由于示例中不使用真实的 API，以下为模拟翻译结果
+    return text
+
+# 输出翻译结果
+translated_text = translate_to_simplified_chinese(input_text)
+print(translated_text)
+```</font></font></font></span>
+        <span class="c1">检查张量是否有结构（即超过 1 维），</span>
+        <span class="c1">确保通道的概念是有意义的，</span>
+        <span class="n">_validate_structured_pruning</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+
+        <span class="c1">检查 self.dim 是否是索引 t 的有效维度，否则引发 IndexError 异常</span>
+        <span class="n">_validate_pruning_dim</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="bp">自身</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">暗淡</span><span class="p">)</span>
+
+        <span class="c1"># 检查剪枝通道的数量是否不大于 t 沿 dim 的通道数</span>
+        <span class="c1"># 剪枝维度上的通道数</span>
+        <span class="n">张量大小</font></font></font></span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">自身</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">暗淡</span><span class="p">]</span>
+        <span class="c1"># 计算要剪枝的单元数：如果为 int，则为数量</span>
+        <span class="c1">else 数量 * 张量大小</span>
+        <span class="n">nparams_toprune</span> <span class="o">=</span> <span class="n">_compute_nparams_toprune</span><span class="p">(</span><span class="bp">自身</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">金额</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量大小</span><span class="p">)</span>
+        <span class="c1">如果剪枝单元数量过大，则应引发错误</span>
+        <span class="c1"># 比 张量中的单元数多</span>
+        <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_validate_pruning_amount
+验证剪枝数量</font></font></font></span><span class="p">(</span><span class="n">nparams_toprune</span><span class="p">,</span> <span class="n">张量大小</span><span class="p">)</span>
+
+        <span class="c1">通过将其初始化为全 0 然后填充 topk.indices 指示的位置为 1s 来计算二进制掩码</span>
+        <span class="c1"># mask 具有与张量 t 相同的形状</span>
+        <span class="c1"># mask 具有与张量 t 相同的形状</span>
+        <span class="k">def</span> <span class="nf">make_mask</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">暗淡</span><span class="p">,</span> <span class="n">nchannels</span><span class="p">,</span> <span class="n">nchannels_toprune</span><span class="p">):</span>
+            <span class="c1">生成一个[0, 1]范围内的随机数以关联到每个通道</span>
+            <span class="n">概率</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">随机</span><span class="p">(</span><span class="n">nchannels</span><span class="p">)</span>
+            <span class="c1"># 为每个通道生成掩码，通过将分配了 k = nchannels_toprune 最低值的通道置零</span>
+            <span class="c1"># 获取分配了概率中 k = nchannels_toprune 最低值的通道</span>
+            <span class="n">阈值</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">第 k 大值</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">概率</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="n">nchannels_toprune</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+            <span class="n">通道掩码</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">概率</font></font></font></span> <span class="o">&gt;</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">阈值</span>
+
+            <span class="n">遮罩</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">与...相同形状的零</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+            <span class="n">slc</span> <span class="o">=</span> <span class="p">[</span><span class="nb">切片</font></font></font></span><span class="p">(</span><span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</font></font></font></span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">]</font></font></font></span> <span class="o">*</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">长度</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+            <span class="n">slc</span><span class="p">[</span><span class="n">暗淡</font></font></font></span><span class="p">]</span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">通道掩码</span>
+            <span class="n">面具</span><span class="p">[</span><span class="n">slc</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">遮罩</span>
+
+        <span class="k">如果</font></font></font></span> <span class="n">nparams_toprune</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># k=0 不支持 torch.kthvalue</span>
+            <span class="n">遮罩</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">默认掩码</span>
+        <span class="k">否则</span><span class="p">:</span>
+            <span class="c1">在先前的（可能为非结构化）掩码之上应用新的结构化掩码</span>
+            <span class="c1"># unstructured</span>
+            <span class="n">遮罩</font></font></font></span> <span class="o">=</span> <span class="n">make_mask</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">自身</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">暗淡</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量大小</span><span class="p">,</span> <span class="n">nparams_toprune</span><span class="p">)</span>
+            <span class="n">遮罩</font></font></font></span> <span class="o">*=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">默认掩码</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">到</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数据类型</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">面具</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数据类型</span><span class="p">)</span>
+        <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">面具</span></div>
+
+<div class="viewcode-block" id="RandomStructured.apply"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]    @类方法
+def apply(cls, module, name, amount, dim=-1):
+r"""动态添加剪枝和张量的重新参数化。
+
+添加前向预钩子，启用动态剪枝。
+张量在原始张量意义上的重新参数化
+以及修剪掩码。
+
+Args:
+要修剪的张量的模块（nn.Module）
+name (str)：在 ``module`` 中进行剪枝的参数名称
+将会起作用。
+amount (int 或 float)：要剪枝的参数数量。
+如果是 ``float`` 类型，应在 0.0 和 1.0 之间，并代表
+参数剪枝的比例。如果为 ``int``，它表示
+绝对剪枝参数数量。
+dim (int, 可选): 沿着定义的维度索引
+修剪通道。默认：-1。
+"""
+"""
+返回 super().apply(module, name, amount=amount, dim=dim)</font></font></font></div></div>
+
+
+<div class="viewcode-block" id="LnStructured"><a class="viewcode-back" href="../../../../generated/torch.nn.utils.prune.LnStructured.html#torch.nn.utils.prune.LnStructured">[文档]</font></font></font></a><span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类</font></font></font></span> <span class="nc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">结构化</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">基础剪枝方法</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">基于张量中其 L\ ``n``-范数剪枝整个（当前未剪枝的）通道。</span>
+
+<span class="sd">参数：</span>
+<span class="sd">金额（整数或浮点数）：要剪枝的通道数量。</span>
+<span class="sd">如果是浮点数，应在 0.0 和 1.0 之间，表示要修剪的参数比例。</span>
+<span class="sd">如果是整数，表示要修剪的参数数量。</span>
+<span class="sd">剪枝参数的绝对数量。</span>
+<span class="sd">n (int, float, inf, -inf, 'fro', 'nuc'): 请参阅关于 p 在 torch.norm 中有效参数的文档</span>
+<span class="sd">            entries for argument ``p`` in :func:`torch.norm`.</span>
+<span class="sd">dim（int，可选）：定义剪枝通道的 dim 索引。默认：-1。</span>
+<span class="sd">PRUNING_TYPE</span>
+<span class="sd"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">```python
+# 假设输入文本为：
+input_text = '"""'
+
+# 翻译函数（此处仅为示例，实际翻译功能需要调用真实的翻译 API）
+def translate_to_simplified_chinese(text):
+    # 这里应该调用真实的翻译 API 进行翻译
+    # 由于示例中不使用真实的 API，以下为模拟翻译结果
+    return text
+
+# 输出翻译结果
+translated_text = translate_to_simplified_chinese(input_text)
+print(translated_text)
+```</font></font></font></span>
+
+    <span class="n">PRUNING_TYPE</span> <span class="o">=</span> <span class="s2">结构化</span>
+
+    <span class="k">def</span> <span class="fm">初始化</font></font></font></span><span class="p">(</span><span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">自身</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">金额</font></font></font></span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">暗淡</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="c1">检查数量有效范围</span>
+        <span class="n">_初始化剪枝数量验证</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">金额</span><span class="p">)</span>
+        <span class="bp">自身</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数量</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数量</span>
+        <span class="bp">自身</span><span class="o">.</span><span class="n">n</span> <span class="o">=</span> <span class="n">n</span>
+        <span class="bp">自身</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">维度</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">维度</span>
+
+<div class="viewcode-block" id="LnStructured.compute_mask"><a class="viewcode-back" href="../../../../generated/torch.nn.utils.prune.LnStructured.html#torch.nn.utils.prune.LnStructured.compute_mask">[文档]</font></font></font></a>    <span class="k">def</span> <span class="nf"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">计算掩码</font></font></font></span><span class="p">(</span><span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">自身</font></font></font></span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">默认掩码</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">计算并返回输入张量`t`的掩码。</span>
+
+<span class="sd">从基础 ``default_mask``（它应该是一个全一的掩码）开始</span>
+<span class="sd">如果张量尚未被剪枝），生成一个要应用的掩码</span>
+<span class="sd">顶部将 `default_mask` 的通道置零</span>
+<span class="sd">指定具有最低 L\ ``n``-范数的维度。</span>
+
+<span class="sd">参数：</span>
+<span class="sd">t (torch.Tensor)：表示剪枝参数的张量。</span>
+<span class="sd">default_mask (torch.Tensor)：来自之前剪枝的基本掩码</span>
+<span class="sd">在应用新掩码后需要遵守的迭代次数。</span>
+<span class="sd">。与`t`具有相同的维度</span>
+
+<span class="sd">返回：</span>
+<span class="sd">掩码（torch.Tensor）：应用于`t`的掩码，与`t`具有相同的维度。</span>
+
+<span class="sd">抛出异常：</span>
+<span class="sd">索引错误：如果`self.dim &gt;= len(t.shape)`。</span>
+<span class="sd"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">```python
+# 假设输入文本为：
+input_text = '"""'
+
+# 翻译函数（此处仅为示例，实际翻译功能需要调用真实的翻译 API）
+def translate_to_simplified_chinese(text):
+    # 这里应该调用真实的翻译 API 进行翻译
+    # 由于示例中不使用真实的 API，以下为模拟翻译结果
+    return text
+
+# 输出翻译结果
+translated_text = translate_to_simplified_chinese(input_text)
+print(translated_text)
+```</font></font></font></span>
+        <span class="c1">检查张量是否有结构（即超过 1 维），</span>
+        <span class="c1">确保通道的概念是有意义的，</span>
+        <span class="n">_validate_structured_pruning</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+        <span class="c1">检查 self.dim 是否是索引 t 的有效维度，否则引发 IndexError 异常</span>
+        <span class="n">_validate_pruning_dim</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="bp">自身</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">暗淡</span><span class="p">)</span>
+
+        <span class="c1"># 检查剪枝通道的数量是否不大于 t 沿 dim 的通道数</span>
+        <span class="c1"># 剪枝维度上的通道数</span>
+        <span class="n">张量大小</font></font></font></span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">自身</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">暗淡</span><span class="p">]</span>
+        <span class="c1"># 计算要剪枝的单元数：如果为 int，则为数量</span>
+        <span class="c1">else 数量 * 张量大小</span>
+        <span class="n">nparams_toprune</span> <span class="o">=</span> <span class="n">_compute_nparams_toprune</span><span class="p">(</span><span class="bp">自身</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">金额</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量大小</span><span class="p">)</span>
+        <span class="n">保留参数数量</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量大小</span> <span class="o">-</span> <span class="n">nparams_toprune</span>
+        <span class="c1">如果剪枝单元数量过大，则应引发错误</span>
+        <span class="c1"># 比 张量中的单元数多</span>
+        <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_validate_pruning_amount
+验证剪枝数量</font></font></font></span><span class="p">(</span><span class="n">nparams_toprune</span><span class="p">,</span> <span class="n">张量大小</span><span class="p">)</span>
+
+        <span class="c1"># 结构化剪枝会剪除整个通道，因此我们需要知道</span>
+        <span class="c1">沿每个通道计算 L_n 范数，然后根据这个范数找到 topk</span>
+        <span class="c1"># 距离度量</span>
+        <span class="n">标准</font></font></font></span> <span class="o">=</span> <span class="n">_compute_norm</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">自身</font></font></font></span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">自身</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">暗淡</span><span class="p">)</span>
+        <span class="c1"># largest=True 表示取前 k 个；largest=False 表示取后 k 个</span>
+        <span class="c1"># 保持沿 dim=self.dim 的最大 k 通道</span>
+        <span class="n">topk</span> <span class="o">=</span> <span class="n">火炬</font></font></font></span><span class="o">.</span><span class="n">topk</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">归一化</font></font></font></span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="n">nparams_tokeep</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">最大的</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># topk 将会有 .indices 和 .values</span>
+
+        <span class="c1">通过将其初始化为全 0 然后填充 topk.indices 指示的位置为 1s 来计算二进制掩码</span>
+        <span class="c1"># mask 具有与张量 t 相同的形状</span>
+        <span class="c1"># mask 具有与张量 t 相同的形状</span>
+        <span class="k">def</span> <span class="nf">make_mask</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">暗淡</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">索引</span><span class="p">):</span>
+            <span class="c1">初始化掩码为 0</span>
+            <span class="n">遮罩</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">与...相同形状的零</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+            <span class="c1">例如：slc = [None, None, None]，如果 len(t.shape) = 3</span>
+            <span class="n">slc</span> <span class="o">=</span> <span class="p">[</span><span class="nb">切片</font></font></font></span><span class="p">(</span><span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</font></font></font></span><span class="p"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">]</font></font></font></span> <span class="o">*</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">长度</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+            <span class="c1">将位置=dim 处的 None 替换为索引</span>
+            <span class="c1"># e.g.: slc = [None, None, [0, 2, 3]] 如果 dim=2 且 indices=[0,2,3]</span>
+            <span class="n">slc</span><span class="p">[</span><span class="n">暗淡</font></font></font></span><span class="p">]</span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">索引</span>
+            <span class="c1"># 使用 slc 来切片掩码，并将所有条目替换为 1</span>
+            <span class="c1"># 例如：mask[:, :, [0, 2, 3]] = 1</span>
+            <span class="n">面具</span><span class="p">[</span><span class="n">slc</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">遮罩</span>
+
+        <span class="k">如果</font></font></font></span> <span class="n">nparams_toprune</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># k=0 不支持 torch.kthvalue</span>
+            <span class="n">遮罩</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">默认掩码</span>
+        <span class="k">否则</span><span class="p">:</span>
+            <span class="n">遮罩</font></font></font></span> <span class="o">=</span> <span class="n">make_mask</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="bp"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">自身</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">暗淡</font></font></font></span><span class="p">,</span> <span class="n">topk</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">索引</span><span class="p">)</span>
+            <span class="n">遮罩</font></font></font></span> <span class="o">*=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">默认掩码</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">到</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数据类型</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">面具</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数据类型</span><span class="p">)</span>
+
+        <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">面具</span></div>
+
+<div class="viewcode-block" id="LnStructured.apply"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]    @类方法
+def apply(cls, module, name, amount, n, dim, importance_scores=None):
+r"""动态添加剪枝和张量的重新参数化。
+
+添加了前向预钩子，以启用动态剪枝。
+张量在原始张量意义上的重新参数化
+以及修剪掩码。
+
+Args:
+要修剪的张量的模块（nn.Module）
+name (str)：在 ``module`` 中进行剪枝的参数名称
+将会起作用。
+amount (int 或 float)：要剪枝的参数数量。
+如果是 ``float`` 类型，应在 0.0 和 1.0 之间，并代表
+参数剪枝的比例。如果为 ``int``，则表示要剪枝的参数数量。
+要剪枝的参数的绝对数量。
+n (int, float, inf, -inf, 'fro', 'nuc')：请参阅 :func:`torch.norm` 中参数 ``p`` 的有效条目文档。
+n (int, float, inf, -inf, 'fro', 'nuc')：请参阅 :func:`torch.norm` 中参数 ``p`` 的有效条目文档。
+dim (int): 沿着定义通道的维度索引
+剪枝。
+importance_scores (torch.Tensor): 用于计算剪枝掩码的重要性得分张量（与模块参数形状相同）
+importance_scores (torch.Tensor): tensor of importance scores (of same
+张量中的值表示正在剪枝的参数中相应元素的重要性。
+如果未指定或为 None，将使用模块参数代替。
+如果未指定或为 None，将使用模块参数代替。
+"""
+return super().apply(
+模块,
+名称,
+amount=amount,
+n=n,
+dim=dim,
+importance_scores=importance_scores,
+        )</font></font></font></div></div>
+
+
+<div class="viewcode-block" id="CustomFromMask"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]class CustomFromMask(BasePruningMethod):
+PRUNING_TYPE = "全局"
+
+def __init__(self, mask):
+self.mask = mask
+
+def compute_mask(self, t, default_mask):
+assert default_mask.shape == self.mask.shape
+mask = default_mask * self.mask.to(dtype=default_mask.dtype)
+return mask
+
+</font></font></font><div class="viewcode-block" id="CustomFromMask.apply"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]    @类方法
+def apply(cls, module, name, mask):
+r"""动态添加剪枝和张量的重新参数化。
+
+添加前向预钩子，启用动态剪枝。
+张量在原始张量意义上的重新参数化
+以及修剪掩码。
+
+Args:
+要修剪的张量的模块（nn.Module）
+name (str): 在 ``module`` 中用于剪枝的参数名称
+将对其起作用。
+"""
+return super().apply(module, name, mask=mask)</font></font></font></div></div>
+
+
+<div class="viewcode-block" id="identity"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]def identity(module, name):
+应用剪枝重参数化而不剪枝任何单元。
+
+应用于对应张量的剪枝重新参数化
+参数 ``name`` 在 ``module`` 中未实际剪枝
+单元。就地修改模块（并返回修改后的模块）
+by:
+
+1) 添加一个名为 ``name+'_mask'`` 的命名缓冲区，对应于
+由剪枝方法应用于参数 ``name`` 的二进制掩码。
+2) 将参数 `name` 替换为其修剪版本，同时
+原始（未修剪）参数存储在一个名为的新参数中
+`name'_orig'.
+
+注意：
+面具是一个全为 1 的张量。
+
+Args:
+module (nn.Module): 包含要剪枝的张量的模块。
+name (str): 在 ``module`` 中 ``module`` 的参数名称，用于剪枝
+将执行。
+
+返回：
+模块 (nn.Module)：输入模块的修改（即剪枝）版本
+
+示例：
+&gt;&gt;&gt; # xdoctest: +SKIP
+&gt;&gt;&gt; m = prune.identity(nn.Linear(2, 3), 'bias')
+&gt;&gt;&gt; print(m.bias_mask)
+tensor([1., 1., 1.])
+"""
+Identity.apply(模块, 名称)
+返回模块</font></font></font></div>
+
+
+<div class="viewcode-block" id="random_unstructured"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]def 随机非结构化(module, 名称, 数量):
+通过移除随机（当前未剪枝）的单元来剪枝张量。
+
+剪枝与模块中名为 ``name`` 的参数对应的张量。
+通过移除指定的 ``amount`` 个（当前未剪枝）单元。
+随机选择。
+在原模块上修改（并返回修改后的模块）的方式为：
+
+1) 添加一个名为 ``name+'_mask'`` 的命名缓冲区，对应于通过剪枝方法应用于参数 ``name`` 的二进制掩码。
+2) 将参数 ``name`` 替换为其剪枝版本，同时
+2) 将参数 ``name`` 替换为其剪枝版本，同时
+原始（未修剪）参数存储在名为的新参数中
+``name+'_orig'``.
+
+参数：
+模块（nn.Module）：包含要修剪张量的模块
+name (str): 模块内参数名称，对其实施剪枝
+将起作用。
+数量 (int 或 float): 要剪枝的参数数量。
+如果是 float 类型，应在 0.0 和 1.0 之间，并代表
+参数剪枝的比例。如果为 ``int``，则表示剪枝的参数比例。
+剪枝的参数绝对数量。
+
+返回：
+模块（nn.Module）：修改后的（即剪枝的）输入模块版本
+
+示例：
+&gt;&gt;&gt; # xdoctest: +SKIP
+&gt;&gt;&gt; m = prune.random_unstructured(nn.Linear(2, 3), 'weight', amount=1)
+&gt;&gt;&gt; torch.sum(m.weight_mask == 0)
+tensor(1)
+
+"""
+RandomUnstructured.apply(module, name, amount)
+返回 module</font></font></font></div>
+
+
+<div class="viewcode-block" id="l1_unstructured"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]def l1_unstructured(module, name, amount, importance_scores=None):
+r"""通过移除具有最低 L1 范数的单元来剪枝张量。
+
+剪枝对应于在`module`中名为`name`的参数的张量
+通过移除指定的`amount`个（当前未剪枝的）单元来实现
+最低 L1 范数。
+在原地进行模块修改（同时返回修改后的模块）
+作者：
+
+1) 添加一个名为 ``name+'_mask'`` 的命名缓冲区，对应于
+通过剪枝方法应用于参数 `name` 的二进制掩码。
+2) 用剪枝后的版本替换参数 `name`，而原始（未剪枝）参数存储在名为
+`name'_orig` 的新参数中。
+`name'_orig` 的新参数中。
+
+Args:
+模块 (nn.Module)：包含要剪枝张量的模块
+name (str)：在 ``module`` 中将要进行剪枝的参数名称
+将会作用。
+参数剪枝的数量（整数或浮点数）。
+如果是浮点数，应在 0.0 和 1.0 之间，表示要剪枝的参数比例。
+如果是整数，表示要剪枝的参数的绝对数量。
+表示要剪枝的参数的绝对数量。
+importance_scores (torch.Tensor): 张量的重要性得分（与模块参数形状相同）
+shape as module parameter) used to compute mask for pruning.
+The values in this tensor indicate the importance of the corresponding
+elements in the parameter being pruned.
+如果未指定或为空，将使用模块参数代替。
+
+返回：
+模块（nn.Module）：输入模块的修改版（即剪枝版）
+
+示例：
+&gt;&gt;&gt; # xdoctest: +SKIP
+&gt;&gt;&gt; m = prune.l1_unstructured(nn.Linear(2, 3), 'weight', amount=0.2)
+&gt;&gt;&gt; m.state_dict().keys()
+odict_keys(['bias', 'weight_orig', 'weight_mask'])
+"""
+L1Unstructured.apply(
+模块，名称，amount=amount，importance_scores=importance_scores
+    )
+返回模块</font></font></font></div>
+
+
+<div class="viewcode-block" id="random_structured"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]def 随机结构化(module, name, amount, dim):
+r"""通过移除指定维度的随机通道来剪枝张量。
+
+剪枝对应于在“module”中名为“name”的参数的张量
+通过移除指定的（当前未修剪的）频道数量
+沿着随机选择的指定 ``dim``
+在原地修改模块（并返回修改后的模块）
+通过：
+
+1) 添加一个名为 ``name+'_mask'`` 的命名缓冲区，对应于通过剪枝方法应用于参数 ``name`` 的二进制掩码。
+2) 将参数 ``name`` 替换为其剪枝版本，同时将原始（未剪枝）参数存储在名为的新参数中。
+3) 替换参数 ``name`` 为其剪枝版本，而原始（未剪枝）参数则存储在名为的新参数中。
+4) 替换参数 ``name`` 为其剪枝版本，而原始（未剪枝）参数则存储在名为的新参数中。
+``name'_orig'``.
+
+参数：
+模块（nn.Module）：包含要剪枝张量的模块
+name（str）：在 ``module`` 中要剪枝的参数名称
+将执行。
+数量（整数或浮点数）：剪枝参数的数量。
+如果是 ``float``，则应在 0.0 和 1.0 之间，并代表要剪枝的参数的
+比例。如果是 ``int``，则代表要剪枝的参数的数量。
+参数剪枝的绝对数量。
+dim (int): 沿着定义剪枝通道的维度索引。
+
+返回：
+module (nn.Module): 修改后的（即剪枝的）输入模块版本。
+
+示例：
+&gt;&gt;&gt; # xdoctest: +SKIP
+&gt;&gt;&gt; m = prune.random_structured(
+...     nn.Linear(5, 3), 'weight', amount=3, dim=1
+        ... )
+&gt;&gt;&gt; columns_pruned = int(sum(torch.sum(m.weight, dim=0) == 0))
+&gt;&gt;&gt; print(columns_pruned)
+        3
+"""
+RandomStructured.apply(模块, 名称, 数量, 维度)
+返回模块</font></font></font></div>
+
+
+<div class="viewcode-block" id="ln_structured"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]def ln_structured(模块, 名称, 数量, n, 维度, 重要性分数=None):
+通过移除指定维度上具有最低 L``n``-范数的通道来修剪张量。
+
+修剪对应于`module`中名为`name`的参数的张量。
+通过移除指定数量的（目前未修剪的）通道。
+沿着具有最低 L``n``-范数的指定`dim`维度。
+修改模块（并返回修改后的模块）
+by:
+
+1) 添加一个名为 ``name+'_mask'`` 的命名缓冲区，对应于
+由剪枝方法应用于参数 ``name`` 的二进制掩码。
+2) 将参数 `name` 替换为其修剪版本，同时
+原始（未修剪）参数存储在一个名为的新参数中
+`name'_orig'.
+
+参数:
+(nn.Module): 包含要剪枝张量的模块
+name (str): 在 ``module`` 中用于剪枝的参数名称
+将要起作用的。
+amount (int or float): 要剪枝的参数数量。
+如果为浮点数，应在 0.0 和 1.0 之间，表示
+参数剪枝的比例。如果为 ``int``，它表示
+绝对剪枝参数数量。
+n (int, float, inf, -inf, 'fro', 'nuc')：请参阅有效值的文档
+entries for argument ``p`` in :func:`torch.norm`.
+dim (int): 沿着该维度定义通道进行剪枝的索引。
+importance_scores (torch.Tensor): 与模块参数形状相同的 importance_scores 张量（用于计算剪枝掩码）。
+importance_scores (torch.Tensor): tensor of importance scores (of same shape as module parameter) used to compute mask for pruning.
+张量中的值表示正在剪枝的参数中相应元素的重要性。
+如果未指定或为 None，将使用模块参数代替。
+如果未指定或为 None，将使用模块参数代替。
+
+返回值：
+模块（nn.Module）：输入模块的修改版（即剪枝版）
+
+示例：
+&gt;&gt;&gt; 从 torch.nn.utils 导入 prune
+&gt;&gt;&gt; m = prune.ln_structured(
+nn.Conv2d(5, 3, 2), '权重', 数量=0.3, 维度=1, n=负无穷
+        ... )
+"""
+LnStructured.apply(
+模块，名称，数量，n，维度，重要性得分=importance_scores
+    )
+返回模块</font></font></font></div>
+
+
+<div class="viewcode-block" id="global_unstructured"><a class="viewcode-back" href="../../../../generated/torch.nn.utils.prune.global_unstructured.html#torch.nn.utils.prune.global_unstructured">[文档]</font></font></font></a><span class="k">def</span> <span class="nf"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">全球非结构化</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</font></font></font></span><span class="p">,</span> <span class="n">pruning_method</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">重要性得分</font></font></font></span><span class="o">=</span><span class="kc"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">""</span>
+<span class="sd">通过应用指定的 `剪枝方法`，全局剪枝对应于 `parameters` 中所有参数的张量。</span>
+
+<span class="sd">在原地修改模块，通过：</span>
+
+<span class="sd">1) 添加一个名为 ``name+'_mask'`` 的命名缓冲区，对应于</span>
+<span class="sd">通过剪枝方法应用于参数 ``name`` 的二进制掩码。</span>
+<span class="sd">2) 将参数 ``name`` 替换为其剪枝版本，同时</span>
+<span class="sd">原始（未修剪）参数存储在一个新的参数中，名为</span>
+<span class="sd">``name+'_orig'``。</span>
+
+<span class="sd">参数：</span>
+<span class="sd">参数（（模块，名称）元组的可迭代对象）：全局修剪模型的参数，即通过聚合所有</span>
+<span class="sd">参数（（模块，名称）元组的可迭代对象）：全局修剪模型的参数，即通过聚合所有</span>
+<span class="sd">在决定要剪枝的权重之前。模块必须是</span>
+<span class="sd">类型：`nn.Module` 类，名称必须是一个字符串。</span>
+<span class="sd">剪枝方法（函数）：此模块中的一个有效剪枝函数</span>
+<span class="sd">或用户实现的自定义一个满足</span>
+<span class="sd">实施指南，并具有 `PRUNING_TYPE='unstructured'`。</span>
+<span class="sd">importance_scores（字典）：将（模块，名称）元组映射到</span>
+<span class="sd">对应参数的重要性得分张量。该张量</span>
+<span class="sd">应与参数具有相同的形状，并用于计算</span>
+<span class="sd">剪枝的掩码。</span>
+<span class="sd">如果未指定或为空，则将使用该参数</span>
+<span class="sd">的重要性分数。</span>
+<span class="sd">kwargs：其他关键字参数，例如：</span>
+<span class="sd">量（int 或 float）：要剪枝的参数数量</span>
+<span class="sd">指定参数。</span>
+<span class="sd">如果是浮点数，应在 0.0 和 1.0 之间，表示要修剪的参数比例。</span>
+<span class="sd">如果是整数，表示要修剪的参数数量。</span>
+<span class="sd">剪枝参数的绝对数量。</span>
+
+<span class="sd">抛出异常：</span>
+<span class="sd">TypeError: 如果 ``PRUNING_TYPE != 'unstructured'``</span>
+
+<span class="sd">注意：</span>
+<span class="sd">由于全局结构化剪枝在参数大小未按大小归一化时没有太多意义，因此我们现在将全局剪枝的范围限制为非结构化方法。</span>
+<span class="sd">我们现在将全局剪枝的范围限制为非结构化方法，因为全局结构化剪枝在参数大小未按大小归一化时没有太多意义。</span>
+<span class="sd">我们现在将全局剪枝的范围限制为非结构化方法。</span>
+
+<span class="sd">示例：</span>
+<span class="sd">        &gt;&gt;&gt; from torch.nn.utils import prune</span>
+<span class="sd">&gt;&gt;&gt; 从 collections 导入 OrderedDict</span>
+<span class="sd">        &gt;&gt;&gt; net = nn.Sequential(OrderedDict([</span>
+<span class="sd">        ...     ('first', nn.Linear(10, 4)),</span>
+<span class="sd">        ...     ('second', nn.Linear(4, 1)),</span>
+<span class="sd">        ... ]))</span>
+<span class="sd">        &gt;&gt;&gt; parameters_to_prune = (</span>
+<span class="sd">        ...     (net.first, 'weight'),</span>
+<span class="sd">        ...     (net.second, 'weight'),</span>
+<span class="sd">        ... )</span>
+<span class="sd">        &gt;&gt;&gt; prune.global_unstructured(</span>
+<span class="sd">...     参数剪枝，</span>
+<span class="sd">...     剪枝方法=prune.L1Unstructured，</span>
+<span class="sd">...     数量=10，</span>
+<span class="sd">        ... )</span>
+<span class="sd">&gt;&gt;&gt; 打印(sum(torch.nn.utils.parameters_to_vector(net.buffers()) == 0))</span>
+<span class="sd">        tensor(10)</span>
+
+<span class="sd"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">```python
+# 假设输入文本为：
+input_text = '"""'
+
+# 翻译函数（此处仅为示例，实际翻译功能需要调用真实的翻译 API）
+def translate_to_simplified_chinese(text):
+    # 这里应该调用真实的翻译 API 进行翻译
+    # 由于示例中不使用真实的 API，以下为模拟翻译结果
+    return text
+
+# 输出翻译结果
+translated_text = translate_to_simplified_chinese(input_text)
+print(translated_text)
+```</font></font></font></span>
+    <span class="c1"># 确保参数是一个元组列表或生成器</span>
+    <span class="k">如果</font></font></font></span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">迭代器</span><span class="p">):</span>
+        <span class="k">提升</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类型错误</font></font></font></span><span class="p">(</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">"global_unstructured(): 参数不是一个可迭代对象"</span><span class="p">)</span>
+
+    <span class="n">重要性得分</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">重要性得分</font></font></font></span> <span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">重要性得分</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是</font></font></font></span> <span class="ow">not</span> <span class="kc">None</span> <span class="k"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">否则</span> <span class="p">{}</span>
+    <span class="k">如果</font></font></font></span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">重要性得分</font></font></font></span><span class="p">,</span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">字典</span><span class="p">):</span>
+        <span class="k">提升</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类型错误</font></font></font></span><span class="p">(</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">global_unstructured()函数中，importance_scores 必须为 dict 类型</span><span class="p">)</span>
+
+    <span class="c1">将重要性分数扁平化以考虑全局剪枝</span>
+    <span class="n">相关的重要性分数</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">工具</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数向量化</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">重要性得分</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">获取</font></font></font></span><span class="p">((</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</font></font></font></span><span class="p">),</span> <span class="nb">getattr</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</span><span class="p">))</span>
+            <span class="k">为</font></font></font></span> <span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</font></font></font></span><span class="p">)</span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+    <span class="c1"># 同样，如果存在，则展平掩码，或使用展平的向量</span>
+    <span class="c1"># 与 t 相同维度的 1 的数量</span>
+    <span class="n">默认掩码</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">工具</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数向量化</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="n">模块</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</font></font></font></span> <span class="o">+</span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_mask</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">喜欢的</font></font></font></span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</span><span class="p">)))</span>
+            <span class="k">为</font></font></font></span> <span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</font></font></font></span><span class="p">)</span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="c1">使用规范剪枝方法计算新掩码，即使该</span>
+    <span class="c1"># 参数现在是`parameters`的一个扁平化版本</span>
+    <span class="n">容器</span> <span class="o">=</span> <span class="n">PruningContainer</span><span class="p">()</span>
+    <span class="n">容器</font></font></font></span><span class="o">.</span><span class="n">_tensor_name</span> <span class="o">=</span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">"临时"</font></font></font></span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># 使其与 `方法` 相匹配</span>
+    <span class="n">方法</span> <span class="o">=</span> <span class="n">pruning_method</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">方法</font></font></font></span><span class="o">.</span><span class="n">_tensor_name</span> <span class="o">=</span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">"临时"</font></font></font></span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># 使其与 `container` 的格式相匹配</span>
+    <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">方法</font></font></font></span><span class="o">.</span><span class="n">PRUNING_TYPE</span> <span class="o">!=</span> <span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无结构</span><span class="p">:</span>
+        <span class="k">提升</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类型错误</span><span class="p">(</span>
+            <span class="s1">'仅支持 "非结构化" PRUNING_TYPE 用于 '</span>
+            <span class="sa">f</span><span class="s2">"的 `pruning_method`。找到的方法 "</font></font></font></span><span class="si">{</span><span class="n">pruning_method</span><span class="si">}</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">的类型</font></font></font></span><span class="si">{</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">方法</span><span class="o">.</span><span class="n">PRUNING_TYPE</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">)</span>
+
+    <span class="n">容器</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">添加剪枝方法</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">方法</span><span class="p">)</span>
+
+    <span class="c1"># 使用 `PruningContainer` 的 `compute_mask` 方法来组合</span>
+    <span class="c1"># 新方法计算出的掩码与现有的掩码</span>
+    <span class="n">最终掩码</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">容器</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">计算掩码</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">相关重要性得分</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">默认掩码</span><span class="p">)</span>
+
+    <span class="c1"># 用于切割掩码以匹配每个参数形状的指针</span>
+    <span class="n">指针</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">为</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</font></font></font></span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="p">:</span>
+        <span class="n">参数</font></font></font></span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">模块</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</span><span class="p">)</span>
+        <span class="c1"># 参数的长度</span>
+        <span class="n">num 参数</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">元素数量</span><span class="p">()</span>
+        <span class="c1">切片掩码，重塑它</span>
+        <span class="n">参数掩码</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">最终掩码</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">指针</font></font></font></span> <span class="p">:</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">指针</font></font></font></span> <span class="o">+</span> <span class="n">num_param</span><span class="p">]</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">以查看方式</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">参数</span><span class="p">)</span>
+        <span class="c1"># 将正确的预计算掩码分配给每个参数，并添加到</span>
+        <span class="c1"># forward_pre_hooks 中，就像任何其他剪枝方法一样</span>
+        <span class="n">custom_from_mask</span><span class="p">(</span><span class="n">模块</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">名称</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">面具</span><span class="o">=</span><span class="n">param_mask</span><span class="p">)</span>
+
+        <span class="c1"># 将指针递增以继续切片 final_mask</span>
+        <span class="n">指针</span> <span class="o">+=</span> <span class="n">num_param</span></div>
+
+
+<div class="viewcode-block" id="custom_from_mask"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]def custom_from_mask(module, name, mask):
+通过应用在 ``mask`` 中预计算的掩码来修剪 ``module`` 中名为 ``name`` 的参数对应的张量。
+
+就地修改模块（并返回修改后的模块）的方式：
+
+1) 添加一个名为 ``name+'_mask'`` 的命名缓冲区，对应于通过修剪方法应用于参数 ``name`` 的二进制掩码。
+4) 对参数 ``name`` 应用修剪方法得到的二进制掩码。
+2) 将参数 `name` 替换为其修剪版本，同时
+原始（未修剪）参数存储在一个名为的新参数中
+`name'_orig'.
+
+参数:
+(nn.Module)：包含要剪枝张量的模块
+name (str)：在 ``module`` 中参数的名称，剪枝将作用于其上
+将要起作用。
+mask (Tensor)：应用于参数的二进制掩码。
+
+返回值：
+module (nn.Module)：输入模块的修改（即剪枝）版本
+
+示例：
+&gt;&gt;&gt; 从 torch.nn.utils 导入 prune
+&gt;&gt;&gt; m = prune.custom_from_mask(
+...     nn.Linear(5, 3), name='bias', mask=torch.tensor([0, 1, 0]))
+        ... )
+&gt;&gt;&gt; print(m.bias_mask)
+tensor([0., 1., 0.])
+
+"""
+CustomFromMask.apply(module, name, mask)
+返回 module</font></font></font></div>
+
+
+<div class="viewcode-block" id="remove"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]def remove(module, name):
+从模块中移除剪枝重参数化以及前向钩子中的剪枝方法。
+
+修剪的参数名为“name”将永久保留修剪状态，该参数
+命名参数 `name'_orig'' 已从参数列表中删除。同样地，
+缓冲区 "name'_mask'" 已从缓冲区中移除。
+
+注意：
+剪枝操作本身不会被撤销或反转！
+
+参数：
+模块（nn.Module）：包含要剪枝张量的模块
+name（str）：在 ``module`` 中要剪枝的参数名称
+将起作用。
+
+示例：
+&gt;&gt;&gt; m = random_unstructured(nn.Linear(5, 7), name='weight', amount=0.2)
+&gt;&gt;&gt; m = remove(m, name='weight')
+"""
+for k, hook in module._forward_pre_hooks.items():
+如果 isinstance(hook, BasePruningMethod) 且 hook._tensor_name 等于 name:
+hook.remove(module)
+del module._forward_pre_hooks[k]
+返回 module
+
+raise ValueError(
+f"参数'{name}'的模块{module}必须在移除修剪之前进行修剪"
+    )</font></font></font></div>
+
+
+<div class="viewcode-block" id="is_pruned"><font class=" " lang="zh-CN"><br hidden=""><font class="    "><font class="  ">[文档]def is_pruned(module):
+检查模块是否被剪枝，可以通过查找剪枝预钩子来实现。
+
+检查 `module` 是否被剪枝，可以通过查找
+其模块中的 `forward_pre_hooks`，这些模块继承自
+class:`BasePruningMethod`。
+
+Args:
+模块（nn.Module）：一个已剪枝或未剪枝的对象
+
+Returns:
+是否对 ``module`` 进行剪枝的二进制答案。
+
+示例：
+&gt;&gt;&gt; 从 torch.nn.utils 导入 prune
+&gt;&gt;&gt; m = nn.Linear(5, 7)
+&gt;&gt;&gt; print(prune.is_pruned(m))
+False
+&gt;&gt;&gt; prune.random_unstructured(m, name='weight', amount=0.2)
+&gt;&gt;&gt; print(prune.is_pruned(m))
+True
+"""
+for _, submodule in module.named_modules():
+for hook in submodule._forward_pre_hooks.values():
+if isinstance(hook, BasePruningMethod):
+返回 True
+返回 False</font></font></font></div>
+
+
+<span class="k">def</span> <span class="nf">_初始化剪枝数量验证</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">金额</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">初始化时验证金额范围的辅助函数。</span>
+
+<span class="sd">参数：</span>
+<span class="sd">数量（整数或浮点数）：要修剪的参数数量。</span>
+<span class="sd">如果是浮点数，应在 0.0 到 1.0 之间，表示要剪枝参数的比例。</span>
+<span class="sd">如果是整数，表示要剪枝的参数数量。</span>
+<span class="sd">剪枝参数的绝对数量。</span>
+
+<span class="sd">抛出异常：</span>
+<span class="sd">ValueError：如果 amount 是一个不在[0, 1]范围内的浮点数，或者是一个负数。</span>
+<span class="sd">整数。</span>
+<span class="sd">TypeError：如果 amount 既不是浮点数也不是整数。</span>
+
+<span class="sd">注意：</span>
+<span class="sd">这并没有考虑到要剪枝的张量参数数量，</span>
+<span class="sd">该参数在剪枝时才知晓。</span>
+<span class="sd"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">```python
+# 假设输入文本为：
+input_text = '"""'
+
+# 翻译函数（此处仅为示例，实际翻译功能需要调用真实的翻译 API）
+def translate_to_simplified_chinese(text):
+    # 这里应该调用真实的翻译 API 进行翻译
+    # 由于示例中不使用真实的 API，以下为模拟翻译结果
+    return text
+
+# 输出翻译结果
+translated_text = translate_to_simplified_chinese(input_text)
+print(translated_text)
+```</font></font></font></span>
+    <span class="k">如果</font></font></font></span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">金额</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数字</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">实数</span><span class="p">):</span>
+        <span class="k">提升</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">类型错误</font></font></font></span><span class="p">(</span><span class="sa">f</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">"金额类型无效："</font></font></font></span><span class="si">{</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">金额</font></font></font></span><span class="si">}</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">。必须是整数或浮点数。"</span><span class="p">)</span>
+
+    <span class="k">如果</font></font></font></span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">金额</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数字</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">积分</font></font></font></span><span class="p">)</span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">和</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数量</font></font></font></span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">或</span> <span class="p">(</span>
+        <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">金额</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数字</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">积分</font></font></font></span><span class="p">)</span>  <span class="c1"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  "># 所以它是一个浮点数</span>
+        <span class="ow">和</font></font></font></span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">金额</font></font></font></span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1.0</span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">或</font></font></font></span> <span class="nb">float</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">金额</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">)</span>
+    <span class="p">):</span>
+        <span class="k">提升</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"数量="</font></font></font></span><span class="si">{</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">金额</font></font></font></span><span class="si">}</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">应该是一个在[0, 1]范围内的浮点数或非负整数</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">_validate_pruning_amount
+验证剪枝数量</font></font></font></span><span class="p">(</span><span class="n">金额</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量大小</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">验证剪枝量相对于数据规模是否合理。</span>
+
+<span class="sd">验证辅助器，用于检查剪枝参数的数量。</span>
+<span class="sd">剪枝量（整数或浮点数）：要剪枝的参数数量。相对于数据规模（`tensor_size`）是否合理。</span>
+
+<span class="sd">参数：</span>
+<span class="sd">数量（整数或浮点数）：要修剪的参数数量。</span>
+<span class="sd">如果是浮点数，应在 0.0 到 1.0 之间，表示要剪枝参数的比例。</span>
+<span class="sd">如果是整数，表示要剪枝的参数数量。</span>
+<span class="sd">剪枝参数的绝对数量。</span>
+<span class="sd">tensor_size（整数）：要剪枝的 tensor 中的参数的绝对数量</span>
+<span class="sd">剪枝。</span>
+<span class="sd"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">```python
+# 假设输入文本为：
+input_text = '"""'
+
+# 翻译函数（此处仅为示例，实际翻译功能需要调用真实的翻译 API）
+def translate_to_simplified_chinese(text):
+    # 这里应该调用真实的翻译 API 进行翻译
+    # 由于示例中不使用真实的 API，以下为模拟翻译结果
+    return text
+
+# 输出翻译结果
+translated_text = translate_to_simplified_chinese(input_text)
+print(translated_text)
+```</font></font></font></span>
+    <span class="c1"># TODO: 考虑移除此检查，允许用户指定</span>
+    <span class="c1"># 要剪枝的单元数量大于要剪枝的单元数量</span>
+    <span class="c1"># 在这种情况下，张量将被完全剪枝。</span>
+
+    <span class="k">如果</font></font></font></span> <span class="nb">isinstance</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">金额</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数字</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">积分</font></font></font></span><span class="p">)</span> <span class="ow"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">和</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数量</font></font></font></span> <span class="o">&gt;</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量大小</span><span class="p">:</span>
+        <span class="k">提升</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"数量="</font></font></font></span><span class="si">{</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">金额</font></font></font></span><span class="si">}</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">应小于修剪参数的数量=</font></font></font></span><span class="si">{</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量大小</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_validate_structured_pruning</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">验证要剪枝的张量至少是二维的。</span>
+
+<span class="sd">验证辅助器，用于检查要剪枝的张量是多维的，</span>
+<span class="sd">以确保“通道”这一概念有明确的定义。</span>
+
+<span class="sd">参数：</span>
+<span class="sd">t (torch.Tensor)：表示剪枝参数的张量。</span>
+
+<span class="sd">抛出异常：</span>
+<span class="sd">ValueError：如果张量`t`不是至少 2 维的。</span>
+<span class="sd"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">```python
+# 假设输入文本为：
+input_text = '"""'
+
+# 翻译函数（此处仅为示例，实际翻译功能需要调用真实的翻译 API）
+def translate_to_simplified_chinese(text):
+    # 这里应该调用真实的翻译 API 进行翻译
+    # 由于示例中不使用真实的 API，以下为模拟翻译结果
+    return text
+
+# 输出翻译结果
+translated_text = translate_to_simplified_chinese(input_text)
+print(translated_text)
+```</font></font></font></span>
+    <span class="n">形状</font></font></font></span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">形状</span>
+    <span class="k">如果</font></font></font></span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">长度</font></font></font></span><span class="p">(</span><span class="n">shape</span><span class="p">)</span> <span class="o"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">≤</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">提升</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">"结构化剪枝只能应用于"</span>
+            <span class="s2">"多维张量。找到形状为"</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">shape</span><span class="si">}</span><span class="s2">的</font></font></font></span><span class="si">{</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">长度</font></font></font></span><span class="p">(</span><span class="n">shape</span><span class="p">)</span><span class="si">}</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">的维度</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_compute_nparams_toprune</span><span class="p">(</span><span class="n">金额</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量大小</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">将修剪数量从百分比转换为绝对值。</span>
+
+<span class="sd">由于数量可以表示为绝对值或</span>
+<span class="sd">张量中单元/通道数量的百分比，此实用程序</span>
+<span class="sd">函数将百分比转换为绝对值以进行标准化</span>
+<span class="sd">处理剪枝的方式。</span>
+
+<span class="sd">参数：</span>
+<span class="sd">数量（整数或浮点数）：要修剪的参数数量。</span>
+<span class="sd">如果是浮点数，应在 0.0 到 1.0 之间，表示要剪枝参数的比例。</span>
+<span class="sd">如果是整数，表示要剪枝的参数数量。</span>
+<span class="sd">剪枝参数的绝对数量。</span>
+<span class="sd">tensor_size（整数）：要剪枝的 tensor 中的参数的绝对数量</span>
+<span class="sd">剪枝。</span>
+
+<span class="sd">返回：</span>
+<span class="sd">int：张量中要剪枝的单元数</span>
+<span class="sd"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">```python
+# 假设输入文本为：
+input_text = '"""'
+
+# 翻译函数（此处仅为示例，实际翻译功能需要调用真实的翻译 API）
+def translate_to_simplified_chinese(text):
+    # 这里应该调用真实的翻译 API 进行翻译
+    # 由于示例中不使用真实的 API，以下为模拟翻译结果
+    return text
+
+# 输出翻译结果
+translated_text = translate_to_simplified_chinese(input_text)
+print(translated_text)
+```</font></font></font></span>
+    <span class="c1">已经在_init_pruning_amount_pruning 中检查了类型</span>
+    <span class="k">如果</font></font></font></span> <span class="nb">isinstance</span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">金额</font></font></font></span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数字</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">积分</span><span class="p">):</span>
+        <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数量</span>
+    <span class="k">否则</span><span class="p">:</span>
+        <span class="k">返回</font></font></font></span> <span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">四舍五入</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">数量</font></font></font></span> <span class="o">*</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">张量大小</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_validate_pruning_dim</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">暗淡</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">验证剪枝维度是否在张量维度的范围内。</span>
+
+<span class="sd">参数：</span>
+<span class="sd">t (torch.Tensor)：表示剪枝参数的张量。</span>
+<span class="sd">dim (int)：定义剪枝通道的维度索引</span>
+<span class="sd"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">```python
+# 假设输入文本为：
+input_text = '"""'
+
+# 翻译函数（此处仅为示例，实际翻译功能需要调用真实的翻译 API）
+def translate_to_simplified_chinese(text):
+    # 这里应该调用真实的翻译 API 进行翻译
+    # 由于示例中不使用真实的 API，以下为模拟翻译结果
+    return text
+
+# 输出翻译结果
+translated_text = translate_to_simplified_chinese(input_text)
+print(translated_text)
+```</font></font></font></span>
+    <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">维度</font></font></font></span> <span class="o">&gt;=</span> <span class="n">t</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">暗淡</span><span class="p">():</span>
+        <span class="k">提升</font></font></font></span> <span class="ne"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">索引错误</font></font></font></span><span class="p">(</span><span class="sa">f</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">无效索引</font></font></font></span><span class="si">{</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">暗淡</font></font></font></span><span class="si">}</span><span class="s2"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">对于大小为的张量</span><span class="si">{</span><span class="n">t</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_compute_norm</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">暗淡</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">计算张量在所有维度上（除了指定的维度）的 L_n-范数。</span>
+
+<span class="sd">L_n-范数将在张量`t`的所有条目上计算，除了由 dim 指定的维度。</span>
+<span class="sd">除了由 dim 指定的维度之外的所有维度。</span>
+<span class="sd">举例：如果`t`的形状为 3x2x4，且 dim=2（最后一个维度），那么范数将有大小[4]，每个条目将代表使用每个 4 个通道的 3x2=6 个条目计算出的`L_n`-范数。</span>
+<span class="sd">那么“范数”将有大小[4]，每个条目将代表使用每个 4 个通道的 3x2=6 个条目计算出的`L_n`-范数。</span>
+<span class="sd">`L_n`-范数将使用每个 4 个通道的 3x2=6 个条目进行计算。</span>
+
+<span class="sd">参数：</span>
+<span class="sd">t (torch.Tensor)：表示剪枝参数的张量。</span>
+<span class="sd">n (int, float, inf, -inf, 'fro', 'nuc'): 请参阅关于 p 在 torch.norm 中有效参数的文档</span>
+<span class="sd">参数 entries 的有效条目</span>
+<span class="sd">dim (int): 识别要剪枝的通道的维度</span>
+
+<span class="sd">返回：</span>
+<span class="sd">norm (torch.Tensor): 在所有维度上计算 L_n 范数，除了</span>
+<span class="sd">对于 `dim`。根据构造，`norm.shape = t.shape[-1]`。</span>
+<span class="sd"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">```python
+# 假设输入文本为：
+input_text = '"""'
+
+# 翻译函数（此处仅为示例，实际翻译功能需要调用真实的翻译 API）
+def translate_to_simplified_chinese(text):
+    # 这里应该调用真实的翻译 API 进行翻译
+    # 由于示例中不使用真实的 API，以下为模拟翻译结果
+    return text
+
+# 输出翻译结果
+translated_text = translate_to_simplified_chinese(input_text)
+print(translated_text)
+```</font></font></font></span>
+    <span class="c1"># 维度 = 所有轴，除了由 `dim` 指定的那个</span>
+    <span class="n">dims</span> <span class="o">=</span> <span class="nb">列表</font></font></font></span><span class="p">(</span><span class="nb"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">范围</font></font></font></span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">暗淡</span><span class="p">()))</span>
+    <span class="c1"># 转换负索引</span>
+    <span class="k">如果</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">维度</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">维度</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">维数</font></font></font></span><span class="p">[</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">暗淡</span><span class="p">]</span>
+    <span class="n">维数</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">删除</font></font></font></span><span class="p">(</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">暗淡</span><span class="p">)</span>
+
+    <span class="n">标准</font></font></font></span> <span class="o">=</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">火炬</font></font></font></span><span class="o">.</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">归一化</font></font></font></span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">暗淡</font></font></font></span><span class="o">=</span><span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">维数</span><span class="p">)</span>
+    <span class="k">返回</font></font></font></span> <span class="n"><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">标准</span>
+</pre></div>
+
+             </article>
+             
+            </div>
+            <footer>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>© 版权所有 PyTorch 贡献者。</p>
+  </div>
+    
+      <div>使用 Sphinx 构建，并使用 Read the Docs 提供的主题。</div>
+     
+
+</footer>
+
+          </div>
+<script>
+
+var match = window.location.href.match(/\/_[a-zA-Z0-9_]*.html|_dynamo/gi);
+var url = window.location.href.lastIndexOf(match[match.length-1]);
+
+if (url)
+  {
+    var div = '<div class="admonition note"><p class="admonition-title">Note</p><p><i class="fa fa-exclamation-circle" aria-hidden="true">&nbsp</i> This page describes an internal API which is not intended to be used outside of the PyTorch codebase and can be modified or removed without notice.</p></div>'
+    document.getElementById("pytorch-article").insertAdjacentHTML('afterBegin', div)
+  }
+</script>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+         <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+         <script src="../../../../_static/jquery.js"></script>
+         <script src="../../../../_static/underscore.js"></script>
+         <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+         <script src="../../../../_static/doctools.js"></script>
+         <script src="../../../../_static/clipboard.min.js"></script>
+         <script src="../../../../_static/copybutton.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="../../../../_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="../../../../_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ 
+<script script="" type="text/javascript">
+  var collapsedSections = ['Developer Notes', 'Language Bindings', 'Libraries', 'Community'];
+</script>
+
+<img height="1" width="1" style="border-style:none;" alt="" src="https://www.googleadservices.com/pagead/conversion/795629140/?label=txkmCPmdtosBENSssfsC&amp;guid=ON&amp;script=0">
+
+
+  <!-- Begin Footer -->
+
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 text-center">
+          <h2>文档</h2>
+          <p>查看 PyTorch 的全面开发者文档</p>
+          <a class="with-right-arrow" href="https://pytorch.org/docs/stable/index.html">查看文档</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>教程</h2>
+          <p>深入了解初学者和高级开发者的教程</p>
+          <a class="with-right-arrow" href="https://pytorch.org/tutorials">查看教程</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>资源</h2>
+          <p>查找开发资源，获取您的疑问解答</p>
+          <a class="with-right-arrow" href="https://pytorch.org/resources">查看资源</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://pytorch.org/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/">PyTorch</a></li>
+            <li><a href="https://pytorch.org/get-started">开始使用</a></li>
+            <li><a href="https://pytorch.org/features">功能</a></li>
+            <li><a href="https://pytorch.org/ecosystem">生态系统</a></li>
+            <li><a href="https://pytorch.org/blog/">博客</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md">贡献</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/resources">资源</a></li>
+            <li><a href="https://pytorch.org/tutorials">教程</a></li>
+            <li><a href="https://pytorch.org/docs/stable/index.html">文档</a></li>
+            <li><a href="https://discuss.pytorch.org" target="_blank">讨论</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/issues" target="_blank">Github 问题</a></li>
+            <li><a href="https://pytorch.org/assets/brand-guidelines/PyTorch-Brand-Guidelines.pdf" target="_blank">品牌指南</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">保持更新</li>
+            <li><a href="https://www.facebook.com/pytorch" target="_blank">Facebook</a></li>
+            <li><a href="https://twitter.com/pytorch" target="_blank">推特</a></li>
+            <li><a href="https://www.youtube.com/pytorch" target="_blank">YouTube</a></li>
+            <li><a href="https://www.linkedin.com/company/pytorch" target="_blank">领英</a></li>
+          </ul>  
+          </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">PyTorch 播客</li>
+            <li><a href="https://open.spotify.com/show/6UzHKeiy368jKfQMKKvJY5" target="_blank">Spotify</a></li>
+            <li><a href="https://podcasts.apple.com/us/podcast/pytorch-developer-podcast/id1566080008" target="_blank">苹果</a></li>
+            <li><a href="https://www.google.com/podcasts?feed=aHR0cHM6Ly9mZWVkcy5zaW1wbGVjYXN0LmNvbS9PQjVGa0lsOA%3D%3D" target="_blank">谷歌</a></li>
+            <li><a href="https://music.amazon.com/podcasts/7a4e6f0e-26c2-49e9-a478-41bd244197d0/PyTorch-Developer-Podcast?" target="_blank">亚马逊</a></li>
+          </ul>
+         </div>
+        </div>
+        
+        <div class="privacy-policy">
+          <ul>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/terms/" target="_blank">条款</a></li>
+            <li class="privacy-policy-links">|</li>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/privacy-policy/" target="_blank">隐私</a></li>
+          </ul>
+        </div>
+        <div class="copyright">
+        <p>© 版权所有 Linux 基金会。PyTorch 基金会是 Linux 基金会的一个项目。有关 PyTorch 基金会的网站使用条款、商标政策以及其他适用政策，请参阅 www.linuxfoundation.org/policies/。PyTorch 基金会支持 PyTorch 开源项目，该项目已被确立为 LF Projects, LLC 的 PyTorch 项目系列。有关适用于 PyTorch 项目系列 LF Projects, LLC 的政策，请参阅 www.lfprojects.org/policies/。</p>
+      </div>
+     </div>
+
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">为了分析流量并优化您的体验，我们在本网站上使用 cookies。通过点击或导航，您同意允许我们使用 cookies。作为本网站的当前维护者，适用 Facebook 的 Cookies 政策。了解更多信息，包括关于可用控制的信息：Cookies 政策。</p>
+    <img class="close-button" src="../../../../_static/images/pytorch-x.svg" width="16" height="16">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+           <li class="resources-mobile-menu-title">
+             <a>学习</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/get-started">开始使用</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials">教程</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/basics/intro.html">学习基础知识</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/recipes/recipes_index.html">PyTorch 食谱</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/introyt.html">PyTorch 入门 - YouTube 系列</a>
+             </li>
+           </ul>
+           <li class="resources-mobile-menu-title">
+             <a>生态系统</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/ecosystem">工具</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/#community-module">社区</a>
+             </li>
+             <li>
+               <a href="https://discuss.pytorch.org/">论坛</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/resources">开发者资源</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">贡献者奖项 - 2024</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>边缘</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/edge">关于 PyTorch Edge</a>
+             </li>
+             
+             <li>
+               <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch 文档</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>文档</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/docs/stable/index.html">PyTorch</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/pytorch-domains">PyTorch 领域</a>
+            </li>
+          </ul>
+
+          <li class="resources-mobile-menu-title">
+            <a>博客 &amp; 新闻</a>
+          </li>
+            
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/blog/">PyTorch 博客</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/community-blog">社区博客</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/videos">视频</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/community-stories">社区故事</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/events">活动</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">通讯</a>
+             </li>
+          </ul>
+          
+          <li class="resources-mobile-menu-title">
+            <a>关于</a>
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/foundation">PyTorch 基金会</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/governing-board">管理委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">云信用计划</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">技术咨询委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">员工</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">联系我们</a>
+            </li>
+          </ul>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="../../../../_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body></html>

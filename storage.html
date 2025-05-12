@@ -1,0 +1,1937 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>torch.Storage — PyTorch main documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pytorch.org/docs/stable/storage.html">
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css">
+  <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css">
+  <link rel="stylesheet" href="_static/copybutton.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="_static/katex-math.css" type="text/css">
+  <link rel="stylesheet" href="_static/sphinx-dropdown.css" type="text/css">
+  <link rel="stylesheet" href="_static/panels-bootstrap.min.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/jit.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css">
+    <link rel="index" title="Index" href="genindex.html">
+    <link rel="search" title="Search" href="search.html">
+    <link rel="next" title="torch.testing" href="testing.html">
+    <link rel="prev" title="torch.sparse.as_sparse_gradcheck" href="generated/torch.sparse.as_sparse_gradcheck.html">
+
+<!--
+  Search engines should not index the main version of documentation.
+  Stable documentation are built without release == 'main'.
+-->
+<meta name="robots" content="noindex">
+
+
+  <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T8XT4PS');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+  <!-- Preload the theme fonts -->
+
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<!-- Preload the katex fonts -->
+
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Math-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size1-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size2-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Caligraphic-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
+</head><body class="pytorch-body"><div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+
+          <li class="main-menu-item">
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">学习</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/get-started">
+                  <span class="dropdown-title">开始使用</span>
+                  <p>在本地运行 PyTorch 或快速开始使用支持的云平台之一</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials">
+                  <span class="dropdown-title">教程</span><p></p>
+                  <p>PyTorch 教程中的新内容</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/basics/intro.html">
+                  <span class="dropdown-title">学习基础知识</span><p></p>
+                  <p>熟悉 PyTorch 的概念和模块</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/recipes/recipes_index.html">
+                  <span class="dropdown-title">PyTorch 食谱</span><p></p>
+                  <p>精简版、可直接部署的 PyTorch 代码示例</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/introyt.html">
+                  <span class="dropdown-title">PyTorch 入门 - YouTube 系列</span><p></p>
+                  <p>通过我们引人入胜的 YouTube 教程系列掌握 PyTorch 基础知识</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">生态系统</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem">
+                  <span class="dropdown-title">工具</span><p></p>
+                  <p>了解 PyTorch 生态系统中的工具和框架</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
+                  <span class="dropdown-title">社区</span>
+                  <p>加入 PyTorch 开发者社区，贡献、学习并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
+                  <span class="dropdown-title">论坛</span>
+                  <p>讨论 PyTorch 代码、问题、安装、研究的地方</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/resources">
+                  <span class="dropdown-title">开发者资源</span>
+                  <p>查找资源并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">贡献者奖项 - 2024</span><p></p>
+                  <p>本届 PyTorch 会议揭晓获奖者</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">
+                Edge
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/edge">
+                  <span class="dropdown-title">关于 PyTorch Edge</span><p></p>
+                  <p>为边缘设备构建创新和隐私感知的 AI 体验</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
+                  <span class="dropdown-title">ExecuTorch</span><p></p>
+                  <p>基于移动和边缘设备的端到端推理能力解决方案</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch 文档</span><p></p>
+                </a>
+              </div>
+            </div>  
+          </li>
+
+          <li class="main-menu-item">
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">文档</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/docs/stable/index.html">
+                  <span class="dropdown-title">PyTorch</span><p></p>
+                  <p>探索文档以获取全面指导，了解如何使用 PyTorch</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/pytorch-domains">
+                  <span class="dropdown-title">PyTorch 领域</span><p></p>
+                  <p>阅读 PyTorch 领域的文档，了解更多关于特定领域库的信息</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">博客与新闻</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/blog/">
+                  <span class="dropdown-title">PyTorch 博客</span><p></p>
+                  <p>捕捉最新的技术新闻和事件</p>
+                </a>
+                 <a class="nav-dropdown-item" href="https://pytorch.org/community-blog">
+                  <span class="dropdown-title">社区博客</span><p></p>
+                  <p>PyTorch 生态系统故事</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/videos">
+                  <span class="dropdown-title">视频</span><p></p>
+                  <p>了解最新的 PyTorch 教程、新内容等</p>
+                </a><a class="nav-dropdown-item" href="https://pytorch.org/community-stories">
+                  <span class="dropdown-title">社区故事</span><p></p>
+                  <p>学习如何我们的社区使用 PyTorch 解决真实、日常的机器学习问题</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/events">
+                  <span class="dropdown-title">活动</span><p></p>
+                  <p>查找活动、网络研讨会和播客</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">通讯</span><p></p>
+                  <p>跟踪最新更新</p>
+                </a>
+            </div>
+          </div></li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">关于</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/foundation">
+                  <span class="dropdown-title">PyTorch 基金会</span><p></p>
+                  <p>了解更多关于 PyTorch 基金会的信息</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
+                  <span class="dropdown-title">管理委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">云信用计划</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">技术顾问委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">员工</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">联系我们</span><p></p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li class="main-menu-item">
+            <div class="no-dropdown">
+              <a href="https://pytorch.org/join" data-cta="join">成为会员</a>
+            </div>
+          </li>
+          <li>
+           <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="github-icon">
+             </a>
+           </div>
+          </li>
+          <!--- TODO: This block adds the search icon to the nav bar. We will enable it later. 
+          <li>
+            <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="search-icon">
+             </a>
+            </div>
+          </li>
+          --->
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+  </div>
+</div>
+
+
+
+   
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>目录</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+    <div class="version">
+      <a href="https://pytorch.org/docs/versions.html">主程序 (2.7.0+cpu ) ▼</a>
+    </div>
+    <div id="searchBox">
+    <div class="searchbox" id="googleSearchBox">
+      <script async="" src="https://cse.google.com/cse.js?cx=e65585f8c3ea1440e"></script>
+      <div class="gcse-search"></div>
+    </div>
+    <div id="sphinxSearchBox" style="display: none;">
+      <div role="search">
+        <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+          <input type="text" name="q" placeholder="Search Docs">
+          <input type="hidden" name="check_keywords" value="yes">
+          <input type="hidden" name="area" value="default">
+        </form>
+      </div>
+    </div>
+  </div>
+  <form id="searchForm">
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="google" checked="">谷歌搜索</label>
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="sphinx">经典搜索</label>
+  </form>
+
+  <script>
+     document.addEventListener('DOMContentLoaded', function() {
+      const searchForm = document.getElementById('searchForm');
+      const googleSearchBox = document.getElementById('googleSearchBox');
+      const sphinxSearchBox = document.getElementById('sphinxSearchBox');
+      // Function to toggle search box visibility
+      function toggleSearchBox(searchType) {
+        googleSearchBox.style.display = searchType === 'google' ? 'block' : 'none';
+        sphinxSearchBox.style.display = searchType === 'sphinx' ? 'block' : 'none';
+      }
+      // Determine the default search type
+      let defaultSearchType;
+      const currentUrl = window.location.href;
+      if (currentUrl.startsWith('https://pytorch.org/docs/stable')) {
+        // For the stable documentation, default to Google
+        defaultSearchType = localStorage.getItem('searchType') || 'google';
+      } else {
+        // For any other version, including docs-preview, default to Sphinx
+        defaultSearchType = 'sphinx';
+      }
+      // Set the default search type
+      document.querySelector(`input[name="searchType"][value="${defaultSearchType}"]`).checked = true;
+      toggleSearchBox(defaultSearchType);
+      // Event listener for changes in search type
+      searchForm.addEventListener('change', function(event) {
+        const selectedSearchType = event.target.value;
+        localStorage.setItem('searchType', selectedSearchType);
+        toggleSearchBox(selectedSearchType);
+      });
+      // Set placeholder text for Google search box
+      window.onload = function() {
+        var placeholderText = "Search Docs";
+        var googleSearchboxText = document.querySelector("#gsc-i-id1");
+        if (googleSearchboxText) {
+          googleSearchboxText.placeholder = placeholderText;
+          googleSearchboxText.style.fontFamily = 'FreightSans';
+          googleSearchboxText.style.fontSize = "1.2rem";
+          googleSearchboxText.style.color = '#262626';
+        }
+      };
+    });
+  </script>
+
+          </div>
+
+          
+
+<div>
+  <a style="color:#F05732" href="https://pytorch.org/docs/stable/storage.html">您正在查看不稳定开发者预览文档。请点击此处查看最新稳定版本的文档。</a>
+</div>
+
+
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">社区</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="community/build_ci_governance.html">PyTorch 治理 | 构建 + CI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/contribution_guide.html">PyTorch 贡献指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/design.html">PyTorch 设计哲学</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/governance.html">PyTorch 治理 | 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/persons_of_interest.html">PyTorch 治理 | 维护者</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发者笔记</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="notes/amp_examples.html">自动混合精度示例</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/autograd.html">Autograd 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/broadcasting.html">广播语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/cpu_threading_torchscript_inference.html">CPU 多线程和 TorchScript 推理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/cuda.html">CUDA 语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/custom_operators.html">PyTorch 自定义算子页面</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/ddp.html">分布式数据并行</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/extending.html">扩展 PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/extending.func.html">使用 autograd.Function 扩展 torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/faq.html">常见问题解答</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/fsdp.html">FSDP 笔记</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/get_start_xpu.html">在 Intel GPU 上入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/gradcheck.html">Gradcheck 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/hip.html">HIP (ROCm)语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/large_scale_deployments.html">大规模部署功能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/libtorch_stable_abi.html">LibTorch 稳定 ABI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/modules.html">模块</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/mps.html">MPS 后端</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/multiprocessing.html">多进程最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/numerical_accuracy.html">数值精度</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/randomness.html">可重现性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/serialization.html">序列化语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/windows.html">Windows 常见问题解答</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">语言绑定</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cpp_index.html">C++</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/javadoc/">Javadoc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deploy.html">torch::deploy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="torch.html">torch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.html">torch.nn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.functional.html">torch.nn.functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensors.html">torch.Tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensor_attributes.html">张量属性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensor_view.html">张量视图</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amp.html">torch.amp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autograd.html">torch.autograd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="library.html">torch.library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accelerator.html">torch.accelerator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpu.html">torch.cpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">torch.cuda</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html">理解 CUDA 内存使用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#generating-a-snapshot">生成快照</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#using-the-visualizer">使用可视化工具</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#snapshot-api-reference">摄像头 API 参考</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mps.html">torch.mps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="xpu.html">torch.xpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mtia.html">torch.mtia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mtia.memory.html">torch.mtia.memory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="meta.html">元设备</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backends.html">torch.backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="export.html">torch.export</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.html">torch.distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.tensor.html">torch.distributed.tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.algorithms.join.html">torch.distributed.algorithms.join</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.elastic.html">torch.distributed.elastic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fsdp.html">torch.distributed.fsdp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.fsdp.fully_shard.html">torch.distributed.fsdp.fully_shard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.tensor.parallel.html">torch.distributed.tensor.parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.optim.html">torch.distributed.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.pipelining.html">torch.distributed.pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.checkpoint.html">torch.distributed.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributions.html">torch.distributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch.compiler.html">torch.compiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fft.html">torch.fft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="func.html">torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="futures.html">torch.futures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fx.html">torch.fx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fx.experimental.html">torch.fx.experimental</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hub.html">torch.hub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jit.html">torch.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="linalg.html">torch.linalg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitor.html">torch.monitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="signal.html">torch.signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="special.html">torch.special</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch.overrides.html">torch.overrides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="package.html">torch.package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="profiler.html">torch.profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.init.html">torch.nn.init</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.attention.html">torch.nn.attention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="onnx.html">torch.onnx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="optim.html">torch.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="complex_numbers.html">复数</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ddp_comm_hooks.html">DDP 通信钩子</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quantization.html">量化</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rpc.html">分布式 RPC 框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="random.html">torch.random</a></li>
+<li class="toctree-l1"><a class="reference internal" href="masked.html">torch.masked</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nested.html">torch.nested</a></li>
+<li class="toctree-l1"><a class="reference internal" href="size.html">torch.Size</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sparse.html">torch.sparse</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">torch.Storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">torch.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">torch.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmark_utils.html">torch.utils.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bottleneck.html">torch.utils.bottleneck</a></li>
+<li class="toctree-l1"><a class="reference internal" href="checkpoint.html">torch.utils.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp_extension.html">torch.utils.cpp_extension</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data.html">torch.utils.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deterministic.html">torch.utils.deterministic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jit_utils.html">torch.utils.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dlpack.html">torch.utils.dlpack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mobile_optimizer.html">torch.utils.mobile_optimizer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_zoo.html">torch.utils.model_zoo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensorboard.html">torch.utils.tensorboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_tracker.html">torch.utils.module_tracker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="type_info.html">类型信息</a></li>
+<li class="toctree-l1"><a class="reference internal" href="named_tensor.html">命名张量</a></li>
+<li class="toctree-l1"><a class="reference internal" href="name_inference.html">命名张量操作覆盖率</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config_mod.html">torch.__config__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="future_mod.html">torch.__future__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">torch._logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_environment_variables.html">火炬环境变量</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">库</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/audio/stable">torchaudio</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/data">TorchData</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/torchrec">火炬推荐</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/serve">TorchServe</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/text/stable">torchtext</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/vision/stable">torchvision</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/xla/">PyTorch 在 XLA 设备上</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/ao">torchao</a></li>
+</ul>
+
+            
+          
+
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        文档 &gt;</li>
+
+        
+      <li>torch.Storage</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+            
+            <a href="_sources/storage.rst.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg" width="16" height="16"></a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">快捷键</div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+
+          <!-- Google Tag Manager (noscript) -->
+          <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T8XT4PS" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+          <!-- End Google Tag Manager (noscript) -->
+          
+          <div class="rst-content">
+          
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <section id="torch-storage">
+<h1>torch.Storage†</h1>
+<p>在 PyTorch 中，常规张量是一个由以下组件定义的多维数组：</p>
+<ul class="simple">
+<li><p>存储空间：张量的实际数据，存储为一个连续的一维字节数组。</p></li>
+<li><p> <code class="docutils literal "><span class="pre">dtype</span></code> ：张量中元素的类型，例如 torch.float32 或 torch.int64。</p></li>
+<li><p> <code class="docutils literal "><span class="pre">shape</span></code> ：一个元组，表示张量在每个维度的大小。</p></li>
+<li><p>步长：在每个维度中从一个元素移动到下一个元素所需的步长。</p></li>
+<li><p>偏移量：存储中数据开始的起始点。对于新创建的张量，这通常为 0。</p></li>
+</ul>
+<p>这些组件共同定义了张量的结构和数据，存储持有实际数据，其余部分作为元数据。</p>
+<section id="untyped-storage-api">
+<h2>未类型化存储 API ¶</h2>
+<p> <code class="xref py py-class docutils literal "><span class="pre">torch.UntypedStorage</span></code> 是一个连续的一维元素数组。其长度等于张量的字节数。存储作为张量的底层数据容器。一般来说，使用常规构造函数（如 <code class="xref py py-func docutils literal "><span class="pre">zeros()</span></code> 、 <code class="xref py py-func docutils literal "><span class="pre">zeros_like()</span></code> 或 <code class="xref py py-func docutils literal "><span class="pre">new_zeros()</span></code> ）在 PyTorch 中创建的张量，其张量存储与张量本身之间存在一对一的对应关系。</p>
+<p>然而，存储可以被多个张量共享。例如，任何张量的视图（通过 <code class="xref py py-meth docutils literal "><span class="pre">view()</span></code> 或某些索引方式如整数和切片获得，但不是所有类型的索引）都将指向与原始张量相同的底层存储。当序列化和反序列化共享公共存储的张量时，这种关系得到保留，张量继续指向相同的存储。有趣的是，反序列化指向单个存储的多个张量可能比反序列化多个独立张量更快。</p>
+<p>张量存储可以通过 <code class="xref py py-meth docutils literal "><span class="pre">untyped_storage()</span></code> 方法访问。这将返回一个类型为 <code class="xref py py-class docutils literal "><span class="pre">torch.UntypedStorage</span></code> 的对象。幸运的是，存储有一个唯一的标识符，可以通过 <code class="xref py py-meth docutils literal "><span class="pre">torch.UntypedStorage.data_ptr()</span></code> 方法访问。在常规设置中，具有相同数据存储的两个张量将具有相同的存储 <code class="docutils literal "><span class="pre">data_ptr</span></code> 。然而，张量本身可以指向两个不同的存储，一个用于其数据属性，另一个用于其 grad 属性。每个都需要自己的 <code class="docutils literal "><span class="pre">data_ptr()</span></code> 。一般来说，没有保证 <code class="xref py py-meth docutils literal "><span class="pre">torch.Tensor.data_ptr()</span></code> 和 <code class="xref py py-meth docutils literal "><span class="pre">torch.UntypedStorage.data_ptr()</span></code> 匹配，不应假设这是真的。</p>
+<p>未类型化的存储与构建在其上的张量相对独立。实际上，这意味着具有不同 dtype 或形状的张量可以指向相同的存储。这也意味着张量存储可以被更改，如下面的示例所示：</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">t</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s0</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">untyped_storage</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s0</span>
+<span class="go"> 0</span>
+<span class="go"> 0</span>
+<span class="go"> 128</span>
+<span class="go"> 63</span>
+<span class="go"> 0</span>
+<span class="go"> 0</span>
+<span class="go"> 128</span>
+<span class="go"> 63</span>
+<span class="go"> 0</span>
+<span class="go"> 0</span>
+<span class="go"> 128</span>
+<span class="go"> 63</span>
+<span class="go">[torch.storage.UntypedStorage(device=cpu) of size 12]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s1</span> <span class="o">=</span> <span class="n">s0</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s1</span><span class="o">.</span><span class="n">fill_</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="go"> 0</span>
+<span class="go"> 0</span>
+<span class="go"> 0</span>
+<span class="go"> 0</span>
+<span class="go"> 0</span>
+<span class="go"> 0</span>
+<span class="go"> 0</span>
+<span class="go"> 0</span>
+<span class="go"> 0</span>
+<span class="go"> 0</span>
+<span class="go"> 0</span>
+<span class="go"> 0</span>
+<span class="go">[torch.storage.UntypedStorage(device=cpu) of size 12]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Fill the tensor with a zeroed storage</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="o">.</span><span class="n">set_</span><span class="p">(</span><span class="n">s1</span><span class="p">,</span> <span class="n">storage_offset</span><span class="o">=</span><span class="n">t</span><span class="o">.</span><span class="n">storage_offset</span><span class="p">(),</span> <span class="n">stride</span><span class="o">=</span><span class="n">t</span><span class="o">.</span><span class="n">stride</span><span class="p">(),</span> <span class="n">size</span><span class="o">=</span><span class="n">t</span><span class="o">.</span><span class="n">size</span><span class="p">())</span>
+<span class="go">tensor([0., 0., 0.])</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>请注意，如本例所示直接修改张量的存储不是推荐的做法。这种低级操作仅用于教育目的，以展示张量与其底层存储之间的关系。一般来说，使用标准的 <code class="docutils literal "><span class="pre">torch.Tensor</span></code> 方法，如 <code class="xref py py-meth docutils literal "><span class="pre">clone()</span></code> 和 <code class="xref py py-meth docutils literal "><span class="pre">fill_()</span></code> ，以实现相同的结果更高效且更安全。</p>
+</div>
+<p>除了 <code class="docutils literal "><span class="pre">data_ptr</span></code> 之外，未类型化的存储还有其他属性，例如 <code class="xref py py-attr docutils literal "><span class="pre">filename</span></code> （如果存储指向磁盘上的文件）， <code class="xref py py-attr docutils literal "><span class="pre">device</span></code> 或 <code class="xref py py-attr docutils literal "><span class="pre">is_cuda</span></code> 用于设备检查。存储还可以通过 <code class="xref py py-attr docutils literal "><span class="pre">copy_</span></code> 、 <code class="xref py py-attr docutils literal "><span class="pre">fill_</span></code> 或 <code class="xref py py-attr docutils literal "><span class="pre">pin_memory</span></code> 等方法就地或就地操作。有关更多信息，请参阅以下 API 参考。请注意，修改存储是低级 API，存在风险！大多数这些 API 也存在于张量级别：如果存在，应优先于它们的存储对应项。</p>
+</section>
+<section id="special-cases">
+<h2>特殊情况</h2>
+<p>我们提到，具有非 None <code class="docutils literal "><span class="pre">grad</span></code> 属性的张量实际上包含两份数据。在这种情况下， <code class="xref py py-meth docutils literal "><span class="pre">untyped_storage()</span></code> 将返回 <code class="xref py py-attr docutils literal "><span class="pre">data</span></code> 属性的存储，而梯度的存储可以通过 <code class="docutils literal "><span class="pre">tensor.grad.untyped_storage()</span></code> 获取。</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">t</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="nb">list</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">untyped_storage</span><span class="p">())</span> <span class="o">==</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">12</span>  <span class="c1"># the storage of the tensor is just 0s</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="nb">list</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">grad</span><span class="o">.</span><span class="n">untyped_storage</span><span class="p">())</span> <span class="o">!=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">12</span>  <span class="c1"># the storage of the gradient isn't</span>
+</pre></div>
+</div>
+<dl class="simple">
+<dt>还有一些特殊情况，张量没有典型的存储，或者根本没有存储：</dt><dd><ul class="simple">
+<li><p>张量在 <code class="docutils literal "><span class="pre">"meta"</span></code> 设备上：张量在 <code class="docutils literal "><span class="pre">"meta"</span></code> 设备上用于形状推断，并不存储实际数据。</p></li>
+<li><p>模拟张量：PyTorch 编译器使用的另一个内部工具是 FakeTensor，其基于类似的概念。</p></li>
+</ul>
+</dd>
+</dl>
+<p>张量子类或类似张量对象也可能表现出异常行为。通常，我们并不期望许多用例需要操作在存储级别！</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.UntypedStorage">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.</span></span><span class="sig-name descname"><span class="pre">UntypedStorage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/storage.html#UntypedStorage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/storage.py#L462"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.UntypedStorage" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="torch.UntypedStorage.bfloat16">
+bfloat16()[来源] ¶</dt>
+<dd><p>将此存储转换为 bfloat16 类型。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.UntypedStorage.bool">
+bool()[来源] ¶</dt>
+<dd><p>将此存储转换为布尔类型。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.UntypedStorage.byte">
+byte()[源码] ¶</dt>
+<dd><p>将此存储转换为字节类型。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.UntypedStorage.byteswap">
+byteswap(dtype)[源码] ¶</dt>
+<dd><p>交换底层数据中的字节。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.UntypedStorage.char">
+char()[来源]</dt>
+<dd><p>将此存储转换为 char 类型。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.UntypedStorage.clone">
+clone()[来源]</dt>
+<dd><p>返回此存储的副本。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.UntypedStorage.complex_double">
+complex_double()[来源] ¶</dt>
+<dd><p>将此存储转换为复数双精度类型。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.UntypedStorage.complex_float">
+complex_float()[来源] ¶</dt>
+<dd><p>将此存储转换为复数单精度类型。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.UntypedStorage.copy_">
+copy_() 方法</dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.UntypedStorage.cpu">
+cpu()[来源] 方法</dt>
+<dd><p>如果此存储未在 CPU 上，则返回其 CPU 副本。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.UntypedStorage.cuda">
+cuda(device=None, non_blocking=False)[来源] 方法</dt>
+<dd><p>返回此对象在 CUDA 内存中的副本。</p>
+<p>如果此对象已在 CUDA 内存中且位于正确的设备上，则不执行复制，并返回原始对象。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>设备（int）- 目标 GPU ID。默认为当前设备。</p></li>
+<li><p>non_blocking（bool）- 如果 <code class="docutils literal "><span class="pre">True</span></code> 且源数据在固定内存中，则复制相对于主机是异步的。否则，此参数无效果。</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>_StorageBase 和 TypedStorage 的联合</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.UntypedStorage.data_ptr">
+data_ptr()函数</dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="torch.UntypedStorage.device">
+devicedevice</dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.UntypedStorage.double">
+double()[来源]</dt>
+<dd><p>将此存储转换为双精度类型。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.UntypedStorage.element_size">
+<span class="sig-name descname"><span class="pre">element_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#torch.UntypedStorage.element_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="torch.UntypedStorage.filename">
+属性 filenameOptional[str] ¶</dt>
+<dd><p>返回与此存储关联的文件名。</p>
+<p>如果存储在 CPU 上并且通过 <code class="xref py py-meth docutils literal "><span class="pre">from_file()</span></code> 创建，则文件名将是一个字符串。否则，此属性是 <code class="docutils literal "><span class="pre">None</span></code> 。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.UntypedStorage.fill_">
+<span class="sig-name descname"><span class="pre">fill_</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#torch.UntypedStorage.fill_" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.UntypedStorage.float">
+<span class="sig-name descname"><span class="pre">float</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/storage.py#L293"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.UntypedStorage.float" title="Permalink to this definition">¶</a></dt>
+<dd><p>将此存储转换为浮点类型。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.UntypedStorage.float8_e4m3fn">
+<span class="sig-name descname"><span class="pre">float8_e4m3fn</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/storage.py#L341"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.UntypedStorage.float8_e4m3fn" title="Permalink to this definition">¶</a></dt>
+<dd><p>将此存储转换为 float8_e4m3fn 类型</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.UntypedStorage.float8_e4m3fnuz">
+<span class="sig-name descname"><span class="pre">float8_e4m3fnuz</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/storage.py#L349"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.UntypedStorage.float8_e4m3fnuz" title="Permalink to this definition">¶</a></dt>
+<dd><p>将此存储转换为 float8_e4m3fnuz 类型</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.UntypedStorage.float8_e5m2">
+<span class="sig-name descname"><span class="pre">float8_e5m2</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/storage.py#L337"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.UntypedStorage.float8_e5m2" title="Permalink to this definition">¶</a></dt>
+<dd><p>将此存储转换为 float8_e5m2 类型</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.UntypedStorage.float8_e5m2fnuz">
+<span class="sig-name descname"><span class="pre">float8_e5m2fnuz</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/storage.py#L345"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.UntypedStorage.float8_e5m2fnuz" title="Permalink to this definition">¶</a></dt>
+<dd><p>将此存储转换为 float8_e5m2fnuz 类型</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.UntypedStorage.from_buffer">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_buffer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#torch.UntypedStorage.from_buffer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.UntypedStorage.from_file">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shared</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">Storage</span></span></span><a class="headerlink" href="#torch.UntypedStorage.from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>创建一个由内存映射文件支持的 CPU 存储。</p>
+<p>如果 <code class="docutils literal "><span class="pre">shared</span></code> 是 <code class="docutils literal "><span class="pre">True</span></code> ，则所有进程之间共享内存。所有更改都写入文件。如果 <code class="docutils literal "><span class="pre">shared</span></code> 是 <code class="docutils literal "><span class="pre">False</span></code> ，则存储上的更改不会影响文件。</p>
+<p>存储中的元素数量。如果 <code class="docutils literal "><span class="pre">shared</span></code> 是 <code class="docutils literal "><span class="pre">False</span></code> ，则文件必须至少包含 <code class="docutils literal "><span class="pre">size</span> <span class="pre">*</span> <span class="pre">sizeof(Type)</span></code> 字节（ <code class="docutils literal "><span class="pre">Type</span></code> 是存储类型，在 <code class="docutils literal "><span class="pre">UnTypedStorage</span></code> 的情况下，文件必须至少包含 <code class="docutils literal "><span class="pre">size</span></code> 字节）。如果 <code class="docutils literal "><span class="pre">shared</span></code> 是 <code class="docutils literal "><span class="pre">True</span></code> ，则如果需要将创建文件。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>文件名（str）- 要映射的文件名</p></li>
+<li><p>共享（bool）- 是否共享内存（是否将 <code class="docutils literal "><span class="pre">MAP_SHARED</span></code> 或 <code class="docutils literal "><span class="pre">MAP_PRIVATE</span></code> 传递给底层的 mmap(2)调用）</p></li>
+<li><p>大小（int）- 存储中的元素数量</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.UntypedStorage.get_device">
+get_device()[源]</dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.UntypedStorage.half">
+half()[源]</dt>
+<dd><p>将此存储转换为半类型。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.UntypedStorage.hpu">
+hpu(device=None, non_blocking=False)[源]</dt>
+<dd><p>返回此对象在 HPU 内存中的副本。</p>
+<p>如果此对象已在 HPU 内存中且位于正确的设备上，则不执行复制，并返回原始对象。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>device（int）- 目标 HPU ID。默认为当前设备。</p></li>
+<li><p>non_blocking（bool）- 如果 <code class="docutils literal "><span class="pre">True</span></code> 且源数据已在固定内存中，则复制相对于主机是异步的。否则，此参数无效果。</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>Union[_存储基类, 类型化存储]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.UntypedStorage.int">
+int()[来源] ¶</dt>
+<dd><p>将此存储转换为 int 类型。</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="torch.UntypedStorage.is_cuda">
+property is_cuda</dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="torch.UntypedStorage.is_hpu">
+属性是否已固定_hpu</dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.UntypedStorage.is_pinned">
+is_pinned(device='cuda')[source]</dt>
+<dd><p>判断 CPU 存储是否已在设备上固定。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>device (str 或 torch.device) – 要固定内存的设备（默认： <code class="docutils literal "><span class="pre">'cuda'</span></code> ）。此参数不建议使用，并可能被弃用。</p>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>布尔变量。</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.UntypedStorage.is_shared">
+<span class="sig-name descname"><span class="pre">is_shared</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#torch.UntypedStorage.is_shared" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="torch.UntypedStorage.is_sparse">
+<span class="sig-name descname"><span class="pre">is_sparse</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#torch.UntypedStorage.is_sparse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="torch.UntypedStorage.is_sparse_csr">
+<span class="sig-name descname"><span class="pre">is_sparse_csr</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#torch.UntypedStorage.is_sparse_csr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.UntypedStorage.long">
+long()[源]</dt>
+<dd><p>将此存储转换为 long 类型。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.UntypedStorage.mps">
+mps()[源]</dt>
+<dd><p>如果此存储不在 MPS 上，则返回其 MPS 副本。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.UntypedStorage.nbytes">
+<span class="sig-name descname"><span class="pre">nbytes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#torch.UntypedStorage.nbytes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.UntypedStorage.new">
+<span class="sig-name descname"><span class="pre">new</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#torch.UntypedStorage.new" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.UntypedStorage.pin_memory">
+pin_memory(设备='cuda')[source] ¶</dt>
+<dd><p>将 CPU 存储复制到固定内存中，如果它尚未固定。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>设备（str 或 torch.device）- 用于固定内存的设备（默认： <code class="docutils literal "><span class="pre">'cuda'</span></code> ）。此参数不建议使用，并可能被弃用。</p>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>固定 CPU 存储。</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.UntypedStorage.resizable">
+<span class="sig-name descname"><span class="pre">resizable</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#torch.UntypedStorage.resizable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.UntypedStorage.resize_">
+<span class="sig-name descname"><span class="pre">resize_</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#torch.UntypedStorage.resize_" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.UntypedStorage.share_memory_">
+<span class="sig-name descname"><span class="pre">share_memory_</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/storage.html#UntypedStorage.share_memory_"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/storage.py#L485"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.UntypedStorage.share_memory_" title="Permalink to this definition">¶</a></dt>
+<dd><p>将存储移动到共享内存。</p>
+<p>对于已经位于共享内存中的存储和 CUDA 存储，这些存储不需要移动即可在进程间共享，此操作为无操作。共享内存中的存储不能调整大小。</p>
+<p>注意，为了减轻此类问题，可以从多个线程中安全地调用此函数以操作同一对象。但是，如果没有适当的同步，则不能在 self 上调用其他函数，这是不安全的。请参阅多进程最佳实践以获取更多详细信息。</p>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>当删除对共享内存中存储的所有引用时，相关的共享内存对象也将被删除。PyTorch 有一个特殊的清理过程来确保即使当前进程意外退出，也会发生这种情况。</p>
+<p>值得注意的是， <code class="xref py py-meth docutils literal "><span class="pre">share_memory_()</span></code> 与 <code class="xref py py-meth docutils literal "><span class="pre">from_file()</span></code> 与 <code class="docutils literal "><span class="pre">shared</span> <span class="pre">=</span> <span class="pre">True</span></code> 之间的区别。</p>
+<ol class="arabic simple">
+<li><p> <code class="docutils literal "><span class="pre">share_memory_</span></code> 使用 shm_open(3) 创建 POSIX 共享内存对象，而 <code class="xref py py-meth docutils literal "><span class="pre">from_file()</span></code> 使用 open(2) 打开用户传递的文件名。</p></li>
+<li><p>两者都使用 mmap(2) 调用，将文件/对象映射到当前虚拟地址空间。</p></li>
+<li><p>在将对象映射后调用 <code class="docutils literal "><span class="pre">shm_unlink(3)</span></code> ，以确保当没有进程打开对象时释放共享内存对象。 <code class="docutils literal "><span class="pre">torch.from_file(shared=True)</span></code> 不会解除链接文件。此文件是持久的，直到用户删除它。</p></li>
+</ol>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">返回<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal "><span class="pre">self</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.UntypedStorage.short">
+短()[来源] ¶</dt>
+<dd><p>将此存储转换为 short 类型。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.UntypedStorage.size">
+size()[来源] ¶</dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.UntypedStorage.to">
+to(*, 设备, non_blocking=False)[source] ¶</dt>
+<dd><dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.UntypedStorage.tolist">
+<span class="sig-name descname"><span class="pre">tolist</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/storage.py#L255"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.UntypedStorage.tolist" title="Permalink to this definition">¶</a></dt>
+<dd><p>返回包含此存储元素的列表。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.UntypedStorage.type">
+<span class="sig-name descname"><span class="pre">type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">non_blocking</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/storage.py#L77"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.UntypedStorage.type" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>_StorageBase 和 TypedStorage 的联合</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.UntypedStorage.untyped">
+未类型化()[来源] ¶</dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="legacy-typed-storage">
+<h2>旧版类型化存储 ¶</h2>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>关于历史背景，PyTorch 之前使用过已弃用的类型化存储类，现在应避免使用。以下内容详细说明了此 API，以防万一您遇到它，尽管其使用被高度不建议。未来将移除除 <code class="xref py py-class docutils literal "><span class="pre">torch.UntypedStorage</span></code> 之外的所有存储类，并且 <code class="xref py py-class docutils literal "><span class="pre">torch.UntypedStorage</span></code> 将在所有情况下使用。</p>
+</div>
+<p> <code class="xref py py-class docutils literal "><span class="pre">torch.Storage</span></code> 是与默认数据类型（ <code class="xref py py-func docutils literal "><span class="pre">torch.get_default_dtype()</span></code> ）对应的存储类的别名。例如，如果默认数据类型是 <code class="xref py py-attr docutils literal "><span class="pre">torch.float</span></code> ，则 <code class="xref py py-class docutils literal "><span class="pre">torch.Storage</span></code> 解析为 <code class="xref py py-class docutils literal "><span class="pre">torch.FloatStorage</span></code> 。</p>
+<p> <code class="xref py py-class docutils literal "><span class="pre">torch.&lt;type&gt;Storage</span></code> 和 <code class="xref py py-class docutils literal "><span class="pre">torch.cuda.&lt;type&gt;Storage</span></code> 类，如 <code class="xref py py-class docutils literal "><span class="pre">torch.FloatStorage</span></code> 、 <code class="xref py py-class docutils literal "><span class="pre">torch.IntStorage</span></code> 等，实际上从未被实例化。调用它们的构造函数会创建一个具有适当 <code class="xref py py-class docutils literal "><span class="pre">torch.dtype</span></code> 和 <code class="xref py py-class docutils literal "><span class="pre">torch.device</span></code> 的 <code class="xref py py-class docutils literal "><span class="pre">torch.TypedStorage</span></code> 。 <code class="xref py py-class docutils literal "><span class="pre">torch.&lt;type&gt;Storage</span></code> 类具有与 <code class="xref py py-class docutils literal "><span class="pre">torch.TypedStorage</span></code> 相同的所有类方法。</p>
+<p>A <code class="xref py py-class docutils literal "><span class="pre">torch.TypedStorage</span></code> 是一个由特定 <code class="xref py py-class docutils literal "><span class="pre">torch.dtype</span></code> 元素组成的连续、一维数组。它可以赋予任何 <code class="xref py py-class docutils literal "><span class="pre">torch.dtype</span></code> ，内部数据将被适当地解释。 <code class="xref py py-class docutils literal "><span class="pre">torch.TypedStorage</span></code> 包含一个 <code class="xref py py-class docutils literal "><span class="pre">torch.UntypedStorage</span></code> ，它将数据作为未类型化的字节数组存储。</p>
+<p>每个跨步 <code class="xref py py-class docutils literal "><span class="pre">torch.Tensor</span></code> 都包含一个 <code class="xref py py-class docutils literal "><span class="pre">torch.TypedStorage</span></code> ，它存储了 <code class="xref py py-class docutils literal "><span class="pre">torch.Tensor</span></code> 视图的所有数据。</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.TypedStorage">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.</span></span><span class="sig-name descname"><span class="pre">TypedStorage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wrap_storage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_internal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/storage.html#TypedStorage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/storage.py#L666"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.TypedStorage" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.TypedStorage.bfloat16">
+<span class="sig-name descname"><span class="pre">bfloat16</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/storage.html#TypedStorage.bfloat16"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/storage.py#L1362"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.TypedStorage.bfloat16" title="Permalink to this definition">¶</a></dt>
+<dd><p>将此存储转换为 bfloat16 类型。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.TypedStorage.bool">
+<span class="sig-name descname"><span class="pre">bool</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/storage.html#TypedStorage.bool"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/storage.py#L1357"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.TypedStorage.bool" title="Permalink to this definition">¶</a></dt>
+<dd><p>将此存储转换为布尔类型。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.TypedStorage.byte">
+byte()[来源][来源] ¶</dt>
+<dd><p>将此存储转换为字节类型。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.TypedStorage.char">
+char()[来源][来源] ¶</dt>
+<dd><p>将此存储转换为字符类型。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.TypedStorage.clone">
+<span class="sig-name descname"><span class="pre">clone</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/storage.html#TypedStorage.clone"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/storage.py#L1140"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.TypedStorage.clone" title="Permalink to this definition">¶</a></dt>
+<dd><p>返回此存储的副本。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.TypedStorage.complex_double">
+<span class="sig-name descname"><span class="pre">complex_double</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/storage.html#TypedStorage.complex_double"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/storage.py#L1367"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.TypedStorage.complex_double" title="Permalink to this definition">¶</a></dt>
+<dd><p>将此存储转换为复数双精度类型。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.TypedStorage.complex_float">
+<span class="sig-name descname"><span class="pre">complex_float</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/storage.html#TypedStorage.complex_float"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/storage.py#L1372"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.TypedStorage.complex_float" title="Permalink to this definition">¶</a></dt>
+<dd><p>将此存储转换为复数浮点类型。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.TypedStorage.copy_">
+<span class="sig-name descname"><span class="pre">copy_</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">non_blocking</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/storage.html#TypedStorage.copy_"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/storage.py#L1016"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.TypedStorage.copy_" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.TypedStorage.cpu">
+<span class="sig-name descname"><span class="pre">cpu</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/storage.html#TypedStorage.cpu"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/storage.py#L1150"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.TypedStorage.cpu" title="Permalink to this definition">¶</a></dt>
+<dd><p>如果该存储未已在 CPU 上，则返回其 CPU 副本。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.TypedStorage.cuda">
+<span class="sig-name descname"><span class="pre">cuda</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">non_blocking</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/storage.html#TypedStorage.cuda"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/storage.py#L1049"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.TypedStorage.cuda" title="Permalink to this definition">¶</a></dt>
+<dd><p>返回此对象在 CUDA 内存中的副本。</p>
+<p>如果该对象已在 CUDA 内存中且位于正确的设备上，则不执行复制并返回原始对象。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>设备（int）- 目标 GPU ID。默认为当前设备。</p></li>
+<li><p>non_blocking（bool）- 如果 <code class="docutils literal "><span class="pre">True</span></code> 和源数据在固定内存中，则复制相对于主机是异步的。否则，该参数无效果。</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Self" title="(in Python v3.13)"><em>自身</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.TypedStorage.data_ptr">
+data_ptr()[源][源] ¶</dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="torch.TypedStorage.device">
+属性设备</dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.TypedStorage.double">
+double()[源][源] ¶</dt>
+<dd><p>将此存储转换为 double 类型。</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="torch.TypedStorage.dtype">
+<span class="sig-name descname"><span class="pre">dtype</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tensor_attributes.html#torch.dtype" title="torch.dtype"><span class="pre">dtype</span></a></em><a class="headerlink" href="#torch.TypedStorage.dtype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.TypedStorage.element_size">
+元素大小()[来源][来源] ¶</dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="torch.TypedStorage.filename">
+属性 文件名 Optional[str] ¶</dt>
+<dd><p>返回与此存储关联的文件名，如果存储是从文件内存映射创建的。或 <code class="docutils literal "><span class="pre">None</span></code> 如果存储不是通过内存映射创建的。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.TypedStorage.fill_">
+填充_(值)[来源][来源] ¶</dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.TypedStorage.float">
+float()[来源][来源] ¶</dt>
+<dd><p>将此存储转换为浮点类型。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.TypedStorage.float8_e4m3fn">
+float8_e4m3fn()[来源][来源] ¶</dt>
+<dd><p>将此存储转换为 float8_e4m3fn 类型</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.TypedStorage.float8_e4m3fnuz">
+float8_e4m3fnuz()[来源][来源] ¶</dt>
+<dd><p>将此存储转换为 float8_e4m3fnuz 类型</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.TypedStorage.float8_e5m2">
+float8_e5m2()[来源][来源] ¶</dt>
+<dd><p>将此存储转换为 float8_e5m2 类型</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.TypedStorage.float8_e5m2fnuz">
+float8_e5m2fnuz()[来源][来源] ¶</dt>
+<dd><p>将此存储转换为 float8_e5m2fnuz 类型</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.TypedStorage.from_buffer">
+classmethod from_buffer(*args, **kwargs)[来源][来源] ¶</dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.TypedStorage.from_file">
+from_file(filename, shared=False, size=0) → Storage[source][source] ¶</dt>
+<dd><p>创建一个由内存映射文件支持的 CPU 存储。</p>
+<p>如果 <code class="docutils literal "><span class="pre">shared</span></code> 是 <code class="docutils literal "><span class="pre">True</span></code> ，则所有进程之间共享内存。所有更改都写入文件。如果 <code class="docutils literal "><span class="pre">shared</span></code> 是 <code class="docutils literal "><span class="pre">False</span></code> ，则存储上的更改不会影响文件。</p>
+<p> <code class="docutils literal "><span class="pre">size</span></code> 是存储中的元素数量。如果 <code class="docutils literal "><span class="pre">shared</span></code> 是 <code class="docutils literal "><span class="pre">False</span></code> ，则文件必须至少包含 <code class="docutils literal "><span class="pre">size</span> <span class="pre">*</span> <span class="pre">sizeof(Type)</span></code> 字节（ <code class="docutils literal "><span class="pre">Type</span></code> 是存储类型）。如果 <code class="docutils literal "><span class="pre">shared</span></code> 是 <code class="docutils literal "><span class="pre">True</span></code> ，则如果需要将创建文件。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>文件名（str）- 映射的文件名</p></li>
+<li><p>共享（bool）-</font></font></font></p><p><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">是否共享内存（是否将 <code class="docutils literal "><span class="pre">MAP_SHARED</span></code> 或 <code class="docutils literal "><span class="pre">MAP_PRIVATE</span></code> 传递给底层的 mmap(2)调用）</p>
+<p></p></li>
+<li><p>大小（int）- 存储中元素的数量</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.TypedStorage.get_device">
+<span class="sig-name descname"><span class="pre">get_device</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/storage.html#TypedStorage.get_device"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/storage.py#L1100"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.TypedStorage.get_device" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.TypedStorage.half">
+<span class="sig-name descname"><span class="pre">half</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/storage.html#TypedStorage.half"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/storage.py#L1327"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.TypedStorage.half" title="Permalink to this definition">¶</a></dt>
+<dd><p>将此存储转换为半类型。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.TypedStorage.hpu">
+<span class="sig-name descname"><span class="pre">hpu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">non_blocking</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/storage.html#TypedStorage.hpu"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/storage.py#L1062"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.TypedStorage.hpu" title="Permalink to this definition">¶</a></dt>
+<dd><p>返回此对象在 HPU 内存中的副本。</p>
+<p>如果此对象已在 HPU 内存中且位于正确的设备上，则不执行复制，并返回原始对象。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>device（int）- 目标 HPU ID。默认为当前设备。</p></li>
+<li><p>non_blocking（bool）- 如果 <code class="docutils literal "><span class="pre">True</span></code> 且源数据已在固定内存中，则复制相对于主机是异步的。否则，此参数无效果。</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Self" title="(in Python v3.13)"><em>自身</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.TypedStorage.int">
+int()[来源][来源] ¶</dt>
+<dd><p>将此存储转换为 int 类型。</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="torch.TypedStorage.is_cuda">
+property 是_cuda ¶</dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="torch.TypedStorage.is_hpu">
+property 是_hpu ¶</dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.TypedStorage.is_pinned">
+<span class="sig-name descname"><span class="pre">is_pinned</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cuda'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/storage.html#TypedStorage.is_pinned"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/storage.py#L1155"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.TypedStorage.is_pinned" title="Permalink to this definition">¶</a></dt>
+<dd><p>判断 CPU TypedStorage 是否已经固定在设备上。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>设备（str 或 torch.device）- 将内存固定在的设备（默认： <code class="docutils literal "><span class="pre">'cuda'</span></code> ）。此参数不建议使用，并可能被弃用。</p>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><p>一个布尔变量。</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.TypedStorage.is_shared">
+is_shared()[来源][来源] ¶</dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="torch.TypedStorage.is_sparse">
+<span class="sig-name descname"><span class="pre">is_sparse</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#torch.TypedStorage.is_sparse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.TypedStorage.long">
+long()[来源][来源] ¶</dt>
+<dd><p>将此存储转换为长整型。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.TypedStorage.nbytes">
+nbytes()函数[来源][来源] ¶</dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.TypedStorage.pickle_storage_type">
+pickle_storage_type()函数[来源][来源] ¶</dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.TypedStorage.pin_memory">
+pin_memory(device='cuda')[来源][来源] ¶</dt>
+<dd><p>将 CPU TypedStorage 复制到固定内存中，如果它尚未固定。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>设备（str 或 torch.device）- 将内存固定在的设备（默认： <code class="docutils literal "><span class="pre">'cuda'</span></code> ）。此参数不建议使用，并可能被弃用。</p>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>固定 CPU 存储。</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.TypedStorage.resizable">
+<span class="sig-name descname"><span class="pre">resizable</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/storage.html#TypedStorage.resizable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/storage.py#L1248"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.TypedStorage.resizable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.TypedStorage.resize_">
+<span class="sig-name descname"><span class="pre">resize_</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/storage.html#TypedStorage.resize_"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/storage.py#L1252"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.TypedStorage.resize_" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.TypedStorage.share_memory_">
+<span class="sig-name descname"><span class="pre">share_memory_</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/storage.html#TypedStorage.share_memory_"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/storage.py#L1183"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.TypedStorage.share_memory_" title="Permalink to this definition">¶</a></dt>
+<dd><p>查看 <code class="xref py py-meth docutils literal "><span class="pre">torch.UntypedStorage.share_memory_()</span></code> </p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.TypedStorage.short">
+<span class="sig-name descname"><span class="pre">short</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/storage.html#TypedStorage.short"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/storage.py#L1342"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.TypedStorage.short" title="Permalink to this definition">¶</a></dt>
+<dd><p>将此存储转换为 short 类型。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.TypedStorage.size">
+<span class="sig-name descname"><span class="pre">size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/storage.html#TypedStorage.size"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/storage.py#L1214"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.TypedStorage.size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.TypedStorage.to">
+to(*, 设备, non_blocking=False)[source][source] ¶</dt>
+<dd><p>返回此对象在设备内存中的副本。</p>
+<p>如果此对象已经在正确的设备上，则不执行复制，并返回原始对象。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>设备 (int) – 目标设备。</p></li>
+<li><p>non_blocking（布尔值）- 如果 <code class="docutils literal "><span class="pre">True</span></code> 且源数据位于固定内存中，则复制操作相对于主机是异步的。否则，该参数无效果。</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>自身</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.TypedStorage.tolist">
+<span class="sig-name descname"><span class="pre">tolist</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/storage.html#TypedStorage.tolist"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/storage.py#L1145"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.TypedStorage.tolist" title="Permalink to this definition">¶</a></dt>
+<dd><p>返回包含此存储元素列表。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.TypedStorage.type">
+<span class="sig-name descname"><span class="pre">type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">non_blocking</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/storage.html#TypedStorage.type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/storage.py#L1032"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.TypedStorage.type" title="Permalink to this definition">¶</a></dt>
+<dd><p>如果未提供 dtype，则返回类型，否则将此对象转换为指定的类型。</p>
+<p>如果此对象已经是正确的类型，则不执行复制，并返回原始对象。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>dtype (类型或字符串) – 所需的类型</p></li>
+<li><p>non_blocking (bool) – 如果 <code class="docutils literal "><span class="pre">True</span></code> ，并且源在固定内存中，目标在 GPU 上或反之，则异步复制相对于主机执行。否则，该参数无效果。</p></li>
+<li><p>**kwargs – 为了兼容性，可能包含键 <code class="docutils literal "><span class="pre">async</span></code> 以代替 <code class="docutils literal "><span class="pre">non_blocking</span></code> 参数。 <code class="docutils literal "><span class="pre">async</span></code> 参数已弃用。</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.13)"><em>Union</em></a>[<em>_StorageBase</em>, <a class="reference internal" href="#torch.TypedStorage" title="torch.storage.TypedStorage"><em>TypedStorage</em></a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.TypedStorage.untyped">
+untyped()[source][source]</dt>
+<dd><p>返回内部 <code class="xref py py-class docutils literal "><span class="pre">torch.UntypedStorage</span></code> 。</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.DoubleStorage">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.</span></span><span class="sig-name descname"><span class="pre">DoubleStorage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wrap_storage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_internal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch.html#DoubleStorage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/__init__.py#L1839"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.DoubleStorage" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="torch.DoubleStorage.dtype">
+<span class="sig-name descname"><span class="pre">dtype</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tensor_attributes.html#torch.dtype" title="torch.dtype"><span class="pre">torch.dtype</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">torch.float64</span></em><a class="reference internal" href="_modules/torch.html#DoubleStorage.dtype"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.DoubleStorage.dtype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.FloatStorage">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.</span></span><span class="sig-name descname"><span class="pre">FloatStorage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wrap_storage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_internal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch.html#FloatStorage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/__init__.py#L1850"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.FloatStorage" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="torch.FloatStorage.dtype">
+<span class="sig-name descname"><span class="pre">dtype</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tensor_attributes.html#torch.dtype" title="torch.dtype"><span class="pre">torch.dtype</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">torch.float32</span></em><a class="reference internal" href="_modules/torch.html#FloatStorage.dtype"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.FloatStorage.dtype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.HalfStorage">
+类 torch.HalfStorage(*args, wrap_storage=None, dtype=None, device=None, _internal=False)[source][source] ¶</dt>
+<dd><dl class="field-list simple">
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="torch.HalfStorage.dtype">
+<span class="sig-name descname"><span class="pre">dtype</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tensor_attributes.html#torch.dtype" title="torch.dtype"><span class="pre">torch.dtype</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">torch.float16</span></em><a class="reference internal" href="_modules/torch.html#HalfStorage.dtype"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.HalfStorage.dtype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.LongStorage">
+类 torch.LongStorage(*args, wrap_storage=None, dtype=None, device=None, _internal=False)[source][source] ¶</dt>
+<dd><dl class="field-list simple">
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="torch.LongStorage.dtype">
+<span class="sig-name descname"><span class="pre">dtype</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tensor_attributes.html#torch.dtype" title="torch.dtype"><span class="pre">torch.dtype</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">torch.int64</span></em><a class="reference internal" href="_modules/torch.html#LongStorage.dtype"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.LongStorage.dtype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.IntStorage">
+类 torch.IntStorage(*args, wrap_storage=None, dtype=None, device=None, _internal=False)[source][source] ¶</dt>
+<dd><dl class="field-list simple">
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="torch.IntStorage.dtype">
+<span class="sig-name descname"><span class="pre">dtype</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tensor_attributes.html#torch.dtype" title="torch.dtype"><span class="pre">torch.dtype</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">torch.int32</span></em><a class="reference internal" href="_modules/torch.html#IntStorage.dtype"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.IntStorage.dtype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.ShortStorage">
+类 torch.ShortStorage(*args, wrap_storage=None, dtype=None, device=None, _internal=False)[source][source] ¶</dt>
+<dd><dl class="field-list simple">
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="torch.ShortStorage.dtype">
+<span class="sig-name descname"><span class="pre">dtype</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tensor_attributes.html#torch.dtype" title="torch.dtype"><span class="pre">torch.dtype</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">torch.int16</span></em><a class="reference internal" href="_modules/torch.html#ShortStorage.dtype"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.ShortStorage.dtype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.CharStorage">
+类 torch.CharStorage(*args, wrap_storage=None, dtype=None, device=None, _internal=False)[source][source] ¶</dt>
+<dd><dl class="field-list simple">
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="torch.CharStorage.dtype">
+<span class="sig-name descname"><span class="pre">dtype</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tensor_attributes.html#torch.dtype" title="torch.dtype"><span class="pre">torch.dtype</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">torch.int8</span></em><a class="reference internal" href="_modules/torch.html#CharStorage.dtype"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.CharStorage.dtype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.ByteStorage">
+类 torch.ByteStorage(*args, wrap_storage=None, dtype=None, device=None, _internal=False)[source][source] ¶</dt>
+<dd><dl class="field-list simple">
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="torch.ByteStorage.dtype">
+<span class="sig-name descname"><span class="pre">dtype</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tensor_attributes.html#torch.dtype" title="torch.dtype"><span class="pre">torch.dtype</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">torch.uint8</span></em><a class="reference internal" href="_modules/torch.html#ByteStorage.dtype"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.ByteStorage.dtype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.BoolStorage">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.</span></span><span class="sig-name descname"><span class="pre">BoolStorage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wrap_storage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_internal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch.html#BoolStorage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/__init__.py#L1916"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.BoolStorage" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="torch.BoolStorage.dtype">
+<span class="sig-name descname"><span class="pre">dtype</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tensor_attributes.html#torch.dtype" title="torch.dtype"><span class="pre">torch.dtype</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">torch.bool</span></em><a class="reference internal" href="_modules/torch.html#BoolStorage.dtype"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.BoolStorage.dtype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.BFloat16Storage">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.</span></span><span class="sig-name descname"><span class="pre">BFloat16Storage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wrap_storage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_internal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch.html#BFloat16Storage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/__init__.py#L1927"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.BFloat16Storage" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="torch.BFloat16Storage.dtype">
+<span class="sig-name descname"><span class="pre">dtype</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tensor_attributes.html#torch.dtype" title="torch.dtype"><span class="pre">torch.dtype</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">torch.bfloat16</span></em><a class="reference internal" href="_modules/torch.html#BFloat16Storage.dtype"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.BFloat16Storage.dtype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.ComplexDoubleStorage">
+类 torch.ComplexDoubleStorage(*args, wrap_storage=None, dtype=None, device=None, _internal=False)[source][source] ¶</dt>
+<dd><dl class="field-list simple">
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="torch.ComplexDoubleStorage.dtype">
+<span class="sig-name descname"><span class="pre">dtype</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tensor_attributes.html#torch.dtype" title="torch.dtype"><span class="pre">torch.dtype</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">torch.complex128</span></em><a class="reference internal" href="_modules/torch.html#ComplexDoubleStorage.dtype"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.ComplexDoubleStorage.dtype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.ComplexFloatStorage">
+类 torch.ComplexFloatStorage(*args, wrap_storage=None, dtype=None, device=None, _internal=False)[source][source] ¶</dt>
+<dd><dl class="field-list simple">
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="torch.ComplexFloatStorage.dtype">
+<span class="sig-name descname"><span class="pre">dtype</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tensor_attributes.html#torch.dtype" title="torch.dtype"><span class="pre">torch.dtype</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">torch.complex64</span></em><a class="reference internal" href="_modules/torch.html#ComplexFloatStorage.dtype"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.ComplexFloatStorage.dtype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.QUInt8Storage">
+类 torch.QUInt8Storage(*args, wrap_storage=None, dtype=None, device=None, _internal=False)[source][source] ¶</dt>
+<dd><dl class="field-list simple">
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="torch.QUInt8Storage.dtype">
+<span class="sig-name descname"><span class="pre">dtype</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tensor_attributes.html#torch.dtype" title="torch.dtype"><span class="pre">torch.dtype</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">torch.quint8</span></em><a class="reference internal" href="_modules/torch.html#QUInt8Storage.dtype"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.QUInt8Storage.dtype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.QInt8Storage">
+类 torch.QInt8Storage(*args, wrap_storage=None, dtype=None, device=None, _internal=False)[source][source] ¶</dt>
+<dd><dl class="field-list simple">
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="torch.QInt8Storage.dtype">
+<span class="sig-name descname"><span class="pre">dtype</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tensor_attributes.html#torch.dtype" title="torch.dtype"><span class="pre">torch.dtype</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">torch.qint8</span></em><a class="reference internal" href="_modules/torch.html#QInt8Storage.dtype"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.QInt8Storage.dtype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.QInt32Storage">
+类 torch.QInt32Storage(*args, wrap_storage=None, dtype=None, device=None, _internal=False)[source][source] ¶</dt>
+<dd><dl class="field-list simple">
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="torch.QInt32Storage.dtype">
+<span class="sig-name descname"><span class="pre">dtype</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tensor_attributes.html#torch.dtype" title="torch.dtype"><span class="pre">torch.dtype</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">torch.qint32</span></em><a class="reference internal" href="_modules/torch.html#QInt32Storage.dtype"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.QInt32Storage.dtype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.QUInt4x2Storage">
+类 torch.QUInt4x2Storage(*args, wrap_storage=None, dtype=None, device=None, _internal=False)[source][source] ¶</dt>
+<dd><dl class="field-list simple">
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="torch.QUInt4x2Storage.dtype">
+<span class="sig-name descname"><span class="pre">dtype</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tensor_attributes.html#torch.dtype" title="torch.dtype"><span class="pre">torch.dtype</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">torch.quint4x2</span></em><a class="reference internal" href="_modules/torch.html#QUInt4x2Storage.dtype"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.QUInt4x2Storage.dtype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.QUInt2x4Storage">
+类 torch.QUInt2x4Storage(*args, wrap_storage=None, dtype=None, device=None, _internal=False)[source][source] ¶</dt>
+<dd><dl class="field-list simple">
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="torch.QUInt2x4Storage.dtype">
+<span class="sig-name descname"><span class="pre">dtype</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tensor_attributes.html#torch.dtype" title="torch.dtype"><span class="pre">torch.dtype</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">torch.quint2x4</span></em><a class="reference internal" href="_modules/torch.html#QUInt2x4Storage.dtype"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.QUInt2x4Storage.dtype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+             </article>
+             
+            </div>
+            <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        下一个 <img height="16" width="16" class="next-page" src="_static/images/chevron-right-orange.svg"> <img height="16" width="16" class="previous-page" src="_static/images/chevron-right-orange.svg"> 上一个
+      
+    </div>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>© 版权所有 PyTorch 贡献者。</p>
+  </div>
+    
+      <div>使用 Sphinx 构建，主题由 Read the Docs 提供。</div>
+     
+
+</footer>
+
+          </div>
+<script>
+
+var match = window.location.href.match(/\/_[a-zA-Z0-9_]*.html|_dynamo/gi);
+var url = window.location.href.lastIndexOf(match[match.length-1]);
+
+if (url)
+  {
+    var div = '<div class="admonition note"><p class="admonition-title">Note</p><p><i class="fa fa-exclamation-circle" aria-hidden="true">&nbsp</i> This page describes an internal API which is not intended to be used outside of the PyTorch codebase and can be modified or removed without notice.</p></div>'
+    document.getElementById("pytorch-article").insertAdjacentHTML('afterBegin', div)
+  }
+</script>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">torch.Storage</a><ul>
+<li><a class="reference internal" href="#untyped-storage-api">无类型存储 API</a></li>
+<li><a class="reference internal" href="#special-cases">特殊情况</a></li>
+<li><a class="reference internal" href="#legacy-typed-storage">传统能力存储</a></li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+         <script src="_static/jquery.js"></script>
+         <script src="_static/underscore.js"></script>
+         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+         <script src="_static/doctools.js"></script>
+         <script src="_static/clipboard.min.js"></script>
+         <script src="_static/copybutton.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ 
+<script script="" type="text/javascript">
+  var collapsedSections = ['Developer Notes', 'Language Bindings', 'Libraries', 'Community'];
+</script>
+
+<img height="1" width="1" style="border-style:none;" alt="" src="https://www.googleadservices.com/pagead/conversion/795629140/?label=txkmCPmdtosBENSssfsC&amp;guid=ON&amp;script=0">
+
+
+  <!-- Begin Footer -->
+
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 text-center">
+          <h2>文档</h2>
+          <p>PyTorch 开发者文档全面访问</p>
+          <a class="with-right-arrow" href="https://pytorch.org/docs/stable/index.html">查看文档</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>教程</h2>
+          <p>获取初学者和高级开发者的深入教程</p>
+          <a class="with-right-arrow" href="https://pytorch.org/tutorials">查看教程</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>资源</h2>
+          <p>查找开发资源并获得您的疑问解答</p>
+          <a class="with-right-arrow" href="https://pytorch.org/resources">查看资源</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://pytorch.org/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/">PyTorch</a></li>
+            <li><a href="https://pytorch.org/get-started">开始使用</a></li>
+            <li><a href="https://pytorch.org/features">功能</a></li>
+            <li><a href="https://pytorch.org/ecosystem">生态系统</a></li>
+            <li><a href="https://pytorch.org/blog/">博客</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md">贡献</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/resources">资源</a></li>
+            <li><a href="https://pytorch.org/tutorials">教程</a></li>
+            <li><a href="https://pytorch.org/docs/stable/index.html">文档</a></li>
+            <li><a href="https://discuss.pytorch.org" target="_blank">讨论</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/issues" target="_blank">GitHub 问题和任务</a></li>
+            <li><a href="https://pytorch.org/assets/brand-guidelines/PyTorch-Brand-Guidelines.pdf" target="_blank">品牌指南</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">保持更新</li>
+            <li><a href="https://www.facebook.com/pytorch" target="_blank">Facebook</a></li>
+            <li><a href="https://twitter.com/pytorch" target="_blank">推特</a></li>
+            <li><a href="https://www.youtube.com/pytorch" target="_blank">YouTube</a></li>
+            <li><a href="https://www.linkedin.com/company/pytorch" target="_blank">领英</a></li>
+          </ul>  
+          </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">PyTorch 播客</li>
+            <li><a href="https://open.spotify.com/show/6UzHKeiy368jKfQMKKvJY5" target="_blank">Spotify</a></li>
+            <li><a href="https://podcasts.apple.com/us/podcast/pytorch-developer-podcast/id1566080008" target="_blank">苹果</a></li>
+            <li><a href="https://www.google.com/podcasts?feed=aHR0cHM6Ly9mZWVkcy5zaW1wbGVjYXN0LmNvbS9PQjVGa0lsOA%3D%3D" target="_blank">谷歌</a></li>
+            <li><a href="https://music.amazon.com/podcasts/7a4e6f0e-26c2-49e9-a478-41bd244197d0/PyTorch-Developer-Podcast?" target="_blank">亚马逊</a></li>
+          </ul>
+         </div>
+        </div>
+        
+        <div class="privacy-policy">
+          <ul>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/terms/" target="_blank">条款</a></li>
+            <li class="privacy-policy-links">|</li>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/privacy-policy/" target="_blank">隐私</a></li>
+          </ul>
+        </div>
+        <div class="copyright">
+        <p>© 版权所有 Linux 基金会。PyTorch 基金会是 Linux 基金会的一个项目。有关本网站的使用条款、商标政策以及其他适用于 PyTorch 基金会的政策，请参阅 www.linuxfoundation.org/policies/。PyTorch 基金会支持 PyTorch 开源项目，该项目已被确立为 LF Projects, LLC 的 PyTorch 项目系列。有关适用于 PyTorch 项目系列 LF Projects, LLC 的政策，请参阅 www.lfprojects.org/policies/。</p>
+      </div>
+     </div>
+
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">为了分析流量并优化您的体验，我们在本网站上提供 cookie。通过点击或导航，您同意允许我们使用 cookie。作为本网站的当前维护者，Facebook 的 cookie 政策适用。了解更多信息，包括可用的控制选项：cookie 政策。</p>
+    <img class="close-button" src="_static/images/pytorch-x.svg" width="16" height="16">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+           <li class="resources-mobile-menu-title">
+             <a>学习</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/get-started">开始使用</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials">教程</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/basics/intro.html">学习基础知识</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/recipes/recipes_index.html">PyTorch 菜谱</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/introyt.html">PyTorch 入门 - YouTube 系列</a>
+             </li>
+           </ul>
+           <li class="resources-mobile-menu-title">
+             <a>生态系统</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/ecosystem">工具</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/#community-module">社区</a>
+             </li>
+             <li>
+               <a href="https://discuss.pytorch.org/">论坛</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/resources">开发者资源</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">贡献者奖项 - 2024</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>Edge</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/edge">关于 PyTorch Edge</a>
+             </li>
+             
+             <li>
+               <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch 文档</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>文档</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/docs/stable/index.html">PyTorch</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/pytorch-domains">PyTorch 领域</a>
+            </li>
+          </ul>
+
+          <li class="resources-mobile-menu-title">
+            <a>博客 &amp; 新闻</a>
+          </li>
+            
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/blog/">PyTorch 博客</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/community-blog">社区博客</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/videos">视频</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/community-stories">社区故事</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/events">活动</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">通讯</a>
+             </li>
+          </ul>
+          
+          <li class="resources-mobile-menu-title">
+            <a>关于</a>
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/foundation">PyTorch 基金会</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/governing-board">治理委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">云信用计划</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">技术顾问委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">员工</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">联系我们</a>
+            </li>
+          </ul>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body></html>

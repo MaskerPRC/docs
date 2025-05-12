@@ -1,0 +1,1905 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/">
+<meta content="A guide to torch.cuda, a PyTorch module to run CUDA operations" name="description">
+<meta content="memory management, PYTORCH_CUDA_ALLOC_CONF, optimize PyTorch, CUDA" name="keywords">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>CUDA semantics — PyTorch main documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pytorch.org/docs/stable/notes/cuda.html">
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css">
+  <!-- <link rel="stylesheet" href="../_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css">
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css">
+  <link rel="stylesheet" href="../_static/copybutton.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="../_static/katex-math.css" type="text/css">
+  <link rel="stylesheet" href="../_static/sphinx-dropdown.css" type="text/css">
+  <link rel="stylesheet" href="../_static/panels-bootstrap.min.css" type="text/css">
+  <link rel="stylesheet" href="../_static/css/jit.css" type="text/css">
+  <link rel="stylesheet" href="../_static/css/custom.css" type="text/css">
+    <link rel="index" title="Index" href="../genindex.html">
+    <link rel="search" title="Search" href="../search.html">
+    <link rel="next" title="PyTorch Custom Operators Landing Page" href="custom_operators.html">
+    <link rel="prev" title="CPU threading and TorchScript inference" href="cpu_threading_torchscript_inference.html">
+
+<!--
+  Search engines should not index the main version of documentation.
+  Stable documentation are built without release == 'main'.
+-->
+<meta name="robots" content="noindex">
+
+
+  <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T8XT4PS');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+  <!-- Preload the theme fonts -->
+
+<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<!-- Preload the katex fonts -->
+
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Math-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size1-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size2-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Caligraphic-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
+</head><body class="pytorch-body"><div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+
+          <li class="main-menu-item">
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">学习</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/get-started">
+                  <span class="dropdown-title">开始使用</span>
+                  <p>在本地运行 PyTorch 或快速开始使用支持的云平台之一</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials">
+                  <span class="dropdown-title">教程</span><p></p>
+                  <p>PyTorch 教程中的新内容</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/basics/intro.html">
+                  <span class="dropdown-title">学习基础知识</span><p></p>
+                  <p>熟悉 PyTorch 的概念和模块</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/recipes/recipes_index.html">
+                  <span class="dropdown-title">PyTorch 烹饪技巧</span><p></p>
+                  <p>精简型、可直接部署的 PyTorch 代码示例</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/introyt.html">
+                  <span class="dropdown-title">PyTorch 入门 - YouTube 系列</span><p></p>
+                  <p>通过我们引人入胜的 YouTube 教程系列掌握 PyTorch 基础知识</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">生态系统</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem">
+                  <span class="dropdown-title">工具</span><p></p>
+                  <p>了解 PyTorch 生态系统中的工具和框架</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
+                  <span class="dropdown-title">社区</span>
+                  <p>加入 PyTorch 开发者社区，贡献、学习并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
+                  <span class="dropdown-title">论坛</span>
+                  <p>讨论 PyTorch 代码、问题、安装、研究的地方</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/resources">
+                  <span class="dropdown-title">开发者资源</span>
+                  <p>查找资源并解答问题</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">2024 年度贡献者奖项</span><p></p>
+                  <p>本届 PyTorch 会议揭晓获奖者</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">
+                Edge
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/edge">
+                  <span class="dropdown-title">关于 PyTorch Edge</span><p></p>
+                  <p>为边缘设备构建创新和隐私感知的 AI 体验</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
+                  <span class="dropdown-title">ExecuTorch</span><p></p>
+                  <p>针对移动和边缘设备实现设备端推理能力的端到端解决方案</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch 文档</span><p></p>
+                </a>
+              </div>
+            </div>  
+          </li>
+
+          <li class="main-menu-item">
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">文档</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/docs/stable/index.html">
+                  <span class="dropdown-title">PyTorch</span><p></p>
+                  <p>探索文档以获取如何使用 PyTorch 的全面指南</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/pytorch-domains">
+                  <span class="dropdown-title">PyTorch 领域</span><p></p>
+                  <p>阅读 PyTorch 领域的文档以了解更多关于特定领域的库</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">博客与新闻</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/blog/">
+                  <span class="dropdown-title">PyTorch 博客</span><p></p>
+                  <p>跟上最新的技术新闻和动态</p>
+                </a>
+                 <a class="nav-dropdown-item" href="https://pytorch.org/community-blog">
+                  <span class="dropdown-title">社区博客</span><p></p>
+                  <p>PyTorch 生态系统故事</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/videos">
+                  <span class="dropdown-title">视频</span><p></p>
+                  <p>了解最新的 PyTorch 教程、新内容等</p>
+                </a><a class="nav-dropdown-item" href="https://pytorch.org/community-stories">
+                  <span class="dropdown-title">社区故事</span><p></p>
+                  <p>了解我们的社区如何使用 PyTorch 解决真实、日常的机器学习问题</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/events">
+                  <span class="dropdown-title">活动</span><p></p>
+                  <p>查找活动、网络研讨会和播客</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">通讯</span><p></p>
+                  <p>保持最新更新</p>
+                </a>
+            </div>
+          </div></li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">关于</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/foundation">
+                  <span class="dropdown-title">PyTorch 基金会</span><p></p>
+                  <p>了解更多关于 PyTorch 基金会的信息</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
+                  <span class="dropdown-title">管理委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">云信用计划</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">技术顾问委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">员工</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">联系我们</span><p></p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li class="main-menu-item">
+            <div class="no-dropdown">
+              <a href="https://pytorch.org/join" data-cta="join">成为会员</a>
+            </div>
+          </li>
+          <li>
+           <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="github-icon">
+             </a>
+           </div>
+          </li>
+          <!--- TODO: This block adds the search icon to the nav bar. We will enable it later. 
+          <li>
+            <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="search-icon">
+             </a>
+            </div>
+          </li>
+          --->
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+  </div>
+</div>
+
+
+
+   
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>目录</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+    <div class="version">
+      <a href="https://pytorch.org/docs/versions.html">主页 (2.7.0+cpu ) ▼</a>
+    </div>
+    <div id="searchBox">
+    <div class="searchbox" id="googleSearchBox">
+      <script async="" src="https://cse.google.com/cse.js?cx=e65585f8c3ea1440e"></script>
+      <div class="gcse-search"></div>
+    </div>
+    <div id="sphinxSearchBox" style="display: none;">
+      <div role="search">
+        <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+          <input type="text" name="q" placeholder="Search Docs">
+          <input type="hidden" name="check_keywords" value="yes">
+          <input type="hidden" name="area" value="default">
+        </form>
+      </div>
+    </div>
+  </div>
+  <form id="searchForm">
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="google" checked="">Google 搜索</label>
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="sphinx">经典搜索</label>
+  </form>
+
+  <script>
+     document.addEventListener('DOMContentLoaded', function() {
+      const searchForm = document.getElementById('searchForm');
+      const googleSearchBox = document.getElementById('googleSearchBox');
+      const sphinxSearchBox = document.getElementById('sphinxSearchBox');
+      // Function to toggle search box visibility
+      function toggleSearchBox(searchType) {
+        googleSearchBox.style.display = searchType === 'google' ? 'block' : 'none';
+        sphinxSearchBox.style.display = searchType === 'sphinx' ? 'block' : 'none';
+      }
+      // Determine the default search type
+      let defaultSearchType;
+      const currentUrl = window.location.href;
+      if (currentUrl.startsWith('https://pytorch.org/docs/stable')) {
+        // For the stable documentation, default to Google
+        defaultSearchType = localStorage.getItem('searchType') || 'google';
+      } else {
+        // For any other version, including docs-preview, default to Sphinx
+        defaultSearchType = 'sphinx';
+      }
+      // Set the default search type
+      document.querySelector(`input[name="searchType"][value="${defaultSearchType}"]`).checked = true;
+      toggleSearchBox(defaultSearchType);
+      // Event listener for changes in search type
+      searchForm.addEventListener('change', function(event) {
+        const selectedSearchType = event.target.value;
+        localStorage.setItem('searchType', selectedSearchType);
+        toggleSearchBox(selectedSearchType);
+      });
+      // Set placeholder text for Google search box
+      window.onload = function() {
+        var placeholderText = "Search Docs";
+        var googleSearchboxText = document.querySelector("#gsc-i-id1");
+        if (googleSearchboxText) {
+          googleSearchboxText.placeholder = placeholderText;
+          googleSearchboxText.style.fontFamily = 'FreightSans';
+          googleSearchboxText.style.fontSize = "1.2rem";
+          googleSearchboxText.style.color = '#262626';
+        }
+      };
+    });
+  </script>
+
+          </div>
+
+          
+
+<div>
+  <a style="color:#F05732" href="https://pytorch.org/docs/stable/notes/cuda.html">您正在查看不稳定开发者预览文档。请点击此处查看最新稳定版本的文档。</a>
+</div>
+
+
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">社区</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../community/build_ci_governance.html">PyTorch 治理 | 构建 + CI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community/contribution_guide.html">PyTorch 贡献指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community/design.html">PyTorch 设计哲学</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community/governance.html">PyTorch 治理 | 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community/persons_of_interest.html">PyTorch 治理 | 维护者</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发者笔记</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="amp_examples.html">自动混合精度示例</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autograd.html">Autograd 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="broadcasting.html">广播语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpu_threading_torchscript_inference.html">CPU 线程和 TorchScript 推理</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">CUDA 语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_operators.html">PyTorch 自定义操作着陆页面</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ddp.html">分布式数据并行</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extending.html">扩展 PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extending.func.html">扩展 torch.func 与 autograd.Function</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">常见问题</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fsdp.html">FSDP 笔记</a></li>
+<li class="toctree-l1"><a class="reference internal" href="get_start_xpu.html">在英特尔 GPU 上入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gradcheck.html">毕业审核力学</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hip.html">HIP (ROCm) 语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="large_scale_deployments.html">大规模部署功能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="libtorch_stable_abi.html">LibTorch 稳定 ABI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">模块</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mps.html">MPS 后端</a></li>
+<li class="toctree-l1"><a class="reference internal" href="multiprocessing.html">多进程最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerical_accuracy.html">数值精度</a></li>
+<li class="toctree-l1"><a class="reference internal" href="randomness.html">可复现性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="serialization.html">序列化语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="windows.html">Windows 常见问题解答</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">语言绑定</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../cpp_index.html">C++</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/javadoc/">Javadoc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deploy.html">torch::deploy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../torch.html">torch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../nn.html">torch.nn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../nn.functional.html">torch.nn.functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tensors.html">torch.Tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tensor_attributes.html">Tensor 属性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tensor_view.html">张量视图</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../amp.html">torch.amp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../autograd.html">torch.autograd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library.html">torch.library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../accelerator.html">torch 加速器</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cpu.html">torch.cpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cuda.html">torch.cuda</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch_cuda_memory.html">理解 CUDA 内存使用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch_cuda_memory.html#generating-a-snapshot">生成快照</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch_cuda_memory.html#using-the-visualizer">使用可视化器</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch_cuda_memory.html#snapshot-api-reference">快照 API 参考</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mps.html">torch.mps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../xpu.html">torch.xpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mtia.html">torch.mtia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mtia.memory.html">torch.mtia.memory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../meta.html">元设备</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../backends.html">torch.backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../export.html">torch.export</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.html">torch.distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.tensor.html">torch.distributed.tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.algorithms.join.html">torch.distributed.algorithms.join</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.elastic.html">torch.distributed.elastic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fsdp.html">torch.distributed.fsdp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.fsdp.fully_shard.html">torch.distributed.fsdp.fully_shard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.tensor.parallel.html">torch.distributed.tensor.parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.optim.html">torch.distributed.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.pipelining.html">torch.distributed.pipelining</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.checkpoint.html">torch.distributed.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributions.html">torch.distributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch.compiler.html">torch.compiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fft.html">torch.fft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../func.html">torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../futures.html">torch.futures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fx.html">torch.fx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fx.experimental.html">torch.fx.experimental</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hub.html">torch.hub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../jit.html">torch.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../linalg.html">torch.linalg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../monitor.html">torch.monitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../signal.html">torch.signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../special.html">torch.special</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch.overrides.html">torch.overrides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../package.html">torch.package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../profiler.html">torch.profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../nn.init.html">torch.nn.init</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../nn.attention.html">torch.nn.attention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../onnx.html">torch.onnx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../optim.html">torch.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../complex_numbers.html">复数</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ddp_comm_hooks.html">DDP 通信钩子</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quantization.html">量化</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rpc.html">分布式 RPC 框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../random.html">torch.random</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../masked.html">torch.masked</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../nested.html">torch.nested</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../size.html">torch.Size</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sparse.html">torch.sparse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../storage.html">torch 存储</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../testing.html">torch.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils.html">torch.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../benchmark_utils.html">torch.utils.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bottleneck.html">torch.utils.bottleneck</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../checkpoint.html">torch.utils.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cpp_extension.html">torch.utils.cpp_extension</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data.html">torch.utils.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deterministic.html">torch.utils.deterministic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../jit_utils.html">torch.utils.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dlpack.html">torch.utils.dlpack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mobile_optimizer.html">torch.utils.mobile_optimizer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../model_zoo.html">torch.utils.model_zoo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tensorboard.html">torch.utils.tensorboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../module_tracker.html">torch.utils.module_tracker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../type_info.html">类型信息</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../named_tensor.html">命名张量</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../name_inference.html">命名张量操作覆盖率</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../config_mod.html">torch.__config__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../future_mod.html">torch.__future__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../logging.html">torch._logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torch_environment_variables.html">火炬环境变量</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">图书馆</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/audio/stable">torchaudio</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/data">TorchData</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/torchrec">火炬推荐</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/serve">TorchServe</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/text/stable">torchtext</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/vision/stable">torchvision</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/xla/">PyTorch 在 XLA 设备上</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/ao">torchao</a></li>
+</ul>
+
+            
+          
+
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        文档 &gt;</li>
+
+        
+      <li>CUDA 语义</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/notes/cuda.rst.txt" rel="nofollow"><img src="../_static/images/view-page-source-icon.svg" width="16" height="16"></a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">快捷键</div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+
+          <!-- Google Tag Manager (noscript) -->
+          <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T8XT4PS" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+          <!-- End Google Tag Manager (noscript) -->
+          
+          <div class="rst-content">
+          
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <section id="cuda-semantics">
+<span id="id1"></span><h1>CUDA 语义 ¶</h1>
+<p> <code class="xref py py-mod docutils literal "><span class="pre">torch.cuda</span></code> 用于设置和运行 CUDA 操作。它跟踪当前选定的 GPU，并且您分配的所有 CUDA 张量默认将在该设备上创建。可以使用 <code class="xref any py py-class docutils literal "><span class="pre">torch.cuda.device</span></code> 上下文管理器更改选定的设备。</p>
+<p>然而，一旦分配了张量，您就可以在所选设备上对其执行操作，并且结果将始终放置在张量相同的设备上。</p>
+<p>默认情况下，不允许跨 GPU 操作，除非使用 <code class="xref py py-meth docutils literal "><span class="pre">copy_()</span></code> 和其他具有类似复制功能的操作，如 <code class="xref py py-meth docutils literal "><span class="pre">to()</span></code> 和 <code class="xref py py-meth docutils literal "><span class="pre">cuda()</span></code> 。除非您启用对等内存访问，否则尝试在跨不同设备的张量上启动操作将引发错误。</p>
+<p>下面是一个展示此功能的简单示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">cuda</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">'cuda'</span><span class="p">)</span>     <span class="c1"># Default CUDA device</span>
+<span class="n">cuda0</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">'cuda:0'</span><span class="p">)</span>
+<span class="n">cuda2</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">'cuda:2'</span><span class="p">)</span>  <span class="c1"># GPU 2 (these are 0-indexed)</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">],</span> <span class="n">device</span><span class="o">=</span><span class="n">cuda0</span><span class="p">)</span>
+<span class="c1"># x.device is device(type='cuda', index=0)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">])</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+<span class="c1"># y.device is device(type='cuda', index=0)</span>
+
+<span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span>
+    <span class="c1"># allocates a tensor on GPU 1</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">],</span> <span class="n">device</span><span class="o">=</span><span class="n">cuda</span><span class="p">)</span>
+
+    <span class="c1"># transfers a tensor from CPU to GPU 1</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">])</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+    <span class="c1"># a.device and b.device are device(type='cuda', index=1)</span>
+
+    <span class="c1"># You can also use ``Tensor.to`` to transfer a tensor:</span>
+    <span class="n">b2</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">])</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="o">=</span><span class="n">cuda</span><span class="p">)</span>
+    <span class="c1"># b.device and b2.device are device(type='cuda', index=1)</span>
+
+    <span class="n">c</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
+    <span class="c1"># c.device is device(type='cuda', index=1)</span>
+
+    <span class="n">z</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+    <span class="c1"># z.device is device(type='cuda', index=0)</span>
+
+    <span class="c1"># even within a context, you can specify the device</span>
+    <span class="c1"># (or give a GPU index to the .cuda call)</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">cuda2</span><span class="p">)</span>
+    <span class="n">e</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">cuda2</span><span class="p">)</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">cuda</span><span class="p">(</span><span class="n">cuda2</span><span class="p">)</span>
+    <span class="c1"># d.device, e.device, and f.device are all device(type='cuda', index=2)</span>
+</pre></div>
+</div>
+<section id="tensorfloat-32-tf32-on-ampere-and-later-devices">
+<span id="tf32-on-ampere"></span><h2>Ampere（及以后）设备上的 TensorFloat-32（TF32）</h2>
+<p>从 PyTorch 1.7 版本开始，有一个新的标志称为 allow_tf32。在 PyTorch 1.7 到 1.11 版本中，此标志默认为 True，在 PyTorch 1.12 及以后版本中为 False。此标志控制 PyTorch 是否允许使用 TensorFloat32（TF32）张量核心，该核心自 Ampere 以来在 NVIDIA GPU 上可用，以内部计算矩阵乘法（矩阵乘法和批量矩阵乘法）和卷积。</p>
+<p>TF32 张量核心旨在通过将输入数据四舍五入到 10 位尾数，以 FP32 精度累积结果，同时保持 FP32 动态范围，从而在 torch.float32 张量上实现 matmul 和卷积操作的性能提升。</p>
+<p>matmul 和卷积操作分别受控，相应的标志可以在以下位置访问：</p>
+<div class="highlight-python "><div class="highlight"><pre><span></span><span class="c1"># The flag below controls whether to allow TF32 on matmul. This flag defaults to False</span>
+<span class="c1"># in PyTorch 1.12 and later.</span>
+<span class="n">torch</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">matmul</span><span class="o">.</span><span class="n">allow_tf32</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="c1"># The flag below controls whether to allow TF32 on cuDNN. This flag defaults to True.</span>
+<span class="n">torch</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">cudnn</span><span class="o">.</span><span class="n">allow_tf32</span> <span class="o">=</span> <span class="kc">True</span>
+</pre></div>
+</div>
+<p>matmul 的精度也可以更广泛地设置（不仅限于 CUDA）通过 <code class="xref py py-meth docutils literal "><span class="pre">set_float_32_matmul_precision()</span></code> 。请注意，除了 matmul 和卷积操作本身外，内部使用 matmul 或卷积的函数和 nn 模块也会受到影响。这些包括 nn.Linear、nn.Conv*、cdist、tensordot、affine grid 和 grid sample、adaptive log softmax、GRU 和 LSTM。</p>
+<p>要了解精度和速度，请参阅下面的示例代码和基准数据（在 A100 上）：</p>
+<div class="highlight-python "><div class="highlight"><pre><span></span><span class="n">a_full</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">10240</span><span class="p">,</span> <span class="mi">10240</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">double</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">'cuda'</span><span class="p">)</span>
+<span class="n">b_full</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">10240</span><span class="p">,</span> <span class="mi">10240</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">double</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">'cuda'</span><span class="p">)</span>
+<span class="n">ab_full</span> <span class="o">=</span> <span class="n">a_full</span> <span class="o">@</span> <span class="n">b_full</span>
+<span class="n">mean</span> <span class="o">=</span> <span class="n">ab_full</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>  <span class="c1"># 80.7277</span>
+
+<span class="n">a</span> <span class="o">=</span> <span class="n">a_full</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">b_full</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>
+
+<span class="c1"># Do matmul at TF32 mode.</span>
+<span class="n">torch</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">matmul</span><span class="o">.</span><span class="n">allow_tf32</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">ab_tf32</span> <span class="o">=</span> <span class="n">a</span> <span class="o">@</span> <span class="n">b</span>  <span class="c1"># takes 0.016s on GA100</span>
+<span class="n">error</span> <span class="o">=</span> <span class="p">(</span><span class="n">ab_tf32</span> <span class="o">-</span> <span class="n">ab_full</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>  <span class="c1"># 0.1747</span>
+<span class="n">relative_error</span> <span class="o">=</span> <span class="n">error</span> <span class="o">/</span> <span class="n">mean</span>  <span class="c1"># 0.0022</span>
+
+<span class="c1"># Do matmul with TF32 disabled.</span>
+<span class="n">torch</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">matmul</span><span class="o">.</span><span class="n">allow_tf32</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">ab_fp32</span> <span class="o">=</span> <span class="n">a</span> <span class="o">@</span> <span class="n">b</span>  <span class="c1"># takes 0.11s on GA100</span>
+<span class="n">error</span> <span class="o">=</span> <span class="p">(</span><span class="n">ab_fp32</span> <span class="o">-</span> <span class="n">ab_full</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>  <span class="c1"># 0.0031</span>
+<span class="n">relative_error</span> <span class="o">=</span> <span class="n">error</span> <span class="o">/</span> <span class="n">mean</span>  <span class="c1"># 0.000039</span>
+</pre></div>
+</div>
+<p>从上面的例子中，我们可以看到启用 TF32 后，在 A100 上的速度大约快 7 倍，与双精度相比，相对误差大约大两个数量级。请注意，TF32 与单精度速度的精确比率取决于硬件代系，因为内存带宽与计算比以及 TF32 与 FP32 矩阵乘吞吐量比等属性可能从一代到一代或从一种型号到另一种型号而变化。如果需要完整的 FP32 精度，用户可以通过以下方式禁用 TF32：</p>
+<div class="highlight-python "><div class="highlight"><pre><span></span><span class="n">torch</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">matmul</span><span class="o">.</span><span class="n">allow_tf32</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">torch</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">cudnn</span><span class="o">.</span><span class="n">allow_tf32</span> <span class="o">=</span> <span class="kc">False</span>
+</pre></div>
+</div>
+<p>在 C++中，您可以通过以下方式切换 TF32 标志：</p>
+<div class="highlight-C++ "><div class="highlight"><pre><span></span><span class="n">at</span><span class="o">::</span><span class="n">globalContext</span><span class="p">().</span><span class="n">setAllowTF32CuBLAS</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span>
+<span class="n">at</span><span class="o">::</span><span class="n">globalContext</span><span class="p">().</span><span class="n">setAllowTF32CuDNN</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>有关 TF32 的更多信息，请参阅：</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://blogs.nvidia.com/blog/2020/05/14/tensorfloat-32-precision-format/">TensorFloat-32</a></p></li>
+<li><p><a class="reference external" href="https://devblogs.nvidia.com/cuda-11-features-revealed/">CUDA 11</a></p></li>
+<li><p><a class="reference external" href="https://devblogs.nvidia.com/nvidia-ampere-architecture-in-depth/">安培架构</a></p></li>
+</ul>
+</section>
+<section id="reduced-precision-reduction-in-fp16-gemms">
+<span id="fp16reducedprecision"></span><h2>FP16 GEMMs 的精度降低（与专为具有比 FP32 积累更高吞吐量的 FP16 积累硬件设计的完整 FP16 积累不同，请参阅完整 FP16 积累）</h2>
+<p>（与专为具有比 FP32 积累更高吞吐量的 FP16 积累硬件设计的完整 FP16 积累不同，请参阅完整 FP16 积累）</p>
+<p>fp16 GEMMs 可以通过一些中间降低精度来完成任务（例如，使用 fp16 而不是 fp32）。这种有选择的精度降低可以在某些工作负载（尤其是具有大 k 维度的那些）和 GPU 架构上实现更高的性能，但会牺牲数值精度和溢出的可能性。</p>
+<p>在 V100 上的某些基准数据示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="p">[</span><span class="o">---------------------------</span> <span class="n">bench_gemm_transformer</span> <span class="o">--------------------------</span><span class="p">]</span>
+      <span class="p">[</span>  <span class="n">m</span> <span class="p">,</span>  <span class="n">k</span>  <span class="p">,</span>  <span class="n">n</span>  <span class="p">]</span>    <span class="o">|</span>  <span class="n">allow_fp16_reduc</span><span class="o">=</span><span class="kc">True</span>  <span class="o">|</span>  <span class="n">allow_fp16_reduc</span><span class="o">=</span><span class="kc">False</span>
+<span class="mi">1</span> <span class="n">threads</span><span class="p">:</span> <span class="o">--------------------------------------------------------------------</span>
+      <span class="p">[</span><span class="mi">4096</span><span class="p">,</span> <span class="mi">4048</span><span class="p">,</span> <span class="mi">4096</span><span class="p">]</span>    <span class="o">|</span>           <span class="mf">1634.6</span>        <span class="o">|</span>           <span class="mf">1639.8</span>
+      <span class="p">[</span><span class="mi">4096</span><span class="p">,</span> <span class="mi">4056</span><span class="p">,</span> <span class="mi">4096</span><span class="p">]</span>    <span class="o">|</span>           <span class="mf">1670.8</span>        <span class="o">|</span>           <span class="mf">1661.9</span>
+      <span class="p">[</span><span class="mi">4096</span><span class="p">,</span> <span class="mi">4080</span><span class="p">,</span> <span class="mi">4096</span><span class="p">]</span>    <span class="o">|</span>           <span class="mf">1664.2</span>        <span class="o">|</span>           <span class="mf">1658.3</span>
+      <span class="p">[</span><span class="mi">4096</span><span class="p">,</span> <span class="mi">4096</span><span class="p">,</span> <span class="mi">4096</span><span class="p">]</span>    <span class="o">|</span>           <span class="mf">1639.4</span>        <span class="o">|</span>           <span class="mf">1651.0</span>
+      <span class="p">[</span><span class="mi">4096</span><span class="p">,</span> <span class="mi">4104</span><span class="p">,</span> <span class="mi">4096</span><span class="p">]</span>    <span class="o">|</span>           <span class="mf">1677.4</span>        <span class="o">|</span>           <span class="mf">1674.9</span>
+      <span class="p">[</span><span class="mi">4096</span><span class="p">,</span> <span class="mi">4128</span><span class="p">,</span> <span class="mi">4096</span><span class="p">]</span>    <span class="o">|</span>           <span class="mf">1655.7</span>        <span class="o">|</span>           <span class="mf">1646.0</span>
+      <span class="p">[</span><span class="mi">4096</span><span class="p">,</span> <span class="mi">4144</span><span class="p">,</span> <span class="mi">4096</span><span class="p">]</span>    <span class="o">|</span>           <span class="mf">1796.8</span>        <span class="o">|</span>           <span class="mf">2519.6</span>
+      <span class="p">[</span><span class="mi">4096</span><span class="p">,</span> <span class="mi">5096</span><span class="p">,</span> <span class="mi">4096</span><span class="p">]</span>    <span class="o">|</span>           <span class="mf">2094.6</span>        <span class="o">|</span>           <span class="mf">3190.0</span>
+      <span class="p">[</span><span class="mi">4096</span><span class="p">,</span> <span class="mi">5104</span><span class="p">,</span> <span class="mi">4096</span><span class="p">]</span>    <span class="o">|</span>           <span class="mf">2144.0</span>        <span class="o">|</span>           <span class="mf">2663.5</span>
+      <span class="p">[</span><span class="mi">4096</span><span class="p">,</span> <span class="mi">5112</span><span class="p">,</span> <span class="mi">4096</span><span class="p">]</span>    <span class="o">|</span>           <span class="mf">2149.1</span>        <span class="o">|</span>           <span class="mf">2766.9</span>
+      <span class="p">[</span><span class="mi">4096</span><span class="p">,</span> <span class="mi">5120</span><span class="p">,</span> <span class="mi">4096</span><span class="p">]</span>    <span class="o">|</span>           <span class="mf">2142.8</span>        <span class="o">|</span>           <span class="mf">2631.0</span>
+      <span class="p">[</span><span class="mi">4096</span><span class="p">,</span> <span class="mi">9728</span><span class="p">,</span> <span class="mi">4096</span><span class="p">]</span>    <span class="o">|</span>           <span class="mf">3875.1</span>        <span class="o">|</span>           <span class="mf">5779.8</span>
+      <span class="p">[</span><span class="mi">4096</span><span class="p">,</span> <span class="mi">16384</span><span class="p">,</span> <span class="mi">4096</span><span class="p">]</span>   <span class="o">|</span>           <span class="mf">6182.9</span>        <span class="o">|</span>           <span class="mf">9656.5</span>
+<span class="p">(</span><span class="n">times</span> <span class="ow">in</span> <span class="n">microseconds</span><span class="p">)</span><span class="o">.</span>
+</pre></div>
+</div>
+<p>如果需要全精度降低，用户可以通过以下方式禁用 fp16 GEMMs 中的降低精度降低：</p>
+<div class="highlight-python "><div class="highlight"><pre><span></span><span class="n">torch</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">matmul</span><span class="o">.</span><span class="n">allow_fp16_reduced_precision_reduction</span> <span class="o">=</span> <span class="kc">False</span>
+</pre></div>
+</div>
+<p>要在 C++中切换降低精度降低标志，可以这样做：</p>
+<div class="highlight-C++ "><div class="highlight"><pre><span></span><span class="n">at</span><span class="o">::</span><span class="n">globalContext</span><span class="p">().</span><span class="n">setAllowFP16ReductionCuBLAS</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<section id="reduced-precision-reduction-in-bf16-gemms">
+<span id="bf16reducedprecision"></span><h2>BF16 GEMMs 中的精度降低减少</h2>
+<p>与上述类似，BFloat16 GEMMs 也存在这样一个标志。请注意，此开关默认设置为 True，如果您的负载观察到数值不稳定性，您可能希望将其设置为 False。</p>
+<p>如果不希望使用精度降低减少，用户可以通过以下方式在 bf16 GEMMs 中禁用精度降低减少：</p>
+<div class="highlight-python "><div class="highlight"><pre><span></span><span class="n">torch</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">matmul</span><span class="o">.</span><span class="n">allow_bf16_reduced_precision_reduction</span> <span class="o">=</span> <span class="kc">False</span>
+</pre></div>
+</div>
+<p>在 C++中，可以通过以下方式切换精度降低减少标志：</p>
+<div class="highlight-C++ "><div class="highlight"><pre><span></span><span class="n">at</span><span class="o">::</span><span class="n">globalContext</span><span class="p">().</span><span class="n">setAllowBF16ReductionCuBLAS</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<section id="full-fp16-accmumulation-in-fp16-gemms">
+<span id="fp16accumulation"></span><h2>全精度 FP16 累加在 FP16 GEMM 中的全 FP16 累加</h2>
+<p>某些 GPU 在进行所有 FP16 GEMM 累加时性能有所提升，但会牺牲数值精度并增加溢出的可能性。请注意，此设置仅对计算能力为 7.0（Volta）或更高版本的 GPU 有效。</p>
+<p>此行为可以通过以下方式启用：</p>
+<div class="highlight-python "><div class="highlight"><pre><span></span><span class="n">torch</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">matmul</span><span class="o">.</span><span class="n">allow_fp16_accumulation</span> <span class="o">=</span> <span class="kc">True</span>
+</pre></div>
+</div>
+<p>要在 C++中切换降低精度的减少标志，可以这样做：</p>
+<div class="highlight-C++ "><div class="highlight"><pre><span></span><span class="n">at</span><span class="o">::</span><span class="n">globalContext</span><span class="p">().</span><span class="n">setAllowFP16AccumulationCuBLAS</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<section id="asynchronous-execution">
+<h2>异步执行</h2>
+<p>默认情况下，GPU 操作是异步的。当你调用一个使用 GPU 的函数时，操作会被排队到特定的设备上，但不一定立即执行。这允许我们并行执行更多的计算，包括 CPU 或其他 GPU 上的操作。</p>
+<p>通常，异步计算对调用者来说是不可见的，因为（1）每个设备按照它们排队的顺序执行操作，并且（2）PyTorch 在 CPU 和 GPU 之间或两个 GPU 之间复制数据时自动执行必要的同步。因此，计算将像每个操作都是同步执行一样进行。</p>
+<p>你可以通过设置环境变量来强制同步计算。这当 GPU 上发生错误时可能很有用。（在异步执行中，这样的错误不会在操作实际执行后报告，因此堆栈跟踪不会显示请求的位置。）</p>
+<p>异步计算的一个后果是，没有同步的时间测量不准确。要获得精确的测量结果，应在测量之前调用 <code class="xref py py-func docutils literal "><span class="pre">torch.cuda.synchronize()</span></code> ，或者使用 <code class="xref py py-class docutils literal "><span class="pre">torch.cuda.Event</span></code> 记录时间，如下所示：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">start_event</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">Event</span><span class="p">(</span><span class="n">enable_timing</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">end_event</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">Event</span><span class="p">(</span><span class="n">enable_timing</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">start_event</span><span class="o">.</span><span class="n">record</span><span class="p">()</span>
+
+<span class="c1"># Run some things here</span>
+
+<span class="n">end_event</span><span class="o">.</span><span class="n">record</span><span class="p">()</span>
+<span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">synchronize</span><span class="p">()</span>  <span class="c1"># Wait for the events to be recorded!</span>
+<span class="n">elapsed_time_ms</span> <span class="o">=</span> <span class="n">start_event</span><span class="o">.</span><span class="n">elapsed_time</span><span class="p">(</span><span class="n">end_event</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>作为例外，一些函数如 <code class="xref py py-meth docutils literal "><span class="pre">to()</span></code> 和 <code class="xref py py-meth docutils literal "><span class="pre">copy_()</span></code> 接受一个显式的 <code class="xref py py-attr docutils literal "><span class="pre">non_blocking</span></code> 参数，允许调用者在不必要同步时绕过同步。另一个例外是 CUDA 流，下面将进行解释。</p>
+<section id="cuda-streams">
+<h3>CUDA 流</h3>
+<p>CUDA 流是特定设备上的线性执行序列。通常您不需要显式创建它：默认情况下，每个设备都使用自己的“默认”流。</p>
+<p>每个流内的操作按照创建顺序进行序列化，但来自不同流的操作可以并发执行，除非使用了显式的同步函数（如 <code class="xref py py-meth docutils literal "><span class="pre">synchronize()</span></code> 或 <code class="xref py py-meth docutils literal "><span class="pre">wait_stream()</span></code> ）。例如，以下代码是错误的：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">cuda</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">'cuda'</span><span class="p">)</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">Stream</span><span class="p">()</span>  <span class="c1"># Create a new stream.</span>
+<span class="n">A</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span> <span class="n">device</span><span class="o">=</span><span class="n">cuda</span><span class="p">)</span><span class="o">.</span><span class="n">normal_</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="c1"># sum() may start execution before normal_() finishes!</span>
+    <span class="n">B</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>当“当前流”是默认流时，PyTorch 会自动执行必要的同步，如上所述。然而，当使用非默认流时，用户有责任确保适当的同步。此示例的修正版本是：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">cuda</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">'cuda'</span><span class="p">)</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">Stream</span><span class="p">()</span>  <span class="c1"># Create a new stream.</span>
+<span class="n">A</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span> <span class="n">device</span><span class="o">=</span><span class="n">cuda</span><span class="p">)</span><span class="o">.</span><span class="n">normal_</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">wait_stream</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">default_stream</span><span class="p">(</span><span class="n">cuda</span><span class="p">))</span>  <span class="c1"># NEW!</span>
+<span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="n">B</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<span class="n">A</span><span class="o">.</span><span class="n">record_stream</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>  <span class="c1"># NEW!</span>
+</pre></div>
+</div>
+<p>增加了两个新功能。 <code class="xref py py-meth docutils literal "><span class="pre">torch.cuda.Stream.wait_stream()</span></code> 调用确保在开始运行 <code class="docutils literal "><span class="pre">sum(A)</span></code> 之前， <code class="docutils literal "><span class="pre">normal_()</span></code> 的执行已经完成。 <code class="xref py py-meth docutils literal "><span class="pre">torch.Tensor.record_stream()</span></code> （详见更多详情）确保在 <code class="docutils literal "><span class="pre">sum(A)</span></code> 完成之前不释放 A。您还可以在稍后的某个时间点手动等待流上的操作 <code class="docutils literal "><span class="pre">torch.cuda.default_stream(cuda).wait_stream(s)</span></code> （请注意，立即等待是没有意义的，因为这会阻止流执行与默认流上的其他工作并行运行。）有关 <code class="xref py py-meth docutils literal "><span class="pre">torch.Tensor.record_stream()</span></code> 的详细信息，请参阅文档。</p>
+<p>注意，即使没有读依赖，这种同步也是必要的，例如，如下例所示：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">cuda</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">'cuda'</span><span class="p">)</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">Stream</span><span class="p">()</span>  <span class="c1"># Create a new stream.</span>
+<span class="n">A</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span> <span class="n">device</span><span class="o">=</span><span class="n">cuda</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">wait_stream</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">default_stream</span><span class="p">(</span><span class="n">cuda</span><span class="p">))</span>  <span class="c1"># STILL REQUIRED!</span>
+<span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="n">A</span><span class="o">.</span><span class="n">normal_</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">A</span><span class="o">.</span><span class="n">record_stream</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>尽管对 <code class="docutils literal "><span class="pre">s</span></code> 的计算没有读取 <code class="docutils literal "><span class="pre">A</span></code> 的内容，也没有其他对 <code class="docutils literal "><span class="pre">A</span></code> 的使用，但仍然需要同步，因为 <code class="docutils literal "><span class="pre">A</span></code> 可能对应于 CUDA 缓存分配器重新分配的内存，其中包含来自旧（已释放）内存的挂起操作。</p>
+</section>
+<section id="stream-semantics-of-backward-passes">
+<span id="bwd-cuda-stream-semantics"></span><h3>反向传播的流语义</h3>
+<p>每个反向 CUDA 操作都在其对应正向操作的同一流上运行。如果你的正向传播在并行流上独立运行操作，这将有助于反向传播利用相同的并行性。</p>
+<p>关于向后调用相对于周围操作的流语义与任何其他调用相同。反向传播过程插入内部同步以确保即使在多个流上运行反向操作时也是如此，如前一段所述。更具体地说，当调用 <code class="xref py py-func docutils literal "><span class="pre">autograd.backward</span></code> ， <code class="xref py py-func docutils literal "><span class="pre">autograd.grad</span></code> 或 <code class="xref py py-meth docutils literal "><span class="pre">tensor.backward</span></code> ，并可选地提供 CUDA 张量作为初始梯度（例如 <code class="xref py py-func docutils literal "><span class="pre">autograd.backward(...,</span> <span class="pre">grad_tensors=initial_grads)</span></code> ， <code class="xref py py-func docutils literal "><span class="pre">autograd.grad(...,</span> <span class="pre">grad_outputs=initial_grads)</span></code> 或 <code class="xref py py-meth docutils literal "><span class="pre">tensor.backward(...,</span> <span class="pre">gradient=initial_grad)</span></code> ）时，以下行为：</p>
+<ol class="arabic simple">
+<li><p>可选地填充初始梯度，</p></li>
+<li><p>调用反向传播，以及</p></li>
+<li><p>使用梯度</p></li>
+</ol>
+<p>与任何操作组的流语义关系相同：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">Stream</span><span class="p">()</span>
+
+<span class="c1"># Safe, grads are used in the same stream context as backward()</span>
+<span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+    <span class="n">use</span> <span class="n">grads</span>
+
+<span class="c1"># Unsafe</span>
+<span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+<span class="n">use</span> <span class="n">grads</span>
+
+<span class="c1"># Safe, with synchronization</span>
+<span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+<span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">current_stream</span><span class="p">()</span><span class="o">.</span><span class="n">wait_stream</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<span class="n">use</span> <span class="n">grads</span>
+
+<span class="c1"># Safe, populating initial grad and invoking backward are in the same stream context</span>
+<span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="n">gradient</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">loss</span><span class="p">))</span>
+
+<span class="c1"># Unsafe, populating initial_grad and invoking backward are in different stream contexts,</span>
+<span class="c1"># without synchronization</span>
+<span class="n">initial_grad</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="n">gradient</span><span class="o">=</span><span class="n">initial_grad</span><span class="p">)</span>
+
+<span class="c1"># Safe, with synchronization</span>
+<span class="n">initial_grad</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">wait_stream</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">current_stream</span><span class="p">())</span>
+<span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="n">initial_grad</span><span class="o">.</span><span class="n">record_stream</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="n">gradient</span><span class="o">=</span><span class="n">initial_grad</span><span class="p">)</span>
+</pre></div>
+</div>
+<section id="bc-note-using-grads-on-the-default-stream">
+<h4>BC 注释：在默认流上使用梯度 ¶</h4>
+<p>在 PyTorch 的早期版本（1.9 及之前），自动微分引擎始终将默认流与所有反向操作同步，因此以下模式：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+<span class="n">use</span> <span class="n">grads</span>
+</pre></div>
+</div>
+<p>只要 <code class="docutils literal "><span class="pre">use</span> <span class="pre">grads</span></code> 在默认流上发生，就是安全的。在当前的 PyTorch 中，这种模式不再安全。如果 <code class="docutils literal "><span class="pre">backward()</span></code> 和 <code class="docutils literal "><span class="pre">use</span> <span class="pre">grads</span></code> 位于不同的流上下文中，您必须同步流：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+<span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">current_stream</span><span class="p">()</span><span class="o">.</span><span class="n">wait_stream</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<span class="n">use</span> <span class="n">grads</span>
+</pre></div>
+</div>
+<p>即使 <code class="docutils literal "><span class="pre">use</span> <span class="pre">grads</span></code> 处于默认流中。</p>
+</section>
+</section>
+</section>
+<section id="memory-management">
+<span id="cuda-memory-management"></span><h2>内存管理 §</h2>
+<p>PyTorch 使用缓存内存分配器来加速内存分配。这允许在不进行设备同步的情况下快速释放内存。然而，分配器管理的未使用内存仍然会显示为 <code class="docutils literal "><span class="pre">nvidia-smi</span></code> 中被使用。您可以使用 <code class="xref py py-meth docutils literal "><span class="pre">memory_allocated()</span></code> 和 <code class="xref py py-meth docutils literal "><span class="pre">max_memory_allocated()</span></code> 来监控张量占用的内存，并使用 <code class="xref py py-meth docutils literal "><span class="pre">memory_reserved()</span></code> 和 <code class="xref py py-meth docutils literal "><span class="pre">max_memory_reserved()</span></code> 来监控缓存分配器管理的总内存量。调用 <code class="xref py py-meth docutils literal "><span class="pre">empty_cache()</span></code> 可以释放 PyTorch 中所有未使用的缓存内存，以便其他 GPU 应用程序可以使用。但是，张量占用的 GPU 内存不会被释放，因此它不能增加 PyTorch 可用的 GPU 内存量。</p>
+<p>要更好地了解 CUDA 内存随时间的使用情况，请参阅《理解 CUDA 内存使用》以了解捕获和可视化内存使用痕迹的工具。</p>
+<p>对于高级用户，我们提供通过 <code class="xref py py-meth docutils literal "><span class="pre">memory_stats()</span></code> 进行的更全面的内存基准测试。我们还提供通过 <code class="xref py py-meth docutils literal "><span class="pre">memory_snapshot()</span></code> 捕获内存分配器状态的完整快照的能力，这可以帮助您了解代码产生的底层分配模式。</p>
+<section id="optimizing-memory-usage-with-pytorch-cuda-alloc-conf">
+<span id="cuda-memory-envvars"></span><h3>使用 <code class="docutils literal "><span class="pre">PYTORCH_CUDA_ALLOC_CONF</span></code> 优化内存使用</h3>
+<p>使用缓存分配器可能会干扰内存检查工具，如 <code class="docutils literal "><span class="pre">cuda-memcheck</span></code> 。要使用 <code class="docutils literal "><span class="pre">cuda-memcheck</span></code> 调试内存错误，请将您的环境中的 <code class="docutils literal "><span class="pre">PYTORCH_NO_CUDA_MEMORY_CACHING=1</span></code> 设置为禁用缓存。</p>
+<p>可以通过环境变量 <code class="docutils literal "><span class="pre">PYTORCH_CUDA_ALLOC_CONF</span></code> 控制缓存分配器的行为。格式为 <code class="docutils literal "><span class="pre">PYTORCH_CUDA_ALLOC_CONF=&lt;option&gt;:&lt;value&gt;,&lt;option2&gt;:&lt;value2&gt;...</span></code> 可用选项：</p>
+<ul>
+<li><p> <code class="docutils literal "><span class="pre">backend</span></code> 允许选择底层分配器实现。目前，有效选项有 <code class="docutils literal "><span class="pre">native</span></code> ，它使用 PyTorch 的本地实现，和 <code class="docutils literal "><span class="pre">cudaMallocAsync</span></code> ，它使用 CUDA 的内置异步分配器。 <code class="docutils literal "><span class="pre">cudaMallocAsync</span></code> 需要 CUDA 11.4 或更高版本。默认为 <code class="docutils literal "><span class="pre">native</span></code> 。 <code class="docutils literal "><span class="pre">backend</span></code> 适用于进程使用的所有设备，不能按设备指定。</p></li>
+<li><p> <code class="docutils literal "><span class="pre">max_split_size_mb</span></code> 防止本地分配器拆分大于此大小的块（以 MB 为单位）。这可以减少碎片并可能允许一些边缘工作负载在没有耗尽内存的情况下完成。性能成本可能从“零”到“显著”不等，具体取决于分配模式。默认值是无限制，即所有块都可以拆分。 <code class="xref py py-meth docutils literal "><span class="pre">memory_stats()</span></code> 和 <code class="xref py py-meth docutils literal "><span class="pre">memory_summary()</span></code> 方法很有用，用于调整。对于由于“内存不足”而终止且显示大量不活跃拆分块的工作负载，应将此选项作为最后的手段。 <code class="docutils literal "><span class="pre">max_split_size_mb</span></code> 仅与 <code class="docutils literal "><span class="pre">backend:native</span></code> 有关。使用 <code class="docutils literal "><span class="pre">backend:cudaMallocAsync</span></code> 时， <code class="docutils literal "><span class="pre">max_split_size_mb</span></code> 被忽略。</p></li>
+<li><p> <code class="docutils literal "><span class="pre">roundup_power2_divisions</span></code> 帮助将请求的分配大小四舍五入到最接近的 2 的幂次方除数，并更好地利用块。在本地 CUDACachingAllocator 中，大小以 512 个块大小的倍数向上取整，因此对于较小的尺寸来说效果良好。然而，对于大型相邻分配，这可能会效率低下，因为每个分配都会使用不同大小的块，并且这些块的重用最小化。这可能会创建许多未使用的块，并浪费 GPU 内存容量。此选项启用将分配大小四舍五入到最接近的 2 的幂次方除数。例如，如果我们需要将 1200 的大小向上取整，如果除数是 4，则 1200 的大小位于 1024 和 2048 之间，如果我们在这两者之间进行 4 次除法，则值是 1024、1280、1536 和 1792。因此，1200 的分配大小将被四舍五入到 1280，这是最接近的 2 的幂次方除数的上限。指定一个值以应用于所有分配大小，或指定一个键值对数组，为每个 2 的幂次方间隔分别设置 2 的幂次方除数。 例如，为了将所有小于 256MB 的分配设置为 1 个分区，256MB 到 512MB 之间的分配设置为 2 个分区，512MB 到 1GB 之间的分配设置为 4 个分区，任何更大的分配设置为 8 个分区，请将旋钮值设置为：[256:1,512:2,1024:4,&gt;:8]。 <code class="docutils literal "><span class="pre">roundup_power2_divisions</span></code> 仅与 <code class="docutils literal "><span class="pre">backend:native</span></code> 结合使用。使用 <code class="docutils literal "><span class="pre">backend:cudaMallocAsync</span></code> 时， <code class="docutils literal "><span class="pre">roundup_power2_divisions</span></code> 被忽略。</p></li>
+<li><dl class="simple">
+<dt> <code class="docutils literal "><span class="pre">max_non_split_rounding_mb</span></code> 将允许非分割块以实现更好的重用，例如，</font></font></font></dt><dd><p><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">1024MB 的缓存块可以被用于 512MB 的分配请求。在默认情况下，我们只允许非分割块最多 20MB 的舍入，因此 512MB 的块只能使用 512-532MB 大小的块来提供服务。如果我们设置此选项的值为 1024，它将允许使用 512-1536MB 大小的块来为 512MB 的块提供服务，从而增加大块的重用。这也有助于减少避免昂贵的 cudaMalloc 调用时的停滞。</p>
+</dd>
+</dl>
+</li>
+<li><p> <code class="docutils literal "><span class="pre">garbage_collection_threshold</span></code> 帮助积极回收未使用的 GPU 内存，以避免触发昂贵的同步和回收所有操作（release_cached_blocks），这可能对延迟敏感的 GPU 应用程序（例如服务器）不利。在设置此阈值（例如，0.8）后，如果 GPU 内存容量使用率超过阈值（即分配给 GPU 应用程序的总内存的 80%），分配器将开始回收 GPU 内存块。算法优先释放旧的和未使用的块，以避免释放正在被积极重用的块。阈值值应在大于 0.0 和小于 1.0 之间。 <code class="docutils literal "><span class="pre">garbage_collection_threshold</span></code> 仅与 <code class="docutils literal "><span class="pre">backend:native</span></code> 有意义。使用 <code class="docutils literal "><span class="pre">backend:cudaMallocAsync</span></code> 时， <code class="docutils literal "><span class="pre">garbage_collection_threshold</span></code> 被忽略。</p></li>
+<li><p> <code class="docutils literal "><span class="pre">expandable_segments</span></code> （实验性，默认：False）如果设置为 True，此设置指示分配器创建可以稍后扩展的 CUDA 分配，以更好地处理作业频繁更改分配大小的情况，例如具有变化的批量大小。通常对于大型（&gt;2MB）分配，分配器调用 cudaMalloc 以获取与用户请求相同大小的分配。在未来，如果这些分配中有空闲部分，它们可以用于其他请求。当程序多次请求完全相同大小或该大小的倍数时，这种方法效果很好。许多深度学习模型遵循这种行为。然而，一个常见的例外是当批量大小从一个迭代到下一个迭代略有变化时，例如在批处理推理中。当程序以批量大小 N 运行时，它将进行适合该大小的分配。如果在将来以大小 N - 1 运行，现有的分配仍然足够大。但是，如果以大小 N + 1 运行，那么它将不得不创建稍微大一点的新的分配。并非所有张量都是相同的大小。 某些可能是(N + 1)*A，而另一些是(N + 1)*A*B，其中 A 和 B 是模型中的某些非批量维度。因为当分配器足够大时，它会重用现有的分配，所以一些(N + 1)*A 的分配实际上可以适合已经存在的 N*B*A 段，尽管不是完美匹配。随着模型的运行，它将部分填满所有这些段，在段末留下不可用的空闲内存片。在某个时刻，分配器将需要 cudaMalloc 一个新的(N + 1)*A*B 段。如果没有足够的内存，现在没有办法恢复现有段末的空闲内存片。对于 50+层深的模型，这种模式可能会重复 50+次，产生许多碎片。</p>
+<p>expandable_segments 允许分配器最初创建一个段，然后在需要更多内存时再扩展其大小。它不是为每个分配创建一个段，而是尝试为每个流创建一个（按需增长的）段。现在当运行 N + 1 情况时，分配将整齐地拼接到一个大型段中，直到填满。然后请求更多内存并将其附加到段的末尾。这个过程不会创建太多不可用的内存碎片，因此更有可能找到这种内存。</p>
+<p>pinned_use_cuda_host_register 选项是一个布尔标志，用于确定是否使用 CUDA API 的 cudaHostRegister 函数来分配固定内存，而不是默认的 cudaHostAlloc。当设置为 True 时，内存使用常规 malloc 进行分配，然后在调用 cudaHostRegister 之前将页面映射到内存中。这种预先映射页面有助于减少 cudaHostRegister 执行期间的锁定时间。</p>
+<p>当 pinned_use_cuda_host_register 设置为 True 时，pinned_num_register_threads 选项才有效。默认情况下，使用一个线程来映射页面。此选项允许使用更多线程来并行化页面映射操作，以减少固定内存的整体分配时间。根据基准测试结果，此选项的良好值是 8。</p>
+<p>pinned_use_background_threads 选项是一个布尔标志，用于启用后台线程处理事件。这避免了与快速分配路径中事件查询/处理相关的任何慢路径。默认情况下，此功能是禁用的。</p>
+</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>CUDA 内存管理 API 报告的一些统计信息仅针对 <code class="docutils literal "><span class="pre">backend:native</span></code> ，与 <code class="docutils literal "><span class="pre">backend:cudaMallocAsync</span></code> 无关，不具有意义。请参阅每个函数的文档字符串以获取详细信息。</p>
+</div>
+</section>
+</section>
+<section id="using-custom-memory-allocators-for-cuda">
+<span id="cuda-memory-custom-allocator"></span><h2>使用 CUDA 的自定义内存分配器</h2>
+<p>在 C/C++中，可以将分配器定义为简单的函数，并编译为共享库，下面的代码展示了仅跟踪所有内存操作的基本分配器。</p>
+<div class="highlight-C++ "><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;sys/types.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cuda_runtime_api.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
+<span class="c1">// Compile with g++ alloc.cc -o alloc.so -I/usr/local/cuda/include -shared -fPIC</span>
+<span class="k">extern</span><span class="w"> </span><span class="s">"C"</span><span class="w"> </span><span class="p">{</span>
+<span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="nf">my_malloc</span><span class="p">(</span><span class="kt">ssize_t</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">device</span><span class="p">,</span><span class="w"> </span><span class="n">cudaStream_t</span><span class="w"> </span><span class="n">stream</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">   </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">ptr</span><span class="p">;</span>
+<span class="w">   </span><span class="n">cudaMalloc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">);</span>
+<span class="w">   </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"alloc "</span><span class="o">&lt;&lt;</span><span class="n">ptr</span><span class="o">&lt;&lt;</span><span class="n">size</span><span class="o">&lt;&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">   </span><span class="k">return</span><span class="w"> </span><span class="n">ptr</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">my_free</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="kt">ssize_t</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">device</span><span class="p">,</span><span class="w"> </span><span class="n">cudaStream_t</span><span class="w"> </span><span class="n">stream</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">   </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"free "</span><span class="o">&lt;&lt;</span><span class="n">ptr</span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">" "</span><span class="o">&lt;&lt;</span><span class="n">stream</span><span class="o">&lt;&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">   </span><span class="n">cudaFree</span><span class="p">(</span><span class="n">ptr</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>这可以通过 <code class="xref py py-class docutils literal "><span class="pre">torch.cuda.memory.CUDAPluggableAllocator</span></code> 在 Python 中使用。用户负责提供.so 文件的路径以及与上述签名匹配的 alloc/free 函数名称。</p>
+<div class="highlight-python "><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="c1"># Load the allocator</span>
+<span class="n">new_alloc</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">CUDAPluggableAllocator</span><span class="p">(</span>
+    <span class="s1">'alloc.so'</span><span class="p">,</span> <span class="s1">'my_malloc'</span><span class="p">,</span> <span class="s1">'my_free'</span><span class="p">)</span>
+<span class="c1"># Swap the current allocator</span>
+<span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">change_current_allocator</span><span class="p">(</span><span class="n">new_alloc</span><span class="p">)</span>
+<span class="c1"># This will allocate memory in the device using the new allocator</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">'cuda'</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python "><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="c1"># Do an initial memory allocator</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">'cuda'</span><span class="p">)</span>
+<span class="c1"># Load the allocator</span>
+<span class="n">new_alloc</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">CUDAPluggableAllocator</span><span class="p">(</span>
+    <span class="s1">'alloc.so'</span><span class="p">,</span> <span class="s1">'my_malloc'</span><span class="p">,</span> <span class="s1">'my_free'</span><span class="p">)</span>
+<span class="c1"># This will error since the current allocator was already instantiated</span>
+<span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">change_current_allocator</span><span class="p">(</span><span class="n">new_alloc</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="mixing-different-cuda-system-allocators-in-the-same-program">
+<h2>在同一程序中混合不同的 CUDA 系统分配器</h2>
+<p>根据您的使用情况， <code class="xref py py-meth docutils literal "><span class="pre">change_current_allocator()</span></code> 可能不是您想要使用的，因为它将整个程序的 CUDA 分配器进行交换（类似于 <code class="docutils literal "><span class="pre">PYTORCH_CUDA_ALLOC_CONF=backend:cudaMallocAsync</span></code> ）。例如，如果交换的分配器没有缓存机制，您将失去 PyTorch 的 CUDACachingAllocator 的所有好处。相反，您可以使用 <code class="xref py py-class docutils literal "><span class="pre">torch.cuda.MemPool</span></code> 选择性地标记 PyTorch 代码区域以使用自定义分配器。这将允许您在同一 PyTorch 程序中使用多个 CUDA 系统分配器，并享有 CUDACachingAllocator 的大部分好处（例如缓存）。使用 <code class="xref py py-class docutils literal "><span class="pre">torch.cuda.MemPool</span></code> ，您可以利用启用多个功能的自定义分配器，例如：</p>
+<ul class="simple">
+<li><p>使用 <code class="docutils literal "><span class="pre">ncclMemAlloc</span></code> 分配器为 all-reduce 分配输出缓冲区可以启用 NVLink 交换减少（NVLS）。这可以减少 GPU 资源（SM 和复制引擎）上重叠的计算和通信内核之间的竞争，尤其是在张量并行工作负载上。</p></li>
+<li><p>对于基于 Grace CPU 的系统，使用 <code class="docutils literal "><span class="pre">cuMemCreate</span></code> 和指定 <code class="docutils literal "><span class="pre">CU_MEM_LOCATION_TYPE_HOST_NUMA</span></code> 为 all-gather 分配主机输出缓冲区可以启用基于扩展 GPU 内存（EGM）的内存传输，从源 GPU 传输到目标 CPU。这可以加速 all-gather，因为传输是通过 NVLinks 进行的，否则将通过带宽受限的网络接口卡（NIC）链路进行。这种加速的 all-gather 反过来可以加快模型检查点。</p></li>
+<li><p>如果你在构建模型时不想一开始就考虑内存密集型模块（例如嵌入表）的最佳内存放置，或者你可能有一个不是性能敏感且不适合 GPU 的模块，那么你可以使用 <code class="docutils literal "><span class="pre">cudaMallocManaged</span></code> 分配该模块并指定首选 CPU 位置，首先让模型运行起来。</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>虽然 <code class="docutils literal "><span class="pre">cudaMallocManaged</span></code> 使用 CUDA 统一虚拟内存 (UVM) 提供方便的自动内存管理，但不建议用于深度学习 (DL) 工作负载。对于适合 GPU 内存的工作负载，显式放置始终优于 UVM，因为没有页面错误，访问模式保持可预测。当 GPU 内存饱和时，UVM 必须执行昂贵的双重传输，在引入新页面之前将页面驱逐到 CPU。</p>
+</div>
+<p>下面的代码展示了 <code class="docutils literal "><span class="pre">ncclMemAlloc</span></code> 被包装在 <code class="xref py py-class docutils literal "><span class="pre">torch.cuda.memory.CUDAPluggableAllocator</span></code> 中。</p>
+<div class="highlight-python "><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.distributed</span> <span class="k">as</span> <span class="nn">dist</span>
+<span class="kn">from</span> <span class="nn">torch.cuda.memory</span> <span class="kn">import</span> <span class="n">CUDAPluggableAllocator</span>
+<span class="kn">from</span> <span class="nn">torch.distributed.distributed_c10d</span> <span class="kn">import</span> <span class="n">_get_default_group</span>
+<span class="kn">from</span> <span class="nn">torch.utils</span> <span class="kn">import</span> <span class="n">cpp_extension</span>
+
+
+<span class="c1"># create allocator</span>
+<span class="n">nccl_allocator_source</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">#include &lt;nccl.h&gt;</span>
+<span class="s2">#include &lt;iostream&gt;</span>
+<span class="s2">extern "C" {</span>
+
+<span class="s2">void* nccl_alloc_plug(size_t size, int device, void* stream) {</span>
+<span class="s2">  std::cout &lt;&lt; "Using ncclMemAlloc" &lt;&lt; std::endl;</span>
+<span class="s2">  void* ptr;</span>
+<span class="s2">  ncclResult_t err = ncclMemAlloc(&amp;ptr, size);</span>
+<span class="s2">  return ptr;</span>
+
+<span class="s2">}</span>
+
+<span class="s2">void nccl_free_plug(void* ptr, size_t size, int device, void* stream) {</span>
+<span class="s2">  std::cout &lt;&lt; "Using ncclMemFree" &lt;&lt; std::endl;</span>
+<span class="s2">  ncclResult_t err = ncclMemFree(ptr);</span>
+<span class="s2">}</span>
+
+<span class="s2">}</span>
+<span class="s2">"""</span>
+<span class="n">nccl_allocator_libname</span> <span class="o">=</span> <span class="s2">"nccl_allocator"</span>
+<span class="n">nccl_allocator</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">cpp_extension</span><span class="o">.</span><span class="n">load_inline</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="n">nccl_allocator_libname</span><span class="p">,</span>
+    <span class="n">cpp_sources</span><span class="o">=</span><span class="n">nccl_allocator_source</span><span class="p">,</span>
+    <span class="n">with_cuda</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">extra_ldflags</span><span class="o">=</span><span class="p">[</span><span class="s2">"-lnccl"</span><span class="p">],</span>
+    <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">is_python_module</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">build_directory</span><span class="o">=</span><span class="s2">"./"</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">allocator</span> <span class="o">=</span> <span class="n">CUDAPluggableAllocator</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">"./</span><span class="si">{</span><span class="n">nccl_allocator_libname</span><span class="si">}</span><span class="s2">.so"</span><span class="p">,</span> <span class="s2">"nccl_alloc_plug"</span><span class="p">,</span> <span class="s2">"nccl_free_plug"</span>
+<span class="p">)</span><span class="o">.</span><span class="n">allocator</span><span class="p">()</span>
+
+<span class="c1"># setup distributed</span>
+<span class="n">rank</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"RANK"</span><span class="p">))</span>
+<span class="n">local_rank</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"LOCAL_RANK"</span><span class="p">))</span>
+<span class="n">world_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"WORLD_SIZE"</span><span class="p">))</span>
+<span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">set_device</span><span class="p">(</span><span class="n">local_rank</span><span class="p">)</span>
+<span class="n">dist</span><span class="o">.</span><span class="n">init_process_group</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="s2">"nccl"</span><span class="p">)</span>
+<span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="sa">f</span><span class="s2">"cuda:</span><span class="si">{</span><span class="n">local_rank</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="n">default_pg</span> <span class="o">=</span> <span class="n">_get_default_group</span><span class="p">()</span>
+<span class="n">backend</span> <span class="o">=</span> <span class="n">default_pg</span><span class="o">.</span><span class="n">_get_backend</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+
+<span class="c1"># Note: for convenience, ProcessGroupNCCL backend provides</span>
+<span class="c1"># the ncclMemAlloc allocator as backend.mem_allocator</span>
+<span class="n">allocator</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">mem_allocator</span>
+</pre></div>
+</div>
+<p>您现在可以通过传递此分配器到 <code class="xref py py-class docutils literal "><span class="pre">torch.cuda.MemPool</span></code> 来定义一个新的内存池：</p>
+<div class="highlight-python "><div class="highlight"><pre><span></span><span class="n">pool</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">MemPool</span><span class="p">(</span><span class="n">allocator</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>然后，可以使用 <code class="xref py py-class docutils literal "><span class="pre">torch.cuda.use_mem_pool</span></code> 上下文管理器使用该池分配张量：</p>
+<div class="highlight-python "><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">use_mem_pool</span><span class="p">(</span><span class="n">pool</span><span class="p">):</span>
+    <span class="c1"># tensor gets allocated with ncclMemAlloc passed in the pool</span>
+    <span class="n">tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"tensor ptr on rank </span><span class="si">{</span><span class="n">rank</span><span class="si">}</span><span class="s2"> is </span><span class="si">{</span><span class="nb">hex</span><span class="p">(</span><span class="n">tensor</span><span class="o">.</span><span class="n">data_ptr</span><span class="p">())</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="c1"># register user buffers using ncclCommRegister (called under the hood)</span>
+<span class="n">backend</span><span class="o">.</span><span class="n">register_mem_pool</span><span class="p">(</span><span class="n">pool</span><span class="p">)</span>
+
+<span class="c1"># Collective uses Zero Copy NVLS</span>
+<span class="n">dist</span><span class="o">.</span><span class="n">all_reduce</span><span class="p">(</span><span class="n">tensor</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">4</span><span class="p">])</span>
+<span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">synchronize</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">tensor</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">4</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>注意上述示例中 <code class="docutils literal "><span class="pre">register_mem_pool</span></code> 的使用。这是 NVLS 减少的额外步骤，用户缓冲区需要与 NCCL 注册。用户可以使用类似的 <code class="docutils literal "><span class="pre">deregister_mem_pool</span></code> 调用注销缓冲区。</p>
+<p>要回收内存，用户首先需要确保没有任何东西在使用该池。当没有张量持有对池的引用时，在删除池时将内部调用 <code class="xref py py-meth docutils literal "><span class="pre">empty_cache()</span></code> ，从而将所有内存返回给系统。</p>
+<div class="highlight-python "><div class="highlight"><pre><span></span><span class="k">del</span> <span class="n">tensor</span><span class="p">,</span> <span class="k">del</span> <span class="n">pool</span>
+</pre></div>
+</div>
+<p>以下 <code class="xref py py-meth docutils literal "><span class="pre">torch.cuda.MemPool.use_count()</span></code> 和 <code class="xref py py-meth docutils literal "><span class="pre">torch.cuda.MemPool.snapshot()</span></code> API 可用于调试目的：</p>
+<div class="highlight-python "><div class="highlight"><pre><span></span><span class="n">pool</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">MemPool</span><span class="p">(</span><span class="n">allocator</span><span class="p">)</span>
+
+<span class="c1"># pool's use count should be 1 at this point as MemPool object</span>
+<span class="c1"># holds a reference</span>
+<span class="k">assert</span> <span class="n">pool</span><span class="o">.</span><span class="n">use_count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span>
+
+<span class="n">nelem_1mb</span> <span class="o">=</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">//</span> <span class="mi">4</span>
+
+<span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">use_mem_pool</span><span class="p">(</span><span class="n">pool</span><span class="p">):</span>
+    <span class="n">out_0</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">nelem_1mb</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s2">"cuda"</span><span class="p">)</span>
+
+    <span class="c1"># pool's use count should be 2 at this point as use_mem_pool</span>
+    <span class="c1"># holds a reference</span>
+    <span class="k">assert</span> <span class="n">pool</span><span class="o">.</span><span class="n">use_count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">2</span>
+
+<span class="c1"># pool's use count should be back to 1 at this point as use_mem_pool</span>
+<span class="c1"># released its reference</span>
+<span class="k">assert</span> <span class="n">pool</span><span class="o">.</span><span class="n">use_count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span>
+
+<span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">use_mem_pool</span><span class="p">(</span><span class="n">pool</span><span class="p">):</span>
+    <span class="c1"># pool should have 1 segment since we made a small allocation (1 MB)</span>
+    <span class="c1"># above and so the CUDACachingAllocator packed it into a 2 MB buffer</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">pool</span><span class="o">.</span><span class="n">snapshot</span><span class="p">())</span> <span class="o">==</span> <span class="mi">1</span>
+
+    <span class="n">out_1</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">nelem_1mb</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s2">"cuda"</span><span class="p">)</span>
+
+    <span class="c1"># pool should still have 1 segment since we made another small allocation</span>
+    <span class="c1"># (1 MB) that got packed into the existing 2 MB buffer</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">pool</span><span class="o">.</span><span class="n">snapshot</span><span class="p">())</span> <span class="o">==</span> <span class="mi">1</span>
+
+    <span class="n">out_2</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">nelem_1mb</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s2">"cuda"</span><span class="p">)</span>
+
+    <span class="c1"># pool now should have 2 segments since the CUDACachingAllocator had</span>
+    <span class="c1"># to make a new 2 MB buffer to accomodate out_2</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">pool</span><span class="o">.</span><span class="n">snapshot</span><span class="p">())</span> <span class="o">==</span> <span class="mi">2</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<ul class="simple">
+<li><p> <code class="xref py py-class docutils literal "><span class="pre">torch.cuda.MemPool</span></code> 持有对池的引用。当您使用 <code class="xref py py-class docutils literal "><span class="pre">torch.cuda.use_mem_pool</span></code> 上下文管理器时，它也将获取对池的另一个引用。上下文管理器退出时，它将释放其引用。之后，理想情况下，只有持有对池的引用的张量。一旦张量释放其引用，池的使用计数将为 1，反映只有 <code class="xref py py-class docutils literal "><span class="pre">torch.cuda.MemPool</span></code> 对象持有引用。只有在这个时候，当使用 <code class="docutils literal "><span class="pre">del</span></code> 调用池的析构函数时，池持有的内存才能返回给系统。</p></li>
+<li><p>目前不支持 CUDACachingAllocator 的 <code class="docutils literal "><span class="pre">expandable_segments</span></code> 模式。</p></li>
+<li><p>NCCL 对缓冲区与 NVLS 累加操作兼容性有特定要求。这些要求在动态负载中可能会被破坏，例如，由 CUDACachingAllocator 发送到 NCCL 的缓冲区可能会被分割，因此无法正确对齐。在这种情况下，NCCL 可以使用回退算法而不是 NVLS。</p></li>
+<li><p>由于对齐要求（ <code class="docutils literal "><span class="pre">CU_MULTICAST_GRANULARITY_RECOMMENDED</span></code> 、 <code class="docutils literal "><span class="pre">CU_MULTICAST_GRANULARITY_MINIMUM</span></code> ），像 <code class="docutils literal "><span class="pre">ncclMemAlloc</span></code> 这样的分配器可能会使用比请求更多的内存，这可能导致您的负载内存不足。</p></li>
+</ul>
+</div>
+</section>
+<section id="cublas-workspaces">
+<h2>cuBLAS 工作空间</h2>
+<p>对于每个 cuBLAS 句柄和 CUDA 流组合，如果该句柄和流组合执行需要工作区的 cuBLAS 内核，则会分配 cuBLAS 工作区。为了避免重复分配工作区，除非调用 <code class="docutils literal "><span class="pre">torch._C._cuda_clearCublasWorkspaces()</span></code> ，否则这些工作区不会被释放。每次分配的工作区大小可以通过环境变量 <code class="docutils literal "><span class="pre">CUBLAS_WORKSPACE_CONFIG</span></code> 指定，格式为 <code class="docutils literal "><span class="pre">:[SIZE]:[COUNT]</span></code> 。例如，默认每次分配的工作区大小为 <code class="docutils literal "><span class="pre">CUBLAS_WORKSPACE_CONFIG=:4096:2:16:8</span></code> ，指定总大小为 <code class="docutils literal "><span class="pre">2</span> <span class="pre">*</span> <span class="pre">4096</span> <span class="pre">+</span> <span class="pre">8</span> <span class="pre">*</span> <span class="pre">16</span> <span class="pre">KiB</span></code> 。要强制 cuBLAS 避免使用工作区，请设置 <code class="docutils literal "><span class="pre">CUBLAS_WORKSPACE_CONFIG=:0:0</span></code> 。</p>
+</section>
+<section id="cufft-plan-cache">
+<span id="id2"></span><h2>cuFFT 计划缓存</h2>
+<p>对于每个 CUDA 设备，使用 LRU 缓存来加速对具有相同几何形状和相同配置的 CUDA 张量重复运行 FFT 方法（例如 <code class="xref py py-func docutils literal "><span class="pre">torch.fft.fft()</span></code> ）。由于一些 cuFFT 计划可能会分配 GPU 内存，因此这些缓存具有最大容量。</p>
+<p>您可以使用以下 API 控制和查询当前设备的缓存属性：</p>
+<ul class="simple">
+<li><p> <code class="docutils literal "><span class="pre">torch.backends.cuda.cufft_plan_cache.max_size</span></code> 表示缓存的容量（默认为 CUDA 10 及更高版本上的 4096，以及旧版本上的 1023）。直接设置此值将修改容量。</p></li>
+<li><p> <code class="docutils literal "><span class="pre">torch.backends.cuda.cufft_plan_cache.size</span></code> 表示当前驻留在缓存中的计划数量。</p></li>
+<li><p> <code class="docutils literal "><span class="pre">torch.backends.cuda.cufft_plan_cache.clear()</span></code> 清除缓存。</p></li>
+</ul>
+<p>要控制和非默认设备的计划缓存，您可以使用 <code class="docutils literal "><span class="pre">torch.backends.cuda.cufft_plan_cache</span></code> 对象或设备索引来索引 <code class="xref py py-class docutils literal "><span class="pre">torch.device</span></code> 对象，并访问上述属性之一。例如，要设置设备 <code class="docutils literal "><span class="pre">1</span></code> 的缓存容量，可以编写 <code class="docutils literal "><span class="pre">torch.backends.cuda.cufft_plan_cache[1].max_size</span> <span class="pre">=</span> <span class="pre">10</span></code> 。</p>
+</section>
+<section id="just-in-time-compilation">
+<span id="cuda-just-in-time-compilation"></span><h2>实时编译</h2>
+<p>PyTorch 会对一些操作进行实时编译，例如在 CUDA 张量上执行 torch.special.zeta。这种编译可能耗时较长（取决于您的硬件和软件，可能长达几秒），并且对于单个操作可能会多次发生，因为许多 PyTorch 操作实际上会从多种内核中选择，每个内核都需要编译一次，具体取决于它们的输入。这种编译在每个进程中进行一次，或者如果使用内核缓存，则只进行一次。</p>
+<p>默认情况下，如果定义了 XDG_CACHE_HOME，PyTorch 会在$XDG_CACHE_HOME/torch/kernels 中创建内核缓存；如果没有定义，则会在$HOME/.cache/torch/kernels 中创建（Windows 系统除外，内核缓存尚未支持）。可以通过两个环境变量直接控制缓存行为。如果将 USE_PYTORCH_KERNEL_CACHE 设置为 0，则不会使用缓存；如果设置了 PYTORCH_KERNEL_CACHE_PATH，则将使用该路径作为内核缓存，而不是默认位置。</p>
+</section>
+<section id="best-practices">
+<h2>最佳实践</h2>
+<section id="device-agnostic-code">
+<h3>设备无关的代码</h3>
+<p>由于 PyTorch 的结构，您可能需要显式编写设备无关（CPU 或 GPU）的代码；一个例子可能是创建一个新的张量作为循环神经网络初始隐藏状态。</p>
+<p>第一步是确定是否使用 GPU。一个常见的模式是使用 Python 的 <code class="docutils literal "><span class="pre">argparse</span></code> 模块读取用户参数，并有一个可以用来禁用 CUDA 的标志，结合 <code class="xref py py-meth docutils literal "><span class="pre">is_available()</span></code> 。在下面的例子中， <code class="docutils literal "><span class="pre">args.device</span></code> 生成一个 <code class="xref py py-class docutils literal "><span class="pre">torch.device</span></code> 对象，可以用来将张量移动到 CPU 或 CUDA。</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">'PyTorch Example'</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">'--disable-cuda'</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">'store_true'</span><span class="p">,</span>
+                    <span class="n">help</span><span class="o">=</span><span class="s1">'Disable CUDA'</span><span class="p">)</span>
+<span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+<span class="n">args</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">disable_cuda</span> <span class="ow">and</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">():</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">'cuda'</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">'cpu'</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>当评估给定环境中 CUDA 的可用性（ <code class="xref py py-meth docutils literal "><span class="pre">is_available()</span></code> ）时，PyTorch 的默认行为是调用 CUDA 运行时 API 方法 cudaGetDeviceCount。因为这个调用会初始化 CUDA 驱动 API（通过 cuInit），如果它尚未初始化，那么已经运行 <code class="xref py py-meth docutils literal "><span class="pre">is_available()</span></code> 的进程的后续分叉将因 CUDA 初始化错误而失败。</p>
+<p>在导入执行 <code class="xref py py-meth docutils literal "><span class="pre">is_available()</span></code> （或直接执行它之前）PyTorch 模块之前，您可以在环境中设置 <code class="docutils literal "><span class="pre">PYTORCH_NVML_BASED_CUDA_CHECK=1</span></code> ，以便让 <code class="xref py py-meth docutils literal "><span class="pre">is_available()</span></code> 尝试进行基于 NVML 的评估（nvmlDeviceGetCount_v2）。如果基于 NVML 的评估成功（即 NVML 发现/初始化没有失败），则 <code class="xref py py-meth docutils literal "><span class="pre">is_available()</span></code> 调用不会污染后续的分支。</p>
+<p>如果 NVML 发现/初始化失败， <code class="xref py py-meth docutils literal "><span class="pre">is_available()</span></code> 将回退到标准的 CUDA 运行时 API 评估，并应用上述分支约束。</p>
+<p>注意，上述基于 NVML 的 CUDA 可用性评估提供的保证比默认的 CUDA 运行时 API 方法（需要 CUDA 初始化成功）要弱。在某些情况下，基于 NVML 的检查可能成功，而后续的 CUDA 初始化可能失败。</p>
+</div>
+<p>现在我们有了 <code class="docutils literal "><span class="pre">args.device</span></code> ，我们可以使用它来在所需设备上创建一个 Tensor。</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">8</span><span class="p">,</span> <span class="mi">42</span><span class="p">),</span> <span class="n">device</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+<span class="n">net</span> <span class="o">=</span> <span class="n">Network</span><span class="p">()</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>这可以在多种情况下用于生成设备无关的代码。以下是在使用数据加载器时的一个示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">cuda0</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">'cuda:0'</span><span class="p">)</span>  <span class="c1"># CUDA GPU 0</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">train_loader</span><span class="p">):</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">cuda0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>当在系统上使用多个 GPU 时，您可以使用 <code class="docutils literal "><span class="pre">CUDA_VISIBLE_DEVICES</span></code> 环境标志来管理哪些 GPU 可供 PyTorch 使用。如上所述，要手动控制张量创建在哪个 GPU 上，最佳实践是使用 <code class="xref any py py-class docutils literal "><span class="pre">torch.cuda.device</span></code> 上下文管理器。</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"Outside device is 0"</span><span class="p">)</span>  <span class="c1"># On device 0 (default in most scenarios)</span>
+<span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Inside device is 1"</span><span class="p">)</span>  <span class="c1"># On device 1</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Outside device is still 0"</span><span class="p">)</span>  <span class="c1"># On device 0</span>
+</pre></div>
+</div>
+<p>如果您有一个张量，并希望在同一设备上创建相同类型的新的张量，则可以使用 <code class="docutils literal "><span class="pre">torch.Tensor.new_*</span></code> 方法（见 <code class="xref py py-class docutils literal "><span class="pre">torch.Tensor</span></code> ）。虽然之前提到的 <code class="docutils literal "><span class="pre">torch.*</span></code> 工厂函数（创建操作）依赖于当前的 GPU 上下文和您传递的参数，但 <code class="docutils literal "><span class="pre">torch.Tensor.new_*</span></code> 方法会保留张量的设备和其他属性。</p>
+<p>这是在创建模块时推荐的做法，在这些模块中，在正向传递过程中需要内部创建新的张量。</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">cuda</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">'cuda'</span><span class="p">)</span>
+<span class="n">x_cpu</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">x_gpu</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">cuda</span><span class="p">)</span>
+<span class="n">x_cpu_long</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+
+<span class="n">y_cpu</span> <span class="o">=</span> <span class="n">x_cpu</span><span class="o">.</span><span class="n">new_full</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">fill_value</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">y_cpu</span><span class="p">)</span>
+
+    <span class="n">tensor</span><span class="p">([[</span> <span class="mf">0.3000</span><span class="p">,</span>  <span class="mf">0.3000</span><span class="p">],</span>
+            <span class="p">[</span> <span class="mf">0.3000</span><span class="p">,</span>  <span class="mf">0.3000</span><span class="p">],</span>
+            <span class="p">[</span> <span class="mf">0.3000</span><span class="p">,</span>  <span class="mf">0.3000</span><span class="p">]])</span>
+
+<span class="n">y_gpu</span> <span class="o">=</span> <span class="n">x_gpu</span><span class="o">.</span><span class="n">new_full</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">fill_value</span><span class="o">=-</span><span class="mi">5</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">y_gpu</span><span class="p">)</span>
+
+    <span class="n">tensor</span><span class="p">([[</span><span class="o">-</span><span class="mf">5.0000</span><span class="p">,</span> <span class="o">-</span><span class="mf">5.0000</span><span class="p">],</span>
+            <span class="p">[</span><span class="o">-</span><span class="mf">5.0000</span><span class="p">,</span> <span class="o">-</span><span class="mf">5.0000</span><span class="p">],</span>
+            <span class="p">[</span><span class="o">-</span><span class="mf">5.0000</span><span class="p">,</span> <span class="o">-</span><span class="mf">5.0000</span><span class="p">]],</span> <span class="n">device</span><span class="o">=</span><span class="s1">'cuda:0'</span><span class="p">)</span>
+
+<span class="n">y_cpu_long</span> <span class="o">=</span> <span class="n">x_cpu_long</span><span class="o">.</span><span class="n">new_tensor</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">y_cpu_long</span><span class="p">)</span>
+
+    <span class="n">tensor</span><span class="p">([[</span> <span class="mi">1</span><span class="p">,</span>  <span class="mi">2</span><span class="p">,</span>  <span class="mi">3</span><span class="p">]])</span>
+</pre></div>
+</div>
+<p>如果你想创建与另一个张量类型和大小相同的张量，并用全一或全零填充，则提供了 <code class="xref py py-meth docutils literal "><span class="pre">ones_like()</span></code> 或 <code class="xref py py-meth docutils literal "><span class="pre">zeros_like()</span></code> 作为方便的辅助函数（这些函数也保留了张量的 <code class="xref py py-class docutils literal "><span class="pre">torch.device</span></code> 和 <code class="xref py py-class docutils literal "><span class="pre">torch.dtype</span></code> ）。</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">x_cpu</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="n">x_gpu</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+<span class="n">y_cpu</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">x_cpu</span><span class="p">)</span>
+<span class="n">y_gpu</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">x_gpu</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="use-pinned-memory-buffers">
+<span id="cuda-memory-pinning"></span><h3>使用固定内存缓冲区</h3>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>这是一个高级技巧。如果你过度使用固定内存，当内存不足时可能会引起严重问题，你应该知道固定操作通常代价高昂。</p>
+</div>
+<p>当从固定（页面锁定）内存开始时，主机到 GPU 的复制速度要快得多。CPU 张量和存储暴露了一个 <code class="xref py py-meth docutils literal "><span class="pre">pin_memory()</span></code> 方法，该方法返回对象的副本，并将数据放入固定区域。</p>
+<p>此外，一旦您固定了一个张量或存储，您就可以使用异步 GPU 复制。只需在 <code class="xref py py-meth docutils literal "><span class="pre">to()</span></code> 或 <code class="xref py py-meth docutils literal "><span class="pre">cuda()</span></code> 调用中传递一个额外的 <code class="docutils literal "><span class="pre">non_blocking=True</span></code> 参数。这可以用来重叠数据传输和计算。</p>
+<p>您可以通过向其构造函数传递 <code class="docutils literal "><span class="pre">pin_memory=True</span></code> 来使 <code class="xref py py-class docutils literal "><span class="pre">DataLoader</span></code> 返回放置在固定内存中的批次。</p>
+</section>
+<section id="use-nn-parallel-distributeddataparallel-instead-of-multiprocessing-or-nn-dataparallel">
+<span id="cuda-nn-ddp-instead"></span><h3>使用 nn.parallel.DistributedDataParallel 代替 multiprocessing 或 nn.DataParallel</h3>
+<p>大多数涉及批处理输入和多 GPU 的使用场景应默认使用 <code class="xref py py-class docutils literal "><span class="pre">DistributedDataParallel</span></code> 来利用多个 GPU。</p>
+<p>使用 CUDA 模型时存在重大注意事项；除非精确满足数据处理要求，否则您的程序可能会出现错误或未定义的行为。</p>
+<p>建议使用 <code class="xref py py-class docutils literal "><span class="pre">DistributedDataParallel</span></code> ，而不是 <code class="xref py py-class docutils literal "><span class="pre">DataParallel</span></code> 进行多 GPU 训练，即使只有一个节点。</p>
+<p> <code class="xref py py-class docutils literal "><span class="pre">DistributedDataParallel</span></code> 和 <code class="xref py py-class docutils literal "><span class="pre">DataParallel</span></code> 之间的区别是： <code class="xref py py-class docutils literal "><span class="pre">DistributedDataParallel</span></code> 使用多进程，为每个 GPU 创建一个进程，而 <code class="xref py py-class docutils literal "><span class="pre">DataParallel</span></code> 使用多线程。通过使用多进程，每个 GPU 都有其专用的进程，这避免了 Python 解释器 GIL 带来的性能开销。</p>
+<p>如果您使用 <code class="xref py py-class docutils literal "><span class="pre">DistributedDataParallel</span></code> ，可以使用 torch.distributed.launch 工具启动您的程序，请参阅第三方后端。</p>
+</section>
+</section>
+<section id="cuda-graphs">
+<span id="cuda-graph-semantics"></span><h2>CUDA 图</h2>
+<p>CUDA 图记录了 CUDA 流及其依赖流执行的工作（主要是内核及其参数）。有关一般原则和底层 CUDA API 的详细信息，请参阅《CUDA 图入门》和 CUDA C 编程指南中的图部分。</p>
+<p>PyTorch 支持使用流捕获构建 CUDA 图，这会将 CUDA 流置于捕获模式。发送到捕获流的 CUDA 工作实际上不会在 GPU 上运行。相反，该工作将记录在图中。</p>
+<p>捕获后，可以启动图以运行 GPU 工作，所需次数。每次重放都会运行相同的内核，使用相同的参数。对于指针参数，这意味着使用相同的内存地址。通过在每次重放之前用新数据（例如，来自新批次的）填充输入内存，可以在新数据上重新运行相同的工作。</p>
+<section id="why-cuda-graphs">
+<h3>为什么使用 CUDA 图？</h3>
+<p>重放图以降低 CPU 开销为代价，牺牲了典型即时执行（eager execution）的动态灵活性。图的参数和内核是固定的，因此图重放跳过了所有参数设置和内核调度的层次，包括 Python、C++和 CUDA 驱动程序的开销。在底层，重放通过一次调用 cudaGraphLaunch 将整个图的工作提交给 GPU。重放中的内核在 GPU 上执行也略快，但省略 CPU 开销是主要好处。</p>
+<p>如果您的网络全部或部分是图安全的（通常这意味着静态形状和静态控制流，但请参阅其他约束条件），并且您怀疑其运行时至少部分受 CPU 限制，那么您应该尝试使用 CUDA 图。</p>
+</section>
+<section id="pytorch-api">
+<h3>PyTorch API</h3>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>此 API 处于测试阶段，未来版本中可能会有所变化。</p>
+</div>
+<p>PyTorch 通过一个原始类 <code class="xref py py-class docutils literal "><span class="pre">torch.cuda.CUDAGraph</span></code> 和两个便利包装器 <code class="xref py py-class docutils literal "><span class="pre">torch.cuda.graph</span></code> 和 <code class="xref py py-class docutils literal "><span class="pre">torch.cuda.make_graphed_callables</span></code> 公开图。</p>
+<p> <code class="xref py py-class docutils literal "><span class="pre">torch.cuda.graph</span></code> 是一个简单、通用的上下文管理器，用于捕获 CUDA 工作在其上下文中。在捕获之前，通过运行几个急切迭代来预热要捕获的工作负载。预热必须在侧流上执行。因为图在每次重放时都从相同的内存地址读取并写入，所以你必须维护对包含输入和输出数据的张量的长期引用。要在新的输入数据上运行图，将新数据复制到捕获的输入张量（s），重放图，然后从捕获的输出张量（s）读取新的输出。示例：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">g</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">CUDAGraph</span><span class="p">()</span>
+
+<span class="c1"># Placeholder input used for capture</span>
+<span class="n">static_input</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">5</span><span class="p">,),</span> <span class="n">device</span><span class="o">=</span><span class="s2">"cuda"</span><span class="p">)</span>
+
+<span class="c1"># Warmup before capture</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">Stream</span><span class="p">()</span>
+<span class="n">s</span><span class="o">.</span><span class="n">wait_stream</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">current_stream</span><span class="p">())</span>
+<span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+        <span class="n">static_output</span> <span class="o">=</span> <span class="n">static_input</span> <span class="o">*</span> <span class="mi">2</span>
+<span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">current_stream</span><span class="p">()</span><span class="o">.</span><span class="n">wait_stream</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+<span class="c1"># Captures the graph</span>
+<span class="c1"># To allow capture, automatically sets a side stream as the current stream in the context</span>
+<span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">graph</span><span class="p">(</span><span class="n">g</span><span class="p">):</span>
+    <span class="n">static_output</span> <span class="o">=</span> <span class="n">static_input</span> <span class="o">*</span> <span class="mi">2</span>
+
+<span class="c1"># Fills the graph's input memory with new data to compute on</span>
+<span class="n">static_input</span><span class="o">.</span><span class="n">copy_</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="mi">5</span><span class="p">,),</span> <span class="mi">3</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s2">"cuda"</span><span class="p">))</span>
+<span class="n">g</span><span class="o">.</span><span class="n">replay</span><span class="p">()</span>
+<span class="c1"># static_output holds the results</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">static_output</span><span class="p">)</span>  <span class="c1"># full of 3 * 2 = 6</span>
+
+<span class="c1"># Fills the graph's input memory with more data to compute on</span>
+<span class="n">static_input</span><span class="o">.</span><span class="n">copy_</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="mi">5</span><span class="p">,),</span> <span class="mi">4</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s2">"cuda"</span><span class="p">))</span>
+<span class="n">g</span><span class="o">.</span><span class="n">replay</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">static_output</span><span class="p">)</span>  <span class="c1"># full of 4 * 2 = 8</span>
+</pre></div>
+</div>
+<p>查看全网络捕获、与 torch.cuda.amp 的用法以及与多个流的用法，以实现现实和高级模式。</p>
+<p> <code class="xref py py-class docutils literal "><span class="pre">make_graphed_callables</span></code> 更加复杂。 <code class="xref py py-class docutils literal "><span class="pre">make_graphed_callables</span></code> 接受 Python 函数和 <code class="xref py py-class docutils literal "><span class="pre">torch.nn.Module</span></code> 。对于每个传入的函数或模块，它都会创建独立的正向传播和反向传播工作图。参见部分网络捕获。</p>
+<section id="constraints">
+<span id="capture-constraints"></span><h4>约束</h4>
+<p>一组操作可捕获，如果它不违反以下任何约束。</p>
+<p>这些约束适用于 <code class="xref py py-class docutils literal "><span class="pre">torch.cuda.graph</span></code> 上下文中的所有工作以及您传递给 <code class="xref py py-func docutils literal "><span class="pre">torch.cuda.make_graphed_callables()</span></code> 的任何可调用对象的前向和反向传播中的所有工作。</p>
+<p>违反其中任何一项很可能会导致运行时错误：</p>
+<ul class="simple">
+<li><p>捕获必须在非默认流上执行。（这仅在使用原始的 <code class="xref py py-meth docutils literal "><span class="pre">CUDAGraph.capture_begin</span></code> 和 <code class="xref py py-meth docutils literal "><span class="pre">CUDAGraph.capture_end</span></code> 调用时是问题。 <code class="xref py py-class docutils literal "><span class="pre">graph</span></code> 和 <code class="xref py py-func docutils literal "><span class="pre">make_graphed_callables()</span></code> 会为您设置一个侧流。）</p></li>
+<li><p>禁止同步 CPU 与 GPU 的操作（例如， <code class="docutils literal "><span class="pre">.item()</span></code> 调用）。</p></li>
+<li><p>允许使用 CUDA RNG 操作，当在图中使用多个 <code class="xref py py-class docutils literal "><span class="pre">torch.Generator</span></code> 实例时，必须在捕获图之前使用 <code class="xref py py-meth docutils literal "><span class="pre">CUDAGraph.register_generator_state</span></code> 进行注册。在捕获期间避免使用 <code class="xref py py-meth docutils literal "><span class="pre">Generator.get_state</span></code> 和 <code class="xref py py-meth docutils literal "><span class="pre">Generator.set_state</span></code> ；相反，利用 <code class="xref py py-meth docutils literal "><span class="pre">Generator.graphsafe_set_state</span></code> 和 <code class="xref py py-meth docutils literal "><span class="pre">Generator.graphsafe_get_state</span></code> 在图上下文中安全地管理生成器状态。这确保了 CUDA 图中的正确 RNG 操作和生成器管理。</p></li>
+</ul>
+<p>违反任何一条都可能引起静默数值错误或未定义行为：</p>
+<ul class="simple">
+<li><p>在一个过程中，一次只能进行一个捕获。</p></li>
+<li><p>在捕获进行时，此过程中的任何非捕获的 CUDA 工作（在任何线程上）都不能运行。</p></li>
+<li><p>CPU 工作不会被捕获。如果捕获的操作包括 CPU 工作，该工作将在回放期间被省略。</p></li>
+<li><p>每次回放都从相同的（虚拟）内存地址读取和写入。</p></li>
+<li><p>动态控制流（基于 CPU 或 GPU 数据）是被禁止的。</p></li>
+<li><p>动态形状是被禁止的。图假设在每次重放中捕获的操作序列中的每个张量都具有相同的大小和布局。</p></li>
+<li><p>在捕获中使用多个流是被允许的，但有一些限制。</p></li>
+</ul>
+</section>
+<section id="non-constraints">
+<h4>非约束项</h4>
+<ul class="simple">
+<li><p>一旦捕获，该图可以在任何流上回放。</p></li>
+</ul>
+</section>
+</section>
+<section id="whole-network-capture">
+<span id="id3"></span><h3>整网捕获 ¶</h3>
+<p>如果您的整个网络可以被捕获，您可以捕获并回放整个迭代：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">N</span><span class="p">,</span> <span class="n">D_in</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">D_out</span> <span class="o">=</span> <span class="mi">640</span><span class="p">,</span> <span class="mi">4096</span><span class="p">,</span> <span class="mi">2048</span><span class="p">,</span> <span class="mi">1024</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">D_in</span><span class="p">,</span> <span class="n">H</span><span class="p">),</span>
+                            <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="mf">0.2</span><span class="p">),</span>
+                            <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">D_out</span><span class="p">),</span>
+                            <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="mf">0.1</span><span class="p">))</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+<span class="n">loss_fn</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">MSELoss</span><span class="p">()</span>
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+
+<span class="c1"># Placeholders used for capture</span>
+<span class="n">static_input</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">D_in</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">'cuda'</span><span class="p">)</span>
+<span class="n">static_target</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">D_out</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">'cuda'</span><span class="p">)</span>
+
+<span class="c1"># warmup</span>
+<span class="c1"># Uses static_input and static_target here for convenience,</span>
+<span class="c1"># but in a real setting, because the warmup includes optimizer.step()</span>
+<span class="c1"># you must use a few batches of real data.</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">Stream</span><span class="p">()</span>
+<span class="n">s</span><span class="o">.</span><span class="n">wait_stream</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">current_stream</span><span class="p">())</span>
+<span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+        <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">(</span><span class="n">set_to_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">static_input</span><span class="p">)</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">loss_fn</span><span class="p">(</span><span class="n">y_pred</span><span class="p">,</span> <span class="n">static_target</span><span class="p">)</span>
+        <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+        <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+<span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">current_stream</span><span class="p">()</span><span class="o">.</span><span class="n">wait_stream</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+<span class="c1"># capture</span>
+<span class="n">g</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">CUDAGraph</span><span class="p">()</span>
+<span class="c1"># Sets grads to None before capture, so backward() will create</span>
+<span class="c1"># .grad attributes with allocations from the graph's private pool</span>
+<span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">(</span><span class="n">set_to_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">graph</span><span class="p">(</span><span class="n">g</span><span class="p">):</span>
+    <span class="n">static_y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">static_input</span><span class="p">)</span>
+    <span class="n">static_loss</span> <span class="o">=</span> <span class="n">loss_fn</span><span class="p">(</span><span class="n">static_y_pred</span><span class="p">,</span> <span class="n">static_target</span><span class="p">)</span>
+    <span class="n">static_loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+    <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+
+<span class="n">real_inputs</span> <span class="o">=</span> <span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">rand_like</span><span class="p">(</span><span class="n">static_input</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
+<span class="n">real_targets</span> <span class="o">=</span> <span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">rand_like</span><span class="p">(</span><span class="n">static_target</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
+
+<span class="k">for</span> <span class="n">data</span><span class="p">,</span> <span class="n">target</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">real_inputs</span><span class="p">,</span> <span class="n">real_targets</span><span class="p">):</span>
+    <span class="c1"># Fills the graph's input memory with new data to compute on</span>
+    <span class="n">static_input</span><span class="o">.</span><span class="n">copy_</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">static_target</span><span class="o">.</span><span class="n">copy_</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+    <span class="c1"># replay() includes forward, backward, and step.</span>
+    <span class="c1"># You don't even need to call optimizer.zero_grad() between iterations</span>
+    <span class="c1"># because the captured backward refills static .grad tensors in place.</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">replay</span><span class="p">()</span>
+    <span class="c1"># Params have been updated. static_y_pred, static_loss, and .grad</span>
+    <span class="c1"># attributes hold values from computing on this iteration's data.</span>
+</pre></div>
+</div>
+</section>
+<section id="partial-network-capture">
+<span id="id4"></span><h3>部分网络捕获 ¶</h3>
+<p>如果您的部分网络无法安全捕获（例如，由于动态控制流、动态形状、CPU 同步或必要的 CPU 端逻辑），您可以提前运行不安全的部分，并使用 <code class="xref py py-func docutils literal "><span class="pre">torch.cuda.make_graphed_callables()</span></code> 来仅图形化捕获安全的部分。</p>
+<p>默认情况下， <code class="xref py py-func docutils literal "><span class="pre">make_graphed_callables()</span></code> 返回的可调用对象是 autograd 感知的，可以用作训练循环中的直接替换，用于您传递的函数或 <code class="xref py py-class docutils literal "><span class="pre">nn.Module</span></code> 。</p>
+<p> <code class="xref py py-func docutils literal "><span class="pre">make_graphed_callables()</span></code> 内部创建 <code class="xref py py-class docutils literal "><span class="pre">CUDAGraph</span></code> 对象，运行预热迭代，并根据需要维护静态输入和输出。因此（与 <code class="xref py py-class docutils literal "><span class="pre">torch.cuda.graph</span></code> 不同），您不需要手动处理这些。</p>
+<p>在以下示例中，数据相关的动态控制流意味着网络无法端到端捕获，但 <code class="xref py py-func docutils literal "><span class="pre">make_graphed_callables()</span></code> 允许我们捕获并作为图运行图安全部分。</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">N</span><span class="p">,</span> <span class="n">D_in</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">D_out</span> <span class="o">=</span> <span class="mi">640</span><span class="p">,</span> <span class="mi">4096</span><span class="p">,</span> <span class="mi">2048</span><span class="p">,</span> <span class="mi">1024</span>
+
+<span class="n">module1</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">D_in</span><span class="p">,</span> <span class="n">H</span><span class="p">)</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+<span class="n">module2</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">D_out</span><span class="p">)</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+<span class="n">module3</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">D_out</span><span class="p">)</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+
+<span class="n">loss_fn</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">MSELoss</span><span class="p">()</span>
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">(</span><span class="n">chain</span><span class="p">(</span><span class="n">module1</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span>
+                                  <span class="n">module2</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span>
+                                  <span class="n">module3</span><span class="o">.</span><span class="n">parameters</span><span class="p">()),</span>
+                            <span class="n">lr</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+
+<span class="c1"># Sample inputs used for capture</span>
+<span class="c1"># requires_grad state of sample inputs must match</span>
+<span class="c1"># requires_grad state of real inputs each callable will see.</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">D_in</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">'cuda'</span><span class="p">)</span>
+<span class="n">h</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">'cuda'</span><span class="p">,</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">module1</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">make_graphed_callables</span><span class="p">(</span><span class="n">module1</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="p">,))</span>
+<span class="n">module2</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">make_graphed_callables</span><span class="p">(</span><span class="n">module2</span><span class="p">,</span> <span class="p">(</span><span class="n">h</span><span class="p">,))</span>
+<span class="n">module3</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">make_graphed_callables</span><span class="p">(</span><span class="n">module3</span><span class="p">,</span> <span class="p">(</span><span class="n">h</span><span class="p">,))</span>
+
+<span class="n">real_inputs</span> <span class="o">=</span> <span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">rand_like</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
+<span class="n">real_targets</span> <span class="o">=</span> <span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">D_out</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s2">"cuda"</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
+
+<span class="k">for</span> <span class="n">data</span><span class="p">,</span> <span class="n">target</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">real_inputs</span><span class="p">,</span> <span class="n">real_targets</span><span class="p">):</span>
+    <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">(</span><span class="n">set_to_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">tmp</span> <span class="o">=</span> <span class="n">module1</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>  <span class="c1"># forward ops run as a graph</span>
+
+    <span class="k">if</span> <span class="n">tmp</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="n">module2</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>  <span class="c1"># forward ops run as a graph</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="n">module3</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>  <span class="c1"># forward ops run as a graph</span>
+
+    <span class="n">loss</span> <span class="o">=</span> <span class="n">loss_fn</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+    <span class="c1"># module2's or module3's (whichever was chosen) backward ops,</span>
+    <span class="c1"># as well as module1's backward ops, run as graphs</span>
+    <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+    <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="usage-with-torch-cuda-amp">
+<span id="graphs-with-amp"></span><h3>使用 torch.cuda.amp 的示例</h3>
+<p>对于典型的优化器， <code class="xref py py-meth docutils literal "><span class="pre">GradScaler.step</span></code> 在捕获期间会同步 CPU 和 GPU，这是被禁止的。为了避免错误，可以使用部分网络捕获，或者（如果 forward、loss 和 backward 是捕获安全的）捕获 forward、loss 和 backward，但不捕获优化器步骤：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="c1"># warmup</span>
+<span class="c1"># In a real setting, use a few batches of real data.</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">Stream</span><span class="p">()</span>
+<span class="n">s</span><span class="o">.</span><span class="n">wait_stream</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">current_stream</span><span class="p">())</span>
+<span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+        <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">(</span><span class="n">set_to_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">amp</span><span class="o">.</span><span class="n">autocast</span><span class="p">():</span>
+            <span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">static_input</span><span class="p">)</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="n">loss_fn</span><span class="p">(</span><span class="n">y_pred</span><span class="p">,</span> <span class="n">static_target</span><span class="p">)</span>
+        <span class="n">scaler</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+        <span class="n">scaler</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">optimizer</span><span class="p">)</span>
+        <span class="n">scaler</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+<span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">current_stream</span><span class="p">()</span><span class="o">.</span><span class="n">wait_stream</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+<span class="c1"># capture</span>
+<span class="n">g</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">CUDAGraph</span><span class="p">()</span>
+<span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">(</span><span class="n">set_to_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">graph</span><span class="p">(</span><span class="n">g</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">amp</span><span class="o">.</span><span class="n">autocast</span><span class="p">():</span>
+        <span class="n">static_y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">static_input</span><span class="p">)</span>
+        <span class="n">static_loss</span> <span class="o">=</span> <span class="n">loss_fn</span><span class="p">(</span><span class="n">static_y_pred</span><span class="p">,</span> <span class="n">static_target</span><span class="p">)</span>
+    <span class="n">scaler</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="n">static_loss</span><span class="p">)</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+    <span class="c1"># don't capture scaler.step(optimizer) or scaler.update()</span>
+
+<span class="n">real_inputs</span> <span class="o">=</span> <span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">rand_like</span><span class="p">(</span><span class="n">static_input</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
+<span class="n">real_targets</span> <span class="o">=</span> <span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">rand_like</span><span class="p">(</span><span class="n">static_target</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
+
+<span class="k">for</span> <span class="n">data</span><span class="p">,</span> <span class="n">target</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">real_inputs</span><span class="p">,</span> <span class="n">real_targets</span><span class="p">):</span>
+    <span class="n">static_input</span><span class="o">.</span><span class="n">copy_</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">static_target</span><span class="o">.</span><span class="n">copy_</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">replay</span><span class="p">()</span>
+    <span class="c1"># Runs scaler.step and scaler.update eagerly</span>
+    <span class="n">scaler</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">optimizer</span><span class="p">)</span>
+    <span class="n">scaler</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="usage-with-multiple-streams">
+<span id="multistream-capture"></span><h3>使用多个流的示例</h3>
+<p>捕获模式会自动传播到与捕获流同步的任何流。在捕获过程中，您可以通过向不同的流发出调用来暴露并行性，但整体流依赖的有向无环图必须在捕获开始后从初始捕获流分支出来，并在捕获结束时重新连接到初始流：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">graph</span><span class="p">(</span><span class="n">g</span><span class="p">):</span>
+    <span class="c1"># at context manager entrance, torch.cuda.current_stream()</span>
+    <span class="c1"># is the initial capturing stream</span>
+
+    <span class="c1"># INCORRECT (does not branch out from or rejoin initial stream)</span>
+    <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+        <span class="n">cuda_work</span><span class="p">()</span>
+
+    <span class="c1"># CORRECT:</span>
+    <span class="c1"># branches out from initial stream</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">wait_stream</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">current_stream</span><span class="p">())</span>
+    <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+        <span class="n">cuda_work</span><span class="p">()</span>
+    <span class="c1"># rejoins initial stream before capture ends</span>
+    <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">current_stream</span><span class="p">()</span><span class="o">.</span><span class="n">wait_stream</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>为了避免在 nsight 系统或 nvprof 中的回放时对高级用户造成混淆：与急切执行不同，图将捕获中的非平凡流 DAG 视为提示，而非命令。在回放过程中，图可能会将独立的操作重新组织到不同的流中，或者以不同的顺序排队（同时尊重您原始 DAG 的整体依赖关系）。</p>
+</div>
+</section>
+<section id="usage-with-distributeddataparallel">
+<h3>与 DistributedDataParallel 的用法</h3>
+<section id="nccl-2-9-6">
+<h4>NCCL &lt; 2.9.6</h4>
+<p>NCCL 版本早于 2.9.6 的版本不允许捕获集体操作。您必须使用部分网络捕获，这会将所有 reduce 操作推迟到反向传播的图外部分执行。</p>
+<p>在将网络用 DDP 包裹之前，请在可绘制网络部分调用 <code class="xref py py-func docutils literal "><span class="pre">make_graphed_callables()</span></code> 。</p>
+</section>
+<section id="id5">
+<h4>NCCL &gt;= 2.9.6<a class="headerlink" href="#id5" title="Permalink to this heading">¶</a></h4>
+<p>NCCL 2.9.6 或更高版本允许在图中使用集体操作。捕获整个反向传播过程的方案是可行的，但需要三个设置步骤。</p>
+<ol class="arabic">
+<li><p>禁用 DDP 的内部异步错误处理：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"NCCL_ASYNC_ERROR_HANDLING"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"0"</span>
+<span class="n">torch</span><span class="o">.</span><span class="n">distributed</span><span class="o">.</span><span class="n">init_process_group</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p>在进行完整回溯捕获之前，DDP 必须在侧流上下文中构建：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">DistributedDataParallel</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p>您的预热必须在捕获之前至少运行 11 次 DDP 启用的大致迭代。</p></li>
+</ol>
+</section>
+</section>
+<section id="graph-memory-management">
+<span id="id6"></span><h3>图内存管理</h3>
+<p>捕获的图每次重放时都作用于相同的虚拟地址。如果 PyTorch 释放了内存，后续的重放可能会遇到非法内存访问。如果 PyTorch 将内存重新分配给新的张量，重放可能会损坏这些张量看到的值。因此，图使用的虚拟地址必须在重放之间为图保留。PyTorch 缓存分配器通过检测捕获正在进行时，并从图私有内存池中满足捕获的分配来实现这一点。私有池将持续存在，直到其 <code class="xref py py-class docutils literal "><span class="pre">CUDAGraph</span></code> 对象和捕获期间创建的所有张量超出作用域。</p>
+<p>私有池会自动维护。默认情况下，分配器为每个捕获创建一个单独的私有池。如果您捕获多个图，这种保守的方法可以确保图的重放永远不会相互破坏值，但有时会无谓地浪费内存。</p>
+<section id="sharing-memory-across-captures">
+<h4>在捕获之间共享内存</h4>
+<p>为了节省私有池中存储的内存， <code class="xref py py-class docutils literal "><span class="pre">torch.cuda.graph</span></code> 和 <code class="xref py py-func docutils literal "><span class="pre">torch.cuda.make_graphed_callables()</span></code> 可选地允许不同的捕获共享同一个私有池。如果您知道一组图将始终以相同的顺序重放，并且永远不会并发重放，那么它们共享私有池是安全的。</p>
+<p> <code class="xref py py-class docutils literal "><span class="pre">torch.cuda.graph</span></code> 的 <code class="docutils literal "><span class="pre">pool</span></code> 参数是使用特定私有池的提示，并且可以用来在图之间共享内存，如下所示：</p>
+<div class="highlight-default "><div class="highlight"><pre><span></span><span class="n">g1</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">CUDAGraph</span><span class="p">()</span>
+<span class="n">g2</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">CUDAGraph</span><span class="p">()</span>
+
+<span class="c1"># (create static inputs for g1 and g2, run warmups of their workloads...)</span>
+
+<span class="c1"># Captures g1</span>
+<span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">graph</span><span class="p">(</span><span class="n">g1</span><span class="p">):</span>
+    <span class="n">static_out_1</span> <span class="o">=</span> <span class="n">g1_workload</span><span class="p">(</span><span class="n">static_in_1</span><span class="p">)</span>
+
+<span class="c1"># Captures g2, hinting that g2 may share a memory pool with g1</span>
+<span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">graph</span><span class="p">(</span><span class="n">g2</span><span class="p">,</span> <span class="n">pool</span><span class="o">=</span><span class="n">g1</span><span class="o">.</span><span class="n">pool</span><span class="p">()):</span>
+    <span class="n">static_out_2</span> <span class="o">=</span> <span class="n">g2_workload</span><span class="p">(</span><span class="n">static_in_2</span><span class="p">)</span>
+
+<span class="n">static_in_1</span><span class="o">.</span><span class="n">copy_</span><span class="p">(</span><span class="n">real_data_1</span><span class="p">)</span>
+<span class="n">static_in_2</span><span class="o">.</span><span class="n">copy_</span><span class="p">(</span><span class="n">real_data_2</span><span class="p">)</span>
+<span class="n">g1</span><span class="o">.</span><span class="n">replay</span><span class="p">()</span>
+<span class="n">g2</span><span class="o">.</span><span class="n">replay</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>如果您想绘制多个可调用对象，并且知道它们将始终按相同顺序运行（并且永远不会并发运行），请将它们作为元组按它们在实时工作负载中运行的顺序传递，并且 <code class="xref py py-func docutils literal "><span class="pre">make_graphed_callables()</span></code> 将使用共享的私有池捕获它们的图。</p>
+<p>如果在实时工作负载中，您的可调用对象将按偶尔变化的顺序运行，或者如果它们将并发运行，则不允许将它们作为元组传递给 <code class="xref py py-func docutils literal "><span class="pre">make_graphed_callables()</span></code> 的单次调用。相反，您必须为每个对象单独调用 <code class="xref py py-func docutils literal "><span class="pre">make_graphed_callables()</span></code> 。</p>
+</section>
+</section>
+</section>
+</section>
+
+
+             </article>
+             
+            </div>
+            <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        下一个 <img height="16" width="16" class="next-page" src="../_static/images/chevron-right-orange.svg"> <img height="16" width="16" class="previous-page" src="../_static/images/chevron-right-orange.svg"> 上一个
+      
+    </div>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>© 版权所有 PyTorch 贡献者。</p>
+  </div>
+    
+      <div>使用 Sphinx 构建，并使用 Read the Docs 提供的主题。</div>
+     
+
+</footer>
+
+          </div>
+<script>
+
+var match = window.location.href.match(/\/_[a-zA-Z0-9_]*.html|_dynamo/gi);
+var url = window.location.href.lastIndexOf(match[match.length-1]);
+
+if (url)
+  {
+    var div = '<div class="admonition note"><p class="admonition-title">Note</p><p><i class="fa fa-exclamation-circle" aria-hidden="true">&nbsp</i> This page describes an internal API which is not intended to be used outside of the PyTorch codebase and can be modified or removed without notice.</p></div>'
+    document.getElementById("pytorch-article").insertAdjacentHTML('afterBegin', div)
+  }
+</script>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">CUDA 语义</a><ul>
+<li><a class="reference internal" href="#tensorfloat-32-tf32-on-ampere-and-later-devices">Ampere（及以后）设备上的 TensorFloat-32（TF32）</a></li>
+<li><a class="reference internal" href="#reduced-precision-reduction-in-fp16-gemms">FP16 GEMMs 的精度降低</a></li>
+<li><a class="reference internal" href="#reduced-precision-reduction-in-bf16-gemms">BF16 GEMMs 的精度降低</a></li>
+<li><a class="reference internal" href="#full-fp16-accmumulation-in-fp16-gemms">FP16 GEMMs 中的全 FP16 累加</a></li>
+<li><a class="reference internal" href="#asynchronous-execution">异步执行</a><ul>
+<li><a class="reference internal" href="#cuda-streams">CUDA 流</a></li>
+<li><a class="reference internal" href="#stream-semantics-of-backward-passes">反向传播的流语义</a><ul>
+<li><a class="reference internal" href="#bc-note-using-grads-on-the-default-stream">BC 备注：在默认流上使用梯度</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#memory-management">内存管理</a><ul>
+<li><a class="reference internal" href="#optimizing-memory-usage-with-pytorch-cuda-alloc-conf">使用 <code class="docutils literal "><span class="pre">PYTORCH_CUDA_ALLOC_CONF</span></code> 优化内存使用</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#using-custom-memory-allocators-for-cuda">使用自定义内存分配器进行 CUDA</a></li>
+<li><a class="reference internal" href="#mixing-different-cuda-system-allocators-in-the-same-program">在同一程序中混合不同的 CUDA 系统分配器</a></li>
+<li><a class="reference internal" href="#cublas-workspaces">cuBLAS 工作区</a></li>
+<li><a class="reference internal" href="#cufft-plan-cache">cuFFT 计划缓存</a></li>
+<li><a class="reference internal" href="#just-in-time-compilation">即时编译</a></li>
+<li><a class="reference internal" href="#best-practices">最佳实践</a><ul>
+<li><a class="reference internal" href="#device-agnostic-code">设备无关代码</a></li>
+<li><a class="reference internal" href="#use-pinned-memory-buffers">使用固定内存缓冲区</a></li>
+<li><a class="reference internal" href="#use-nn-parallel-distributeddataparallel-instead-of-multiprocessing-or-nn-dataparallel">使用 nn.parallel.DistributedDataParallel 而不是 multiprocessing 或 nn.DataParallel</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#cuda-graphs">CUDA 图</a><ul>
+<li><a class="reference internal" href="#why-cuda-graphs">为什么使用 CUDA 图？</a></li>
+<li><a class="reference internal" href="#pytorch-api">PyTorch API</a><ul>
+<li><a class="reference internal" href="#constraints">约束</a></li>
+<li><a class="reference internal" href="#non-constraints">非约束</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#whole-network-capture">整网捕获</a></li>
+<li><a class="reference internal" href="#partial-network-capture">部分网络捕获</a></li>
+<li><a class="reference internal" href="#usage-with-torch-cuda-amp">使用 torch.cuda.amp</a></li>
+<li><a class="reference internal" href="#usage-with-multiple-streams">使用多个流</a></li>
+<li><a class="reference internal" href="#usage-with-distributeddataparallel">使用 DistributedDataParallel</a><ul>
+<li><a class="reference internal" href="#nccl-2-9-6">NCCL &lt; 2.9.6</a></li>
+<li><a class="reference internal" href="#id5">NCCL &gt;= 2.9.6</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#graph-memory-management">图内存管理</a><ul>
+<li><a class="reference internal" href="#sharing-memory-across-captures">在捕获间共享内存</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+         <script src="../_static/jquery.js"></script>
+         <script src="../_static/underscore.js"></script>
+         <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+         <script src="../_static/doctools.js"></script>
+         <script src="../_static/clipboard.min.js"></script>
+         <script src="../_static/copybutton.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="../_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="../_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ 
+<script script="" type="text/javascript">
+  var collapsedSections = ['Developer Notes', 'Language Bindings', 'Libraries', 'Community'];
+</script>
+
+<img height="1" width="1" style="border-style:none;" alt="" src="https://www.googleadservices.com/pagead/conversion/795629140/?label=txkmCPmdtosBENSssfsC&amp;guid=ON&amp;script=0">
+
+
+  <!-- Begin Footer -->
+
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 text-center">
+          <h2>文档</h2>
+          <p>PyTorch 的全面开发者文档</p>
+          <a class="with-right-arrow" href="https://pytorch.org/docs/stable/index.html">查看文档</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>教程</h2>
+          <p>深入了解初学者和高级开发者的教程</p>
+          <a class="with-right-arrow" href="https://pytorch.org/tutorials">查看教程</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>资源</h2>
+          <p>查找开发资源并获得您的疑问解答</p>
+          <a class="with-right-arrow" href="https://pytorch.org/resources">查看资源</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://pytorch.org/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/">PyTorch</a></li>
+            <li><a href="https://pytorch.org/get-started">开始使用</a></li>
+            <li><a href="https://pytorch.org/features">功能</a></li>
+            <li><a href="https://pytorch.org/ecosystem">生态系统</a></li>
+            <li><a href="https://pytorch.org/blog/">博客</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md">贡献</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/resources">资源</a></li>
+            <li><a href="https://pytorch.org/tutorials">教程</a></li>
+            <li><a href="https://pytorch.org/docs/stable/index.html">文档</a></li>
+            <li><a href="https://discuss.pytorch.org" target="_blank">讨论</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/issues" target="_blank">Github 问题</a></li>
+            <li><a href="https://pytorch.org/assets/brand-guidelines/PyTorch-Brand-Guidelines.pdf" target="_blank">品牌指南</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">保持更新</li>
+            <li><a href="https://www.facebook.com/pytorch" target="_blank">脸书</a></li>
+            <li><a href="https://twitter.com/pytorch" target="_blank">推特</a></li>
+            <li><a href="https://www.youtube.com/pytorch" target="_blank">YouTube</a></li>
+            <li><a href="https://www.linkedin.com/company/pytorch" target="_blank">领英</a></li>
+          </ul>  
+          </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">PyTorch 播客</li>
+            <li><a href="https://open.spotify.com/show/6UzHKeiy368jKfQMKKvJY5" target="_blank">Spotify</a></li>
+            <li><a href="https://podcasts.apple.com/us/podcast/pytorch-developer-podcast/id1566080008" target="_blank">苹果</a></li>
+            <li><a href="https://www.google.com/podcasts?feed=aHR0cHM6Ly9mZWVkcy5zaW1wbGVjYXN0LmNvbS9PQjVGa0lsOA%3D%3D" target="_blank">谷歌</a></li>
+            <li><a href="https://music.amazon.com/podcasts/7a4e6f0e-26c2-49e9-a478-41bd244197d0/PyTorch-Developer-Podcast?" target="_blank">亚马逊</a></li>
+          </ul>
+         </div>
+        </div>
+        
+        <div class="privacy-policy">
+          <ul>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/terms/" target="_blank">条款</a></li>
+            <li class="privacy-policy-links">|</li>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/privacy-policy/" target="_blank">隐私</a></li>
+          </ul>
+        </div>
+        <div class="copyright">
+        <p>© 版权所有 Linux 基金会。PyTorch 基金会是 Linux 基金会的一个项目。有关 PyTorch 基金会的网站使用条款、商标政策以及其他适用政策，请参阅 www.linuxfoundation.org/policies/。PyTorch 基金会支持 PyTorch 开源项目，该项目已被确立为 LF Projects, LLC 的 PyTorch 项目系列。有关适用于 PyTorch 项目系列 LF Projects, LLC 的政策，请参阅 www.lfprojects.org/policies/。</p>
+      </div>
+     </div>
+
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">为了分析流量并优化您的体验，我们在本网站上使用 cookies。通过点击或导航，您同意允许我们使用 cookies。作为本网站的当前维护者，适用 Facebook 的 Cookies 政策。了解更多信息，包括关于可用控制的信息：Cookies 政策。</p>
+    <img class="close-button" src="../_static/images/pytorch-x.svg" width="16" height="16">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+           <li class="resources-mobile-menu-title">
+             <a>学习</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/get-started">开始使用</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials">教程</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/basics/intro.html">学习基础知识</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/recipes/recipes_index.html">PyTorch 食谱</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/introyt.html">PyTorch 入门 - YouTube 系列</a>
+             </li>
+           </ul>
+           <li class="resources-mobile-menu-title">
+             <a>生态系统</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/ecosystem">工具</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/#community-module">社区</a>
+             </li>
+             <li>
+               <a href="https://discuss.pytorch.org/">论坛</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/resources">开发者资源</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">贡献者奖项 - 2024</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>Edge</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/edge">关于 PyTorch Edge</a>
+             </li>
+             
+             <li>
+               <a href="https://pytorch.org/executorch-overview">执行火炬</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch 文档</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>文档</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/docs/stable/index.html">PyTorch</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/pytorch-domains">PyTorch 领域</a>
+            </li>
+          </ul>
+
+          <li class="resources-mobile-menu-title">
+            <a>博客 &amp; 新闻</a>
+          </li>
+            
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/blog/">PyTorch 博客</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/community-blog">社区博客</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/videos">视频</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/community-stories">社区故事</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/events">活动</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">新闻简报</a>
+             </li>
+          </ul>
+          
+          <li class="resources-mobile-menu-title">
+            <a>关于</a>
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/foundation">PyTorch 基金会</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/governing-board">治理委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">云信用计划</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">技术咨询委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">员工</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">联系我们</a>
+            </li>
+          </ul>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="../_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body></html>

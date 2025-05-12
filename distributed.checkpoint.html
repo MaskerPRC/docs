@@ -1,0 +1,2366 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Distributed Checkpoint - torch.distributed.checkpoint — PyTorch main documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pytorch.org/docs/stable/distributed.checkpoint.html">
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css">
+  <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css">
+  <link rel="stylesheet" href="_static/copybutton.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css">
+  <link rel="stylesheet" href="_static/katex-math.css" type="text/css">
+  <link rel="stylesheet" href="_static/sphinx-dropdown.css" type="text/css">
+  <link rel="stylesheet" href="_static/panels-bootstrap.min.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/jit.css" type="text/css">
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css">
+    <link rel="index" title="Index" href="genindex.html">
+    <link rel="search" title="Search" href="search.html">
+    <link rel="next" title="Probability distributions - torch.distributions" href="distributions.html">
+    <link rel="prev" title="Pipeline Parallelism" href="distributed.pipelining.html">
+
+<!--
+  Search engines should not index the main version of documentation.
+  Stable documentation are built without release == 'main'.
+-->
+<meta name="robots" content="noindex">
+
+
+  <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T8XT4PS');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+  <!-- Preload the theme fonts -->
+
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<!-- Preload the katex fonts -->
+
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Math-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size1-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size2-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Caligraphic-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
+</head><body class="pytorch-body"><div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+
+          <li class="main-menu-item">
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">学习</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/get-started">
+                  <span class="dropdown-title">开始学习</span>
+                  <p>在本地运行 PyTorch 或快速开始使用支持的云平台之一</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials">
+                  <span class="dropdown-title">教程</span><p></p>
+                  <p>PyTorch 教程中的新内容</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/basics/intro.html">
+                  <span class="dropdown-title">学习基础知识</span><p></p>
+                  <p>熟悉 PyTorch 的概念和模块</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/recipes/recipes_index.html">
+                  <span class="dropdown-title">PyTorch 食谱</span><p></p>
+                  <p>精简版、可直接部署的 PyTorch 代码示例</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tutorials/beginner/introyt.html">
+                  <span class="dropdown-title">PyTorch 入门 - YouTube 系列</span><p></p>
+                  <p>通过我们引人入胜的 YouTube 教程系列掌握 PyTorch 基础知识</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">生态系统</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem">
+                  <span class="dropdown-title">工具</span><p></p>
+                  <p>了解 PyTorch 生态系统中的工具和框架</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
+                  <span class="dropdown-title">社区</span>
+                  <p>加入 PyTorch 开发者社区，贡献、学习并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
+                  <span class="dropdown-title">论坛</span>
+                  <p>讨论 PyTorch 代码、问题、安装、研究的地方</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/resources">
+                  <span class="dropdown-title">开发者资源</span>
+                  <p>查找资源并获得问题解答</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">贡献者奖项 - 2024</span><p></p>
+                  <p>本届 PyTorch 会议揭晓获奖者</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">
+                Edge
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/edge">
+                  <span class="dropdown-title">关于 PyTorch Edge</span><p></p>
+                  <p>为边缘设备构建创新和隐私感知的 AI 体验</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
+                  <span class="dropdown-title">ExecuTorch</span><p></p>
+                  <p>基于移动和边缘设备的端到端推理能力解决方案</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch 文档</span><p></p>
+                </a>
+              </div>
+            </div>  
+          </li>
+
+          <li class="main-menu-item">
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">文档</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/docs/stable/index.html">
+                  <span class="dropdown-title">PyTorch</span><p></p>
+                  <p>探索文档以获取全面指导，了解如何使用 PyTorch</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/pytorch-domains">
+                  <span class="dropdown-title">PyTorch 领域</span><p></p>
+                  <p>阅读 PyTorch 领域的文档，了解更多关于特定领域库的信息</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">博客与新闻</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/blog/">
+                  <span class="dropdown-title">PyTorch 博客</span><p></p>
+                  <p>捕捉最新的技术新闻和事件</p>
+                </a>
+                 <a class="nav-dropdown-item" href="https://pytorch.org/community-blog">
+                  <span class="dropdown-title">社区博客</span><p></p>
+                  <p>PyTorch 生态系统故事</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/videos">
+                  <span class="dropdown-title">视频</span><p></p>
+                  <p>了解最新的 PyTorch 教程、新内容等</p>
+                </a><a class="nav-dropdown-item" href="https://pytorch.org/community-stories">
+                  <span class="dropdown-title">社区故事</span><p></p>
+                  <p>学习如何我们的社区使用 PyTorch 解决真实、日常的机器学习问题</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/events">
+                  <span class="dropdown-title">活动</span><p></p>
+                  <p>查找活动、网络研讨会和播客</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">通讯</span><p></p>
+                  <p>跟踪最新更新</p>
+                </a>
+            </div>
+          </div></li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="with-down-arrow">关于</a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/foundation">
+                  <span class="dropdown-title">PyTorch 基金会</span><p></p>
+                  <p>了解更多关于 PyTorch 基金会的信息</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
+                  <span class="dropdown-title">管理委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">云信用计划</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">技术顾问委员会</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">员工</span><p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">联系我们</span><p></p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li class="main-menu-item">
+            <div class="no-dropdown">
+              <a href="https://pytorch.org/join" data-cta="join">成为会员</a>
+            </div>
+          </li>
+          <li>
+           <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="github-icon">
+             </a>
+           </div>
+          </li>
+          <!--- TODO: This block adds the search icon to the nav bar. We will enable it later. 
+          <li>
+            <div class="main-menu-item">
+             <a href="https://github.com/pytorch/pytorch" class="search-icon">
+             </a>
+            </div>
+          </li>
+          --->
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+  </div>
+</div>
+
+
+
+   
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>目录</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+    <div class="version">
+      <a href="https://pytorch.org/docs/versions.html">主程序 (2.7.0+cpu ) ▼</a>
+    </div>
+    <div id="searchBox">
+    <div class="searchbox" id="googleSearchBox">
+      <script async="" src="https://cse.google.com/cse.js?cx=e65585f8c3ea1440e"></script>
+      <div class="gcse-search"></div>
+    </div>
+    <div id="sphinxSearchBox" style="display: none;">
+      <div role="search">
+        <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+          <input type="text" name="q" placeholder="Search Docs">
+          <input type="hidden" name="check_keywords" value="yes">
+          <input type="hidden" name="area" value="default">
+        </form>
+      </div>
+    </div>
+  </div>
+  <form id="searchForm">
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="google" checked="">谷歌搜索</label>
+    <label style="margin-bottom: 1rem">
+      <input type="radio" name="searchType" value="sphinx">经典搜索</label>
+  </form>
+
+  <script>
+     document.addEventListener('DOMContentLoaded', function() {
+      const searchForm = document.getElementById('searchForm');
+      const googleSearchBox = document.getElementById('googleSearchBox');
+      const sphinxSearchBox = document.getElementById('sphinxSearchBox');
+      // Function to toggle search box visibility
+      function toggleSearchBox(searchType) {
+        googleSearchBox.style.display = searchType === 'google' ? 'block' : 'none';
+        sphinxSearchBox.style.display = searchType === 'sphinx' ? 'block' : 'none';
+      }
+      // Determine the default search type
+      let defaultSearchType;
+      const currentUrl = window.location.href;
+      if (currentUrl.startsWith('https://pytorch.org/docs/stable')) {
+        // For the stable documentation, default to Google
+        defaultSearchType = localStorage.getItem('searchType') || 'google';
+      } else {
+        // For any other version, including docs-preview, default to Sphinx
+        defaultSearchType = 'sphinx';
+      }
+      // Set the default search type
+      document.querySelector(`input[name="searchType"][value="${defaultSearchType}"]`).checked = true;
+      toggleSearchBox(defaultSearchType);
+      // Event listener for changes in search type
+      searchForm.addEventListener('change', function(event) {
+        const selectedSearchType = event.target.value;
+        localStorage.setItem('searchType', selectedSearchType);
+        toggleSearchBox(selectedSearchType);
+      });
+      // Set placeholder text for Google search box
+      window.onload = function() {
+        var placeholderText = "Search Docs";
+        var googleSearchboxText = document.querySelector("#gsc-i-id1");
+        if (googleSearchboxText) {
+          googleSearchboxText.placeholder = placeholderText;
+          googleSearchboxText.style.fontFamily = 'FreightSans';
+          googleSearchboxText.style.fontSize = "1.2rem";
+          googleSearchboxText.style.color = '#262626';
+        }
+      };
+    });
+  </script>
+
+          </div>
+
+          
+
+<div>
+  <a style="color:#F05732" href="https://pytorch.org/docs/stable/distributed.checkpoint.html">您正在查看不稳定开发者预览文档。请点击此处查看最新稳定版本的文档。</a>
+</div>
+
+
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">社区</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="community/build_ci_governance.html">PyTorch 治理 | 构建 + CI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/contribution_guide.html">PyTorch 贡献指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/design.html">PyTorch 设计哲学</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/governance.html">PyTorch 治理 | 机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community/persons_of_interest.html">PyTorch 治理 | 维护者</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发者笔记</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="notes/amp_examples.html">自动混合精度示例</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/autograd.html">Autograd 力学</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/broadcasting.html">广播语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/cpu_threading_torchscript_inference.html">CPU 线程和 TorchScript 推理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/cuda.html">CUDA 语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/custom_operators.html">PyTorch 自定义算子页面</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/ddp.html">分布式数据并行</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/extending.html">扩展 PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/extending.func.html">扩展 torch.func 与 autograd.Function</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/faq.html">常见问题解答</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/fsdp.html">FSDP 笔记</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/get_start_xpu.html">在 Intel GPU 上入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/gradcheck.html">毕业审核机制</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/hip.html">HIP (ROCm) 语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/large_scale_deployments.html">大规模部署的功能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/libtorch_stable_abi.html">LibTorch 稳定 ABI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/modules.html">模块</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/mps.html">MPS 后端</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/multiprocessing.html">多进程最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/numerical_accuracy.html">数值精度</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/randomness.html">可重现性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/serialization.html">序列化语义</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes/windows.html">Windows 常见问题解答</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">语言绑定</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cpp_index.html">C++</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/javadoc/">Javadoc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deploy.html">torch::deploy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="torch.html">torch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.html">torch.nn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.functional.html">torch.nn.functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensors.html">torch.Tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensor_attributes.html">张量属性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensor_view.html">张量视图</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amp.html">torch.amp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autograd.html">torch.autograd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="library.html">torch.library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accelerator.html">torch.accelerator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpu.html">torch.cpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">torch.cuda</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html">理解 CUDA 内存使用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#generating-a-snapshot">生成快照</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#using-the-visualizer">使用可视化工具</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_cuda_memory.html#snapshot-api-reference">快照 API 参考</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mps.html">torch.mps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="xpu.html">torch.xpu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mtia.html">torch.mtia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mtia.memory.html">torch.mtia.memory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="meta.html">元设备</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backends.html">torch.backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="export.html">torch.export</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.html">torch.distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.tensor.html">torch.distributed.tensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.algorithms.join.html">torch.distributed.algorithms.join</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.elastic.html">torch.distributed.elastic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fsdp.html">torch.distributed.fsdp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.fsdp.fully_shard.html">torch.distributed.fsdp.fully_shard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.tensor.parallel.html">torch.distributed.tensor.parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.optim.html">torch.distributed.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.pipelining.html">torch.distributed.pipelining</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">torch.distributed.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributions.html">torch.distributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch.compiler.html">torch.compiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fft.html">torch.fft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="func.html">torch.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="futures.html">torch.futures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fx.html">torch.fx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fx.experimental.html">torch.fx.experimental</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hub.html">torch.hub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jit.html">torch.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="linalg.html">torch.linalg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitor.html">torch.monitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="signal.html">torch.signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="special.html">torch.special</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch.overrides.html">torch.overrides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="package.html">torch.package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="profiler.html">torch.profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.init.html">torch.nn.init</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.attention.html">torch.nn.attention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="onnx.html">torch.onnx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="optim.html">torch.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="complex_numbers.html">复数</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ddp_comm_hooks.html">DDP 通信钩子</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quantization.html">量化</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rpc.html">分布式 RPC 框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="random.html">torch.random</a></li>
+<li class="toctree-l1"><a class="reference internal" href="masked.html">torch.masked</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nested.html">torch.nested</a></li>
+<li class="toctree-l1"><a class="reference internal" href="size.html">torch.Size</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sparse.html">torch.sparse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="storage.html">torch.Storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">torch.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">torch.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmark_utils.html">torch.utils.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bottleneck.html">torch.utils.bottleneck</a></li>
+<li class="toctree-l1"><a class="reference internal" href="checkpoint.html">torch.utils.checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp_extension.html">torch.utils.cpp_extension</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data.html">torch.utils.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deterministic.html">torch.utils.deterministic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jit_utils.html">torch.utils.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dlpack.html">torch.utils.dlpack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mobile_optimizer.html">torch.utils.mobile_optimizer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_zoo.html">torch.utils.model_zoo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensorboard.html">torch.utils.tensorboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_tracker.html">torch.utils.module_tracker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="type_info.html">类型信息</a></li>
+<li class="toctree-l1"><a class="reference internal" href="named_tensor.html">命名张量</a></li>
+<li class="toctree-l1"><a class="reference internal" href="name_inference.html">命名张量操作覆盖率</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config_mod.html">torch.__config__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="future_mod.html">torch.__future__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">torch._logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torch_environment_variables.html">火炬环境变量</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">库</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/audio/stable">torchaudio</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/data">TorchData</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/torchrec">火炬推荐</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/serve">TorchServe</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/text/stable">torchtext</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/vision/stable">torchvision</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/xla/">PyTorch 在 XLA 设备上</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/ao">torchao</a></li>
+</ul>
+
+            
+          
+
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        文档 &gt;</li>
+
+        
+      <li>分布式检查点 - torch.distributed.checkpoint</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+            
+            <a href="_sources/distributed.checkpoint.rst.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg" width="16" height="16"></a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">快捷键</div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+
+          <!-- Google Tag Manager (noscript) -->
+          <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T8XT4PS" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+          <!-- End Google Tag Manager (noscript) -->
+          
+          <div class="rst-content">
+          
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <section id="distributed-checkpoint-torch-distributed-checkpoint">
+<h1>分布式检查点 - torch.distributed.checkpoint ¶</h1>
+<p>分布式检查点（DCP）支持并行从多个 rank 加载和保存模型。它处理加载时的 resharding，使得可以在一个集群拓扑结构中保存，在另一个中加载。</p>
+<p>DCP 与 torch.save 和 torch.load 在几个重要方面有所不同：</p>
+<ul class="simple">
+<li><p>它为每个检查点生成多个文件，每个 rank 至少有一个。</p></li>
+<li><p>它在原地操作，意味着模型应首先分配其数据，DCP 使用该存储。</p></li>
+</ul>
+<p>加载和保存检查点的入口如下：</p>
+<section id="additional-resources">
+<h2>其他资源：¶</h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://pytorch.org/tutorials/recipes/distributed_checkpoint_recipe.html">分布式检查点（DCP）入门</a></p></li>
+<li><p><a class="reference external" href="https://pytorch.org/tutorials/recipes/distributed_async_checkpoint_recipe.html">分布式检查点（DCP）的异步保存</a></p></li>
+<li><p><a class="reference external" href="https://github.com/pytorch/torchtitan/blob/main/docs/checkpoint.md">火炬泰坦检查点文档</a></p></li>
+<li><p><a class="reference external" href="https://github.com/pytorch/torchtitan/blob/main/torchtitan/components/checkpoint.py">火炬泰坦 DCP 实现</a></p></li>
+</ul>
+<span class="target" id="module-torch.distributed.checkpoint"></span><dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.state_dict_saver.AsyncCheckpointerType">
+class torch.distributed.checkpoint.state_dict_saver.AsyncCheckpointerType(value, names=&lt;未提供&gt;, *values, module=None, qualname=None, type=None, start=1, boundary=None)[source][source] ¶</dt>
+<dd><p>异步检查点类型枚举。</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.state_dict_saver.save">
+<span class="sig-prename descclassname"><span class="pre">torch.distributed.checkpoint.state_dict_saver.</span></span><span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state_dict</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checkpoint_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">storage_writer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">planner</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">process_group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_dist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/checkpoint/state_dict_saver.html#save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/checkpoint/state_dict_saver.py#L74"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.checkpoint.state_dict_saver.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>以 SPMD 风格保存分布式模型。</p>
+<p>此函数与 <code class="docutils literal "><span class="pre">torch.save()</span></code> 不同，因为它通过让每个 rank 只保存其本地碎片来处理 <code class="docutils literal "><span class="pre">ShardedTensor</span></code> 和 <code class="docutils literal "><span class="pre">DTensor</span></code> 。</p>
+<p>对于每个 <code class="docutils literal "><span class="pre">Stateful</span></code> 对象（具有 <code class="docutils literal "><span class="pre">state_dict</span></code> 和 <code class="docutils literal "><span class="pre">load_state_dict</span></code> ），在序列化之前，save 将调用 <code class="docutils literal "><span class="pre">state_dict</span></code> 。</p>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>PyTorch 版本之间保存的状态字典没有向后兼容性的保证。</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>如果使用 process_group 参数，请确保只有其 rank 调用 save_state_dict，并且 state_dict 中的所有数据都属于它。</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>当为 FSDP 的 ShardingStrategy.HYBRID_SHARD 保存检查点时，应该只有一个 shard_group 调用 save_state_dict，并且需要传入相应的进程组。</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<dl class="simple">
+<dt>如果没有可用的进程组，此函数假定意图是保存</font></font></font></dt><dd><p><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">本地进程中的 state_dict。</p>
+</dd>
+</dl>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>state_dict（Dict[str, Any]）- 要保存的状态字典。</p></li>
+<li><p>checkpoint_id（Union[str, os.PathLike, None]）- 此检查点实例的 ID。checkpoint_id 的含义取决于存储方式。它可以是一个文件夹或文件的路径。如果存储是键值存储，它也可以是一个键。（默认： <code class="docutils literal "><span class="pre">None</span></code> ）</p></li>
+<li><p>storage_writer（Optional[StorageWriter]）- 用于执行写入的 StorageWriter 实例。如果没有指定，DCP 将根据 checkpoint_id 自动推断写入器。如果 checkpoint_id 也为 None，将引发异常。（默认： <code class="docutils literal "><span class="pre">None</span></code> ）</p></li>
+<li><p>planner (Optional[SavePlanner]) – SavePlanner 的实例。如果未指定，将使用默认规划器。（默认： <code class="docutils literal "><span class="pre">None</span></code> ）</p></li>
+<li><p>process_group (Optional[ProcessGroup]) – 用于跨等级同步的 ProcessGroup。（默认： <code class="docutils literal "><span class="pre">None</span></code> ）</p></li>
+<li><p>no_dist (bool) – 如果为 <code class="docutils literal "><span class="pre">True</span></code> ，此函数将假定意图是加载检查点而不使用跨等级同步。（默认： <code class="docutils literal "><span class="pre">False</span></code> ）</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>已保存检查点的元数据对象。</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>元数据</p>
+</dd>
+</dl>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">my_model</span> <span class="o">=</span> <span class="n">MyModule</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">state_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"model"</span><span class="p">:</span> <span class="n">my_model</span><span class="p">}</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fs_storage_writer</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">distributed</span><span class="o">.</span><span class="n">checkpoint</span><span class="o">.</span><span class="n">FileSystemWriter</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="s2">"/checkpoint/1"</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">torch</span><span class="o">.</span><span class="n">distributed</span><span class="o">.</span><span class="n">checkpoint</span><span class="o">.</span><span class="n">save</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">state_dict</span><span class="o">=</span><span class="n">state_dict</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">storage_writer</span><span class="o">=</span><span class="n">fs_storage_writer</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>save_state_dict 使用集体操作来协调跨进程的写入。对于基于 NCCL 的进程组，对象的内部张量表示必须在通信之前移动到 GPU 设备。在这种情况下，使用的设备由 <code class="docutils literal "><span class="pre">torch.cuda.current_device()</span></code> 指定，并且用户有责任确保这一点，以便每个进程都有一个单独的 GPU，通过 <code class="docutils literal "><span class="pre">torch.cuda.set_device()</span></code> 。</p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.state_dict_saver.async_save">
+<span class="sig-prename descclassname"><span class="pre">torch.distributed.checkpoint.state_dict_saver.</span></span><span class="sig-name descname"><span class="pre">async_save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state_dict</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checkpoint_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">storage_writer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">planner</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">process_group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">async_checkpointer_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">AsyncCheckpointerType.THREAD</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/checkpoint/state_dict_saver.html#async_save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/checkpoint/state_dict_saver.py#L185"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.checkpoint.state_dict_saver.async_save" title="Permalink to this definition">¶</a></dt>
+<dd><p> <code class="docutils literal "><span class="pre">save</span></code> 的异步版本。此代码首先将 state_dict 解析到暂存存储（默认为 CPU 内存），然后在单独的线程中调用保存。</p>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>该功能处于实验阶段，可能会发生变化。</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>state_dict (Dict[str, Any]) – 要保存的状态字典。</p></li>
+<li><p>checkpoint_id (Union[str, os.PathLike, None]) – 该检查点实例的 ID。checkpoint_id 的含义取决于存储方式。它可以是一个文件夹或文件的路径。如果存储是键值存储，它也可以是一个键。（默认： <code class="docutils literal "><span class="pre">None</span></code> ）</p></li>
+<li><p>storage_writer (Optional[StorageWriter]) – 用于执行‘阶段’和‘保存’的 StorageWriter 实例。如果没有指定，DCP 将根据 checkpoint_id 自动推断写入器。如果 checkpoint_id 也为 None，将引发异常。（默认： <code class="docutils literal "><span class="pre">None</span></code> ）</p></li>
+<li><p>planner (可选[SavePlanner]) – SavePlanner 的实例。如果没有指定，将使用默认规划器。（默认： <code class="docutils literal "><span class="pre">None</span></code> ）</p></li>
+<li><p>process_group (可选[ProcessGroup]) – 用于跨等级同步的 ProcessGroup。（默认： <code class="docutils literal "><span class="pre">None</span></code> ）</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>保存后包含结果 Metadata 对象的 Future。</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="futures.html#torch.futures.Future" title="torch.futures.Future">Future</a></p>
+</dd>
+</dl>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">my_model</span> <span class="o">=</span> <span class="n">MyModule</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">state_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"model"</span><span class="p">:</span> <span class="n">my_model</span><span class="p">}</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fs_storage_writer</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">distributed</span><span class="o">.</span><span class="n">checkpoint</span><span class="o">.</span><span class="n">FileSystemWriter</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="s2">"/checkpoint/1"</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">checkpoint_future</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">distributed</span><span class="o">.</span><span class="n">checkpoint</span><span class="o">.</span><span class="n">async_save</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">state_dict</span><span class="o">=</span><span class="n">state_dict</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">storage_writer</span><span class="o">=</span><span class="n">fs_storage_writer</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># ... do some work ...</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">checkpoint_future</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.state_dict_saver.save_state_dict">
+<span class="sig-prename descclassname"><span class="pre">torch.distributed.checkpoint.state_dict_saver.</span></span><span class="sig-name descname"><span class="pre">save_state_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">storage_writer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">process_group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coordinator_rank</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_dist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">planner</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/checkpoint/state_dict_saver.html#save_state_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/checkpoint/state_dict_saver.py#L46"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.checkpoint.state_dict_saver.save_state_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>此方法已弃用。请切换到‘save’。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>元数据</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.state_dict_loader.load">
+<span class="sig-prename descclassname"><span class="pre">torch.distributed.checkpoint.state_dict_loader.</span></span><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state_dict</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checkpoint_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">storage_reader</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">planner</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">process_group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_dist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/checkpoint/state_dict_loader.html#load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/checkpoint/state_dict_loader.py#L51"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.checkpoint.state_dict_loader.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>以 SPMD 风格将检查点加载到分布式状态字典中。</p>
+<p>每个 rank 必须在其提供的 <code class="docutils literal "><span class="pre">state_dict</span></code> 中具有相同的键。键不匹配可能会导致挂起或错误。如果您不确定，可以使用 <code class="docutils literal "><span class="pre">utils._assert_same_keys</span></code> API 进行检查（但可能会产生通信成本）。</p>
+<p>每个 rank 将尝试读取最少的必要数据以满足请求的状态字典。当加载 <code class="xref py py-class docutils literal "><span class="pre">ShardedTensor</span></code> 或 <code class="xref py py-class docutils literal "><span class="pre">DTensor</span></code> 实例时，每个 rank 只读取其本地分片的数据。</p>
+<p>对于每个 <code class="docutils literal "><span class="pre">Stateful</span></code> 对象（具有 <code class="docutils literal "><span class="pre">state_dict</span></code> 和 <code class="docutils literal "><span class="pre">load_state_dict</span></code> ），加载将首先调用 <code class="docutils literal "><span class="pre">state_dict</span></code> ，然后尝试反序列化，反序列化完成后调用 <code class="docutils literal "><span class="pre">load_state_dict</span></code> 。对于每个非 <code class="docutils literal "><span class="pre">Stateful</span></code> 对象，加载将反序列化对象，然后将其替换为反序列化的对象。</p>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>在调用此函数之前， <code class="docutils literal "><span class="pre">state_dict</span></code> 中的所有张量必须在它们的目标设备上分配。</p>
+<p>所有非张量数据均使用 torch.load() 加载，并在 state_dict 中就地修改。</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>用户必须调用根模块的 load_state_dict，以确保加载后处理和非张量数据正确传播。</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>state_dict (Dict[str, Any]) – 要将检查点加载到其中的状态字典。</p></li>
+<li><p>checkpoint_id（Union[str, os.PathLike, None]）- 此检查点实例的 ID。checkpoint_id 的含义取决于存储方式。它可以是一个文件夹或文件的路径。如果存储是键值存储，它也可以是一个键。（默认： <code class="docutils literal "><span class="pre">None</span></code> ）</p></li>
+<li><p>storage_reader（Optional[StorageReader]）- 用于执行读取的 StorageWriter 实例。如果没有指定，DCP 将自动根据 checkpoint_id 推断读取器。如果 checkpoint_id 也为 None，将引发异常。（默认： <code class="docutils literal "><span class="pre">None</span></code> ）</p></li>
+<li><p>planner（Optional[LoadPlanner]）- LoadPlanner 的实例。如果没有指定，将使用默认的计划器。（默认： <code class="docutils literal "><span class="pre">None</span></code> ）</p></li>
+<li><p>process_group（Optional[ProcessGroup]）- 用于跨 rank 同步的 ProcessGroup。（默认： <code class="docutils literal "><span class="pre">None</span></code> ）</p></li>
+<li><p>no_dist（布尔值）- 如果 <code class="docutils literal "><span class="pre">True</span></code> ，则此函数将假定意图是加载检查点而不使用跨秩同步。（默认： <code class="docutils literal "><span class="pre">False</span></code> ）</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>无。</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>无。</p>
+</dd>
+</dl>
+<dl>
+<dt>示例</dt><dd><div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">my_model</span> <span class="o">=</span> <span class="n">MyModule</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">Adagrad</span><span class="p">(</span><span class="n">my_model</span><span class="o">.</span><span class="n">parameters</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model_state_dict</span> <span class="o">=</span> <span class="n">my_model</span><span class="o">.</span><span class="n">state_dict</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fs_storage_reader</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">distributed</span><span class="o">.</span><span class="n">checkpoint</span><span class="o">.</span><span class="n">FileSystemReader</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="s2">"/checkpoint/1"</span>
+<span class="gp">... </span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">torch</span><span class="o">.</span><span class="n">distributed</span><span class="o">.</span><span class="n">checkpoint</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">state_dict</span><span class="o">=</span><span class="n">model_state_dict</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">storage_reader</span><span class="o">=</span><span class="n">fs_storage_reader</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># module.load_state_dict() function might have customized steps</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># to flush the state_dict, must call it to</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># ensure correct behavior.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_model</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">model_state_dict</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>load_state_dict 使用集体来协调跨秩的读取。对于基于 NCCL 的进程组，对象的内部张量表示必须在通信之前移动到 GPU 设备。在这种情况下，使用的设备由 <code class="docutils literal "><span class="pre">torch.cuda.current_device()</span></code> 指定，并且用户有责任确保这样设置，以便每个秩都有一个单独的 GPU，通过 <code class="docutils literal "><span class="pre">torch.cuda.set_device()</span></code> 。</p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.state_dict_loader.load_state_dict">
+<span class="sig-prename descclassname"><span class="pre">torch.distributed.checkpoint.state_dict_loader.</span></span><span class="sig-name descname"><span class="pre">load_state_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">storage_reader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">process_group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coordinator_rank</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_dist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">planner</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/checkpoint/state_dict_loader.html#load_state_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/checkpoint/state_dict_loader.py#L24"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.checkpoint.state_dict_loader.load_state_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>此方法已弃用。请切换到‘load’。</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<p>以下模块也适用于对异步检查点使用的阶段机制进行额外自定义（torch.distributed.checkpoint.async_save）：</p>
+<span class="target" id="module-torch.distributed.checkpoint.staging"></span><dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.staging.AsyncStager">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.checkpoint.staging.</span></span><span class="sig-name descname"><span class="pre">AsyncStager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/checkpoint/staging.html#AsyncStager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/checkpoint/staging.py#L11"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.checkpoint.staging.AsyncStager" title="Permalink to this definition">¶</a></dt>
+<dd><p>本协议旨在为 dcp.async_save 提供定制和可扩展性，使用户能够自定义在并行执行常规 dcp.save 路径之前如何对数据进行“预置”。预期的操作顺序（具体定义在 torch.distributed.state_dict_saver.async_save 中）如下：</p>
+<ol class="arabic simple">
+<li><dl class="simple">
+<dt>AsyncStager.stage_data(state_dict):</dt><dd><p>此调用给 AsyncStager 提供了“预置”state_dict 的机会。在此上下文中，预置的期望和目的是创建一个“训练安全”的 state dict 表示形式，这意味着在预置完成后对模块数据的任何更新都不应反映在此方法返回的 state dict 中。例如，在默认情况下，整个 state dict 的副本被创建在 CPU RAM 上并返回此处，使用户可以在继续训练的同时避免对正在序列化的数据进行更改。</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>在预置返回的 state_dict 上并行调用 dcp.save。此调用负责</font></font></font></dt><dd><p><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">用于序列化 state_dict 并将其写入存储。</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>如果 AsyncStager.should_synchronize_after_execute 为 True，则此方法将在执行后立即被调用</font></font></font></dt><dd><p><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">序列化线程启动并在从 dcp.async_save 返回之前。如果此设置为 False，则假定用户已为优化训练循环中的保存延迟（例如，通过重叠预取与正向/反向传递）定义了自定义同步点，并且用户负责在适当的时间调用 AsyncStager.synchronize_staging。</p>
+</dd>
+</dl>
+</li>
+</ol>
+<dl class="py property">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.staging.AsyncStager.should_synchronize_after_execute">
+属性 should_synchronize_after_execute bool</dt>
+<dd><p>执行阶段后是否同步。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.staging.AsyncStager.stage">
+<span class="sig-name descname"><span class="pre">stage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/checkpoint/staging.html#AsyncStager.stage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/checkpoint/staging.py#L50"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.checkpoint.staging.AsyncStager.stage" title="Permalink to this definition">¶</a></dt>
+<dd><p>返回一个“已分阶段”的状态字典副本。对于已分阶段的副本，预期它不会受到阶段调用完成后发生的任何更新的影响。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[str, Union[~StatefulT, Any]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.staging.AsyncStager.synchronize_staging">
+<span class="sig-name descname"><span class="pre">synchronize_staging</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/checkpoint/staging.html#AsyncStager.synchronize_staging"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/checkpoint/staging.py#L59"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.checkpoint.staging.AsyncStager.synchronize_staging" title="Permalink to this definition">¶</a></dt>
+<dd><p>如果某些情况下阶段是异步的，则应调用此方法以确保阶段完成并且可以安全地开始修改原始状态字典</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.staging.BlockingAsyncStager">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.checkpoint.staging.</span></span><span class="sig-name descname"><span class="pre">BlockingAsyncStager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cache_staged_state_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type_check</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/checkpoint/staging.html#BlockingAsyncStager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/checkpoint/staging.py#L66"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.checkpoint.staging.BlockingAsyncStager" title="Permalink to this definition">¶</a></dt>
+<dd><p>异步阶段器的实现，将状态字典放置在 CPU RAM 中，并在复制完成前阻塞。此实现还提供了使用固定内存优化阶段延迟的选项。</p>
+<p>注意：在这种情况下，synchronize_staging 是一个空操作。</p>
+<dl class="field-list simple">
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.staging.BlockingAsyncStager.stage">
+stage(state_dict)[源代码][源代码] ¶</dt>
+<dd><p>返回 state_dict 在 CPU 上的副本。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[str, Union[~StatefulT, Any]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.staging.BlockingAsyncStager.synchronize_staging">
+同步预发布()[源][源] ¶</dt>
+<dd><p>由于预发布是阻塞的，这是一个无操作函数。</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<p>除了上述入口点之外，以下所述的 Stateful 对象在保存/加载过程中提供额外的定制化。.. automodule:: torch.distributed.checkpoint.stateful</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.stateful.Stateful">
+类 torch.distributed.checkpoint.stateful.Stateful(*args, **kwargs)[源][源] ¶</dt>
+<dd><p>可检查点和恢复的对象的状态协议。</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.stateful.Stateful.load_state_dict">
+<span class="sig-name descname"><span class="pre">load_state_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/checkpoint/stateful.html#Stateful.load_state_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/checkpoint/stateful.py#L31"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.checkpoint.stateful.Stateful.load_state_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>从提供的 state_dict 恢复对象的状态。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>state_dict (dict[str, Any]) – 从中恢复的状态字典</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.stateful.Stateful.state_dict">
+<span class="sig-name descname"><span class="pre">state_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/checkpoint/stateful.html#Stateful.state_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/checkpoint/stateful.py#L14"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.checkpoint.stateful.Stateful.state_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>对象应返回其 state_dict 表示的字典。此函数的输出将被检查点记录，并在 load_state_dict()中稍后恢复。</p>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>由于检查点恢复的 inplace 特性，此函数也在 torch.distributed.checkpoint.load 期间被调用。</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">返回<span class="colon">:</span></dt>
+<dd class="field-odd"><p>对象的状态字典</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>字典</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<p>本示例展示了如何使用 PyTorch 分布式检查点保存 FSDP 模型。</p>
+<p>以下类型定义了在检查点期间使用的 IO 接口：</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.StorageReader">
+class torch.distributed.checkpoint.StorageReader[source][source]</dt>
+<dd><p> <code class="docutils literal "><span class="pre">load_state_dict</span></code> 使用的接口，用于从存储中读取。</p>
+<p>一个 StorageReader 实例在分布式检查点中既充当协调者又充当跟随者。作为初始化的一部分，每个实例都会被告知其角色。</p>
+<p>子类应期望 <code class="docutils literal "><span class="pre">load_state_dict</span></code> 调用的以下顺序：</p>
+<ol class="arabic simple" start="0">
+<li><p>（所有节点）如果用户传递了有效的 checkpoint_id，则设置 checkpoint_id。</p></li>
+<li><p>(所有等级) 读取元数据()</p></li>
+<li><p>(所有等级) 设置存储读取器()</p></li>
+<li><p>(所有等级) 准备本地计划()</p></li>
+<li><p>(协调器) 准备全局计划()</p></li>
+<li><p>(所有等级) read_data()</p></li>
+</ol>
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.StorageReader.prepare_global_plan">
+准备全局计划（plans）[源][源] ¶</dt>
+<dd><p>执行存储加载的集中式规划。</p>
+<p>此方法仅在协调器实例上调用。</p>
+<p>虽然这种方法可以生成完全不同的计划，但首选的方式是将特定存储的数据存储在 LoadPlan::storage_data 中。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>plans (列表[torch.distributed.checkpoint.planner.LoadPlan]) – 一个包含 <code class="docutils literal "><span class="pre">LoadPlan</span></code> 实例的列表，每个 rank 对应一个实例。</p>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>经过存储全局规划后的转换后的 <code class="docutils literal "><span class="pre">LoadPlan</span></code> 列表</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>列表[torch.distributed.checkpoint.planner.LoadPlan]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.StorageReader.prepare_local_plan">
+准备本地计划（plan）[源][源]</dt>
+<dd><p>执行特定存储的本地规划。</p>
+<p>虽然此方法可以生成完全不同的计划，但推荐的方式是将特定存储数据存储在 LoadPlan::storage_data 中。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>plan (LoadPlan) – 正在使用的 <code class="docutils literal "><span class="pre">LoadPlan</span></code> 的本地计划。</p>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>存储后的本地规划后转换的 <code class="docutils literal "><span class="pre">LoadPlan</span></code> </p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#torch.distributed.checkpoint.LoadPlan" title="torch.distributed.checkpoint.planner.LoadPlan"><em>加载计划</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.StorageReader.read_data">
+抽象 read_data(plan, planner)[source][source] ¶</dt>
+<dd><p>使用 <code class="docutils literal "><span class="pre">planner</span></code> 解析数据，从 <code class="docutils literal "><span class="pre">plan</span></code> 读取所有项目。</p>
+<p>子类应该调用 <code class="docutils literal "><span class="pre">LoadPlanner::load_bytes</span></code> 来将 BytesIO 对象反序列化到正确的位置。</p>
+<p>子类应该调用 <code class="docutils literal "><span class="pre">LoadPlanner::resolve_tensor</span></code> 来获取它应该加载数据的张量。</p>
+<p>负责正确安排所需的跨设备复制的责任在于 StorageLayer。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>plan（LoadPlan）- 要在本地执行的本地计划。</p></li>
+<li><p>规划器（LoadPlanner）- 使用该规划器对象来解析项。</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>所有读取完成后的未来。</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="futures.html#torch.futures.Future" title="torch.jit.Future"><em>Future</em></a>[None]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.StorageReader.read_metadata">
+抽象 read_metadata()[source][source] ¶</dt>
+<dd><p>阅读检查点元数据。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回<span class="colon">:</span></dt>
+<dd class="field-odd"><p>正在加载的检查点关联的元数据对象。</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>元数据</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.StorageReader.reset">
+abstract reset(检查点 ID=None)[source][source] ¶</dt>
+<dd><p>调用表示即将发生一个新的检查点读取。如果用户为这次检查点读取设置了检查点 ID，则可能存在检查点 ID。检查点 ID 的含义取决于存储方式。它可以是文件夹/文件的路径，或者键值存储的键。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>checkpoint_id (Union[str, os.PathLike, None]) – 此检查点实例的 ID。检查点 ID 的含义取决于存储方式。它可以是文件夹或文件的路径。如果存储方式更像是键值存储，它也可以是键。（默认值： <code class="docutils literal "><span class="pre">None</span></code> ）</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.StorageReader.set_up_storage_reader">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set_up_storage_reader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metadata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_coordinator</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/checkpoint/storage.html#StorageReader.set_up_storage_reader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/checkpoint/storage.py#L212"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.checkpoint.StorageReader.set_up_storage_reader" title="Permalink to this definition">¶</a></dt>
+<dd><p>初始化此实例。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>元数据（元数据）- 要使用的元数据模式。</p></li>
+<li><p>is_coordinator（布尔值）- 此实例是否负责协调检查点。</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.StorageReader.validate_checkpoint_id">
+抽象类方法 validate_checkpoint_id(checkpoint_id)[source][source] ¶</dt>
+<dd><p>检查给定的 checkpoint_id 是否被存储支持。这允许我们启用自动存储选择。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">布尔型</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.StorageWriter">
+class torch.distributed.checkpoint.StorageWriter[source][source]</dt>
+<dd><p>由 <code class="docutils literal "><span class="pre">save_state_dict</span></code> 使用的接口，用于写入存储。</p>
+<p>一个 StorageWriter 实例在分布式检查点中既充当协调者又充当跟随者。作为初始化的一部分，每个实例都会被告知其角色。</p>
+<p>子类应期望以下调用序列。</p>
+<ol class="arabic simple" start="0">
+<li><p>（所有等级）如果用户传递有效的 checkpoint_id，则设置 checkpoint_id。</p></li>
+<li><p>（所有等级）设置存储写入器()。</p></li>
+<li><p>（所有等级）准备本地计划()。</p></li>
+<li><p>(协调器) 准备全局计划()</p></li>
+<li><p>(所有进程) 写入数据()</p></li>
+<li><p>(协调器) 完成()</p></li>
+</ol>
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.StorageWriter.finish">
+抽象 finish(metadata, results)[来源][来源] ¶</dt>
+<dd><p>编写元数据并标记当前检查点为成功。</p>
+<p>用于序列化元数据的实际格式/模式是实现细节。唯一的要求是它必须能够恢复到相同的对象图中。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>元数据（Metadata）- 新检查点的元数据</p></li>
+<li><p>结果（list[list[torch.distributed.checkpoint.storage.WriteResult]]）- 来自所有排名的 WriteResults 列表。</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.StorageWriter.prepare_global_plan">
+准备全局计划[源代码][源代码] ¶</dt>
+<dd><p>执行存储的集中式规划。</p>
+<p>此方法仅在协调器实例上调用。</p>
+<p>虽然此方法可以生成完全不同的计划，但首选方式是将存储特定数据存储在 SavePlan::storage_data 中。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>plans（列表[torch.distributed.checkpoint.planner.SavePlan]）- 一个包含 <code class="docutils literal "><span class="pre">SavePlan</span></code> 实例的列表，每个 rank 一个。</p>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>存储全局规划后的转换后的 <code class="docutils literal "><span class="pre">SavePlan</span></code> 列表。</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[torch.distributed.checkpoint.planner.SavePlan]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.StorageWriter.prepare_local_plan">
+准备本地计划(准备局部计划)[源代码][源代码]</dt>
+<dd><p>执行特定存储的本地规划。</p>
+<p>虽然此方法可以生成完全不同的计划，但推荐的方式是将特定存储的数据存储在 SavePlan::storage_data 中。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>本地计划（SavePlan）- 正在使用的来自 <code class="docutils literal "><span class="pre">SavePlanner</span></code> 的本地计划。</p>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>存储后的转换 <code class="docutils literal "><span class="pre">SavePlan</span></code> 。</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#torch.distributed.checkpoint.SavePlan" title="torch.distributed.checkpoint.planner.SavePlan"><em>SavePlan</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.StorageWriter.reset">
+抽象重置（checkpoint_id=None）[源][源]</dt>
+<dd><p>调用表示即将发生一个新的检查点写入。如果用户为该检查点写入设置了检查点 ID，则可能存在检查点 ID。检查点 ID 的含义依赖于存储。它可以是一个文件夹/文件的路径，也可以是键值存储的键。（默认：@0#）</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>checkpoint_id (Union[str, os.PathLike, None]) – 此检查点实例的 ID。检查点 ID 的含义取决于存储。它可以是文件夹或文件的路径。如果存储是键值存储，它也可以是一个键。（默认： <code class="docutils literal "><span class="pre">None</span></code> ）</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.StorageWriter.set_up_storage_writer">
+abstract set_up_storage_writer(is_coordinator)[source][source]</dt>
+<dd><p>初始化此实例。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p>是否为协调器（布尔值）- 此实例是否负责协调检查点。</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.StorageWriter.storage_meta">
+<span class="sig-name descname"><span class="pre">storage_meta</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/checkpoint/storage.html#StorageWriter.storage_meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/checkpoint/storage.py#L155"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.checkpoint.StorageWriter.storage_meta" title="Permalink to this definition">¶</a></dt>
+<dd><p>返回存储特定的元数据。这用于在检查点中存储可用于提供请求级可观察性的附加信息。StorageMeta 在保存调用期间传递给 <code class="docutils literal "><span class="pre">SavePlanner</span></code> 。默认返回 None。</p>
+<p>TODO：提供示例</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[存储元数据]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.StorageWriter.validate_checkpoint_id">
+抽象类方法 validate_checkpoint_id(checkpoint_id)[source][source] ¶</dt>
+<dd><p>检查给定的 checkpoint_id 是否由存储支持。这允许我们启用自动存储选择。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">布尔型</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.StorageWriter.write_data">
+抽象 write_data(plan, planner)[source][source] ¶</dt>
+<dd><p>使用 <code class="docutils literal "><span class="pre">planner</span></code> 解析数据，将 <code class="docutils literal "><span class="pre">plan</span></code> 中的所有条目写出来。</p>
+<p>子类应该对计划中的每个条目调用 <code class="docutils literal "><span class="pre">SavePlanner::resolve_data</span></code> ，以获取底层对象进行写入。</p>
+<p>子类应延迟调用 resolve_data，因为它可能会分配内存。对于张量，做以下假设：</p>
+<ul class="simple">
+<li><p>它们可能位于任何设备上，包括与 <code class="docutils literal "><span class="pre">WriteItem::tensor_data</span></code> 不匹配的设备。</p></li>
+<li><p>它们可能是视图，也可能不是连续的。只需保存投影即可。</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>计划（SavePlan）- 要执行的保存计划。</p></li>
+<li><p>规划器（SavePlanner）- 用于将项目解析为数据的规划器对象。</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>一个完成到 WriteResult 列表的未来。</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="futures.html#torch.futures.Future" title="torch.jit.Future"><em>Future</em></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[torch.distributed.checkpoint.storage.WriteResult]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<p>以下类型定义了在检查点期间使用的计划器接口：</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.LoadPlanner">
+class torch.distributed.checkpoint.LoadPlanner[source][source]</dt>
+<dd><p>定义了 load_state_dict 用来计划加载过程的协议的抽象类。</p>
+<p>LoadPlanner 是具有状态的实体，可用于自定义整个加载过程。</p>
+<p>LoadPlanner 作为 state_dict 的访问代理，因此对其进行的任何转换都将对整个过程可见。</p>
+<p>计划器子类在 load_state_dict 期间可以期待以下调用序列：</p>
+<ol class="arabic simple">
+<li><dl class="simple">
+<dt>set_up_planner - 在所有进程中调用。</font></font></font></dt><dd><p><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">标记检查点加载的开始。</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>create_local_plan - 在所有进程中调用。</font></font></font></dt><dd><p><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">处理状态字典并生成一个将要发送进行全局规划的 LoadPlan。</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>create_global_plan - 仅在协调器进程中调用。</font></font></font></dt><dd><p><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">从所有 rank 中获取 LoadPlan 并做出任何全局决策。</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>load_bytes - 在每个 rank 上被多次调用</font></font></font></dt><dd><p><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">这在每个 state_dict 中的非 tensor 值上只调用一次。</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>resolve_tensor 和 commit_tensor - 在每个 rank 上被多次调用</font></font></font></dt><dd><p><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">它们成对地用于每个 state_dict 中的 Tensor 值。</p>
+</dd>
+</dl>
+</li>
+</ol>
+<p>建议用户扩展 DefaultLoadPlanner 而不是直接扩展此接口，因为大多数更改都可以通过更改单个方法来表示。</p>
+<p>常见的扩展模式有两种：</p>
+<p>重写 state_dict。这是扩展加载过程的最简单方法，因为它不需要理解 LoadPlan 的工作复杂性。由于加载是在原地发生的，我们需要保留原始 state_dict 的引用，因此我们需要能够原地执行它。</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">RenamePlanner</span><span class="p">(</span><span class="n">DefaultLoadPlanner</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="nf">set_up_planner</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="bp">self</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">state_dict</span><span class="p">:</span> <span class="n">STATE_DICT_TYPE</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">metadata</span><span class="p">:</span> <span class="n">Metadata</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">is_coordinator</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="bp">self</span><span class="o">.</span><span class="n">original_state_dict</span> <span class="o">=</span> <span class="n">state_dict</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">state_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"foo_"</span> <span class="o">+</span> <span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">state_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatten_sharded_tensors</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>            <span class="n">state_dict</span> <span class="o">=</span> <span class="n">_flatten_sharded_tensors</span><span class="p">(</span><span class="n">state_dict</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatten_state_dict</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>            <span class="n">state_dict</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mappings</span> <span class="o">=</span> <span class="n">flatten_state_dict</span><span class="p">(</span><span class="n">state_dict</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="bp">self</span><span class="o">.</span><span class="n">state_dict</span> <span class="o">=</span> <span class="n">state_dict</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="bp">self</span><span class="o">.</span><span class="n">is_coordinator</span> <span class="o">=</span> <span class="n">is_coordinator</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="nf">load_bytes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">read_item</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Remove the "foo_" prefix</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="bp">self</span><span class="o">.</span><span class="n">original_state_dict</span><span class="p">[</span><span class="n">read_item</span><span class="o">.</span><span class="n">dest_index</span><span class="o">.</span><span class="n">fqn</span><span class="p">[</span><span class="mi">4</span><span class="p">:]]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">weights_only</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>修改 resolve_tensor 和 commit_tensor 以处理加载时转换。</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">MetaModelMaterialize</span><span class="p">(</span><span class="n">DefaultSavePlanner</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="nf">resolve_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">read_item</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">tensor</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">resolve_tensor</span><span class="p">(</span><span class="n">read_item</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s2">"cpu"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="nf">commit_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">read_item</span><span class="p">,</span> <span class="n">tensor</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="bp">self</span><span class="o">.</span><span class="n">state_dict</span><span class="p">[</span><span class="n">read_item</span><span class="o">.</span><span class="n">dest_index</span><span class="o">.</span><span class="n">fqn</span><span class="p">]</span> <span class="o">=</span> <span class="n">tensor</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.LoadPlanner.commit_tensor">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">commit_tensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">read_item</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tensor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/checkpoint/planner.html#LoadPlanner.commit_tensor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/checkpoint/planner.py#L428"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.checkpoint.LoadPlanner.commit_tensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>当 StorageReader 完成数据加载到 <code class="docutils literal "><span class="pre">tensor</span></code> 后调用一次。</p>
+<p>提供的张量与调用 <code class="docutils literal "><span class="pre">resolve_tensor</span></code> 返回的相同。如果此 LoadPlanner 需要在将其复制回 state_dict 之前对 <code class="docutils literal "><span class="pre">tensor</span></code> 进行后处理，则需要此方法。</p>
+<p>张量内容将遵循其设备同步模型。</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.LoadPlanner.create_global_plan">
+创建全局计划(create_global_plan)[源][源]</dt>
+<dd><p>计算全局负载计划并返回每个进程的规划。</p>
+<p>. 注意：仅在协调进程上调用</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[torch.distributed.checkpoint.planner.LoadPlan]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.LoadPlanner.create_local_plan">
+抽象 create_local_plan()[来源][来源] ¶</dt>
+<dd><p>根据由 set_up_planner 提供的状态字典和元数据创建 LoadPlan。</p>
+<p>. 注意。这将在每个 rank 上调用。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#torch.distributed.checkpoint.LoadPlan" title="torch.distributed.checkpoint.planner.LoadPlan"><em>装载计划</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.LoadPlanner.finish_plan">
+完成计划(中心计划)[来源][来源]</dt>
+<dd><p>接受协调器的计划并返回最终的装载计划。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#torch.distributed.checkpoint.LoadPlan" title="torch.distributed.checkpoint.planner.LoadPlan"><em>装载计划</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.LoadPlanner.load_bytes">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_bytes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">read_item</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/checkpoint/planner.html#LoadPlanner.load_bytes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/checkpoint/planner.py#L399"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.checkpoint.LoadPlanner.load_bytes" title="Permalink to this definition">¶</a></dt>
+<dd><p>加载由 <code class="docutils literal "><span class="pre">read_item``and</span> <span class="pre">``value</span></code> 描述的项目。</p>
+<p>此方法预期将就地修改底层 state_dict。</p>
+<p> <code class="docutils literal "><span class="pre">value</span></code> 的内容由用于生成正在加载的检查点的 SavePlanner 定义。</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.LoadPlanner.resolve_bytes">
+<span class="sig-name descname"><span class="pre">resolve_bytes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">read_item</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/checkpoint/planner.html#LoadPlanner.resolve_bytes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/checkpoint/planner.py#L410"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.checkpoint.LoadPlanner.resolve_bytes" title="Permalink to this definition">¶</a></dt>
+<dd><p>返回用于由 StorageReader 加载 read_item 的 BytesIO。</p>
+<p>BytesIO 应与底层 state_dict 中的一个别名，因为 StorageReader 将替换其内容。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>BytesIO</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.LoadPlanner.resolve_tensor">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">resolve_tensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">read_item</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/checkpoint/planner.html#LoadPlanner.resolve_tensor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/checkpoint/planner.py#L418"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.checkpoint.LoadPlanner.resolve_tensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>返回由 <code class="docutils literal "><span class="pre">read_item</span></code> 描述的张量，供 StorageReader 加载 read_item 使用。</p>
+<p>该张量应与底层 state_dict 中的一个别名，因为 StorageReader 将替换其内容。如果由于任何原因无法实现这一点，规划器可以使用 <code class="docutils literal "><span class="pre">commit_tensor</span></code> 方法将数据复制回 state_dict 中的那个。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="tensors.html#torch.Tensor" title="torch.Tensor"><em>张量</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.LoadPlanner.set_up_planner">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set_up_planner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_coordinator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/checkpoint/planner.html#LoadPlanner.set_up_planner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/checkpoint/planner.py#L366"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.checkpoint.LoadPlanner.set_up_planner" title="Permalink to this definition">¶</a></dt>
+<dd><p>初始化此实例以将数据加载到 <code class="docutils literal "><span class="pre">state_dict</span></code> 。</p>
+<p>. 注意。这将在每个 rank 上调用。</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.LoadPlan">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.checkpoint.</span></span><span class="sig-name descname"><span class="pre">LoadPlan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#torch.distributed.checkpoint.ReadItem" title="torch.distributed.checkpoint.planner.ReadItem"><span class="pre">torch.distributed.checkpoint.planner.ReadItem</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">storage_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">planner_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/checkpoint/planner.html#LoadPlan"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/checkpoint/planner.py#L105"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.checkpoint.LoadPlan" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.ReadItem">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.checkpoint.</span></span><span class="sig-name descname"><span class="pre">ReadItem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.distributed.checkpoint.planner.LoadItemType</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dest_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.distributed.checkpoint.metadata.MetadataIndex</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dest_offsets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="size.html#torch.Size" title="torch.Size"><span class="pre">torch.Size</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">storage_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.distributed.checkpoint.metadata.MetadataIndex</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">storage_offsets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="size.html#torch.Size" title="torch.Size"><span class="pre">torch.Size</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">lengths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="size.html#torch.Size" title="torch.Size"><span class="pre">torch.Size</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/checkpoint/planner.html#ReadItem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/checkpoint/planner.py#L76"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.checkpoint.ReadItem" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.SavePlanner">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.checkpoint.</span></span><span class="sig-name descname"><span class="pre">SavePlanner</span></span><a class="reference internal" href="_modules/torch/distributed/checkpoint/planner.html#SavePlanner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/checkpoint/planner.py#L112"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.checkpoint.SavePlanner" title="Permalink to this definition">¶</a></dt>
+<dd><p>抽象类，定义了 save_state_dict 用于规划保存过程的协议。</p>
+<p>SavePlanner 是一种有状态的实体，可以用来自定义整个保存过程。</p>
+<p>SavePlanner 作为 state_dict 的访问代理，因此对其进行的任何转换都将对整个过程可见。</p>
+<p>规划器子类在 save_state_dict 期间可以期待以下调用序列：</p>
+<ol class="arabic simple">
+<li><dl class="simple">
+<dt>set_up_planner - 在所有进程中调用。</font></font></font></dt><dd><p><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">标记检查点保存的开始。</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>create_local_plan - 在所有进程中调用。</font></font></font></dt><dd><p><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">处理状态字典并生成一个将要发送进行全局规划的 SavePlan。</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>create_global_plan - 仅在协调器进程中调用。</font></font></font></dt><dd><p><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">从所有等级获取 SavePlan 并做出任何全局决策。</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>finish_plan - 在所有等级上调用。</font></font></font></dt><dd><p><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">这给每个等级一个调整全局规划决策的机会。</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>resolve_data - 在每个等级上多次调用。</font></font></font></dt><dd><p><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在状态字典中查找存储层的值以进行写入。</p>
+</dd>
+</dl>
+</li>
+</ol>
+<p>建议用户扩展 DefaultSavePlanner 而不是直接扩展此接口，因为大多数更改都可以通过单个方法的更改来表示。</p>
+<p>常见的扩展模式有 3 种：</p>
+<p>重新编写 state_dict。这是扩展保存过程的最简单方法，因为它不需要理解 SavePlan 的工作复杂性：</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">RenamePlanner</span><span class="p">(</span><span class="n">DefaultSavePlanner</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="nf">set_up_planner</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="bp">self</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">state_dict</span><span class="p">:</span> <span class="n">STATE_DICT_TYPE</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">storage_meta</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">StorageMeta</span><span class="p">],</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">is_coordinator</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># prefix all keys with `foo_``</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_up_planner</span><span class="p">({</span><span class="s2">"foo_"</span> <span class="o">+</span> <span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">state_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()},</span> <span class="n">storage_meta</span><span class="p">,</span> <span class="n">is_coordinator</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>同时修改本地计划和查找。这在精细控制数据持久化方式时很有用</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">FP16Planner</span><span class="p">(</span><span class="n">DefaultSavePlanner</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="nf">create_local_plan</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">plan</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">create_local_plan</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">plan</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>            <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">tensor_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>                <span class="n">p</span><span class="o">.</span><span class="n">tensor_data</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">dtype</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">float16</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="k">return</span> <span class="n">plan</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="nf">resolve_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">write_item</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">item</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">resolve_data</span><span class="p">(</span><span class="n">write_item</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="k">return</span> <span class="n">item</span> <span class="k">if</span> <span class="n">write_item</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">WriteItemType</span><span class="o">.</span><span class="n">BYTE_IO</span> <span class="k">else</span> <span class="n">item</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">float16</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>使用全局规划步骤来做出每个等级单独无法做出的中央决策</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">zip_longest</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">replace</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">DDPLoadBalancingPlanner</span><span class="p">(</span><span class="n">DefaultSavePlanner</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># This uses the default local plan behavior of having all non-sharded writes in rank 0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># This sample doesn't handle ShardedTensors</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="nf">create_global_plan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">all_plans</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">iters</span> <span class="o">=</span> <span class="p">[</span><span class="nb">iter</span><span class="p">(</span><span class="n">all_plans</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">)]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_plans</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">items_per_rank</span> <span class="o">=</span> <span class="p">[</span>
+<span class="gp">&gt;&gt;&gt; </span>            <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span> <span class="k">if</span> <span class="n">item</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span>            <span class="k">for</span> <span class="n">items</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">zip_longest</span><span class="p">(</span><span class="o">*</span><span class="n">iters</span><span class="p">),</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">all_plans</span> <span class="o">=</span> <span class="p">[</span>
+<span class="gp">&gt;&gt;&gt; </span>            <span class="n">replace</span><span class="p">(</span><span class="n">plan</span><span class="p">,</span> <span class="n">items</span><span class="o">=</span><span class="n">items</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>            <span class="k">for</span> <span class="n">plan</span><span class="p">,</span> <span class="n">items</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">all_plans</span><span class="p">,</span> <span class="n">items_per_rank</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">create_global_plan</span><span class="p">(</span><span class="n">all_plans</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>最后，一些规划器需要在检查点中保存额外的元数据，这是通过每个等级在本地计划中贡献他们的数据项，然后全局规划器汇总它们来实现的：</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">SaveExtraDataPlanner</span><span class="p">(</span><span class="n">DefaultSavePlanner</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="nf">create_local_plan</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SavePlan</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">plan</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">create_local_plan</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="k">return</span> <span class="n">replace</span><span class="p">(</span><span class="n">plan</span><span class="p">,</span> <span class="n">planner_data</span><span class="o">=</span><span class="s2">"per-rank-data"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="nf">create_global_plan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">all_plans</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">SavePlan</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">SavePlan</span><span class="p">],</span> <span class="n">Metadata</span><span class="p">]:</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">global_plan</span><span class="p">,</span> <span class="n">metadata</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">create_global_plan</span><span class="p">(</span><span class="n">all_plans</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">merged_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">planner_data</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">global_plan</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">metadata</span> <span class="o">=</span> <span class="n">replace</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span> <span class="n">planner_data</span><span class="o">=</span><span class="n">merged_data</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="k">return</span> <span class="n">global_plan</span><span class="p">,</span> <span class="n">metadata</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.SavePlanner.create_global_plan">
+abstract create_global_plan(all_plans)[source][source]</dt>
+<dd><p>计算全局检查点计划并返回每个 rank 的本地计划。</p>
+<p>仅在协调 rank 上调用此操作。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference internal" href="#torch.distributed.checkpoint.SavePlan" title="torch.distributed.checkpoint.planner.SavePlan">torch.distributed.checkpoint.planner.SavePlan</a>], torch.distributed.checkpoint.metadata.Metadata]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.SavePlanner.create_local_plan">
+抽象 create_local_plan()[source][source] ¶</dt>
+<dd><p>计算当前排名的保存计划。</p>
+<p>这将被汇总并传递给 create_global_plan。可以通过 SavePlan::planner_data 传递规划器特定数据。</p>
+<p>这将在所有排名上被调用。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#torch.distributed.checkpoint.SavePlan" title="torch.distributed.checkpoint.planner.SavePlan"><em>保存计划</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.SavePlanner.finish_plan">
+完成计划抽象 finish_plan(new_plan)[source][source] ¶</dt>
+<dd><p>合并由 create_local_plan 创建的计划和 create_global_plan 的结果。</p>
+<p>这将在所有进程中调用。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#torch.distributed.checkpoint.SavePlan" title="torch.distributed.checkpoint.planner.SavePlan"><em>保存计划 SavePlan</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.SavePlanner.resolve_data">
+抽象 resolve_data(write_item)[source][source] ¶</dt>
+<dd><p>将 <code class="docutils literal "><span class="pre">write_item</span></code> 转换并准备用于存储，确保幂等性和线程安全。</p>
+<p>在 <code class="docutils literal "><span class="pre">state_dict</span></code> 中查找与 <code class="docutils literal "><span class="pre">write_item</span></code> 关联的对象，并在存储层消费之前应用任何转换（如序列化）。</p>
+<p>在每个排名上多次调用，至少在最终的 SavePlan 中的每个 WriteItem 上调用一次。</p>
+<p>此方法应该是幂等的且线程安全的。StorageWriter 实现可以随时调用它，以满足其需求。</p>
+<p>任何分配内存的转换都应该在调用此方法时懒加载，以减少检查点所需的峰值内存。</p>
+<p>当返回张量时，它们可以在任何设备或格式上，它们也可以是视图。确定如何保存它们的责任在于存储层。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.13)"><em>Union</em></a>[<a class="reference internal" href="tensors.html#torch.Tensor" title="torch.Tensor"><em>Tensor</em></a>, <em>BytesIO</em>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.SavePlanner.set_up_planner">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set_up_planner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">storage_meta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_coordinator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/checkpoint/planner.html#SavePlanner.set_up_planner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/checkpoint/planner.py#L227"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.checkpoint.SavePlanner.set_up_planner" title="Permalink to this definition">¶</a></dt>
+<dd><p>初始化此规划器以保存 <code class="docutils literal "><span class="pre">state_dict</span></code> 。</p>
+<p>实现应将这些值保存下来，因为这些值在保存过程中不会提供。</p>
+<p>这将在所有 rank 上调用。</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.SavePlan">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.checkpoint.</span></span><span class="sig-name descname"><span class="pre">SavePlan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#torch.distributed.checkpoint.planner.WriteItem" title="torch.distributed.checkpoint.planner.WriteItem"><span class="pre">torch.distributed.checkpoint.planner.WriteItem</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">storage_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">planner_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">usable</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/checkpoint/planner.html#SavePlan"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/checkpoint/planner.py#L95"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.checkpoint.SavePlan" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.planner.WriteItem">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.checkpoint.planner.</span></span><span class="sig-name descname"><span class="pre">WriteItem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tensor_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/checkpoint/planner.html#WriteItem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/checkpoint/planner.py#L51"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.checkpoint.planner.WriteItem" title="Permalink to this definition">¶</a></dt>
+<dd><p>数据类，用于存储需要写入存储的信息。</p>
+<dl class="field-list simple">
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.planner.WriteItem.tensor_storage_size">
+<span class="sig-name descname"><span class="pre">tensor_storage_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/checkpoint/planner.html#WriteItem.tensor_storage_size"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/checkpoint/planner.py#L61"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.checkpoint.planner.WriteItem.tensor_storage_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>计算底层张量的存储大小，如果不是张量写入，则为 None。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回<span class="colon">:</span></dt>
+<dd class="field-odd"><p>可选的 int 类型，存储大小，如果存在底层张量，则以字节为单位。</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>可选[int]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<p>我们提供了一个基于文件系统的存储层：</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.FileSystemReader">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.checkpoint.</span></span><span class="sig-name descname"><span class="pre">FileSystemReader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_extension_registry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/checkpoint/filesystem.html#FileSystemReader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/checkpoint/filesystem.py#L756"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.checkpoint.FileSystemReader" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.FileSystemReader.checkpoint_id">
+属性 checkpoint_idUnion[strPathLike] ¶</dt>
+<dd><p>返回将要用于加载检查点的 checkpoint_id。</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.FileSystemWriter">
+类 torch.distributed.checkpoint.FileSystemWriter(path, single_file_per_rank=True, sync_files=True, thread_count=1, per_thread_copy_ahead=10000000, cache_staged_state_dict=False, overwrite=True, _extensions=None)[source][source] ¶</dt>
+<dd><p>使用文件 I/O 的 StorageWriter 的基本实现。</p>
+<p>本实现做出以下假设和简化：</p>
+<ul class="simple">
+<li><p>检查点路径是一个空目录或不存在目录。</p></li>
+<li><p>文件创建是原子的</p></li>
+</ul>
+<p>检查点由每个写入请求的一个文件以及一个包含序列化元数据的.metadata 文件组成。</p>
+<dl class="field-list simple">
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.FileSystemWriter.stage">
+<span class="sig-name descname"><span class="pre">stage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/checkpoint/filesystem.html#FileSystemWriter.stage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/checkpoint/filesystem.py#L928"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.checkpoint.FileSystemWriter.stage" title="Permalink to this definition">¶</a></dt>
+<dd><p>AsyncStager.stage 的覆盖</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[str, Union[~StatefulT, Any]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<p>我们提供了 LoadPlanner 和 SavePlanner 的默认实现，可以处理所有 torch.distributed 构造，如 FSDP、DDP、ShardedTensor 和 DistributedTensor。</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.DefaultSavePlanner">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.checkpoint.</span></span><span class="sig-name descname"><span class="pre">DefaultSavePlanner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flatten_state_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flatten_sharded_tensors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dedup_replicated_tensors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dedup_save_to_lowest_rank</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_plan_caching</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/checkpoint/default_planner.html#DefaultSavePlanner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/checkpoint/default_planner.py#L69"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.checkpoint.DefaultSavePlanner" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.DefaultSavePlanner.lookup_object">
+<span class="sig-name descname"><span class="pre">lookup_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/checkpoint/default_planner.html#DefaultSavePlanner.lookup_object"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/checkpoint/default_planner.py#L241"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.checkpoint.DefaultSavePlanner.lookup_object" title="Permalink to this definition">¶</a></dt>
+<dd><p>从规划器接口扩展，使其易于扩展默认规划器。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.13)"><em>任何</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.DefaultSavePlanner.transform_object">
+<span class="sig-name descname"><span class="pre">transform_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">write_item</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/checkpoint/default_planner.html#DefaultSavePlanner.transform_object"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/checkpoint/default_planner.py#L245"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.checkpoint.DefaultSavePlanner.transform_object" title="Permalink to this definition">¶</a></dt>
+<dd><p>从规划器接口扩展，使其易于扩展默认规划器。</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.DefaultLoadPlanner">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.checkpoint.</span></span><span class="sig-name descname"><span class="pre">DefaultLoadPlanner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flatten_state_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flatten_sharded_tensors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_partial_load</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/checkpoint/default_planner.html#DefaultLoadPlanner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/checkpoint/default_planner.py#L254"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.checkpoint.DefaultLoadPlanner" title="Permalink to this definition">¶</a></dt>
+<dd><p>在 LoadPlanner 的基础上增加了多个功能。</p>
+<p>特别是增加了以下功能：</p>
+<p>flatten_state_dict: 处理嵌套字典的 state_dict flatten_sharded_tensors: 对于 FSDP 在 2D 并行模式下 allow_partial_load: 如果为 False，当 state_dict 中存在但检查点中不存在的键时，将引发运行时错误</p>
+<dl class="field-list simple">
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.DefaultLoadPlanner.lookup_tensor">
+<span class="sig-name descname"><span class="pre">lookup_tensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/checkpoint/default_planner.html#DefaultLoadPlanner.lookup_tensor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/checkpoint/default_planner.py#L363"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.checkpoint.DefaultLoadPlanner.lookup_tensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>从规划器接口扩展，使其易于扩展默认规划器。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="tensors.html#torch.Tensor" title="torch.Tensor"><em>张量</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.DefaultLoadPlanner.transform_tensor">
+<span class="sig-name descname"><span class="pre">transform_tensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">read_item</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tensor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/checkpoint/default_planner.html#DefaultLoadPlanner.transform_tensor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/checkpoint/default_planner.py#L367"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.checkpoint.DefaultLoadPlanner.transform_tensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>从规划器接口扩展，使其易于扩展默认规划器。</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<p>由于遗留的设计决策，FSDP 和 DDP 的状态字典可能具有不同的键或完全限定名称（例如，layer1.weight），即使原始未并行化的模型是相同的。此外，FSDP 提供各种类型的模型状态字典，如完整和分片状态字典。此外，优化器状态字典使用参数 ID 而不是完全限定名称来标识参数，这可能在并行使用时（例如，管道并行）引起问题。</p>
+<p>为了应对这些挑战，我们为用户提供了一系列 API，以便轻松管理状态字典。get_model_state_dict()返回一个与未并行化模型状态字典键一致的状态字典。同样，get_optimizer_state_dict()提供具有所有并行应用键一致的优化器状态字典。为了实现这种一致性，get_optimizer_state_dict()将参数 ID 转换为与未并行化模型状态字典中找到的完全限定名称相同的名称。</p>
+<p>注意，这些 API 返回的结果可以直接用于 torch.distributed.checkpoint.save()和 torch.distributed.checkpoint.load()方法，无需进行任何额外的转换。</p>
+<p>提供了 set_model_state_dict()和 set_optimizer_state_dict()方法来加载由相应 getter API 生成的模型和优化器 state_dict。</p>
+<p>注意，set_optimizer_state_dict()只能在调用 backward()之前或 step()在优化器上被调用之后调用。</p>
+<p>注意，此功能为实验性，API 签名可能在将来发生变化。</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.state_dict.get_state_dict">
+<span class="sig-prename descclassname"><span class="pre">torch.distributed.checkpoint.state_dict.</span></span><span class="sig-name descname"><span class="pre">get_state_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizers</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">submodules</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/checkpoint/state_dict.html#get_state_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/checkpoint/state_dict.py#L1117"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.checkpoint.state_dict.get_state_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>返回模型的状态字典和优化器状态字典。</p>
+<p> <code class="docutils literal "><span class="pre">get_state_dict</span></code> 可以处理由 PyTorch FSDP/fully_shard、DDP/replicate、tensor_parallel/parallelize_module 以及这些并行方式的任意组合并行化的任何模块。 <code class="docutils literal "><span class="pre">get_state_dict</span></code> 的主要功能包括：1.) 返回可以与不同数量的训练师和/或不同的并行方式重新分片的模型和优化器状态字典。2.) 隐藏特定于并行状态字典的 API。用户不需要调用这些 API。3.) 对结果状态字典进行合理性检查。</p>
+<p>结果状态字典的键是规范的全限定名（FQNs）。规范的全限定名是指基于参数在 nn.Module 层次结构中的位置的全限定名。更具体地说，一个参数的规范全限定名是当模块没有被任何并行方式分布时， <code class="docutils literal "><span class="pre">module.named_parameters()</span></code> 或 <code class="docutils literal "><span class="pre">module.named_buffers()</span></code> 返回的全限定名。由于优化器内部使用参数 ID 来表示参数，因此在调用此 API 时，将进行参数 ID 到规范全限定名的转换。</p>
+<p>也可以处理未并行化的模块。在这种情况下，仅执行一个功能 - 将优化器参数 ID 转换为规范 FQNs。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torch.distributed.fsdp</span> <span class="kn">import</span> <span class="n">FullyShardedDataParallel</span> <span class="k">as</span> <span class="n">FSDP</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torch.nn.parallel</span> <span class="kn">import</span> <span class="n">DistributedDataParallel</span> <span class="k">as</span> <span class="n">DDP</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torch.distributed.checkpoint.state_dict</span> <span class="kn">import</span> <span class="n">get_state_dict</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fsdp_model</span> <span class="o">=</span> <span class="n">FSDP</span><span class="p">(</span><span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">model</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fsdp_optim</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ddp_model</span> <span class="o">=</span> <span class="n">DDP</span><span class="p">(</span><span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">model</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ddp_optim</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ddp_state_dict</span><span class="p">,</span> <span class="n">ddp_optim_state_dict</span> <span class="o">=</span> <span class="n">get_state_dict</span><span class="p">(</span><span class="n">ddp_model</span><span class="p">,</span> <span class="n">ddp_optim</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fsdp_state_dict</span><span class="p">,</span> <span class="n">fsdp_optim_state_dict</span> <span class="o">=</span> <span class="n">get_state_dict</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">fsdp_model</span><span class="p">,</span> <span class="n">fsdp_optim</span>
+<span class="gp">... </span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># if we simply call ddp_model.state_dict() and fsdp_model.state_dict(),</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># the asserts will fail.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">ddp_state_dict</span> <span class="o">==</span> <span class="n">fsdp_state_dict</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">ddp_optim_state</span> <span class="o">==</span> <span class="n">fsdp_optim_state_dict</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>模型（nn.Module）- 模型的 nn.Module。</p></li>
+<li><p>优化器（Union[None, Optimizer, Iterable[Optimizer]]）- 用于优化 <code class="docutils literal "><span class="pre">model</span></code> 的优化器。</p></li>
+<li><p>子模块（已弃用）- Optional[set[nn.Module]]: 仅返回属于子模块的模型参数。</p></li>
+<li><p>options (StateDictOptions) – 控制模型状态字典和优化器状态字典返回方式的选项。请参阅 StateDictOptions 获取详细信息。</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p> <code class="docutils literal "><span class="pre">Tuple</span></code> 包含模型状态字典和优化器状态字典。</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple[Dict[str, ValueType], OptimizerStateType]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.state_dict.get_model_state_dict">
+<span class="sig-prename descclassname"><span class="pre">torch.distributed.checkpoint.state_dict.</span></span><span class="sig-name descname"><span class="pre">get_model_state_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">submodules</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/checkpoint/state_dict.html#get_model_state_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/checkpoint/state_dict.py#L1035"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.checkpoint.state_dict.get_model_state_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>返回模型的 state_dict。</p>
+<p>详细用法请见 <code class="docutils literal "><span class="pre">get_state_dict</span></code> 。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>model (nn.Module) – 模型的 nn.Module。</p></li>
+<li><p>submodules（已弃用）- Optional[set[nn.Module]]：仅返回属于子模块的模型参数。</p></li>
+<li><p>options (StateDictOptions) – 控制模型状态字典和优化器状态字典返回方式的选项。请参阅 StateDictOptions 获取详细信息。</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>The state_dict for <code class="docutils literal "><span class="pre">model</span></code>.</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, ValueType]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.state_dict.get_optimizer_state_dict">
+<span class="sig-prename descclassname"><span class="pre">torch.distributed.checkpoint.state_dict.</span></span><span class="sig-name descname"><span class="pre">get_optimizer_state_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizers</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">submodules</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/checkpoint/state_dict.html#get_optimizer_state_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/checkpoint/state_dict.py#L1072"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.checkpoint.state_dict.get_optimizer_state_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>返回优化器的组合状态字典。</p>
+<p>详细用法请见 <code class="docutils literal "><span class="pre">get_state_dict</span></code> 。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>model (nn.Module) – 模型的 nn.Module 。</p></li>
+<li><p>optimizers (Union[None, Optimizer, Iterable[Optimizer]]) – 用于优化 <code class="docutils literal "><span class="pre">model</span></code> 的优化器。</p></li>
+<li><p>子模块（已弃用）- Optional[set[nn.Module]]: 仅返回属于子模块的模型参数。</p></li>
+<li><p>选项（StateDictOptions）- 控制如何返回模型状态字典和优化器状态字典的选项。有关详细信息，请参阅 StateDictOptions。</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p> <code class="docutils literal "><span class="pre">optimizers</span></code> 的状态字典。</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>优化器状态类型</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.state_dict.set_state_dict">
+<span class="sig-prename descclassname"><span class="pre">torch.distributed.checkpoint.state_dict.</span></span><span class="sig-name descname"><span class="pre">set_state_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizers</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_state_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optim_state_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/checkpoint/state_dict.html#set_state_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/checkpoint/state_dict.py#L1323"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.checkpoint.state_dict.set_state_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>加载模型状态字典和优化器状态字典。</p>
+<p> <code class="docutils literal "><span class="pre">get_state_dict</span></code> 的对应操作，用于将状态字典设置到模型和优化器中。给定的 <code class="docutils literal "><span class="pre">model_state_dict</span></code> 和 <code class="docutils literal "><span class="pre">optim_state_dict</span></code> 不必由 <code class="docutils literal "><span class="pre">get_state_dict</span></code> 返回，但必须满足以下要求：1) 所有 FQNs 都必须是 <code class="docutils literal "><span class="pre">get_state_dict</span></code> 中定义的规范 FQNs，2) 如果张量是分片的，它必须是 ShardedTensor 或 DTensor，3) 优化器状态字典不能包含参数 ID；键应该是规范 FQNs。</p>
+<dl class="simple">
+<dt>警告： <code class="docutils literal "><span class="pre">set_state_dict</span></code> 只能在 <code class="docutils literal "><span class="pre">backward()</span></code> 之前或 <code class="docutils literal "><span class="pre">step()</span></code> 之后调用。</font></font></font></dt><dd><p><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">被调用在优化器上。否则，优化器状态将无法正确初始化。</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>模型（nn.Module）- 模型的 nn.Module。</p></li>
+<li><p>优化器（Union[Optimizer, Iterable[Optimizer]]) - 用于优化 <code class="docutils literal "><span class="pre">model</span></code> 的优化器。</p></li>
+<li><p>model_state_dict (Dict[str, ValueType]) - (Union[Dict[nn.Module, Dict[str, ValueType]], Dict[str, ValueType]]): 要加载的模型状态字典。如果 <code class="docutils literal "><span class="pre">model_state_dict</span></code> 的键为 nn.Module，则键是 <code class="docutils literal "><span class="pre">model</span></code> 的子模块，值应该是子模块的状态字典。在加载状态字典时，将向子模块前缀追加到状态字典中。</p></li>
+<li><p>optim_state_dict (OptimizerStateType) – OptimizerStateType: 加载的优化器状态字典。</p></li>
+<li><p>options (StateDictOptions) – 控制如何加载模型状态字典和优化器状态字典的选项。请参阅 StateDictOptions 获取详细信息。</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p></p><ul class="simple">
+<li><p>missing_keys 是包含模型状态字典中缺失键的字符串列表。</p></li>
+<li><p>unexpected_keys 是包含模型状态字典中意外键的字符串列表。</p></li>
+</ul>
+<p></p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>使用 <code class="docutils literal "><span class="pre">missing_keys</span></code> 和 <code class="docutils literal "><span class="pre">unexpected_keys</span></code> 字段</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.state_dict.set_model_state_dict">
+<span class="sig-prename descclassname"><span class="pre">torch.distributed.checkpoint.state_dict.</span></span><span class="sig-name descname"><span class="pre">set_model_state_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_state_dict</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/checkpoint/state_dict.html#set_model_state_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/checkpoint/state_dict.py#L1241"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.checkpoint.state_dict.set_model_state_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>加载模型状态字典。</p>
+<p>将状态字典设置到模型的对应方法。详见 <code class="docutils literal "><span class="pre">set_state_dict</span></code> 的详细用法。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>model (nn.Module) – 模型对应的 nn.Module。</p></li>
+<li><p>model_state_dict (Dict[str, ValueType]) – (Dict[str, ValueType]): 加载的模型状态字典。如果 <code class="docutils literal "><span class="pre">model_state_dict</span></code> 的键是 nn.Module，则键是 <code class="docutils literal "><span class="pre">model</span></code> 的子模块，值应该是子模块的状态字典。在加载状态字典时，将向子模块前添加前缀。</p></li>
+<li><p>options (StateDictOptions) – 控制如何加载模型状态字典和优化器状态字典的选项。有关详细信息，请参阅 StateDictOptions。</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p></p><ul class="simple">
+<li><p>missing_keys 是包含缺失键的字符串列表</p></li>
+<li><p>unexpected_keys 是一个包含意外键的字符串列表</p></li>
+</ul>
+<p></p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>使用 <code class="docutils literal "><span class="pre">NamedTuple</span></code> 、 <code class="docutils literal "><span class="pre">missing_keys</span></code> 和 <code class="docutils literal "><span class="pre">unexpected_keys</span></code> 字段</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.state_dict.set_optimizer_state_dict">
+<span class="sig-prename descclassname"><span class="pre">torch.distributed.checkpoint.state_dict.</span></span><span class="sig-name descname"><span class="pre">set_optimizer_state_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optim_state_dict</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/checkpoint/state_dict.html#set_optimizer_state_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/checkpoint/state_dict.py#L1280"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.checkpoint.state_dict.set_optimizer_state_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>加载优化器的状态字典。</p>
+<p> <code class="docutils literal "><span class="pre">get_optimizer_state_dict</span></code> 的对应操作用于设置优化器的状态字典。详情用法见 <code class="docutils literal "><span class="pre">set_state_dict</span></code> 。</p>
+<dl class="simple">
+<dt>警告： <code class="docutils literal "><span class="pre">set_optimizer_state_dict</span></code> 只能在 <code class="docutils literal "><span class="pre">backward()</span></code> 之前或之后调用。</font></font></font></dt><dd><p><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">在优化器上调用 <code class="docutils literal "><span class="pre">step()</span></code> 。否则，优化器状态将无法正确初始化。</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>model (nn.Module) – 模型的 nn.Module。</p></li>
+<li><p>optimizers (Union[Optimizer, Iterable[Optimizer]]) – 用于优化 <code class="docutils literal "><span class="pre">model</span></code> 的优化器。</p></li>
+<li><p>optim_state_dict (OptimizerStateType) – OptimizerStateType：要加载的优化器状态字典。</p></li>
+<li><p>options (StateDictOptions) – 控制模型状态字典和优化器状态字典加载的选项。请参阅 StateDictOptions 获取详细信息。</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.state_dict.StateDictOptions">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.checkpoint.state_dict.</span></span><span class="sig-name descname"><span class="pre">StateDictOptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">full_state_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpu_offload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_frozen_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_submodule_prefixes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">broadcast_from_rank0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flatten_optimizer_state_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dsd_fqn_modifiers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'_fqn_modifiers'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/checkpoint/state_dict.html#StateDictOptions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/checkpoint/state_dict.py#L92"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.checkpoint.state_dict.StateDictOptions" title="Permalink to this definition">¶</a></dt>
+<dd><p>此数据类指定了 get_state_dict/set_state_dict 的工作方式。</p>
+<ul class="simple">
+<li><p> <code class="docutils literal "><span class="pre">full_state_dict</span></code> : 如果设置为 True，返回的状态字典中的所有张量都将被收集。返回的状态字典中不会包含 ShardedTensor 和 DTensor。</p></li>
+<li><p> <code class="docutils literal "><span class="pre">cpu_offload</span></code> : 将所有张量卸载到 CPU。为防止 CPU OOM，如果 <code class="docutils literal "><span class="pre">full_state_dict</span></code> 也为 True，则只有 rank0 将获得状态字典，而所有其他 rank 将获得空状态字典。</p></li>
+<li><p> <code class="docutils literal "><span class="pre">ignore_frozen_params</span></code> : 如果值为 True，则返回的状态字典将不包含任何冻结参数 - <code class="docutils literal "><span class="pre">requires_grad</span></code> 为 False。默认值为 False。</p></li>
+<li><p> <code class="docutils literal "><span class="pre">keep_submodule_prefixes</span></code> (已弃用)：当 <code class="docutils literal "><span class="pre">submodules</span></code> 不为 None 时，此选项指示是否从 state_dict 键中保留子模块前缀。例如，如果子模块是 <code class="docutils literal "><span class="pre">module.pretrain</span></code> ，则参数的完整 FQN 为 <code class="docutils literal "><span class="pre">pretrain.layer1.weight</span></code> 的 param。当此选项为 True 时，返回的 state_dict 中的参数键将为 <code class="docutils literal "><span class="pre">pretrain.layer1.weight</span></code> 。如果选项为 False，则键将为 <code class="docutils literal "><span class="pre">layer1.weight</span></code> 。请注意，如果 <code class="docutils literal "><span class="pre">keep_submodule_prefixes</span></code> 为 False，则可能存在冲突的 FQN，因此 <code class="docutils literal "><span class="pre">submodules</span></code> 中应只有一个子模块。</p></li>
+<li><p> <code class="docutils literal "><span class="pre">strict</span></code> : 当 <code class="docutils literal "><span class="pre">strict</span></code> 调用 model.load_state_dict() 时使用的 <code class="docutils literal "><span class="pre">set_state_dict</span></code> 选项。</p></li>
+<li><dl class="simple">
+<dt> <code class="docutils literal "><span class="pre">broadcast_from_rank0</span></code> : 当选项为 True 时，rank0 应接收完整的</font></font></font></dt><dd><p><font class=" " lang="zh-CN"><br hidden=""><font class="   "><font class="  ">state_dict 并将 state_dict/ optim_state_dict 中的张量逐个广播到其他 ranks。其他 ranks 将接收张量并根据模型和优化器中的本地分片进行分片。 <code class="docutils literal "><span class="pre">full_state_dict</span></code> 必须设置为 True 才能使用此选项。此选项目前仅支持 DTensor，不支持传统的 ShardedTensor。</p>
+</dd>
+</dl>
+</li>
+</ul>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<p>对于习惯使用和共享 torch.save 格式的用户，以下方法提供了在格式之间转换的离线实用工具。</p>
+<span class="target" id="module-torch.distributed.checkpoint.format_utils"></span><dl class="py function">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.format_utils.dcp_to_torch_save">
+torch.distributed.checkpoint.format_utils.dcp_to_torch_save(dcp_checkpoint_dir, torch_save_path)[source][source]</dt>
+<dd><p>给定一个包含 DCP 检查点的目录，此函数将将其转换为 Torch 保存文件。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>dcp_checkpoint_dir (Union[str, PathLike]) – 包含 DCP 检查点的目录。</p></li>
+<li><p>torch_save_path (Union[str, PathLike]) – 要存储转换后的 Torch 保存文件的文件名。</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>为了避免内存溢出，建议仅在单个 rank 上运行此函数。</p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.format_utils.torch_save_to_dcp">
+<span class="sig-prename descclassname"><span class="pre">torch.distributed.checkpoint.format_utils.</span></span><span class="sig-name descname"><span class="pre">torch_save_to_dcp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">torch_save_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dcp_checkpoint_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/checkpoint/format_utils.html#torch_save_to_dcp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/checkpoint/format_utils.py#L221"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.checkpoint.format_utils.torch_save_to_dcp" title="Permalink to this definition">¶</a></dt>
+<dd><p>给定 torch 保存文件的存储位置，将其转换为 DCP 检查点。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>torch_save_path (Union[str, PathLike]) – 火炬保存文件的文件名。</p></li>
+<li><p>dcp_checkpoint_dir (Union[str, PathLike]) – 存储 DCP 检查点的目录。</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>为避免内存溢出，建议仅在单个 rank 上运行此函数。</p>
+</div>
+</dd></dl>
+
+<p>以下类也可以用于从 torch.save 格式在线加载和重新分片模型。</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.format_utils.BroadcastingTorchSaveReader">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.checkpoint.format_utils.</span></span><span class="sig-name descname"><span class="pre">BroadcastingTorchSaveReader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">checkpoint_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coordinator_rank</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/checkpoint/format_utils.html#BroadcastingTorchSaveReader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/checkpoint/format_utils.py#L39"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.checkpoint.format_utils.BroadcastingTorchSaveReader" title="Permalink to this definition">¶</a></dt>
+<dd><p>用于读取 Torch Save 文件的存储读取器。此读取器将在协调器 rank 上读取整个检查点，然后将每个张量广播和分片到所有 rank。</p>
+<p>. 注意：建议与 DynamicMetaLoadPlanner 一起使用</p>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>当前实现仅支持加载张量。</p>
+</div>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sd</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"mode"</span><span class="p">:</span> <span class="n">model</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dcp</span><span class="o">.</span><span class="n">load</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="n">sd</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="n">storage_reader</span><span class="o">=</span><span class="n">BroadcastingTorchSaveReader</span><span class="p">(),</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="n">planner</span><span class="o">=</span><span class="n">DynamicMetaLoadPlanner</span><span class="p">(),</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="n">checkpoint_id</span><span class="o">=</span><span class="s2">"path_to_model.pt"</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.format_utils.BroadcastingTorchSaveReader.prepare_global_plan">
+准备全局计划(global_plan)[源][源] ¶</dt>
+<dd><p>存储读取器方法的实现</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>列表[torch.distributed.checkpoint.planner.LoadPlan]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.format_utils.BroadcastingTorchSaveReader.prepare_local_plan">
+准备本地计划(plan)[源][源] ¶</dt>
+<dd><p>存储读取方法的实现</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#torch.distributed.checkpoint.LoadPlan" title="torch.distributed.checkpoint.planner.LoadPlan"><em>加载计划</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.format_utils.BroadcastingTorchSaveReader.read_data">
+<span class="sig-name descname"><span class="pre">read_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plan</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">planner</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/checkpoint/format_utils.html#BroadcastingTorchSaveReader.read_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/checkpoint/format_utils.py#L73"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.checkpoint.format_utils.BroadcastingTorchSaveReader.read_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>在协调器 rank 上读取 torch 保存的数据，之后广播，这会产生通信成本，但避免了在每个 rank 上加载整个检查点，希望防止内存溢出问题</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>未来[无]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.format_utils.BroadcastingTorchSaveReader.read_metadata">
+读取元数据()[来源][来源] ¶</dt>
+<dd><p>扩展默认的 StorageReader 以支持构建元数据文件</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>元数据</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.format_utils.BroadcastingTorchSaveReader.reset">
+重置（checkpoint_id=None）[源][源] ¶</dt>
+<dd><p>实现 StorageReader 方法</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.format_utils.BroadcastingTorchSaveReader.set_up_storage_reader">
+设置存储读取器（metadata，is_coordinator）[源][源] ¶</dt>
+<dd><p>实现 StorageReader 方法</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.format_utils.BroadcastingTorchSaveReader.validate_checkpoint_id">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">validate_checkpoint_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">checkpoint_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/checkpoint/format_utils.html#BroadcastingTorchSaveReader.validate_checkpoint_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/checkpoint/format_utils.py#L144"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.checkpoint.format_utils.BroadcastingTorchSaveReader.validate_checkpoint_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>存储读取器方法的实现</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">布尔型</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.format_utils.DynamicMetaLoadPlanner">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torch.distributed.checkpoint.format_utils.</span></span><span class="sig-name descname"><span class="pre">DynamicMetaLoadPlanner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flatten_state_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flatten_sharded_tensors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_partial_load</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/checkpoint/format_utils.html#DynamicMetaLoadPlanner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/checkpoint/format_utils.py#L150"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.checkpoint.format_utils.DynamicMetaLoadPlanner" title="Permalink to this definition">¶</a></dt>
+<dd><p>扩展 DefaultLoadPlanner，根据传入的状态字典创建一个新的元数据对象，避免需要从磁盘读取元数据。这在读取没有元数据文件的格式时很有用，例如 Torch 保存文件。</p>
+<p>. 注意：建议与 BroadcastingTorchSaveReader 一起使用</p>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>当前实现仅支持加载张量。</p>
+</div>
+<div class="doctest highlight-default "><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sd</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"mode"</span><span class="p">:</span> <span class="n">model</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dcp</span><span class="o">.</span><span class="n">load</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="n">sd</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="n">storage_reader</span><span class="o">=</span><span class="n">BroadcastingTorchSaveReader</span><span class="p">(),</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="n">planner</span><span class="o">=</span><span class="n">DynamicMetaLoadPlanner</span><span class="p">(),</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="n">checkpoint_id</span><span class="o">=</span><span class="s2">"path_to_model.pt"</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="torch.distributed.checkpoint.format_utils.DynamicMetaLoadPlanner.set_up_planner">
+<span class="sig-name descname"><span class="pre">set_up_planner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_coordinator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torch/distributed/checkpoint/format_utils.html#DynamicMetaLoadPlanner.set_up_planner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pytorch/pytorch/blob/134179474539648ba7dee1317959529fbd0e7f89/torch/distributed/checkpoint/format_utils.py#L171"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torch.distributed.checkpoint.format_utils.DynamicMetaLoadPlanner.set_up_planner" title="Permalink to this definition">¶</a></dt>
+<dd><p>设置规划器，通过从状态字典创建元数据对象扩展默认行为</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<p>以下实验性接口提供，以在生产环境中提高可观察性：</p>
+<span class="target" id="module-torch.distributed.checkpoint.logger"></span><span class="target" id="module-torch.distributed.checkpoint.logging_handlers"></span></section>
+</section>
+
+
+             </article>
+             
+            </div>
+            <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        下一个 <img height="16" width="16" class="next-page" src="_static/images/chevron-right-orange.svg"> <img height="16" width="16" class="previous-page" src="_static/images/chevron-right-orange.svg"> 上一个
+      
+    </div>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>© 版权所有 PyTorch 贡献者。</p>
+  </div>
+    
+      <div>使用 Sphinx 构建，主题由 Read the Docs 提供。</div>
+     
+
+</footer>
+
+          </div>
+<script>
+
+var match = window.location.href.match(/\/_[a-zA-Z0-9_]*.html|_dynamo/gi);
+var url = window.location.href.lastIndexOf(match[match.length-1]);
+
+if (url)
+  {
+    var div = '<div class="admonition note"><p class="admonition-title">Note</p><p><i class="fa fa-exclamation-circle" aria-hidden="true">&nbsp</i> This page describes an internal API which is not intended to be used outside of the PyTorch codebase and can be modified or removed without notice.</p></div>'
+    document.getElementById("pytorch-article").insertAdjacentHTML('afterBegin', div)
+  }
+</script>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">分布式检查点 - torch.distributed.checkpoint</a><ul>
+<li><a class="reference internal" href="#additional-resources">其他资源：</a></li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+         <script src="_static/jquery.js"></script>
+         <script src="_static/underscore.js"></script>
+         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+         <script src="_static/doctools.js"></script>
+         <script src="_static/clipboard.min.js"></script>
+         <script src="_static/copybutton.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ 
+<script script="" type="text/javascript">
+  var collapsedSections = ['Developer Notes', 'Language Bindings', 'Libraries', 'Community'];
+</script>
+
+<img height="1" width="1" style="border-style:none;" alt="" src="https://www.googleadservices.com/pagead/conversion/795629140/?label=txkmCPmdtosBENSssfsC&amp;guid=ON&amp;script=0">
+
+
+  <!-- Begin Footer -->
+
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 text-center">
+          <h2>文档</h2>
+          <p>PyTorch 开发者文档全面访问</p>
+          <a class="with-right-arrow" href="https://pytorch.org/docs/stable/index.html">查看文档</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>教程</h2>
+          <p>获取初学者和高级开发者的深入教程</p>
+          <a class="with-right-arrow" href="https://pytorch.org/tutorials">查看教程</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>资源</h2>
+          <p>查找开发资源并获得您的疑问解答</p>
+          <a class="with-right-arrow" href="https://pytorch.org/resources">查看资源</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://pytorch.org/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/">PyTorch</a></li>
+            <li><a href="https://pytorch.org/get-started">开始使用</a></li>
+            <li><a href="https://pytorch.org/features">功能</a></li>
+            <li><a href="https://pytorch.org/ecosystem">生态系统</a></li>
+            <li><a href="https://pytorch.org/blog/">博客</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md">贡献</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/resources">资源</a></li>
+            <li><a href="https://pytorch.org/tutorials">教程</a></li>
+            <li><a href="https://pytorch.org/docs/stable/index.html">文档</a></li>
+            <li><a href="https://discuss.pytorch.org" target="_blank">讨论</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/issues" target="_blank">GitHub 问题和任务</a></li>
+            <li><a href="https://pytorch.org/assets/brand-guidelines/PyTorch-Brand-Guidelines.pdf" target="_blank">品牌指南</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">保持更新</li>
+            <li><a href="https://www.facebook.com/pytorch" target="_blank">Facebook</a></li>
+            <li><a href="https://twitter.com/pytorch" target="_blank">Twitter</a></li>
+            <li><a href="https://www.youtube.com/pytorch" target="_blank">YouTube</a></li>
+            <li><a href="https://www.linkedin.com/company/pytorch" target="_blank">领英</a></li>
+          </ul>  
+          </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">PyTorch 播客</li>
+            <li><a href="https://open.spotify.com/show/6UzHKeiy368jKfQMKKvJY5" target="_blank">Spotify</a></li>
+            <li><a href="https://podcasts.apple.com/us/podcast/pytorch-developer-podcast/id1566080008" target="_blank">苹果</a></li>
+            <li><a href="https://www.google.com/podcasts?feed=aHR0cHM6Ly9mZWVkcy5zaW1wbGVjYXN0LmNvbS9PQjVGa0lsOA%3D%3D" target="_blank">谷歌</a></li>
+            <li><a href="https://music.amazon.com/podcasts/7a4e6f0e-26c2-49e9-a478-41bd244197d0/PyTorch-Developer-Podcast?" target="_blank">亚马逊</a></li>
+          </ul>
+         </div>
+        </div>
+        
+        <div class="privacy-policy">
+          <ul>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/terms/" target="_blank">条款</a></li>
+            <li class="privacy-policy-links">|</li>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/privacy-policy/" target="_blank">隐私</a></li>
+          </ul>
+        </div>
+        <div class="copyright">
+        <p>© 版权所有 Linux 基金会。PyTorch 基金会是 Linux 基金会的一个项目。有关本网站的使用条款、商标政策以及其他适用于 PyTorch 基金会的政策，请参阅 www.linuxfoundation.org/policies/。PyTorch 基金会支持 PyTorch 开源项目，该项目已被确立为 LF Projects, LLC 的 PyTorch 项目系列。有关适用于 PyTorch 项目系列 LF Projects, LLC 的政策，请参阅 www.lfprojects.org/policies/。</p>
+      </div>
+     </div>
+
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">为分析流量并优化您的体验，我们在本网站上提供 cookies。通过点击或导航，您同意允许我们使用 cookies。作为本站点的当前维护者，Facebook 的 Cookies 政策适用。了解更多信息，包括可用的控制选项：Cookies 政策。</p>
+    <img class="close-button" src="_static/images/pytorch-x.svg" width="16" height="16">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+           <li class="resources-mobile-menu-title">
+             <a>学习</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/get-started">开始学习</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials">教程</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/basics/intro.html">学习基础知识</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/recipes/recipes_index.html">PyTorch 菜谱</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/tutorials/beginner/introyt.html">PyTorch 入门 - YouTube 系列</a>
+             </li>
+           </ul>
+           <li class="resources-mobile-menu-title">
+             <a>生态系统</a>
+           </li>
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/ecosystem">工具</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/#community-module">社区</a>
+             </li>
+             <li>
+               <a href="https://discuss.pytorch.org/">论坛</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/resources">开发者资源</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">贡献者奖项 - 2024</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>Edge</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+             <li>
+               <a href="https://pytorch.org/edge">关于 PyTorch Edge</a>
+             </li>
+             
+             <li>
+               <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch 文档</a>
+             </li>
+           </ul>
+
+           <li class="resources-mobile-menu-title">
+             <a>文档</a>
+           </li>
+
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/docs/stable/index.html">PyTorch</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/pytorch-domains">PyTorch 领域</a>
+            </li>
+          </ul>
+
+          <li class="resources-mobile-menu-title">
+            <a>博客 &amp; 新闻</a>
+          </li>
+            
+           <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/blog/">PyTorch 博客</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/community-blog">社区博客</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/videos">视频</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/community-stories">社区故事</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/events">活动</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">通讯</a>
+             </li>
+          </ul>
+          
+          <li class="resources-mobile-menu-title">
+            <a>关于</a>
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/foundation">PyTorch 基金会</a>
+            </li>
+            <li>
+              <a href="https://pytorch.org/governing-board">治理委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">云信用计划</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">技术顾问委员会</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">员工</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">联系我们</a>
+            </li>
+          </ul>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body></html>
